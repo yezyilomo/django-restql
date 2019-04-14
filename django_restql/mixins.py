@@ -1,4 +1,5 @@
 import json
+import datetime
 import warnings
 
 import dictfier
@@ -9,31 +10,35 @@ class DynamicFieldsMixin():
     def flat_obj(self, obj, parent_obj):
         if isinstance(obj, (str, int, bool, float)):
             return obj
-        elif type(obj).__name__ == "ManyRelatedManager":
+        if isinstance(obj, datetime.datetime):
+            return obj.strftime("%Y-%m-%d-%H-%M")
+        if isinstance(obj, datetime.date):
+            return obj.strftime("%Y-%m-%d")
+        if isinstance(obj, datetime.time):
+            return obj.strftime("%H-%M-%S")
+        cls_name = obj.__class__.__name__
+        if cls_name in ("ManyRelatedManager", "RelatedManager"):
             return [sub_obj.pk for sub_obj in obj.all()]
-        elif type(obj).__name__ == "RelatedManager":
-            return [sub_obj.pk for sub_obj in obj.all()]
-        else:
+        if hasattr(obj, "pk"):
             return obj.pk
+        raise ValueError(
+            "django-restql failed to serialize an object of type '%s'" % cls_name
+        )
 
     def nested_flat_obj(self, obj, parent_obj):
         return obj
 
     def nested_iter_obj(self, obj, parent_obj):
-        if type(obj).__name__ == "ManyRelatedManager":
+        cls_name = obj.__class__.__name__
+        if cls_name in ("ManyRelatedManager", "RelatedManager"):
             return obj.all()
-        elif type(obj).__name__ == "RelatedManager":
-            return obj.all()
-        else:
-            return obj
+        return obj
 
     def to_representation(self, instance):
         try:
             request = self.context['request']
         except KeyError:
-            conf = getattr(settings, 'DRF_DYNAMIC_FIELDS', {})
-            if not conf.get('SUPPRESS_CONTEXT_WARNING', False) is True:
-                warnings.warn('Context does not have access to request.')
+            warnings.warn('Context does not have access to request.')
             return super().to_representation(instance)
 
         if self.query_param_name in request.query_params:
@@ -46,5 +51,5 @@ class DynamicFieldsMixin():
                 nested_iter_obj=self.nested_iter_obj,
             )
             return data
-        else:
-            return super().to_representation(instance)
+            
+        return super().to_representation(instance)
