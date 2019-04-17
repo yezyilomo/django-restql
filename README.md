@@ -9,12 +9,12 @@
 ## Installing
 For python3
 ```python
-pip3 install dictfier
+pip3 install django-restql
 ```
 
 For python2
 ```python
-pip install dictfier
+pip install django-restql
 ```
 
 ## Getting Started
