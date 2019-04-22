@@ -7,14 +7,9 @@
 **django-restql** is a python library which allows django-rest-framework to dynamically select only a subset of fields per DRF resource(Support both flat and nested resources)
 
 ## Installing
-For python3
-```python
-pip3 install django-restql
-```
 
-For python2
 ```python
-pip install django-restql
+pip install dictfier
 ```
 
 ## Getting Started
@@ -109,3 +104,9 @@ First, make sure that you are passing the request to the serializer context
 This implementation is based on [dictfier](https://github.com/yezyilomo/dictfier) library and the idea behind GraphQL. 
 
 My intention was to extend the capability of [drf-dynamic-fields](https://github.com/dbrgn/drf-dynamic-fields) library to support more functionalities like allowing to query nested fields both flat and iterable.
+
+
+## Contributing [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=flat-square)](http://makeapullrequest.com) 
+
+We welcome all contributions. Please read our [CONTRIBUTING.md](https://github.com/yezyilomo/django-restql/blob/master/CONTRIBUTING.md) first. You can submit any ideas as [pull requests](https://github.com/yezyilomo/django-restql/pulls) or as [GitHub issues](https://github.com/yezyilomo/django-restql/issues). If you'd like to improve code, check out the [Code Style Guide](https://github.com/yezyilomo/django-restql/blob/master/CONTRIBUTING.md#styleguides) and have a good time!.
+
