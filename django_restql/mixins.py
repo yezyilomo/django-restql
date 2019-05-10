@@ -7,7 +7,7 @@ import dictfier
 class DynamicFieldsMixin():
     query_param_name = "query"
 
-    def flat_obj(self, obj, parent_obj):
+    def flat_field(self, obj, parent_obj):
         if isinstance(obj, (str, int, bool, float)):
             return obj
         if isinstance(obj, datetime.datetime):
@@ -22,13 +22,14 @@ class DynamicFieldsMixin():
         if hasattr(obj, "pk"):
             return obj.pk
         raise ValueError(
-            "django-restql failed to serialize an object of type '%s'" % cls_name
+            "django-restql failed to serialize an object of type '%s'" 
+            % cls_name
         )
 
-    def nested_flat_obj(self, obj, parent_obj):
+    def nested_flat_field(self, obj, parent_obj):
         return obj
 
-    def nested_iter_obj(self, obj, parent_obj):
+    def nested_iter_field(self, obj, parent_obj):
         cls_name = obj.__class__.__name__
         if cls_name in ("ManyRelatedManager", "RelatedManager"):
             return obj.all()
@@ -46,9 +47,9 @@ class DynamicFieldsMixin():
             data = dictfier.dictfy(
                 instance, 
                 query,
-                flat_obj=self.flat_obj,
-                nested_flat_obj=self.nested_flat_obj,
-                nested_iter_obj=self.nested_iter_obj,
+                flat_obj=self.flat_field,
+                nested_flat_obj=self.nested_flat_field,
+                nested_iter_obj=self.nested_iter_field,
             )
             return data
             

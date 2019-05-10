@@ -25,7 +25,7 @@ class UserSerializer(DynamicFieldsMixin, serializers.ModelSerializer):
         fields = ('id', 'username', 'email', 'groups')
 ```
 
-A regular request returns all fields:
+A regular request returns all fields specified on DRF serializer, in fact **django-restql** doesn't handle this request at all:
 
 ```GET /users```
 
@@ -41,8 +41,7 @@ A regular request returns all fields:
     ]
 ```
 
-A request with the `query` parameter on the other hand returns only a subset of
-the fields:
+**django-restql** handle all GET requests with ```query``` parameter, this parameter is the one used to pass all fields to be included on a response. For example to select ```id``` and ```username``` fields from ```user``` model, send a request with a ``` query``` parameter as shown below.
 
 ```GET /users/?query=["id", "username"]```
 
@@ -56,24 +55,41 @@ the fields:
     ]
 ```
 
-With **django-restql** you can access nested fields of any level. E.g
+If a query contains nested field, **django-restql** will return its id or array of ids for the case of nested iterable field(one2many or many2many). For example on a request below ```location``` is a flat nested field(many2one) and ```groups``` is an iterable nested field(one2many or many2many).
 
-```GET /users/?query=["id", "username" {"date_joined": ["year"]}]```
+```GET /users/?query=["id", "username", "location", "groups"]```
 
 ```json
     [
       {
         "id": 1,
         "username": "yezyilomo",
-        "date_joined": {
-            "year": 2018
+        "location": 6,
+        "groups": [1,2]
+      },
+      ...
+    ]
+```
+
+With **django-restql** you can expand or query nested fields at any level. For example you can query a country and region field from location.
+
+```GET /users/?query=["id", "username", {"location": ["country", "region"]}]```
+
+```json
+    [
+      {
+        "id": 1,
+        "username": "yezyilomo",
+        "location": {
+            "contry": "Tanzania",
+            "region": "Dar es salaam"
         }
       },
       ...
     ]
 ```
 
-**django-restql** got your back on iterable nested fields too. E.g
+**django-restql** got your back on expanding or querying iterable nested fields too. For example if you want to expand ```groups``` field into ``` id``` and ```name```, here is how you would do it.
 
 ```GET /users/?query=["id", "username" {"groups": [[ "id", "name" ]]}]```
 
@@ -87,23 +103,69 @@ With **django-restql** you can access nested fields of any level. E.g
                 "id": 2,
                 "name": "Auth_User"
             }
+            {
+                "id": 3,
+                "name": "Admin_User"
+            }
         ]
       },
       ...
     ]
 ```
 
-**Warnings** 
+**Note:**
+
+The notation used to expand flat nested fields is  ```field_name=[sub_field1, sub_field2, ...]```
+
+And for iterable nested fields  ```field_name=[[sub_field1, sub_field2, ...]]```
+
+For more information on how to create queries you can refer to [dictfier](https://github.com/yezyilomo/dictfier#how-dictfier-works) which is a library used to implement this project.
+
+## Warnings
 If the request context does not have access to the request, a warning is emitted:
 
 ```UserWarning: Context does not have access to request.```
 
 First, make sure that you are passing the request to the serializer context
 
+## Customizing django-restql
+**django-restql**  is very configurable, here is what you can customize
+* Change the name of ```query``` parameter.
+    If you don't want to use the name ```query``` as your parameter, you can inherit ```DynamicFieldsMixin``` and change it as shown below
+    ```python
+    from django_restql.mixins import DynamicFieldsMixin
+
+    class MyDynamicFieldMixin(DynamicFieldsMixin):
+        query_param_name = "your_favourite_name"
+     ```
+     Now you can use this Mixin on your serializers and use the name ```your_favourite_name``` as your parameter. E.g
+
+     ```GET /users/?your_favourite_name=["id", "username"]```
+
+* Customize how **django-restql** serialize flat fields, nested flat fields and nested iterable fields.
+    You can do this by inheriting ```DynamicFieldsMixin``` and override ```flat_field```, ```nested_flat_field``` and ```nested_iter_field``` methods as shown below.
+    ```python
+    from django_restql.mixins import DynamicFieldsMixin
+
+    class MyDynamicFieldMixin(DynamicFieldsMixin):
+        def flat_field(self, field_value, parent_field, field_name):
+            # Your customization here
+            return flat_field_value
+    
+        def nested_flat_field(self, field_value, parent_field, field_name):
+            # Your customization here
+            return flat_field_value
+    
+        def nested_iter_field(self, field_value, parent_field, field_name):
+            # Your customization here
+            return flat_field_value
+    ```
+    **Note:** To be able to do this you must understand how **django-restql** is implemented, specifically **DynamicFieldsMixin** class, you can check it [here](https://github.com/yezyilomo/django-restql/blob/master/django_restql/mixins.py).
+
 ## Credits
 This implementation is based on [dictfier](https://github.com/yezyilomo/dictfier) library and the idea behind GraphQL. 
 
-My intention was to extend the capability of [drf-dynamic-fields](https://github.com/dbrgn/drf-dynamic-fields) library to support more functionalities like allowing to query nested fields both flat and iterable.
+My intention is to extend the capability of [drf-dynamic-fields](https://github.com/dbrgn/drf-dynamic-fields) library to support more functionalities like allowing to query nested fields both flat and iterable.
 
 
 ## Contributing [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=flat-square)](http://makeapullrequest.com) 
