@@ -131,6 +131,7 @@ First, make sure that you are passing the request to the serializer context
 ## Customizing django-restql
 **django-restql**  is very configurable, here is what you can customize
 * Change the name of ```query``` parameter.
+
     If you don't want to use the name ```query``` as your parameter, you can inherit ```DynamicFieldsMixin``` and change it as shown below
     ```python
     from django_restql.mixins import DynamicFieldsMixin
@@ -143,6 +144,7 @@ First, make sure that you are passing the request to the serializer context
      ```GET /users/?your_favourite_name=["id", "username"]```
 
 * Customize how **django-restql** serialize flat fields, nested flat fields and nested iterable fields.
+
     You can do this by inheriting ```DynamicFieldsMixin``` and override ```flat_field```, ```nested_flat_field``` and ```nested_iter_field``` methods as shown below.
     ```python
     from django_restql.mixins import DynamicFieldsMixin
