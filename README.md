@@ -9,7 +9,7 @@
 ## Installing
 
 ```python
-pip install dictfier
+pip install django-restql
 ```
 
 ## Getting Started
