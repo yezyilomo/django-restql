@@ -132,7 +132,7 @@ For more information on how to create queries you can refer to [dictfier](https:
     class MyDynamicFieldMixin(DynamicFieldsMixin):
         query_param_name = "your_favourite_name"
      ```
-     Now you can use this Mixin on your serializers and use the name ```your_favourite_name``` as your parameter. E.g
+     Now you can use this Mixin on your view and use the name ```your_favourite_name``` as your parameter. E.g
 
      ```GET /users/?your_favourite_name=[["id", "username"]]```
 
