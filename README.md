@@ -147,7 +147,7 @@ For more information on how to create queries you can refer to [dictfier](https:
 
      `GET /users/?your_favourite_name=[["id", "username"]]`
 
-* Customize how django-restql filter fields to include in a response.
+* Customize how it filter fields to include in a response.
     You can do this by inheriting DynamicFieldsMixin and override `list` and `retrieve` methods as shown below.
 
     ```python
