@@ -11,7 +11,7 @@ class ViewTests(APITestCase):
         self.course = Course.objects.create(
             name="Data Structures", code="CS210"
         )
-        
+
         self.course.books.set([self.book1, self.book2])
 
         self.student = Student.objects.create(
@@ -25,7 +25,7 @@ class ViewTests(APITestCase):
 
 
     # *************** retrieve tests **************
-    
+
     def test_retrieve_with_flat_query(self):
         url = reverse("book-detail", args=[self.book1.id])
         response = self.client.get(url + '?query=["title", "author"]', format="json")
@@ -37,14 +37,14 @@ class ViewTests(APITestCase):
                 "author": "S.Mobit"
             },
         )
-        
+
     def test_retrieve_with_nested_flat_query(self):
         url = reverse("student-detail", args=[self.student.id])
         response = self.client.get(url + '?query=["name", "age", {"course": ["name"]} ]', format="json")
 
         self.assertEqual(
             response.data,
-            {    
+            {
                 "name": "Yezy",
                 "age": 24,
                 "course": {
@@ -52,7 +52,7 @@ class ViewTests(APITestCase):
                 }
             }
         )
-        
+
     def test_retrieve_with_nested_iterable_query(self):
         url = reverse("course-detail", args=[self.course.id])
         response = self.client.get(url + '?query=["name", "code", {"books": [["title"]]} ]', format="json")
@@ -72,72 +72,57 @@ class ViewTests(APITestCase):
 
 
     # *************** list tests **************
-    
+
     def test_list_with_flat_query(self):
         url = reverse("book-list")
         response = self.client.get(url + '?query=[["title", "author"]]', format="json")
 
         self.assertEqual(
             response.data,
-            {   
-                "count": 2,
-                "next": None,
-                "previous": None,
-                "results": [
-                    {
-                        "title": "Advanced Data Structures",
-                        "author": "S.Mobit"
-                    },
-                    {
-                        "title": "Basic Data Structures",
-                        "author": "S.Mobit"
-                    }
-                ]
-            }
+            [
+                {
+                    "title": "Advanced Data Structures",
+                    "author": "S.Mobit"
+                },
+                {
+                    "title": "Basic Data Structures",
+                    "author": "S.Mobit"
+                }
+            ]
         )
-        
-        
+
+
     def test_list_with_nested_flat_query(self):
         url = reverse("student-list")
         response = self.client.get(url + '?query=[["name", "age", {"course": ["name"]} ]]', format="json")
 
         self.assertEqual(
             response.data,
-            {   
-                "count": 1,
-                "next": None,
-                "previous": None,
-                "results": [
-                    {   
-                        "name": "Yezy",
-                        "age": 24,
-                        "course": {
-                            "name": "Data Structures"
-                        }
+            [
+                {
+                    "name": "Yezy",
+                    "age": 24,
+                    "course": {
+                        "name": "Data Structures"
                     }
-                ]
-            }
+                }
+            ]
         )
-        
+
     def test_list_with_nested_iterable_query(self):
         url = reverse("course-list")
         response = self.client.get(url + '?query=[["name", "code", {"books": [["title"]]} ]]', format="json")
 
         self.assertEqual(
             response.data,
-            {   
-                "count": 1,
-                "next": None,
-                "previous": None,
-                "results": [
-                    { 
-                        "name": "Data Structures",
-                        "code": "CS210",
-                        "books": [
-                            {"title": "Advanced Data Structures"},
-                            {"title": "Basic Data Structures"}
-                        ]
-                    }
-                ]
-            }
+            [
+                {
+                    "name": "Data Structures",
+                    "code": "CS210",
+                    "books": [
+                        {"title": "Advanced Data Structures"},
+                        {"title": "Basic Data Structures"}
+                    ]
+                }
+            ]
         )

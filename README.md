@@ -41,9 +41,9 @@ A regular request returns all fields specified on DRF serializer, in fact **djan
     ]
 ```
 
-**django-restql** handle all GET requests with ```query``` parameter, this parameter is the one used to pass all fields to be included on a response. For example to select ```id``` and ```username``` fields from ```user``` model, send a request with a ``` query``` parameter as shown below.
+**django-restql** handle all GET requests with `query` parameter, this parameter is the one used to pass all fields to be included on a response. For example to select `id` and `username` fields from `user` model, send a request with a ` query` parameter as shown below.
 
-```GET /users/?query=[["id", "username"]]```
+`GET /users/?query=[["id", "username"]]`
 
 ```json
     [
@@ -55,9 +55,9 @@ A regular request returns all fields specified on DRF serializer, in fact **djan
     ]
 ```
 
-If a query contains nested field, **django-restql** will return its id or array of ids for the case of nested iterable field(one2many or many2many). For example on a request below ```location``` is a flat nested field(many2one) and ```groups``` is an iterable nested field(one2many or many2many).
+If a query contains nested field, **django-restql** will return its id or array of ids for the case of nested iterable field(one2many or many2many). For example on a request below `location` is a flat nested field(many2one) and `groups` is an iterable nested field(one2many or many2many).
 
-```GET /users/?query=[["id", "username", "location", "groups"]]```
+`GET /users/?query=[["id", "username", "location", "groups"]]`
 
 ```json
     [
@@ -73,7 +73,7 @@ If a query contains nested field, **django-restql** will return its id or array 
 
 With **django-restql** you can expand or query nested fields at any level. For example you can query a country and region field from location.
 
-```GET /users/?query=[["id", "username", {"location": ["country", "region"]}]]```
+`GET /users/?query=[["id", "username", {"location": ["country", "region"]}]]`
 
 ```json
     [
@@ -89,9 +89,9 @@ With **django-restql** you can expand or query nested fields at any level. For e
     ]
 ```
 
-**django-restql** got your back on expanding or querying iterable nested fields too. For example if you want to expand ```groups``` field into ``` id``` and ```name```, here is how you would do it.
+**django-restql** got your back on expanding or querying iterable nested fields too. For example if you want to expand `groups` field into `id` and `name`, here is how you would do it.
 
-```GET /users/?query=[["id", "username" {"groups": [[ "id", "name" ]]}]]```
+`GET /users/?query=[["id", "username" {"groups": [[ "id", "name" ]]}]]`
 
 ```json
     [
@@ -115,9 +115,9 @@ With **django-restql** you can expand or query nested fields at any level. For e
 
 **Note:**
 
-The notation used to expand flat nested fields is  ```field_name=[sub_field1, sub_field2, ...]```
+The notation used to expand flat nested fields is  `field_name=[sub_field1, sub_field2, ...]`
 
-And for iterable nested fields  ```field_name=[[sub_field1, sub_field2, ...]]```
+And for iterable nested fields  `field_name=[[sub_field1, sub_field2, ...]]`
 
 For more information on how to create queries you can refer to [dictfier](https://github.com/yezyilomo/dictfier#how-dictfier-works) which is a library used to implement this project.
 
@@ -125,17 +125,19 @@ For more information on how to create queries you can refer to [dictfier](https:
 **django-restql**  is very configurable, here is what you can customize
 * Change the name of ```query``` parameter.
 
-    If you don't want to use the name ```query``` as your parameter, you can inherit ```DynamicFieldsMixin``` and change it as shown below
+    If you don't want to use the name ```query``` as your parameter, you can inherit `DynamicFieldsMixin` and change it as shown below
     ```python
     from django_restql.mixins import DynamicFieldsMixin
 
     class MyDynamicFieldMixin(DynamicFieldsMixin):
         query_param_name = "your_favourite_name"
      ```
-     Now you can use this Mixin on your view and use the name ```your_favourite_name``` as your parameter. E.g
+     Now you can use this Mixin on your view and use the name `your_favourite_name` as your parameter. E.g
 
-     ```GET /users/?your_favourite_name=[["id", "username"]]```
+     `GET /users/?your_favourite_name=[["id", "username"]]`
 
+## Running Tests
+`python setup.py test`
 
 ## Credits
 This implementation is based on [dictfier](https://github.com/yezyilomo/dictfier) library and the idea behind GraphQL.

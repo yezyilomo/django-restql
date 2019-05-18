@@ -10,21 +10,30 @@ class DynamicFieldsMixin():
 
     def list(self, request):
         queryset = self.get_queryset()
-        filtered_queryset = self.filter_queryset(queryset)
-        paginated_queryset = self.paginate_queryset(filtered_queryset)
+        if self.filter_backends is not None:
+            queryset = self.filter_queryset(queryset)
+        if self.pagination_class is not None:
+            queryset = self.paginate_queryset(queryset)
+
         serializer = self.get_serializer(
-            paginated_queryset, many=True, context={'request': request}
+            queryset,
+            many=True,
+            context={'request': request}
         )
+
+        response = Response
+        if self.paginator is not None:
+            response = self.get_paginated_response
 
         if self.query_param_name in request.query_params:
             query = json.loads(request.query_params[self.query_param_name])
-
             data = dictfier.filter(
                 serializer.data,
                 query
             )
-            return self.get_paginated_response(data)
-        return self.get_paginated_response(serializer.data)
+
+            return response(data)
+        return response(serializer.data)
 
     def retrieve(self, request, pk=None):
         queryset = self.get_queryset()
