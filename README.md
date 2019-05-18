@@ -4,7 +4,18 @@
 [![Python Versions](https://img.shields.io/pypi/pyversions/django-restql.svg)](https://pypi.org/project/django-restql/)
 [![License](https://img.shields.io/pypi/l/django-restql.svg)](https://pypi.org/project/django-restql/)
 
-**django-restql** is a python library which allows django-rest-framework to dynamically select only a subset of fields per DRF resource(Support both flat and nested resources)
+**django-restql** is a python library which allows **django-rest-framework** to dynamically select only a subset of fields per DRF resource(Support both flat and nested resources)
+
+With **django_restql** you can turn your API made with Django REST Framework(DRF) into a GraphQL like API. With it you will be able to
+* Send a query to your API and get exactly what you need, nothing more and nothing less.
+
+* Control the data you get, not the server.
+
+* Get predictable results, since you control what you get from the server.
+
+* Save the load of fetching unused data from the server.
+
+Isn't it cool?.
 
 ## Installing
 
@@ -135,6 +146,23 @@ For more information on how to create queries you can refer to [dictfier](https:
      Now you can use this Mixin on your view and use the name `your_favourite_name` as your parameter. E.g
 
      `GET /users/?your_favourite_name=[["id", "username"]]`
+
+* Customize how django-restql filter fields to include in a response.
+    You can do this by inheriting DynamicFieldsMixin and override `list` and `retrieve` methods as shown below.
+
+    ```python
+    from django_restql.mixins import DynamicFieldsMixin
+
+    class CustomDynamicFieldMixin(DynamicFieldsMixin):
+        def list(self, request):
+            # Your customization here
+            return response
+
+        def retrieve(self, request):
+            # Your customization here
+            return response
+    ```
+    **Note:** To be able to do this you must understand how **django-restql** is implemented, specifically **DynamicFieldsMixin** class, you can check it [here](https://github.com/yezyilomo/django-restql/blob/master/django_restql/mixins.py). In fact this is how **django_restql** is implemented(overriding `list` and `retrieve` methods of a view, nothing more and nothing less).
 
 ## Running Tests
 `python setup.py test`
