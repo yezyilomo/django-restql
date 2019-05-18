@@ -4,9 +4,7 @@
 [![Python Versions](https://img.shields.io/pypi/pyversions/django-restql.svg)](https://pypi.org/project/django-restql/)
 [![License](https://img.shields.io/pypi/l/django-restql.svg)](https://pypi.org/project/django-restql/)
 
-**django-restql** is a python library which allows **django-rest-framework** to dynamically select only a subset of fields per DRF resource(Support both flat and nested resources)
-
-With **django_restql** you can turn your API made with Django REST Framework(DRF) into a GraphQL like API. With it you will be able to
+**django-restql** is a python library which allows you to turn your API made with **Django REST Framework(DRF)** into a GraphQL like API. With this you will be able to
 * Send a query to your API and get exactly what you need, nothing more and nothing less.
 
 * Control the data you get, not the server.
@@ -16,6 +14,8 @@ With **django_restql** you can turn your API made with Django REST Framework(DRF
 * Save the load of fetching unused data from the server.
 
 Isn't it cool?.
+
+**django-restql** works by selecting dynamically a subset of fields per DRF resource as specified by the request's `query` parameter.
 
 ## Installing
 
@@ -29,7 +29,7 @@ Using **django-restql** is very simple, you just have to use the DynamicFieldsMi
 from rest_framework import viewsets
 from django.contrib.auth.models import User
 from .serializers import UserSerializer
-from django_restql.mixins import DynamicFieldsMixin
+from django_restql import DynamicFieldsMixin
 
 class UserViewSet(DynamicFieldsMixin, viewsets.ModelViewSet):
     queryset = User.objects.all().order_by('-date_joined')
@@ -82,7 +82,7 @@ If a query contains nested field, **django-restql** will return its id or array 
     ]
 ```
 
-With **django-restql** you can expand or query nested fields at any level. For example you can query a country and region field from location.
+**django-restql** support querying both flat and nested resources, so you can expand or query nested fields at any level as long as your field is defined as nested field on a serializer. For example you can query a country and region field from location.
 
 `GET /users/?query=[["id", "username", {"location": ["country", "region"]}]]`
 
@@ -162,7 +162,7 @@ For more information on how to create queries you can refer to [dictfier](https:
             # Your customization here
             return response
     ```
-    **Note:** To be able to do this you must understand how **django-restql** is implemented, specifically **DynamicFieldsMixin** class, you can check it [here](https://github.com/yezyilomo/django-restql/blob/master/django_restql/mixins.py). In fact this is how **django_restql** is implemented(overriding `list` and `retrieve` methods of a view, nothing more and nothing less).
+    **Note:** To be able to do this you must understand how **django-restql** is implemented, specifically **DynamicFieldsMixin** class, you can check it [here](https://github.com/yezyilomo/django-restql/blob/master/django_restql/mixins.py). In fact this is how **django-restql** is implemented(overriding `list` and `retrieve` methods of a view, nothing more and nothing less).
 
 ## Running Tests
 `python setup.py test`
