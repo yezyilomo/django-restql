@@ -102,7 +102,7 @@ If a query contains nested field, **django-restql** will return its id or array 
 
 **django-restql** got your back on expanding or querying iterable nested fields too. For example if you want to expand `groups` field into `id` and `name`, here is how you would do it.
 
-`GET /users/?query=[["id", "username" {"groups": [[ "id", "name" ]]}]]`
+`GET /users/?query=[["id", "username", {"groups": [[ "id", "name" ]]}]]`
 
 ```json
     [
