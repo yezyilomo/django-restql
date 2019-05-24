@@ -28,7 +28,7 @@ class ViewTests(APITestCase):
 
     def test_retrieve_with_flat_query(self):
         url = reverse("book-detail", args=[self.book1.id])
-        response = self.client.get(url + '?query=["title", "author"]', format="json")
+        response = self.client.get(url + '?query={title, author}', format="json")
 
         self.assertEqual(
             response.data,
@@ -40,7 +40,7 @@ class ViewTests(APITestCase):
 
     def test_retrieve_with_nested_flat_query(self):
         url = reverse("student-detail", args=[self.student.id])
-        response = self.client.get(url + '?query=["name", "age", {"course": ["name"]} ]', format="json")
+        response = self.client.get(url + '?query={name, age, course{name}}', format="json")
 
         self.assertEqual(
             response.data,
@@ -55,7 +55,7 @@ class ViewTests(APITestCase):
 
     def test_retrieve_with_nested_iterable_query(self):
         url = reverse("course-detail", args=[self.course.id])
-        response = self.client.get(url + '?query=["name", "code", {"books": ["title"]} ]', format="json")
+        response = self.client.get(url + '?query={name, code, books{title}}', format="json")
 
         self.assertEqual(
             response.data,
@@ -75,7 +75,7 @@ class ViewTests(APITestCase):
 
     def test_list_with_flat_query(self):
         url = reverse("book-list")
-        response = self.client.get(url + '?query=["title", "author"]', format="json")
+        response = self.client.get(url + '?query={title, author}', format="json")
 
         self.assertEqual(
             response.data,
@@ -94,7 +94,7 @@ class ViewTests(APITestCase):
 
     def test_list_with_nested_flat_query(self):
         url = reverse("student-list")
-        response = self.client.get(url + '?query=["name", "age", {"course": ["name"]} ]', format="json")
+        response = self.client.get(url + '?query={name, age, course{name}}', format="json")
 
         self.assertEqual(
             response.data,
@@ -111,7 +111,7 @@ class ViewTests(APITestCase):
 
     def test_list_with_nested_iterable_query(self):
         url = reverse("course-list")
-        response = self.client.get(url + '?query=["name", "code", {"books": ["title"]} ]', format="json")
+        response = self.client.get(url + '?query={name, code, books{title}}', format="json")
 
         self.assertEqual(
             response.data,

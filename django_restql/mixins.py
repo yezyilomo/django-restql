@@ -1,3 +1,4 @@
+import re
 import json
 
 import dictfier
@@ -17,6 +18,31 @@ def format_query(query, schema):
                     format_query(schema[nested_field], field[nested_field])
         else:
             pass
+
+
+def parse_query(query):
+    # Match field, '{', '}' and ','
+    regax = r"[\{\}\,]|\w+"
+    query_nodes = re.findall(regax, query)
+    raw_json = []
+    for i, node in enumerate(query_nodes):
+        if node == "{":
+            if i == 0:
+                prev = '"result"'
+            else:
+                prev = raw_json.pop()
+            raw_json.append("{" + prev + ":" + "[")
+        elif node == "}":
+            raw_json.append("]}")
+        elif node == ",":
+            raw_json.append(node)
+        else:
+            raw_json.append('"'+node+'"')
+
+    json_string = "".join(raw_json)
+    data = json.loads(json_string)
+    return data["result"]
+
 
 class DynamicFieldsMixin():
     query_param_name = "query"
@@ -40,7 +66,7 @@ class DynamicFieldsMixin():
             response = self.get_paginated_response
 
         if self.query_param_name in request.query_params:
-            query = json.loads(request.query_params[self.query_param_name])
+            query = parse_query(request.query_params[self.query_param_name])
 
             format_query(query, schema)
             query = [query]
@@ -61,7 +87,7 @@ class DynamicFieldsMixin():
         )
 
         if self.query_param_name in request.query_params:
-            query = json.loads(request.query_params[self.query_param_name])
+            query = parse_query(request.query_params[self.query_param_name])
 
             format_query(query, schema)
             data = dictfier.filter(
