@@ -5,25 +5,36 @@ import dictfier
 from rest_framework.response import Response
 from django.shortcuts import get_object_or_404
 
-def format_query(query, schema):
-    for field in query:
+
+def get_formatted_query(raw_query, schema):
+    fields = []
+    for field in raw_query:
         if isinstance(field, dict):
             for nested_field in field:
                 if isinstance(schema[nested_field], list):
                     # Iterable nested field
-                    field[nested_field] = [field[nested_field]]
-                    format_query(schema[nested_field], field[nested_field][0])
+                    nested_iterable_node = get_formatted_query(
+                        field[nested_field],
+                        schema[nested_field]
+                    )
+                    fields.append({nested_field: [nested_iterable_node]})
                 else:
                     # Flat nested field
-                    format_query(schema[nested_field], field[nested_field])
+                    nested_flat_node = get_formatted_query(
+                        field[nested_field],
+                        schema[nested_field]
+                    )
+                    fields.append({nested_field: nested_flat_node})
         else:
-            pass
+            # Flat field
+            fields.append(field)
+    return fields
 
 
-def parse_query(query):
+def parse_query(query_str):
     # Match field, '{', '}' and ','
     regax = r"[\{\}\,]|\w+"
-    query_nodes = re.findall(regax, query)
+    query_nodes = re.findall(regax, query_str)
     raw_json = []
     for i, node in enumerate(query_nodes):
         if node == "{":
@@ -40,8 +51,8 @@ def parse_query(query):
             raw_json.append('"'+node+'"')
 
     json_string = "".join(raw_json)
-    data = json.loads(json_string)
-    return data["result"]
+    raw_query = json.loads(json_string)["result"]
+    return raw_query
 
 
 class DynamicFieldsMixin():
@@ -66,10 +77,11 @@ class DynamicFieldsMixin():
             response = self.get_paginated_response
 
         if self.query_param_name in request.query_params:
-            query = parse_query(request.query_params[self.query_param_name])
+            query_str = request.query_params[self.query_param_name]
+            raw_query = parse_query(query_str)
 
-            format_query(query, schema)
-            query = [query]
+            query = get_formatted_query(raw_query, schema)
+            query = [query]  # extra [] because a list is returned in this case
             data = dictfier.filter(
                 serializer.data,
                 query
@@ -87,9 +99,10 @@ class DynamicFieldsMixin():
         )
 
         if self.query_param_name in request.query_params:
-            query = parse_query(request.query_params[self.query_param_name])
+            query_str = request.query_params[self.query_param_name]
+            raw_query = parse_query(query_str)
 
-            format_query(query, schema)
+            query = get_formatted_query(raw_query, schema)
             data = dictfier.filter(
                 serializer.data,
                 query
