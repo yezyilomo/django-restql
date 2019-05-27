@@ -2,7 +2,7 @@ from codecs import open
 from setuptools import setup, find_packages
 
 DESCRIPTION = """
-    Dynamically select only a subset of fields per DRF resource(Support both flat and nested resources)
+    Turn your API made with Django REST Framework(DRF) into a GraphQL like API.
     """
 with open('README.md', 'r', 'utf-8') as f:
     readme = f.read()
