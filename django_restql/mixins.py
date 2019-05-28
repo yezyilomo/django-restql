@@ -2,38 +2,21 @@ import re
 import json
 
 import dictfier
-from rest_framework import serializers
-from rest_framework.response import Response
 from django.shortcuts import get_object_or_404
+from rest_framework.response import Response
+from rest_framework.serializers import Serializer, ListSerializer
 
-
-def get_formatted_query(raw_query, schema):
-    fields = []
-    for field in raw_query:
-        if isinstance(field, dict):
-            for nested_field in field:
-                if isinstance(schema[nested_field], serializers.ListSerializer):
-                    # Iterable nested field
-                    nested_iterable_node = get_formatted_query(
-                        field[nested_field],
-                        schema[nested_field]
-                    )
-                    fields.append({nested_field: [nested_iterable_node]})
-                else:
-                    # Flat nested field
-                    nested_flat_node = get_formatted_query(
-                        field[nested_field],
-                        schema[nested_field]
-                    )
-                    fields.append({nested_field: nested_flat_node})
-        else:
-            # Flat field
-            fields.append(field)
-    return fields
+from .exceptions import InvalidField, FieldNotFound, FormatError
 
 
 def parse_query(query_str):
-    # Match field, '{', '}' and ','
+    invalid_chars_regax = r"[^\{\}\,\w\s]"
+    invalid_chars = re.findall(invalid_chars_regax, query_str)
+    if invalid_chars:
+        msg = "query should not contain '%s' characters" % (*invalid_chars,)
+        raise FormatError(msg)
+
+    # Match '{', '}', ',' and field
     regax = r"[\{\}\,]|\w+"
     query_nodes = re.findall(regax, query_str)
     raw_json = []
@@ -52,8 +35,51 @@ def parse_query(query_str):
             raw_json.append('"'+node+'"')
 
     json_string = "".join(raw_json)
-    raw_query = json.loads(json_string)["result"]
+    try:
+        raw_query = json.loads(json_string)["result"]
+    except ValueError as e:
+        msg = "query parameter is not formatted properly"
+        raise FormatError(msg)
     return raw_query
+
+
+def get_formatted_query(raw_query, schema):
+    fields = []
+    for field in raw_query:
+        if isinstance(field, dict):
+            for nested_field in field:
+                if nested_field not in schema:
+                    msg = "'%s' field is not found" % nested_field
+                    raise FieldNotFound(msg)
+
+                if isinstance(schema[nested_field], ListSerializer):
+                    # Iterable nested field
+                    nested_iterable_node = get_formatted_query(
+                        field[nested_field],
+                        schema[nested_field].child.get_fields()
+                    )
+                    fields.append({nested_field: [nested_iterable_node]})
+
+                elif isinstance(schema[nested_field], Serializer):
+                    # Flat nested field
+                    nested_flat_node = get_formatted_query(
+                        field[nested_field],
+                        schema[nested_field].get_fields()
+                    )
+                    fields.append({nested_field: nested_flat_node})
+
+                else:
+                    msg = "'%s' is not a nested field" % nested_field
+                    raise InvalidField(msg)
+        else:
+            # Flat field
+            if field not in schema:
+                msg = "'%s' field is not found" % field
+                raise FieldNotFound(msg)
+
+            fields.append(field)
+
+    return fields
 
 
 class DynamicFieldsMixin():
@@ -79,14 +105,24 @@ class DynamicFieldsMixin():
 
         if self.query_param_name in request.query_params:
             query_str = request.query_params[self.query_param_name]
-            raw_query = parse_query(query_str)
-            query = get_formatted_query(raw_query, schema)
-            query = [query]  # extra [] because a list is returned in this case
-            data = dictfier.filter(
-                serializer.data,
-                query
-            )
+
+            try:
+                raw_query = parse_query(query_str)
+            except FormatError as e:
+                return Response({"error": str(e)}, 400)
+
+            try:
+                query = get_formatted_query(raw_query, schema)
+            except FieldNotFound as e:
+                return Response({"error": str(e)}, 404)
+            except InvalidField as e:
+                return Response({"error": str(e)}, 400)
+
+            # extra [] because a list is returned in this case
+            query = [query]
+            data = dictfier.filter(serializer.data, query)
             return response(data)
+
         return response(serializer.data)
 
     def retrieve(self, request, pk=None):
@@ -99,12 +135,20 @@ class DynamicFieldsMixin():
 
         if self.query_param_name in request.query_params:
             query_str = request.query_params[self.query_param_name]
-            raw_query = parse_query(query_str)
 
-            query = get_formatted_query(raw_query, schema)
-            data = dictfier.filter(
-                serializer.data,
-                query
-            )
+            try:
+                raw_query = parse_query(query_str)
+            except FormatError as e:
+                return Response({"error": str(e)}, 400)
+
+            try:
+                query = get_formatted_query(raw_query, schema)
+            except FieldNotFound as e:
+                return Response({"error": str(e)}, 404)
+            except InvalidField as e:
+                return Response({"error": str(e)}, 400)
+
+            data = dictfier.filter(serializer.data, query)
             return Response(data)
+
         return Response(serializer.data)
