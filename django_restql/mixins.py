@@ -14,7 +14,7 @@ def parse_query(query_str):
     invalid_chars = re.findall(invalid_chars_regax, query_str)
     if invalid_chars:
         invalid_chars =  str(set(invalid_chars))[1:-1]
-        msg = "query should not contain '%s' characters" % invalid_chars
+        msg = "query should not contain %s characters" % invalid_chars
         raise FormatError(msg)
 
     # Match '{', '}', ',' and field
