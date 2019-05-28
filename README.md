@@ -23,7 +23,7 @@ pip install django-restql
 ```
 
 ## Getting Started
-Using **django-restql** is very simple, you just have to use the DynamicFieldsMixin when defining a View.
+Using **django-restql** is very simple, you just have to inherit the `DynamicFieldsMixin` class when defining a view.
 ```python
 from rest_framework import viewsets
 from django.contrib.auth.models import User
@@ -35,7 +35,7 @@ class UserViewSet(DynamicFieldsMixin, viewsets.ModelViewSet):
     serializer_class = UserSerializer
 ```
 
-A regular request returns all fields specified on DRF serializer, in fact **django-restql** doesn't handle this request at all:
+A regular request returns all fields as specified on DRF serializer, in fact **django-restql** doesn't handle this request at all:
 
 `GET /users`
 
@@ -125,7 +125,7 @@ If a query contains nested field without expanding and it's not defined as a nes
 
 
 ## Customizing django-restql
-**django-restql**  is very configurable, here is what you can customize
+**django-restql**  is very configurable, here is what you can customize on it.
 * Change the name of ```query``` parameter.
 
     If you don't want to use the name ```query``` as your parameter, you can inherit `DynamicFieldsMixin` and change it as shown below
