@@ -1,6 +1,6 @@
 from django.urls import reverse
 from rest_framework.test import APITestCase
-from tests.testapp.models import Book, Course, Student
+from tests.testapp.models import Book, Course, Student, Phone
 
 
 class ViewTests(APITestCase):
@@ -17,6 +17,9 @@ class ViewTests(APITestCase):
         self.student = Student.objects.create(
             name="Yezy", age=24, course=self.course
         )
+
+        self.phone1 = Phone.objects.create(number="076711110", type="Office", student=self.student)
+        self.phone2 = Phone.objects.create(number="073008880", type="Home", student=self.student)
 
     def tearDown(self):
         Book.objects.all().delete()
@@ -65,6 +68,22 @@ class ViewTests(APITestCase):
                 "books": [
                     {"title": "Advanced Data Structures"},
                     {"title": "Basic Data Structures"}
+                ]
+            }
+        )
+
+    def test_retrieve_reverse_relation_with_nested_iterable_query(self):
+        url = reverse("student-detail", args=[self.student.id])
+        response = self.client.get(url + '?query={name, age, phone_numbers{number}}', format="json")
+
+        self.assertEqual(
+            response.data,
+            {
+                "name": "Yezy",
+                "age": 24,
+                "phone_numbers": [
+                    {"number": "076711110"},
+                    {"number": "073008880"}
                 ]
             }
         )
@@ -122,6 +141,24 @@ class ViewTests(APITestCase):
                     "books": [
                         {"title": "Advanced Data Structures"},
                         {"title": "Basic Data Structures"}
+                    ]
+                }
+            ]
+        )
+
+    def test_list_reverse_relation_with_nested_iterable_query(self):
+        url = reverse("student-list")
+        response = self.client.get(url + '?query={name, age, phone_numbers{number}}', format="json")
+
+        self.assertEqual(
+            response.data,
+            [
+                {
+                    "name": "Yezy",
+                    "age": 24,
+                    "phone_numbers": [
+                        {"number": "076711110"},
+                        {"number": "073008880"}
                     ]
                 }
             ]
