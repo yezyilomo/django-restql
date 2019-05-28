@@ -1,9 +1,7 @@
 from codecs import open
 from setuptools import setup, find_packages
 
-DESCRIPTION = """
-    Turn your API made with Django REST Framework(DRF) into a GraphQL like API.
-    """
+DESCRIPTION = "Turn your API made with Django REST Framework(DRF) into a GraphQL like API."
 with open('README.md', 'r', 'utf-8') as f:
     readme = f.read()
 
@@ -11,7 +9,7 @@ REQUIRES_PYTHON = '>=2.7'
 
 setup(
     name = 'django-restql',
-    version = '0.3.1',
+    version = '0.3.2',
     description = DESCRIPTION,
     long_description = readme,
     long_description_content_type = 'text/markdown',
