@@ -13,8 +13,8 @@ def parse_query(query_str):
     invalid_chars_regax = r"[^\{\}\,\w\s]"
     invalid_chars = re.findall(invalid_chars_regax, query_str)
     if invalid_chars:
-        invalid_chars =  str(set(invalid_chars))[1:-1]
-        msg = "query should not contain %s characters" % invalid_chars
+        invalid_chars_str =  str(set(invalid_chars))[1:-1]
+        msg = "query should not contain %s characters" % invalid_chars_str
         raise FormatError(msg)
 
     # Match '{', '}', ',' and field
