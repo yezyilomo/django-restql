@@ -7,7 +7,7 @@ class InvalidField(DjangoRESTQLError, TypeError):
     """Invalid Field"""
 
 
-class FieldNotFound(DjangoRESTQLError, KeyError):
+class FieldNotFound(DjangoRESTQLError, LookupError):
     """Field Not Found"""
 
 
