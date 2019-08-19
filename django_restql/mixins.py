@@ -1,25 +1,20 @@
 import re
 import json
 
-import dictfier
-from django.shortcuts import get_object_or_404
-from rest_framework.response import Response
-from rest_framework.serializers import Serializer, ListSerializer
-
-from .exceptions import InvalidField, FieldNotFound, FormatError
+from rest_framework.serializers import Serializer, ListSerializer, ValidationError
 
 
-class Query(object):
-    def __init__(self, query_str, schema):
-        self.query_str = query_str
-        self.schema = schema
+class DynamicFieldsMixin(object):
+    query_param_name = "query"
 
-    def parse(self):
-        parsed_query = self._parsed_query(self.query_str)
-        return self._formatted_query(parsed_query, self.schema)
+    def has_query_param(self, request):
+        return self.query_param_name in request.query_params
+
+    def get_query_str(self, request):
+        return request.query_params[self.query_param_name]
 
     @staticmethod
-    def _parsed_query(query_str):
+    def parse_query(query_str):
         # Match invalid chars i.e non alphanumerics
         # Except '{', ',', ' ' and '}'
         invalid_chars_regex = r"[^\{\}\,\w\s]"
@@ -27,7 +22,7 @@ class Query(object):
         if invalid_chars:
             invalid_chars_str = ", ".join(set(invalid_chars))
             msg = "query should not contain %s characters" % invalid_chars_str
-            raise FormatError(msg)
+            raise ValidationError(msg)
 
         # Match valid query e.g {id, name, location{country, city}}
         valid_nodes_regex = r"[\{\}\,]|\w+"
@@ -52,121 +47,69 @@ class Query(object):
             raw_query = json.loads(nodes_string)["result"]
         except ValueError:
             msg = "query parameter is not formatted properly"
-            raise FormatError(msg)
+            raise ValidationError(msg)
         return raw_query
 
-    @classmethod
-    def _formatted_query(cls, raw_query, schema):
-        query = []
-        for field in raw_query:
+    @property
+    def fields(self):
+        fields = super().fields
+        request = self.context.get('request')
+        if request is None:
+            return fields
+
+        is_top_retrieve_request = self.source is None and self.parent is None
+        is_top_list_request = (
+            isinstance(self.parent, ListSerializer) and 
+            self.parent.parent is None
+        )
+
+        if is_top_retrieve_request or is_top_list_request:
+            if self.has_query_param(request):
+                query_str = self.get_query_str(request)
+                allowed_fields = self.parse_query(query_str)
+            else:
+                return fields
+        elif isinstance(self.parent, ListSerializer):
+            source = self.parent.source
+            parent = self.parent.parent
+            allowed_fields = []
+            if hasattr(parent, "allowed_fields"):
+                allowed_fields = parent.allowed_fields[source]
+        elif isinstance(self.parent, Serializer):
+            source = self.source
+            parent = self.parent
+            allowed_fields = parent.allowed_fields[source]
+        else:
+            # Unkown scenario
+            return fields
+
+        if allowed_fields is None:
+            # No filtering on nested fields
+            # Retrieve all nested fields
+            return fields
+            
+        all_fields = list(fields.keys())
+        allowed_fields_dict = {}
+        for field in allowed_fields:
             if isinstance(field, dict):
                 for nested_field in field:
-                    if nested_field not in schema:
-                        msg = "'%s' field is not found" % nested_field
-                        raise FieldNotFound(msg)
-
-                    nested_schema = schema[nested_field]
-                    if isinstance(nested_schema, ListSerializer):
-                        # Iterable nested field
-                        nested_iterable_node = cls._formatted_query(
-                            field[nested_field],
-                            nested_schema.child.get_fields()
-                        )
-                        query.append({nested_field: [nested_iterable_node]})
-
-                    elif isinstance(nested_schema, Serializer):
-                        # Flat nested field
-                        nested_flat_node = cls._formatted_query(
-                            field[nested_field],
-                            nested_schema.get_fields()
-                        )
-                        query.append({nested_field: nested_flat_node})
-
-                    else:
+                    if nested_field not in all_fields:
+                        msg = "'%s' field is not found" % field
+                        raise ValidationError(msg)
+                    nested_classes = (Serializer, ListSerializer)
+                    if not isinstance(fields[nested_field], nested_classes):
                         msg = "'%s' is not a nested field" % nested_field
-                        raise InvalidField(msg)
+                        raise ValidationError(msg)
+                allowed_fields_dict.update(field)
             else:
-                # Flat field
-                if field not in schema:
+                if field not in all_fields:
                     msg = "'%s' field is not found" % field
-                    raise FieldNotFound(msg)
-                query.append(field)
+                    raise ValidationError(msg)
+                allowed_fields_dict.update({field: None})
+        self.allowed_fields = allowed_fields_dict
+        
+        for field in all_fields:
+            if field not in allowed_fields_dict.keys():
+                fields.pop(field)
 
-        return query
-
-
-class DynamicFieldsMixin(object):
-    query_param_name = "query"
-
-    def tofilter(self, request):
-        return self.query_param_name in request.query_params
-
-    def get_query_str(self, request):
-        return request.query_params[self.query_param_name]
-
-    def list(self, request):
-        queryset = self.get_queryset()
-        if self.filter_backends is not None:
-            queryset = self.filter_queryset(queryset)
-
-        if self.pagination_class is not None:
-            queryset = self.paginate_queryset(queryset)
-
-        if self.paginator is not None:
-            response = self.get_paginated_response
-        else:
-            response = Response
-
-        serializer = self.get_serializer(
-            queryset,
-            many=True,
-            context={'request': request}
-        )
-
-        if self.tofilter(request):
-            query_str = self.get_query_str(request)
-            schema = self.get_serializer().get_fields()
-            query = Query(query_str, schema)
-
-            try:
-                parsed_query = query.parse()
-            except (FormatError, InvalidField) as e:
-                return Response({"error": str(e)}, 400)
-            except FieldNotFound as e:
-                return Response({"error": str(e)}, 404)
-
-            # extra [] cuz a list of resources is expected
-            filter_query = [parsed_query]
-
-            filtered_data = dictfier.filter(serializer.data, filter_query)
-            return response(filtered_data)
-
-        return response(serializer.data)
-
-    def retrieve(self, request, pk=None):
-        queryset = self.get_queryset()
-        object = get_object_or_404(queryset, pk=pk)
-        serializer = self.get_serializer(
-            object, context={'request': request}
-        )
-
-        if self.tofilter(request):
-            query_str = self.get_query_str(request)
-
-            schema = self.get_serializer().get_fields()
-            query = Query(query_str, schema)
-
-            try:
-                parsed_query = query.parse()
-            except (FormatError, InvalidField) as e:
-                return Response({"error": str(e)}, 400)
-            except FieldNotFound as e:
-                return Response({"error": str(e)}, 404)
-
-            # No extra [] cuz only one resource is expected
-            filter_query = parsed_query
-
-            filtered_data = dictfier.filter(serializer.data, filter_query)
-            return Response(filtered_data)
-
-        return Response(serializer.data)
+        return fields

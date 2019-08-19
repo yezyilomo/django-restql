@@ -23,16 +23,17 @@ pip install django-restql
 ```
 
 ## Getting Started
-Using **django-restql** is very simple, you just have to inherit the `DynamicFieldsMixin` class when defining a view.
+Using **django-restql** is very simple, you just have to inherit the `DynamicFieldsMixin` class when defining a serializer.
 ```python
-from rest_framework import viewsets
+from rest_framework import serializers
 from django.contrib.auth.models import User
-from .serializers import UserSerializer
+
 from django_restql import DynamicFieldsMixin
 
-class UserViewSet(DynamicFieldsMixin, viewsets.ModelViewSet):
-    queryset = User.objects.all().order_by('-date_joined')
-    serializer_class = UserSerializer
+class UserSerializer(DynamicFieldsMixin, serializer.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ['id', 'username', 'email', 'groups']
 ```
 
 A regular request returns all fields as specified on DRF serializer, in fact **django-restql** doesn't handle this request at all:
@@ -135,26 +136,23 @@ If a query contains nested field without expanding and it's not defined as a nes
     class MyDynamicFieldMixin(DynamicFieldsMixin):
         query_param_name = "your_favourite_name"
      ```
-     Now you can use this Mixin on your view and use the name `your_favourite_name` as your parameter. E.g
+     Now you can use this Mixin on your serializer and use the name `your_favourite_name` as your parameter. E.g
 
      `GET /users/?your_favourite_name={id, username}`
 
 * Customize how fields to include in a response are filtered.
-    You can do this by inheriting DynamicFieldsMixin and override `list` and `retrieve` methods as shown below.
+    You can do this by inheriting DynamicFieldsMixin and override `field` methods as shown below.
 
     ```python
     from django_restql.mixins import DynamicFieldsMixin
 
     class CustomDynamicFieldMixin(DynamicFieldsMixin):
-        def list(self, request):
+        @property
+        def fields(self):
             # Your customization here
-            return response
-
-        def retrieve(self, request):
-            # Your customization here
-            return response
+            return fields
     ```
-    **Note:** To be able to do this you must understand how **django-restql** is implemented, specifically **DynamicFieldsMixin** class, you can check it [here](https://github.com/yezyilomo/django-restql/blob/master/django_restql/mixins.py). In fact this is how **django-restql** is implemented(just by overriding `list` and `retrieve` methods of a view, nothing more and nothing less).
+    **Note:** To be able to do this you must understand how **django-restql** is implemented, specifically **DynamicFieldsMixin** class, you can check it [here](https://github.com/yezyilomo/django-restql/blob/master/django_restql/mixins.py). In fact this is how **django-restql** is implemented(just by overriding `field` method of a serializer, nothing more and nothing less).
 
 
 ## Running Tests

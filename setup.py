@@ -9,7 +9,7 @@ REQUIRES_PYTHON = '>=2.7'
 
 setup(
     name = 'django-restql',
-    version = '0.3.3',
+    version = '0.4.0',
     description = DESCRIPTION,
     long_description = readme,
     long_description_content_type = 'text/markdown',
@@ -19,7 +19,7 @@ setup(
     license = 'MIT',
     packages = find_packages(exclude=('tests','test')),
     package_data={'': ['LICENSE']},
-    install_requires = ['dictfier', 'djangorestframework'],
+    install_requires = ['djangorestframework'],
     python_requires = REQUIRES_PYTHON,
     classifiers=[
         'Development Status :: 5 - Production/Stable',
