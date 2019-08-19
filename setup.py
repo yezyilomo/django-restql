@@ -19,7 +19,7 @@ setup(
     license = 'MIT',
     packages = find_packages(exclude=('tests','test')),
     package_data={'': ['LICENSE']},
-    install_requires = ['dictfier', 'djangorestframework'],
+    install_requires = ['djangorestframework'],
     python_requires = REQUIRES_PYTHON,
     classifiers=[
         'Development Status :: 5 - Production/Stable',
