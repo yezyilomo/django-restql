@@ -163,3 +163,24 @@ class ViewTests(APITestCase):
                 }
             ]
         )
+
+    def test_list_with_nested_flat_and_deep_iterable_query(self):
+        url = reverse("student-list")
+        response = self.client.get(url + '?query={name, age, course{name, books{title}}}', format="json")
+        print(response.data)
+        self.assertEqual(
+            response.data,
+            [
+                {
+                    "name": "Yezy",
+                    "age": 24,
+                    "course": {
+                        "name": "Data Structures",
+                        "books": [
+                            {"title": "Advanced Data Structures"},
+                            {"title": "Basic Data Structures",}
+                        ]
+                    }
+                }
+            ]
+        )
