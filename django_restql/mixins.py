@@ -54,7 +54,7 @@ class DynamicFieldsMixin(object):
     def fields(self):
         fields = super().fields
         request = self.context.get('request')
-        if request is None:
+        if request is None or not self.has_query_param(request):
             return fields
 
         is_top_retrieve_request = self.source is None and self.parent is None
@@ -64,11 +64,8 @@ class DynamicFieldsMixin(object):
         )
 
         if is_top_retrieve_request or is_top_list_request:
-            if self.has_query_param(request):
                 query_str = self.get_query_str(request)
                 allowed_fields = self.parse_query(query_str)
-            else:
-                return fields
         elif isinstance(self.parent, ListSerializer):
             source = self.parent.source
             parent = self.parent.parent
