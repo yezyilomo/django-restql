@@ -88,6 +88,28 @@ class ViewTests(APITestCase):
             }
         )
 
+    def test_retrieve_without_query_param(self):
+        url = reverse("student-detail", args=[self.student.id])
+        response = self.client.get(url, format="json")
+        self.assertEqual(
+            response.data,
+            {
+                "name": "Yezy",
+                "age": 24,
+                "course": {
+                    "name": "Data Structures",
+                    "code": "CS210",
+                    "books": [
+                        {"title": "Advanced Data Structures", "author": "S.Mobit"},
+                        {"title": "Basic Data Structures", "author": "S.Mobit"}
+                    ]
+                },
+                "phone_numbers": [
+                    {"number": "076711110", "type": "Office"},
+                    {"number": "073008880", "type": "Home"}
+                ]
+            }
+        )
 
 
     # *************** list tests **************
@@ -167,7 +189,6 @@ class ViewTests(APITestCase):
     def test_list_with_nested_flat_and_deep_iterable_query(self):
         url = reverse("student-list")
         response = self.client.get(url + '?query={name, age, course{name, books{title}}}', format="json")
-        print(response.data)
         self.assertEqual(
             response.data,
             [
@@ -181,6 +202,31 @@ class ViewTests(APITestCase):
                             {"title": "Basic Data Structures",}
                         ]
                     }
+                }
+            ]
+        )
+
+    def test_list_without_query_param(self):
+        url = reverse("student-list")
+        response = self.client.get(url, format="json")
+        self.assertEqual(
+            response.data,
+            [
+                {
+                    "name": "Yezy",
+                    "age": 24,
+                    "course": {
+                        "name": "Data Structures",
+                        "code": "CS210",
+                        "books": [
+                            {"title": "Advanced Data Structures", "author": "S.Mobit"},
+                            {"title": "Basic Data Structures", "author": "S.Mobit"}
+                        ]
+                    },
+                    "phone_numbers": [
+                        {"number": "076711110", "type": "Office"},
+                        {"number": "073008880", "type": "Home"}
+                    ]
                 }
             ]
         )
