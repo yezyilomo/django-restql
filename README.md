@@ -161,7 +161,6 @@ If a query contains nested field without expanding and it's not defined as a nes
 
 ## Credits
 * Implementation of this library is based on the idea behind [GraphQL](https://graphql.org/).
-* The most important part of this library which does the filtering work is powered by [dictfier](https://github.com/yezyilomo/dictfier) library.
 * My intention is to extend the capability of [drf-dynamic-fields](https://github.com/dbrgn/drf-dynamic-fields) library to support more functionalities like allowing to query nested fields both flat and iterable at any level, while maintaining simplicity.
 
 
