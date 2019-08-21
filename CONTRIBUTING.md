@@ -6,7 +6,7 @@ The following is a set of guidelines for contributing to **django-restql**. Thes
 
 **Working on your first Pull Request?** You can learn how from this *free* series [How to Contribute to an Open Source Project on GitHub](https://egghead.io/series/how-to-contribute-to-an-open-source-project-on-github) 
 
-If you are experianced you can go direct fork the repository on GitHub and send a pull request, or file an issue ticket at the issue tracker. For general help and questions you can email me at [yezileliilomo@hotmail.com](mailto:yezileliilomo@hotmail.com).
+If you are experienced you can go direct fork the repository on GitHub and send a pull request, or file an issue ticket at the issue tracker. For general help and questions you can email me at [yezileliilomo@hotmail.com](mailto:yezileliilomo@hotmail.com).
 
 ## Styleguides
 
