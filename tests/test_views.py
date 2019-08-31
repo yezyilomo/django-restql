@@ -100,8 +100,8 @@ class ViewTests(APITestCase):
                     "name": "Data Structures",
                     "code": "CS210",
                     "books": [
-                        {"title": "Advanced Data Structures", "author": "S.Mobit"},
-                        {"title": "Basic Data Structures", "author": "S.Mobit"}
+                        {"id": 1, "title": "Advanced Data Structures", "author": "S.Mobit"},
+                        {"id": 2, "title": "Basic Data Structures", "author": "S.Mobit"}
                     ]
                 },
                 "phone_numbers": [
@@ -219,8 +219,8 @@ class ViewTests(APITestCase):
                         "name": "Data Structures",
                         "code": "CS210",
                         "books": [
-                            {"title": "Advanced Data Structures", "author": "S.Mobit"},
-                            {"title": "Basic Data Structures", "author": "S.Mobit"}
+                            {"id": 1, "title": "Advanced Data Structures", "author": "S.Mobit"},
+                            {"id": 2, "title": "Basic Data Structures", "author": "S.Mobit"}
                         ]
                     },
                     "phone_numbers": [
@@ -228,5 +228,18 @@ class ViewTests(APITestCase):
                         {"number": "073008880", "type": "Home"}
                     ]
                 }
+            ]
+        )
+
+
+    # *************** filter tests **************
+    def test_filter_with_flat_query(self):
+        url = reverse("book-list")
+        response = self.client.get(url + '?query=(id: 1){title, author}', format="json")
+
+        self.assertEqual(
+            response.data,
+            [
+                {"title": "Advanced Data Structures", "author": "S.Mobit"},
             ]
         )

@@ -8,6 +8,7 @@ from tests.testapp.serializers import BookSerializer, CourseSerializer, StudentS
 class BookViewSet(viewsets.ModelViewSet):
 	serializer_class = BookSerializer
 	queryset = Book.objects.all()
+	filter_fields = ("id",)
 
 
 class CourseViewSet(viewsets.ModelViewSet):

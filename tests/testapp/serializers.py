@@ -5,7 +5,7 @@ from tests.testapp.models import Book, Course, Student, Phone
 class BookSerializer(DynamicFieldsMixin, serializers.ModelSerializer):
     class Meta:
         model = Book
-        fields = ['title', 'author']
+        fields = ['id', 'title', 'author']
 
 
 class CourseSerializer(DynamicFieldsMixin, serializers.ModelSerializer):
