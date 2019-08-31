@@ -1,3 +1,5 @@
+pypeg2
 django
+django-filter
 djangorestframework
 

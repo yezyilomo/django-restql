@@ -28,7 +28,7 @@ Using **django-restql** is very simple, you just have to inherit the `DynamicFie
 from rest_framework import serializers
 from django.contrib.auth.models import User
 
-from django_restql import DynamicFieldsMixin
+from django_restql.mixins import DynamicFieldsMixin
 
 class UserSerializer(DynamicFieldsMixin, serializer.ModelSerializer):
     class Meta:
