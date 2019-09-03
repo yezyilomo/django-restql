@@ -31,11 +31,12 @@ class DynamicFieldsMixin(object):
                 query_str = self.get_query_str(request)
                 parser = Parser(query_str)
                 try:
-                    parsed = parser.get_parsed()
+                    fields_query = parser.get_parsed()
                 except SyntaxError as e:
-                    raise ValidationError(str(e))
+                    msg = "Error: " + str(e.args[0]) + " after " + e.text
+                    print(msg)
+                    raise ValidationError(msg)
                     
-                fields_query = parsed["fields"]
         elif isinstance(self.parent, ListSerializer):
             source = self.parent.source
             parent = self.parent.parent
