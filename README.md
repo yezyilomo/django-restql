@@ -124,51 +124,6 @@ If a query contains nested field without expanding and it's not defined as a nes
     ]
 ```
 
-**django-restql** support filtering through a query string, it's using django-filters to do so. The format of syntax for filtering is (field1: value1, field2: value2, ..). So to use this feature you just have to add `django_restql.filters.QueryFilterBackend` to a list of DEFAULT_FILTER_BACKENDS on settings file, Then define your filters as usual as explained on [drf documentation](https://www.django-rest-framework.org/api-guide/filtering/#djangofilterbackend). For example
-
-```python
-class UserViewSet(viewsets.ModelViewSet):
-    queryset = User.objects.all()
-    serializer_class = UserSerializer
-    filter_fields = {
-      "id": ["exact", "lt", "gt"],
-      "username": ["exact"]
-    }
-```
-
-`GET /users/?query=(id: 1){id, username, location, group}`
-
-```json
-    [
-      {
-        "id": 1,
-        "username": "yezyilomo",
-        "location": 6,
-        "groups": [1,2]
-      }
-    ]
-```
-
-`GET /users/?query=(id__lt: 3){id, username, location, group}`
-
-```json
-    [
-      {
-        "id": 1,
-        "username": "yezyilomo",
-        "location": 6,
-        "groups": [1,2]
-      },
-      {
-        "id": 2,
-        "username": "jsondaniel",
-        "location": 8,
-        "groups": [1,4]
-      },
-    ]
-```
-**Note**: This feature is still under development so it's not stable yet which means it might change in the future.
-
 
 ## Customizing django-restql
 **django-restql**  is very configurable, here is what you can customize on it.
