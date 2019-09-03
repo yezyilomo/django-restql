@@ -189,6 +189,7 @@ class QueryingAndFilteringTests(APITestCase):
     def test_list_with_nested_flat_and_deep_iterable_query(self):
         url = reverse("student-list")
         response = self.client.get(url + '?query={name, age, course{name, books{title}}}', format="json")
+
         self.assertEqual(
             response.data,
             [
@@ -228,18 +229,5 @@ class QueryingAndFilteringTests(APITestCase):
                         {"number": "073008880", "type": "Home"}
                     ]
                 }
-            ]
-        )
-
-
-    # *************** filter tests **************
-    def test_filter_with_flat_query(self):
-        url = reverse("book-list")
-        response = self.client.get(url + '?query=(id: 1){title, author}', format="json")
-
-        self.assertEqual(
-            response.data,
-            [
-                {"title": "Advanced Data Structures", "author": "S.Mobit"},
             ]
         )
