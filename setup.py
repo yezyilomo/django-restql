@@ -19,7 +19,7 @@ setup(
     license = 'MIT',
     packages = find_packages(exclude=('tests','test')),
     package_data={'': ['LICENSE']},
-    install_requires = ['djangorestframework'],
+    install_requires = ['pypeg2', 'djangorestframework'],
     python_requires = REQUIRES_PYTHON,
     classifiers=[
         'Development Status :: 5 - Production/Stable',
