@@ -1,4 +1,3 @@
-import re
 from pypeg2 import name, csl, List, parse, word, optional
 
 

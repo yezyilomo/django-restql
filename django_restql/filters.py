@@ -1,10 +1,9 @@
 from django_filters import rest_framework as filters
 
-from rest_framework.serializers import ValidationError
 from .parser import Parser
 
 
-class CustomFilterBackend(filters.DjangoFilterBackend):
+class QueryFilterBackend(filters.DjangoFilterBackend):
     query_param_name = "query"
 
     def get_filterset_kwargs(self, request, queryset, view):

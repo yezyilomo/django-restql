@@ -1,7 +1,6 @@
-import re
-import json
-
-from rest_framework.serializers import Serializer, ListSerializer, ValidationError
+from rest_framework.serializers import (
+    Serializer, ListSerializer, ValidationError
+)
 
 from .parser import Parser
 
@@ -36,32 +35,34 @@ class DynamicFieldsMixin(object):
                 except SyntaxError as e:
                     raise ValidationError(str(e))
                     
-                allowed_fields = parsed["fields"]
+                fields_query = parsed["fields"]
         elif isinstance(self.parent, ListSerializer):
             source = self.parent.source
             parent = self.parent.parent
-            allowed_fields = []
-            if hasattr(parent, "allowed_fields"):
-                allowed_fields = parent.allowed_fields[source]
+            fields_query = []
+            if hasattr(parent, "nested_fields_queries"):
+                fields_query = parent.nested_fields_queries[source]
         elif isinstance(self.parent, Serializer):
             source = self.source
             parent = self.parent
-            allowed_fields = []
-            if hasattr(parent, "allowed_fields"):
-                allowed_fields = parent.allowed_fields[source]
+            fields_query = []
+            if hasattr(parent, "nested_fields_queries"):
+                fields_query = parent.nested_fields_queries[source]
         else:
             # Unkown scenario
             return fields
 
-        if allowed_fields is None:
+        if fields_query is None:
             # No filtering on nested fields
             # Retrieve all nested fields
             return fields
             
         all_fields = list(fields.keys())
-        allowed_fields_dict = {}
-        for field in allowed_fields:
+        allowed_nested_fields = {}
+        allowed_flat_fields = []
+        for field in fields_query:
             if isinstance(field, dict):
+                # Nested field
                 for nested_field in field:
                     if nested_field not in all_fields:
                         msg = "'%s' field is not found" % field
@@ -70,16 +71,18 @@ class DynamicFieldsMixin(object):
                     if not isinstance(fields[nested_field], nested_classes):
                         msg = "'%s' is not a nested field" % nested_field
                         raise ValidationError(msg)
-                allowed_fields_dict.update(field)
+                allowed_nested_fields.update(field)
             else:
+                # Flat field
                 if field not in all_fields:
                     msg = "'%s' field is not found" % field
                     raise ValidationError(msg)
-                allowed_fields_dict.update({field: None})
-        self.allowed_fields = allowed_fields_dict
+                allowed_flat_fields.append(field)
+        self.nested_fields_queries = allowed_nested_fields
         
+        all_allowed_fields = allowed_flat_fields + list(allowed_nested_fields)
         for field in all_fields:
-            if field not in allowed_fields_dict.keys():
+            if field not in all_allowed_fields:
                 fields.pop(field)
 
         return fields
