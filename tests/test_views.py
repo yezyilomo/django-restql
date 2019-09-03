@@ -3,7 +3,7 @@ from rest_framework.test import APITestCase
 from tests.testapp.models import Book, Course, Student, Phone
 
 
-class ViewTests(APITestCase):
+class QueryingAndFilteringTests(APITestCase):
     def setUp(self):
         self.book1 = Book.objects.create(title="Advanced Data Structures", author="S.Mobit")
         self.book2 = Book.objects.create(title="Basic Data Structures", author="S.Mobit")

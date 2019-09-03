@@ -84,7 +84,7 @@ DATABASES = {
 
 REST_FRAMEWORK = {
     'DEFAULT_FILTER_BACKENDS': (
-        'django_restql.filters.CustomFilterBackend',
+        'django_restql.filters.QueryFilterBackend',
     ),
 }
 

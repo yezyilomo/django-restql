@@ -3,7 +3,9 @@ from rest_framework.response import Response
 from django_restql.mixins import DynamicFieldsMixin
 
 from tests.testapp.models import Book, Course, Student
-from tests.testapp.serializers import BookSerializer, CourseSerializer, StudentSerializer
+from tests.testapp.serializers import (
+	BookSerializer, CourseSerializer, StudentSerializer
+)
 
 class BookViewSet(viewsets.ModelViewSet):
 	serializer_class = BookSerializer
