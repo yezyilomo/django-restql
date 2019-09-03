@@ -170,7 +170,7 @@ class QueryingAndFilteringTests(APITestCase):
 
     def test_list_reverse_relation_with_nested_iterable_query(self):
         url = reverse("student-list")
-        response = self.client.get(url + '?query={name, age, phone_numbers({number}}', format="json")
+        response = self.client.get(url + '?query={name, age, phone_numbers{number}}', format="json")
 
         self.assertEqual(
             response.data,
