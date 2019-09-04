@@ -42,13 +42,13 @@ class DynamicFieldsMixin(object):
             parent = self.parent.parent
             fields_query = []
             if hasattr(parent, "nested_fields_queries"):
-                fields_query = parent.nested_fields_queries[source]
+                fields_query = parent.nested_fields_queries.get(source, None)
         elif isinstance(self.parent, Serializer):
             source = self.source
             parent = self.parent
             fields_query = []
             if hasattr(parent, "nested_fields_queries"):
-                fields_query = parent.nested_fields_queries[source]
+                fields_query = parent.nested_fields_queries.get(source, None)
         else:
             # Unkown scenario
             return fields
