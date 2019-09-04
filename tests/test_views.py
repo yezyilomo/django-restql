@@ -231,3 +231,24 @@ class QueryingAndFilteringTests(APITestCase):
                 }
             ]
         )
+
+    def test_list_with_nested_field_without_expanding(self):
+        url = reverse("student-list")
+        response = self.client.get(url + '?query={name, age, course{name, books}}', format="json")
+
+        self.assertEqual(
+            response.data,
+            [
+                {
+                    "name": "Yezy",
+                    "age": 24,
+                    "course": {
+                        "name": "Data Structures",
+                        "books": [
+                            {"id": 1, "title": "Advanced Data Structures", "author": "S.Mobit"},
+                            {"id": 2, "title": "Basic Data Structures", "author": "S.Mobit"}
+                        ]
+                    }
+                }
+            ]
+        )
