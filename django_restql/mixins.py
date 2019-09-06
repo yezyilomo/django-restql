@@ -8,15 +8,59 @@ from .parser import Parser
 class DynamicFieldsMixin(object):
     query_param_name = "query"
 
+    def __init__(self, *args, **kwargs):
+        # Don't pass the 'fields' and 'exclude' arg up to the superclass
+        self.allowed_fields = kwargs.pop('fields', None)
+        self.excluded_fields = kwargs.pop('exclude', None)
+        self.return_pk = kwargs.pop('return_pk', False)
+
+        is_field_set = self.allowed_fields is not None
+        is_exclude_set = self.excluded_fields is not None
+        msg = "May not set both `fields` and `exclude`"
+        assert not(is_field_set and is_exclude_set), msg
+
+        # Instantiate the superclass normally
+        super(DynamicFieldsMixin, self).__init__(*args, **kwargs)
+
+    def to_representation(self, instance):
+        if self.return_pk:
+            return instance.pk
+        return super().to_representation(instance)
+
     def has_query_param(self, request):
         return self.query_param_name in request.query_params
 
     def get_query_str(self, request):
         return request.query_params[self.query_param_name]
 
+    def get_allowed_fields(self):
+        fields = super().fields
+        if self.allowed_fields is not None:
+            # Drop any fields that are not specified in the `fields` argument.
+            allowed = set(self.allowed_fields)
+            existing = set(fields)
+            not_allowed = existing.symmetric_difference(allowed)
+            for field_name in not_allowed:
+                try:
+                    fields.pop(field_name)
+                except KeyError:
+                    msg = "Field `%s` is not found"%field_name
+                    raise Exception(msg) from None
+
+        if self.excluded_fields is not None:
+            # Drop any fields that are not specified in the `exclude` argument.
+            not_allowed = set(self.excluded_fields)
+            for field_name in not_allowed:
+                try:
+                    fields.pop(field_name)
+                except KeyError:
+                    msg = "Field `%s` is not found"%field_name
+                    raise Exception(msg) from None
+        return fields
+
     @property
     def fields(self):
-        fields = super().fields
+        fields = self.get_allowed_fields()
         request = self.context.get('request')
         if request is None or not self.has_query_param(request):
             return fields
@@ -34,7 +78,6 @@ class DynamicFieldsMixin(object):
                     fields_query = parser.get_parsed()
                 except SyntaxError as e:
                     msg = "Error: " + str(e.args[0]) + " after " + e.text
-                    print(msg)
                     raise ValidationError(msg)
                     
         elif isinstance(self.parent, ListSerializer):

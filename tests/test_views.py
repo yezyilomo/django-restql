@@ -252,3 +252,54 @@ class QueryingAndFilteringTests(APITestCase):
                 }
             ]
         )
+
+    def test_list_with_serializer_field_kwarg(self):
+        url = reverse("course_with_field_kwarg-list")
+        response = self.client.get(url, format="json")
+
+        self.assertEqual(
+            response.data,
+            [
+                {
+                    "name": "Data Structures",
+                    "code": "CS210",
+                    "books": [
+                        {"title": "Advanced Data Structures"},
+                        {"title": "Basic Data Structures"}
+                    ]
+                }
+            ]
+        )
+
+    def test_list_with_serializer_exclude_kwarg(self):
+        url = reverse("course_with_exclude_kwarg-list")
+        response = self.client.get(url, format="json")
+
+        self.assertEqual(
+            response.data,
+            [
+                {
+                    "name": "Data Structures",
+                    "code": "CS210",
+                    "books": [
+                        {"id": 1, "title": "Advanced Data Structures"},
+                        {"id": 2, "title": "Basic Data Structures"}
+                    ]
+                }
+            ]
+        )
+
+    def test_list_with_serializer_return_pk_kwarg(self):
+        url = reverse("course_with_returnpk_kwarg-list")
+        response = self.client.get(url, format="json")
+
+        self.assertEqual(
+            response.data,
+            [
+                {
+                    "name": "Data Structures",
+                    "code": "CS210",
+                    "books": [1,2]
+                }
+            ]
+        )

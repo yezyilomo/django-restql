@@ -125,6 +125,136 @@ If a query contains nested field without expanding and it's not defined as a nes
 ```
 
 
+## Using `fields=[..]` and `exclude=[]` kwargs
+With **django-restql** you can specify fields to be included when instantiating a serializer, this provides a way to refilter fields on nested fields(i.e you can opt to remove some fields on a nested field). Below is an example which shows how you can specify fields to be included on nested resources. 
+
+```python
+from rest_framework import serializers
+from django.contrib.auth.models import User
+
+from django_restql.mixins import DynamicFieldsMixin
+
+class BookSerializer(DynamicFieldsMixin, serializers.ModelSerializer):
+    class Meta:
+        model = Book
+        fields = ['id', 'title', 'author']
+
+
+class CourseSerializer(DynamicFieldsMixin, serializers.ModelSerializer):
+    books = BookSerializer(many=True, read_only=True, fields=["title"])
+    class Meta:
+        model = Course
+        fields = ['name', 'code', 'books']
+```
+
+`GET /courses/`
+
+```json
+    [
+      {
+        "name": "Computer Programming",
+        "code": "CS50",
+        "books": [
+          {"title": "Computer Programming Basics"},
+          {"title": "Data structures"}
+        ]
+      },
+      ...
+    ]
+```
+As you see from the response above, the nested resource(book) has only one field(title) as specified on  `fields=["title"]` kwarg during instantiating BookSerializer, so if you send a request like `GET /course?query={name, code, books{title, author}}` you will get an error that `author` field is not found because it was not included on `fields=["title"]` kwarg.
+
+
+You can also specify fields to be excluded when instantiating a serializer by using `exclude=[]` as shown below 
+```python
+from rest_framework import serializers
+from django.contrib.auth.models import Book, Course
+
+from django_restql.mixins import DynamicFieldsMixin
+
+class BookSerializer(DynamicFieldsMixin, serializers.ModelSerializer):
+    class Meta:
+        model = Book
+        fields = ['id', 'title', 'author']
+
+
+class CourseSerializer(DynamicFieldsMixin, serializers.ModelSerializer):
+    books = BookSerializer(many=True, read_only=True, exclude=["author"])
+    class Meta:
+        model = Course
+        fields = ['name', 'code', 'books']
+```
+
+`GET /courses/`
+
+```json
+    [
+      {
+        "name": "Computer Programming",
+        "code": "CS50",
+        "books": [
+          {"id": 1, "title": "Computer Programming Basics"},
+          {"id": 2, "title": "Data structures"}
+        ]
+      },
+      ...
+    ]
+```
+From the response above you can see that `author` field has been excluded fom book nested resource as specified on  `exclude=["author"]` kwarg during instantiating BookSerializer.
+
+**Note**: `fields=[..]` and `exclude=[]` kwargs have no effect when you access the resources directly, so when you access books you will still get all fields i.e
+
+`GET /books/`
+
+```json
+    [
+      {
+        "id": 1,
+        "title": "Computer Programming Basics",
+        "author": "S.Mobit"
+      },
+      ...
+    ]
+```
+So you can see that all fields have appeared as specified on `fields = ['id', 'title', 'author']` on BookSerializer class.
+
+## Using `return_pk=True` kwargs
+With **django-restql** you can specify whether to return nested resource pk or data. Below is an example which shows how we can specify fields to be included on nested resources. 
+
+```python
+from rest_framework import serializers
+from django.contrib.auth.models import Book, Course
+
+from django_restql.mixins import DynamicFieldsMixin
+
+class BookSerializer(DynamicFieldsMixin, serializers.ModelSerializer):
+    class Meta:
+        model = Book
+        fields = ['id', 'title', 'author']
+
+
+class CourseSerializer(DynamicFieldsMixin, serializers.ModelSerializer):
+    books = BookSerializer(many=True, read_only=True, return_pk=True)
+    class Meta:
+        model = Course
+        fields = ['name', 'code', 'books']
+```
+
+`GET /course/`
+
+```json
+    [
+      {
+        "name": "Computer Programming",
+        "code": "CS50",
+        "books": [1,2]
+      },
+      ...
+    ]
+```
+So you can see that on a nested field `books` book pks have been returned instead of books data as specified on `return_pk=True` kwarg on `BookSerializer`.
+
+
 ## Customizing django-restql
 **django-restql**  is very configurable, here is what you can customize on it.
 * Change the name of ```query``` parameter.

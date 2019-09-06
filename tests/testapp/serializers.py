@@ -14,6 +14,22 @@ class CourseSerializer(DynamicFieldsMixin, serializers.ModelSerializer):
         model = Course
         fields = ['name', 'code', 'books']
 
+class CourseWithReturnPkkwargSerializer(CourseSerializer):
+    books = BookSerializer(many=True, read_only=True, return_pk=True)
+    class Meta:
+        model = Course
+        fields = ['name', 'code', 'books']
+
+class CourseWithFieldsKwargSerializer(CourseSerializer):
+    books = BookSerializer(many=True, read_only=True, fields=["title"])
+    class Meta(CourseSerializer.Meta):
+        pass
+
+class CourseWithExcludeKwargSerializer(CourseSerializer):
+    books = BookSerializer(many=True, read_only=True, exclude=["author"])
+    class Meta(CourseSerializer.Meta):
+        pass
+
 
 class PhoneSerializer(DynamicFieldsMixin, serializers.ModelSerializer):
     class Meta:
