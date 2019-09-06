@@ -9,7 +9,7 @@ REQUIRES_PYTHON = '>=2.7'
 
 setup(
     name = 'django-restql',
-    version = '0.4.4',
+    version = '0.4.5',
     description = DESCRIPTION,
     long_description = readme,
     long_description_content_type = 'text/markdown',
