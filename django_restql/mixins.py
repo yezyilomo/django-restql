@@ -62,7 +62,14 @@ class DynamicFieldsMixin(object):
     def fields(self):
         fields = self.get_allowed_fields()
         request = self.context.get('request')
-        if request is None or not self.has_query_param(request):
+        
+        is_not_a_request_to_process = (
+            request is None or 
+            request.method != "GET" or 
+            not self.has_query_param(request)
+        )
+
+        if is_not_a_request_to_process:
             return fields
 
         is_top_retrieve_request = self.source is None and self.parent is None
