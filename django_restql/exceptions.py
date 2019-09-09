@@ -4,4 +4,7 @@ class DjangoRESTQLException(Exception):
 
 
 class InvalidOperation(DjangoRESTQLException):
-    """Invalid Operation."""
+    """Invalid Operation Exception."""
+
+class FieldNotFound(DjangoRESTQLException):
+    """Field Not Found Exception."""
