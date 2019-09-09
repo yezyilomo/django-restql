@@ -20,12 +20,18 @@ from tests.testapp import views
 
 
 router = routers.DefaultRouter()
+
 router.register('books', views.BookViewSet, base_name='book')
 router.register('courses', views.CourseViewSet, base_name='course')
 router.register('courses-with-returnpk-kwarg', views.CourseWithReturnPkkwargViewSet, base_name='course_with_returnpk_kwarg')
 router.register('courses-with-field-kwarg', views.CourseWithFieldsKwargViewSet, base_name='course_with_field_kwarg')
 router.register('courses-with-exclude-kwarg', views.CourseWithExcludeKwargViewSet, base_name='course_with_exclude_kwarg')
 router.register('students', views.StudentViewSet, base_name='student')
+
+router.register('writable-courses', views.WritableCourseViewSet, base_name='wcourse')
+router.register('replaceable-courses', views.ReplaceableCourseViewSet, base_name='rcourse')
+router.register('replaceable-students', views.ReplaceableStudentViewSet, base_name='rstudent')
+router.register('writable-students', views.WritableStudentViewSet, base_name='wstudent')
 
 urlpatterns = [
     path('', include(router.urls))
