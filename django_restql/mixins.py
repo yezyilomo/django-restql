@@ -4,11 +4,14 @@ from rest_framework.serializers import (
     Serializer, ListSerializer, 
     ValidationError
 )
-from django.db.models.fields.related import ManyToOneRel, ManyToManyRel
+from django.db.models.fields.related import(
+    ManyToOneRel, ManyToManyRel
+)
 
+from .parser import Parser
+from .exceptions import FieldNotFound
 from .operations import ADD, CREATE, REMOVE, UPDATE
 from .fields import _ReplaceableField, _WritableField
-from .parser import Parser
 
 
 class DynamicFieldsMixin(object):
@@ -51,7 +54,7 @@ class DynamicFieldsMixin(object):
                     fields.pop(field_name)
                 except KeyError:
                     msg = "Field `%s` is not found"%field_name
-                    raise Exception(msg) from None
+                    raise FieldNotFound(msg) from None
 
         if self.excluded_fields is not None:
             # Drop any fields that are not specified in the `exclude` argument.
@@ -61,7 +64,7 @@ class DynamicFieldsMixin(object):
                     fields.pop(field_name)
                 except KeyError:
                     msg = "Field `%s` is not found"%field_name
-                    raise Exception(msg) from None
+                    raise FieldNotFound(msg) from None
         return fields
 
     @property
