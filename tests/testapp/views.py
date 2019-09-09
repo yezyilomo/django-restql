@@ -12,6 +12,7 @@ from tests.testapp.serializers import (
 )
 
 
+#### ViewSets for Data Querying And Mutations Testing ####
 class BookViewSet(viewsets.ModelViewSet):
 	serializer_class = BookSerializer
 	queryset = Book.objects.all()
@@ -22,6 +23,7 @@ class CourseViewSet(viewsets.ModelViewSet):
 	queryset = Course.objects.all()
 
 
+############# ViewSets For Data Querying Testing #############
 class CourseWithReturnPkkwargViewSet(viewsets.ModelViewSet):
 	serializer_class = CourseWithReturnPkkwargSerializer
 	queryset = Course.objects.all()
@@ -42,8 +44,7 @@ class StudentViewSet(viewsets.ModelViewSet):
 	queryset = Student.objects.all()
 
 
-################## ViewSets for data modification #################
-
+######### ViewSets For Data Mutations Testing ##########
 class WritableCourseViewSet( viewsets.ModelViewSet):
 	serializer_class = WritableCourseSerializer
 	queryset = Course.objects.all()
