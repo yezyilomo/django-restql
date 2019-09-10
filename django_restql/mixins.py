@@ -29,7 +29,7 @@ class DynamicFieldsMixin(object):
         assert not(is_field_set and is_exclude_set), msg
 
         # Instantiate the superclass normally
-        super(DynamicFieldsMixin, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
 
     def to_representation(self, instance):
         if self.return_pk:
@@ -325,7 +325,8 @@ class NestedUpdateMixin(object):
             serializer = SerializerClass(
                 nested_obj, 
                 data=values, 
-                context=context
+                context=context,
+                partial=self.partial
             )
             serializer.is_valid()
             serializer.save()
@@ -368,7 +369,12 @@ class NestedUpdateMixin(object):
         SerializerClass = type(self.get_fields()[field].child)
         for pk, values in data.items():
             obj = nested_obj.get(pk=pk)
-            serializer = SerializerClass(obj, data=values, context=context)
+            serializer = SerializerClass(
+                obj, 
+                data=values, 
+                context=context, 
+                partial=self.partial
+            )
             serializer.is_valid()
             obj = serializer.save()
             objs.append(obj)
@@ -387,7 +393,12 @@ class NestedUpdateMixin(object):
         for pk, values in data.items():
             obj = nested_obj.get(pk=pk)
             values.update({foreignkey: instance.pk})
-            serializer = SerializerClass(obj, data=values, context=context)
+            serializer = SerializerClass(
+                obj, 
+                data=values, 
+                context=context, 
+                partial=self.partial
+            )
             serializer.is_valid()
             obj = serializer.save()
             objs.append(obj)
