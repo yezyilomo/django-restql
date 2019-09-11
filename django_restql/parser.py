@@ -1,4 +1,4 @@
-from pypeg2 import name, csl, List, parse
+from pypeg2 import name, csl, List, parse, optional
 
 
 class Field():
@@ -15,10 +15,10 @@ class Call(List):
 
     def body(self):
         return self[1]
-
+        
 
 class Block(List):
-    grammar = '{', csl([Call, Field], separator=','), '}'
+    grammar = '{', optional(csl([Call, Field], separator=',')), '}'
 
 
 Call.grammar = CallList, Block
