@@ -255,36 +255,6 @@ class CourseSerializer(DynamicFieldsMixin, serializers.ModelSerializer):
 So you can see that on a nested field `books` book pks have been returned instead of books data as specified on `return_pk=True` kwarg on `BookSerializer`.
 
 
-## Customizing django-restql
-**django-restql**  is very configurable, here is what you can customize on it.
-* Change the name of ```query``` parameter.
-
-    If you don't want to use the name ```query``` as your parameter, you can inherit `DynamicFieldsMixin` and change it as shown below
-    ```python
-    from django_restql.mixins import DynamicFieldsMixin
-
-    class MyDynamicFieldMixin(DynamicFieldsMixin):
-        query_param_name = "your_favourite_name"
-     ```
-     Now you can use this Mixin on your serializer and use the name `your_favourite_name` as your parameter. E.g
-
-     `GET /users/?your_favourite_name={id, username}`
-
-* Customize how fields to include in a response are filtered.
-    You can do this by inheriting DynamicFieldsMixin and override `field` methods as shown below.
-
-    ```python
-    from django_restql.mixins import DynamicFieldsMixin
-
-    class CustomDynamicFieldMixin(DynamicFieldsMixin):
-        @property
-        def fields(self):
-            # Your customization here
-            return fields
-    ```
-    **Note:** To be able to do this you must understand how **django-restql** is implemented, specifically **DynamicFieldsMixin** class, you can check it [here](https://github.com/yezyilomo/django-restql/blob/master/django_restql/mixins.py). In fact this is how **django-restql** is implemented(just by overriding `field` method of a serializer, nothing more and nothing less).
-
-
 ## Mutating Data(Creating and Updating Data)
 **django-restql** got your back on creating and updating nested data too, it has two components for mutating nested data, `NestedModelSerializer` and `NestedField`. A serializer `NestedModelSerializer` has `update` and `create` logics for nested fields on the other hand `NestedField` is used to validate data before dispatching update or create.
 
@@ -292,26 +262,29 @@ So you can see that on a nested field `books` book pks have been returned instea
 ### Using NestedField & NestedModelSerializer to mutate data
 Just like in querying data, mutating nested data with **django-restql** is very simple, you just have to inherit `NestedModelSerializer` on a serializer with nested fields and use `NestedField` to define those nested fields. Below is an example which shows how to use `NestedModelSerializer` and `NestedField`.
 ```python
+from rest_framework import serializers
 from app.models import Location, Amenity, Property
 from django_restql.serializers import NestedModelSerializer
 from django_restql.fields import NestedField
 
 
-class LocationSerializer(NestedModelSerializer):
+class LocationSerializer(serializers.ModelSerializer):
     class Meta:
         model = Location
         fields = ("id", "city", "country")
 
 
-class AmenitySerializer(NestedModelSerializer):
+class AmenitySerializer(serializers.ModelSerializer):
     class Meta:
         model = Amenity
         fields = ("id", "name")
         
 
+# Inherit NestedModelSerializer to support create and update 
+# on nested fields
 class PropertySerializer(NestedModelSerializer):
-    location = NestedField(LocationSerializer)
-    amenities = NestedField(AmenitySerializer, many=True)
+    location = NestedField(LocationSerializer)  # Define location as nested field
+    amenities = NestedField(AmenitySerializer, many=True)  # Define amenities as nested field
     class Meta:
         model = Property
         fields = (
@@ -421,14 +394,14 @@ from django_restql.serializers import NestedModelSerializer
 from django_restql.fields import NestedField
 
 
-class LocationSerializer(NestedModelSerializer):
+class LocationSerializer(serializers.ModelSerializer):
     class Meta:
         model = Location
         fields = ("id", "city", "country")
 
 
 class PropertySerializer(NestedModelSerializer):
-    location = NestedField(ocationSerializer, accept_pk=True)
+    location = NestedField(ocationSerializer, accept_pk=True)  # pk based nested field
     class Meta:
         model = Property
         fields = (
@@ -474,7 +447,7 @@ from django_restql.serializers import NestedModelSerializer
 from django_restql.fields import NestedField
 
 
-class AmenitySerializer(NestedModelSerializer):
+class AmenitySerializer(serializers.ModelSerializer):
     class Meta:
         model = Amenity
         fields = ("id", "name")
@@ -551,6 +524,68 @@ Response
 }
 ```
 <br>
+
+
+### Using `DynamicFieldsMixin` and `NestedField` together
+You can use `DynamicFieldsMixin` and `NestedModelSerializer` together if you want your serializer to be writable(on nested fields) and support querying data, this is very common. Below is an example which shows how you can use `DynamicFieldsMixin` and `NestedField` together.
+```python
+from app.models import Location, Property
+from django_restql.serializers import NestedModelSerializer 
+from django_restql.fields import NestedField
+from django_restql.mixins import DynamicFieldsMixin
+
+
+class LocationSerializer(DynamicFieldsMixin, serializers.ModelSerializer):
+    class Meta:
+        model = Location
+        fields = ("id", "city", "country")
+
+# Inherit both DynamicFieldsMixin and NestedModelSerializer
+class PropertySerializer(DynamicFieldsMixin, NestedModelSerializer):
+    location = NestedField(LocationSerializer)
+    class Meta:
+        model = Property
+        fields = (
+            'id', 'price', 'location'
+        )
+```
+
+`NestedField` is nothing but a serializer wrapper, it returns an instance of a modified version of a serializer passed, so you can pass all the args and kwargs accepted by a serializer on it, it will simply pass them to a serializer passed when instantiating an instance. So you can pass anything accepted by a serializer to a `NestedField` wrapper, and if a serializer passed inherits `DynamicFieldsMini` just like `LocationSerializer` on above example then you can pass any arg or kwarg accepted by `DynamicFieldsMixin` when defining location as a nested field, i.e
+
+`location = NestedField(LocationSerializer, fields=[..])` or
+`location = NestedField(LocationSerializer, exclude=[..])` or
+`location = NestedField(LocationSerializer, return_pk=True)` 
+
+
+## Customizing django-restql
+**django-restql**  is very configurable, here is what you can customize on it.
+* Change the name of ```query``` parameter when querying data.
+
+    If you don't want to use the name ```query``` as your parameter, you can inherit `DynamicFieldsMixin` and change it as shown below
+    ```python
+    from django_restql.mixins import DynamicFieldsMixin
+
+    class MyDynamicFieldMixin(DynamicFieldsMixin):
+        query_param_name = "your_favourite_name"
+     ```
+     Now you can use this Mixin on your serializer and use the name `your_favourite_name` as your parameter. E.g
+
+     `GET /users/?your_favourite_name={id, username}`
+
+* Customize how fields to include in a response are filtered.
+    You can do this by inheriting DynamicFieldsMixin and override `field` methods as shown below.
+
+    ```python
+    from django_restql.mixins import DynamicFieldsMixin
+
+    class CustomDynamicFieldMixin(DynamicFieldsMixin):
+        @property
+        def fields(self):
+            # Your customization here
+            return fields
+    ```
+    **Note:** To be able to do this you must understand how **django-restql** is implemented, specifically **DynamicFieldsMixin** class, you can check it [here](https://github.com/yezyilomo/django-restql/blob/master/django_restql/mixins.py). In fact this is how **django-restql** is implemented(just by overriding `field` method of a serializer, nothing more and nothing less).
+
 
 ## Running Tests
 `python setup.py test`
