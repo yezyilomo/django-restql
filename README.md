@@ -4,7 +4,7 @@
 [![Python Versions](https://img.shields.io/pypi/pyversions/django-restql.svg)](https://pypi.org/project/django-restql/)
 [![License](https://img.shields.io/pypi/l/django-restql.svg)](https://pypi.org/project/django-restql/)
 
-**django-restql** is a python library which allows you to turn your API made with **Django REST Framework(DRF)** into a GraphQL like API. With this you will be able to
+**django-restql** is a python library which allows you to turn your API made with **Django REST Framework(DRF)** into a GraphQL like API. With **django-restql** you will be able to
 * Send a query to your API and get exactly what you need, nothing more and nothing less.
 
 * Control the data you get, not the server.
@@ -12,6 +12,8 @@
 * Get predictable results, since you control what you get from the server.
 
 * Save the load of fetching unused data from the server(Over-fetching and Under-fetching problem).
+
+* Write(create & update) nested data of any level with flexibility.
 
 Isn't it cool?.
 
@@ -36,7 +38,7 @@ class UserSerializer(DynamicFieldsMixin, serializer.ModelSerializer):
         fields = ['id', 'username', 'email', 'groups']
 ```
 
-A regular request returns all fields as specified on DRF serializer, in fact **django-restql** doesn't handle this request at all:
+A regular request returns all fields as specified on DRF serializer, in fact **django-restql** doesn't handle this request at all. Below is an example of a request without a query parameter, as you see all fields are retured as specified on `UserSerializer`.
 
 `GET /users`
 
