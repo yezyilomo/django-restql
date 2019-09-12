@@ -24,6 +24,7 @@ Isn't it cool?.
 pip install django-restql
 ```
 
+
 ## Querying Data
 Using **django-restql** to query data is very simple, you just have to inherit the `DynamicFieldsMixin` class when defining a serializer.
 ```python
@@ -127,7 +128,7 @@ If a query contains nested field without expanding and it's not defined as a nes
 ```
 
 
-## Using `fields=[..]` and `exclude=[..]` kwargs
+### Using `fields=[..]` and `exclude=[..]` kwargs
 With **django-restql** you can specify fields to be included when instantiating a serializer, this provides a way to refilter fields on nested fields(i.e you can opt to remove some fields on a nested field). Below is an example which shows how you can specify fields to be included on nested resources. 
 
 ```python
@@ -207,7 +208,7 @@ class CourseSerializer(DynamicFieldsMixin, serializers.ModelSerializer):
 ```
 From the response above you can see that `author` field has been excluded fom book nested resource as specified on  `exclude=["author"]` kwarg during instantiating BookSerializer.
 
-**Note**: `fields=[..]` and `exclude=[]` kwargs have no effect when you access the resources directly, so when you access books you will still get all fields i.e
+**Note:** `fields=[..]` and `exclude=[]` kwargs have no effect when you access the resources directly, so when you access books you will still get all fields i.e
 
 `GET /books/`
 
@@ -223,7 +224,8 @@ From the response above you can see that `author` field has been excluded fom bo
 ```
 So you can see that all fields have appeared as specified on `fields = ['id', 'title', 'author']` on BookSerializer class.
 
-## Using `return_pk=True` kwargs
+
+### Using `return_pk=True` kwargs
 With **django-restql** you can specify whether to return nested resource pk or data. Below is an example which shows how we can specify fields to be included on nested resources. 
 
 ```python
@@ -322,7 +324,7 @@ Request Body
 ```
 What's done here is pretty clear, location will be created and associated with the property created, also create operation on amenities will create amenities with values specified in a list and associate with the property, add operation will add amenity with id 4 to a list of amenities of the property.
 
-**Note**: POST for many related field supports two operations which are `create` and `add`.
+**Note:** POST for many related field supports two operations which are `create` and `add`.
 
 <br>
 
@@ -364,9 +366,9 @@ Request Body
     }
 }
 ```
-**Note**: Here `add`, `create`, `remove` and `update` are operations, so `add` operation add amenitiy with id 4 to a list of amenities of the property, `create` operation create amenities with values specified in a list, `remove` operation dessociate amenities with id 3 from a property, `update` operation edit amenity with id 1 according to values specified.
+**Note:** Here `add`, `create`, `remove` and `update` are operations, so `add` operation add amenitiy with id 4 to a list of amenities of the property, `create` operation create amenities with values specified in a list, `remove` operation dessociate amenities with id 3 from a property, `update` operation edit amenity with id 1 according to values specified.
 
-**Note**: PUT/PATCH for many related field supports four operations which are `create`, `add`, `remove` and `update`.
+**Note:** PUT/PATCH for many related field supports four operations which are `create`, `add`, `remove` and `update`.
 
 <br>
 
@@ -388,7 +390,6 @@ Response
     ]
 }
 ```
-<br>
 <br>
 
 
@@ -429,7 +430,7 @@ Request Body
     "location": 2
 }
 ```
-**Note**: Here location resource with id 2 is already existing, so what's done here is create new property resource and associate it with a location with id 2.
+**Note:** Here location resource with id 2 is already existing, so what's done here is create new property resource and associate it with a location with id 2.
 <br>
 
 Response
@@ -491,7 +492,7 @@ Request Body
     }
 }
 ```
-**Note**: According to `create_ops=["add"]`, you can't use `create` operation in here!.
+**Note:** According to `create_ops=["add"]`, you can't use `create` operation in here!.
 <br>
 
 Response
@@ -520,7 +521,7 @@ Request Body
     }
 }
 ```
-**Note**: According to `update_ops=["add", "remove"]`, you can't use `create` or `update` operation in here!.
+**Note:** According to `update_ops=["add", "remove"]`, you can't use `create` or `update` operation in here!.
 <br>
 
 Response
@@ -537,7 +538,7 @@ Response
 <br>
 
 
-### Using `DynamicFieldsMixin` and `NestedField` together
+## Using `DynamicFieldsMixin` and `NestedField` together
 You can use `DynamicFieldsMixin` and `NestedModelSerializer` together if you want your serializer to be writable(on nested fields) and support querying data, this is very common. Below is an example which shows how you can use `DynamicFieldsMixin` and `NestedField` together.
 ```python
 from rest_framework import serializers 
@@ -565,9 +566,17 @@ class PropertySerializer(DynamicFieldsMixin, NestedModelSerializer):
 
 `NestedField` is nothing but a serializer wrapper, it returns an instance of a modified version of a serializer passed, so you can pass all the args and kwargs accepted by a serializer on it, it will simply pass them to a serializer passed when instantiating an instance. So you can pass anything accepted by a serializer to a `NestedField` wrapper, and if a serializer passed inherits `DynamicFieldsMini` just like `LocationSerializer` on above example then you can pass any arg or kwarg accepted by `DynamicFieldsMixin` when defining location as a nested field, i.e
 
-`location = NestedField(LocationSerializer, fields=[..])` or
-`location = NestedField(LocationSerializer, exclude=[..])` or
-`location = NestedField(LocationSerializer, return_pk=True)` 
+```python
+location = NestedField(LocationSerializer, fields=[..])
+```
+
+```python 
+location = NestedField(LocationSerializer, exclude=[..])
+``` 
+
+```python
+location = NestedField(LocationSerializer, return_pk=True)
+``` 
 
 
 ## Customizing django-restql
