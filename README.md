@@ -133,8 +133,10 @@ With **django-restql** you can specify fields to be included when instantiating 
 ```python
 from rest_framework import serializers
 from django.contrib.auth.models import User
-
 from django_restql.mixins import DynamicFieldsMixin
+
+from app.models import Book, Course
+
 
 class BookSerializer(DynamicFieldsMixin, serializers.ModelSerializer):
     class Meta:
@@ -170,9 +172,10 @@ As you see from the response above, the nested resource(book) has only one field
 You can also specify fields to be excluded when instantiating a serializer by using `exclude=[]` as shown below 
 ```python
 from rest_framework import serializers
-from django.contrib.auth.models import Book, Course
-
 from django_restql.mixins import DynamicFieldsMixin
+
+from app.models import Book, Course
+
 
 class BookSerializer(DynamicFieldsMixin, serializers.ModelSerializer):
     class Meta:
@@ -225,9 +228,10 @@ With **django-restql** you can specify whether to return nested resource pk or d
 
 ```python
 from rest_framework import serializers
-from django.contrib.auth.models import Book, Course
-
 from django_restql.mixins import DynamicFieldsMixin
+
+from app.models import Book, Course
+
 
 class BookSerializer(DynamicFieldsMixin, serializers.ModelSerializer):
     class Meta:
@@ -265,9 +269,10 @@ So you can see that on a nested field `books` book pks have been returned instea
 Just like in querying data, mutating nested data with **django-restql** is very simple, you just have to inherit `NestedModelSerializer` on a serializer with nested fields and use `NestedField` to define those nested fields. Below is an example which shows how to use `NestedModelSerializer` and `NestedField`.
 ```python
 from rest_framework import serializers
-from app.models import Location, Amenity, Property
 from django_restql.serializers import NestedModelSerializer
 from django_restql.fields import NestedField
+
+from app.models import Location, Amenity, Property
 
 
 class LocationSerializer(serializers.ModelSerializer):
@@ -391,9 +396,11 @@ Response
 `accept_pk=True` is used if you want to update nested field by using pk/id of existing data(basically associate and dessociate existing nested resources with the parent resource without actually mutating the nested resource). This applies to ForeignKey relation only.
 
 ```python
-from app.models import Location, Amenity, Property
-from django_restql.serializers import NestedModelSerializer 
+from rest_framework import serializers 
 from django_restql.fields import NestedField
+from django_restql.serializers import NestedModelSerializer
+
+from app.models import Location, Property
 
 
 class LocationSerializer(serializers.ModelSerializer):
@@ -444,9 +451,11 @@ Response
 You can restrict some operations by using `create_ops` and `update_ops` keyword arguments as follows
 
 ```python
-from app.models import Location, Amenity, Property
-from django_restql.serializers import NestedModelSerializer 
+from rest_framework import serializers 
 from django_restql.fields import NestedField
+from django_restql.serializers import NestedModelSerializer 
+
+from app.models import Location, Amenity, Property
 
 
 class AmenitySerializer(serializers.ModelSerializer):
@@ -531,10 +540,12 @@ Response
 ### Using `DynamicFieldsMixin` and `NestedField` together
 You can use `DynamicFieldsMixin` and `NestedModelSerializer` together if you want your serializer to be writable(on nested fields) and support querying data, this is very common. Below is an example which shows how you can use `DynamicFieldsMixin` and `NestedField` together.
 ```python
-from app.models import Location, Property
-from django_restql.serializers import NestedModelSerializer 
+from rest_framework import serializers 
 from django_restql.fields import NestedField
 from django_restql.mixins import DynamicFieldsMixin
+from django_restql.serializers import NestedModelSerializer 
+
+from app.models import Location, Property
 
 
 class LocationSerializer(DynamicFieldsMixin, serializers.ModelSerializer):
