@@ -1,4 +1,4 @@
-from django.urls import reverse
+from django.urls import reverse_lazy
 from rest_framework.test import APITestCase
 from tests.testapp.models import Book, Course, Student, Phone
 
@@ -30,7 +30,7 @@ class DataQueryingTests(APITestCase):
     # *************** retrieve tests **************
 
     def test_retrieve_with_flat_query(self):
-        url = reverse("book-detail", args=[self.book1.id])
+        url = reverse_lazy("book-detail", args=[self.book1.id])
         response = self.client.get(url + '?query={title, author}', format="json")
 
         self.assertEqual(
@@ -42,7 +42,7 @@ class DataQueryingTests(APITestCase):
         )
 
     def test_retrieve_with_nested_flat_query(self):
-        url = reverse("student-detail", args=[self.student.id])
+        url = reverse_lazy("student-detail", args=[self.student.id])
         response = self.client.get(url + '?query={name, age, course{name}}', format="json")
 
         self.assertEqual(
@@ -57,7 +57,7 @@ class DataQueryingTests(APITestCase):
         )
 
     def test_retrieve_with_nested_iterable_query(self):
-        url = reverse("course-detail", args=[self.course.id])
+        url = reverse_lazy("course-detail", args=[self.course.id])
         response = self.client.get(url + '?query={name, code, books{title}}', format="json")
 
         self.assertEqual(
@@ -72,8 +72,8 @@ class DataQueryingTests(APITestCase):
             }
         )
 
-    def test_retrieve_reverse_relation_with_nested_iterable_query(self):
-        url = reverse("student-detail", args=[self.student.id])
+    def test_retrieve_reverse_lazy_relation_with_nested_iterable_query(self):
+        url = reverse_lazy("student-detail", args=[self.student.id])
         response = self.client.get(url + '?query={name, age, phone_numbers{number}}', format="json")
 
         self.assertEqual(
@@ -89,7 +89,7 @@ class DataQueryingTests(APITestCase):
         )
 
     def test_retrieve_without_query_param(self):
-        url = reverse("student-detail", args=[self.student.id])
+        url = reverse_lazy("student-detail", args=[self.student.id])
         response = self.client.get(url, format="json")
         self.assertEqual(
             response.data,
@@ -115,7 +115,7 @@ class DataQueryingTests(APITestCase):
     # *************** list tests **************
 
     def test_list_with_flat_query(self):
-        url = reverse("book-list")
+        url = reverse_lazy("book-list")
         response = self.client.get(url + '?query={title, author}', format="json")
 
         self.assertEqual(
@@ -134,7 +134,7 @@ class DataQueryingTests(APITestCase):
 
 
     def test_list_with_nested_flat_query(self):
-        url = reverse("student-list")
+        url = reverse_lazy("student-list")
         response = self.client.get(url + '?query={name, age, course{name}}', format="json")
 
         self.assertEqual(
@@ -151,7 +151,7 @@ class DataQueryingTests(APITestCase):
         )
 
     def test_list_with_nested_iterable_query(self):
-        url = reverse("course-list")
+        url = reverse_lazy("course-list")
         response = self.client.get(url + '?query={name, code, books{title}}', format="json")
 
         self.assertEqual(
@@ -168,8 +168,8 @@ class DataQueryingTests(APITestCase):
             ]
         )
 
-    def test_list_reverse_relation_with_nested_iterable_query(self):
-        url = reverse("student-list")
+    def test_list_reverse_lazy_relation_with_nested_iterable_query(self):
+        url = reverse_lazy("student-list")
         response = self.client.get(url + '?query={name, age, phone_numbers{number}}', format="json")
         self.assertEqual(
             response.data,
@@ -186,7 +186,7 @@ class DataQueryingTests(APITestCase):
         )
 
     def test_list_with_nested_flat_and_deep_iterable_query(self):
-        url = reverse("student-list")
+        url = reverse_lazy("student-list")
         response = self.client.get(url + '?query={name, age, course{name, books{title}}}', format="json")
 
         self.assertEqual(
@@ -207,7 +207,7 @@ class DataQueryingTests(APITestCase):
         )
 
     def test_list_without_query_param(self):
-        url = reverse("student-list")
+        url = reverse_lazy("student-list")
         response = self.client.get(url, format="json")
         self.assertEqual(
             response.data,
@@ -232,7 +232,7 @@ class DataQueryingTests(APITestCase):
         )
 
     def test_list_with_nested_field_without_expanding(self):
-        url = reverse("student-list")
+        url = reverse_lazy("student-list")
         response = self.client.get(url + '?query={name, age, course{name, books}}', format="json")
 
         self.assertEqual(
@@ -253,7 +253,7 @@ class DataQueryingTests(APITestCase):
         )
 
     def test_list_with_serializer_field_kwarg(self):
-        url = reverse("course_with_field_kwarg-list")
+        url = reverse_lazy("course_with_field_kwarg-list")
         response = self.client.get(url, format="json")
 
         self.assertEqual(
@@ -271,7 +271,7 @@ class DataQueryingTests(APITestCase):
         )
 
     def test_list_with_serializer_exclude_kwarg(self):
-        url = reverse("course_with_exclude_kwarg-list")
+        url = reverse_lazy("course_with_exclude_kwarg-list")
         response = self.client.get(url, format="json")
 
         self.assertEqual(
@@ -289,7 +289,7 @@ class DataQueryingTests(APITestCase):
         )
 
     def test_list_with_serializer_return_pk_kwarg(self):
-        url = reverse("course_with_returnpk_kwarg-list")
+        url = reverse_lazy("course_with_returnpk_kwarg-list")
         response = self.client.get(url, format="json")
 
         self.assertEqual(
@@ -336,7 +336,7 @@ class DataMutationTests(APITestCase):
     # **************** POST Tests ********************* #
 
     def test_post_on_pk_nested_foreignkey_related_field(self):
-        url = reverse("rstudent-list")
+        url = reverse_lazy("rstudent-list")
         data = {
             "name": "yezy",
             "age": 33,
@@ -360,7 +360,7 @@ class DataMutationTests(APITestCase):
         )
         
     def test_post_on_writable_nested_foreignkey_related_field(self):
-        url = reverse("wstudent-list")
+        url = reverse_lazy("wstudent-list")
         data = {
             "name": "yezy",
             "age": 33,
@@ -383,7 +383,7 @@ class DataMutationTests(APITestCase):
         )
 
     def test_post_with_add_operation(self):
-        url = reverse("rcourse-list")
+        url = reverse_lazy("rcourse-list")
         data = {
                 "name": "Data Structures",
                 "code": "CS310",
@@ -411,7 +411,7 @@ class DataMutationTests(APITestCase):
                     {"title": "Algebra Three", "author": "Me"}
                 ]}
         }
-        url = reverse("wcourse-list")
+        url = reverse_lazy("wcourse-list")
         response = self.client.post(url, data, format="json")
 
         self.assertEqual(
@@ -427,7 +427,7 @@ class DataMutationTests(APITestCase):
         )
 
     def test_post_on_deep_nested_fields(self):
-        url = reverse("wstudent-list")
+        url = reverse_lazy("wstudent-list")
         data = {
             "name": "yezy",
             "age": 33,
@@ -458,7 +458,7 @@ class DataMutationTests(APITestCase):
         )
 
     def test_post_on_many_2_one_relation(self):
-        url = reverse("wstudent-list")
+        url = reverse_lazy("wstudent-list")
         data = {
             "name": "yezy",
             "age": 33,
@@ -490,7 +490,7 @@ class DataMutationTests(APITestCase):
     # **************** PUT Tests ********************* #
 
     def test_put_on_pk_nested_foreignkey_related_field(self):
-        url = reverse("rstudent-detail", args=[self.student.id])
+        url = reverse_lazy("rstudent-detail", args=[self.student.id])
         data = {
             "name": "yezy",
             "age": 33,
@@ -515,7 +515,7 @@ class DataMutationTests(APITestCase):
         )
 
     def test_put_on_writable_nested_foreignkey_related_field(self):
-        url = reverse("wstudent-detail", args=[self.student.id])
+        url = reverse_lazy("wstudent-detail", args=[self.student.id])
         data = {
             "name": "yezy",
             "age": 33,
@@ -542,7 +542,7 @@ class DataMutationTests(APITestCase):
         )
 
     def test_put_with_add_operation(self):
-        url = reverse("rcourse-detail", args=[self.course2.id])
+        url = reverse_lazy("rcourse-detail", args=[self.course2.id])
         data = {
                 "name": "Data Structures",
                 "code": "CS410",
@@ -564,7 +564,7 @@ class DataMutationTests(APITestCase):
         )
 
     def test_put_with_remove_operation(self):
-        url = reverse("rcourse-detail", args=[self.course2.id])
+        url = reverse_lazy("rcourse-detail", args=[self.course2.id])
         data = {
                 "name": "Data Structures",
                 "code": "CS410",
@@ -583,7 +583,7 @@ class DataMutationTests(APITestCase):
         )
 
     def test_put_with_create_operation(self):
-        url = reverse("wcourse-detail", args=[self.course2.id])
+        url = reverse_lazy("wcourse-detail", args=[self.course2.id])
         data = {
                 "name": "Data Structures",
                 "code": "CS310",
@@ -607,7 +607,7 @@ class DataMutationTests(APITestCase):
         )
 
     def test_put_with_update_operation(self):
-        url = reverse("wcourse-detail", args=[self.course2.id])
+        url = reverse_lazy("wcourse-detail", args=[self.course2.id])
         data = {
                 "name": "Data Structures",
                 "code": "CS310",
@@ -630,7 +630,7 @@ class DataMutationTests(APITestCase):
         )
 
     def test_put_on_deep_nested_fields(self):
-        url = reverse("wstudent-detail", args=[self.student.id])
+        url = reverse_lazy("wstudent-detail", args=[self.student.id])
         data = {
             "name": "yezy",
             "age": 33,
@@ -661,7 +661,7 @@ class DataMutationTests(APITestCase):
         )
 
     def test_put_on_many_2_one_relation(self):
-        url = reverse("wstudent-detail", args=[self.student.id])
+        url = reverse_lazy("wstudent-detail", args=[self.student.id])
         data = {
             "name": "yezy",
             "age": 33,

@@ -300,7 +300,7 @@ class NestedCreateMixin(object):
 class NestedUpdateMixin(object):
     """ Update Mixin """
     def constrain_error_prefix(self, field):
-        return f"Error on {field} field: "
+        return "Error on %s field: " % (field,)
 
     def update_replaceable_foreignkey_related(self, instance, data):
         # data format {field: pk}
@@ -443,7 +443,7 @@ class NestedUpdateMixin(object):
                     )
                 else:
                     message = (
-                        f"{operation} is an invalid operation, "
+                        "%s is an invalid operation, " % (operation,)
                     )
                     raise ValidationError(message)
         return instance
@@ -486,7 +486,7 @@ class NestedUpdateMixin(object):
                     )
                 else:
                     message = (
-                        f"{operation} is an invalid operation, "
+                        "%s is an invalid operation, " % (operation,)
                     )
                     raise ValidationError(message)
         return instance
