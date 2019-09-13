@@ -195,6 +195,13 @@ def BaseNestedFieldSerializerFactory(*args,
             partial = True if request.method == "PATCH" else False
             return partial
 
+        def run_validation(self, data):
+            # Run `to_internal_value` only nothing more
+            # This is needed only on DRF 3.8.x due to a bug on it
+            # This function can be removed on other supported DRF verions 
+            # i.e v3.7 v3.9 v3.10 doesn't need this function
+            return self.to_internal_value(data)
+
         def validate_pk_based_nested(self, data):
             queryset = self.Meta.model.objects.all()
             validator = PrimaryKeyRelatedField(
