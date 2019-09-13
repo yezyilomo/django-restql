@@ -443,7 +443,7 @@ class NestedUpdateMixin(object):
                     )
                 else:
                     message = (
-                        f"{operation} is an invalid operation, "
+                        "%s is an invalid operation, " % (operation,)
                     )
                     raise ValidationError(message)
         return instance
@@ -486,7 +486,7 @@ class NestedUpdateMixin(object):
                     )
                 else:
                     message = (
-                        f"{operation} is an invalid operation, "
+                        "%s is an invalid operation, " % (operation,)
                     )
                     raise ValidationError(message)
         return instance
