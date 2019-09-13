@@ -18,6 +18,12 @@
 Isn't it cool?.
 
 
+## Requirements
+* Python >= 3.5
+* Django >= 1.10
+* Django REST Framework >= 3.5
+
+
 ## Installing
 
 ```python
@@ -55,7 +61,7 @@ A regular request returns all fields as specified on DRF serializer, in fact **d
     ]
 ```
 
-**django-restql** handle all GET requests with `query` parameter, this parameter is the one used to pass all fields to be included in a response. For example to select `id` and `username` fields from `user` model, send a request with a ` query` parameter as shown below.
+**django-restql** handle all GET requests with `query` parameter, this parameter is the one used to pass all fields to be included in a response. For example to select `id` and `username` fields from User model, send a request with a ` query` parameter as shown below.
 
 `GET /users/?query={id, username}`
 
