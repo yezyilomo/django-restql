@@ -150,15 +150,6 @@ class DynamicFieldsMixin(object):
 
 class NestedCreateMixin(object):
     """ Create Mixin """
-    def create_replaceable_foreignkey_related(self, data):
-        # data format {field: pk}
-        objs = {}
-        for field, pk in data.items():
-            model = self.get_fields()[field].Meta.model
-            obj = model.objects.get(pk=pk)
-            objs.update({field: obj})
-        return objs
-
     def create_writable_foreignkey_related(self, data):
         # data format {field: {sub_field: value}}
         request = self.context.get("request")
@@ -274,9 +265,7 @@ class NestedCreateMixin(object):
                 pass
 
         foreignkey_related = {
-            **self.create_replaceable_foreignkey_related(
-                fields["foreignkey_related"]["replaceable"]
-            ),
+            **fields["foreignkey_related"]["replaceable"],
             **self.create_writable_foreignkey_related(
                 fields["foreignkey_related"]["writable"]
             )
@@ -303,11 +292,9 @@ class NestedUpdateMixin(object):
         return "Error on %s field: " % (field,)
 
     def update_replaceable_foreignkey_related(self, instance, data):
-        # data format {field: pk}
+        # data format {field: obj}
         objs = {}
-        for field, pk in data.items():
-            model = self.get_fields()[field].Meta.model
-            nested_obj = model.objects.get(pk=pk)
+        for field, nested_obj in data.items():
             setattr(instance, field, nested_obj)
             instance.save()
             objs.update({field: instance})
