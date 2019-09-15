@@ -9,7 +9,7 @@ REQUIRES_PYTHON = '>=3.5'
 
 setup(
     name = 'django-restql',
-    version = '0.5.1',
+    version = '0.5.2',
     description = DESCRIPTION,
     long_description = readme,
     long_description_content_type = 'text/markdown',
@@ -18,10 +18,10 @@ setup(
     author_email = 'yezileliilomo@hotmail.com',
     license = 'MIT',
     packages = find_packages(exclude=('tests','test')),
-    package_data={'': ['LICENSE']},
+    package_data = {'': ['LICENSE']},
     install_requires = ['pypeg2', 'djangorestframework'],
     python_requires = REQUIRES_PYTHON,
-    classifiers=[
+    classifiers = [
         'Development Status :: 5 - Production/Stable',
         'Intended Audience :: Developers',
         'Natural Language :: English',
