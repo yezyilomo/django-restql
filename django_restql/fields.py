@@ -209,7 +209,7 @@ def BaseNestedFieldSerializerFactory(*args,
                 many=False
             )
             obj = validator.run_validation(data)
-            return data
+            return obj
 
         def validate_data_based_nested(self, data):
             request = self.context.get("request")
