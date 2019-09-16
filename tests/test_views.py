@@ -72,7 +72,7 @@ class DataQueryingTests(APITestCase):
             }
         )
 
-    def test_retrieve_reverse_lazy_relation_with_nested_iterable_query(self):
+    def test_retrieve_reverse_relation_with_nested_iterable_query(self):
         url = reverse_lazy("student-detail", args=[self.student.id])
         response = self.client.get(url + '?query={name, age, phone_numbers{number}}', format="json")
 
@@ -168,7 +168,7 @@ class DataQueryingTests(APITestCase):
             ]
         )
 
-    def test_list_reverse_lazy_relation_with_nested_iterable_query(self):
+    def test_list_reverse_relation_with_nested_iterable_query(self):
         url = reverse_lazy("student-list")
         response = self.client.get(url + '?query={name, age, phone_numbers{number}}', format="json")
         self.assertEqual(
