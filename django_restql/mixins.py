@@ -45,7 +45,7 @@ class DynamicFieldsMixin(object):
     def get_allowed_fields(self):
         fields = super().fields
         if self.allowed_fields is not None:
-            # Drop any fields that are not specified in the `fields` argument.
+            # Drop any fields that are not specified on `fields` argument.
             allowed = set(self.allowed_fields)
             existing = set(fields)
             not_allowed = existing.symmetric_difference(allowed)
@@ -57,7 +57,7 @@ class DynamicFieldsMixin(object):
                     raise FieldNotFound(msg) from None
 
         if self.excluded_fields is not None:
-            # Drop any fields that are not specified in the `exclude` argument.
+            # Drop any fields that are not specified on `exclude` argument.
             not_allowed = set(self.excluded_fields)
             for field_name in not_allowed:
                 try:
@@ -81,7 +81,10 @@ class DynamicFieldsMixin(object):
         if is_not_a_request_to_process:
             return fields
 
-        is_top_retrieve_request = self.source is None and self.parent is None
+        is_top_retrieve_request = (
+            self.source is None and 
+            self.parent is None
+        )
         is_top_list_request = (
             isinstance(self.parent, ListSerializer) and 
             self.parent.parent is None
@@ -93,8 +96,12 @@ class DynamicFieldsMixin(object):
                 try:
                     fields_query = parser.get_parsed()
                 except SyntaxError as e:
-                    msg = "Error: " + str(e.args[0]) + " after " + e.text
-                    raise ValidationError(msg)
+                    msg = (
+                        "QueryFormatError: " + 
+                        e.msg + " on " + 
+                        e.text
+                    )
+                    raise ValidationError(msg) from None
                     
         elif isinstance(self.parent, ListSerializer):
             source = self.parent.source
