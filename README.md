@@ -65,7 +65,7 @@ A regular request returns all fields as specified on DRF serializer, in fact **d
 
 `GET /users/?query={id, username}`
 
-```json
+```js
     [
       {
         "id": 1,
@@ -79,7 +79,7 @@ A regular request returns all fields as specified on DRF serializer, in fact **d
 
 `GET /users/?query={id, username, location{country, region}}`
 
-```json
+```js
     [
       {
         "id": 1,
@@ -97,7 +97,7 @@ A regular request returns all fields as specified on DRF serializer, in fact **d
 
 `GET /users/?query={id, username, groups{id, name}}`
 
-```json
+```js
     [
       {
         "id": 1,
@@ -121,7 +121,7 @@ If a query contains nested field without expanding and it's not defined as a nes
 
 `GET /users/?query={id, username, location, group}`
 
-```json
+```js
     [
       {
         "id": 1,
@@ -160,7 +160,7 @@ class CourseSerializer(DynamicFieldsMixin, serializers.ModelSerializer):
 
 `GET /courses/`
 
-```json
+```js
     [
       {
         "name": "Computer Programming",
@@ -199,7 +199,7 @@ class CourseSerializer(DynamicFieldsMixin, serializers.ModelSerializer):
 
 `GET /courses/`
 
-```json
+```js
     [
       {
         "name": "Computer Programming",
@@ -218,7 +218,7 @@ From the response above you can see that `author` field has been excluded fom bo
 
 `GET /books/`
 
-```json
+```js
     [
       {
         "id": 1,
@@ -256,7 +256,7 @@ class CourseSerializer(DynamicFieldsMixin, serializers.ModelSerializer):
 
 `GET /course/`
 
-```json
+```js
     [
       {
         "name": "Computer Programming",
@@ -312,7 +312,7 @@ class PropertySerializer(NestedModelSerializer):
 ```POST /api/property/```
 
 Request Body
-```json
+```js
 {
     "price": 60000,
     "location": {
@@ -335,7 +335,7 @@ What's done here is pretty clear, location will be created and associated with t
 <br>
 
 Response
-```json
+```js
 {
     "id": 2,
     "price": 60000,
@@ -357,7 +357,7 @@ Response
 ```PUT /api/property/2/```
 
 Request Body
-```json
+```js
 {
     "price": 50000,
     "location": {
@@ -379,7 +379,7 @@ Request Body
 <br>
 
 Response
-```json
+```js
 {
     "id": 2,
     "price": 50000,
@@ -430,7 +430,7 @@ class PropertySerializer(NestedModelSerializer):
 ```POST /api/property/```
 
 Request Body
-```json
+```js
 {
     "price": 40000,
     "location": 2
@@ -440,7 +440,7 @@ Request Body
 <br>
 
 Response
-```json
+```js
 {
     "id": 1,
     "price": 40000,
@@ -490,7 +490,7 @@ class PropertySerializer(NestedModelSerializer):
 ```POST /api/property/```
 
 Request Body
-```json
+```js
 {
     "price": 60000,
     "amenities": {
@@ -502,7 +502,7 @@ Request Body
 <br>
 
 Response
-```json
+```js
 {
     "id": 2,
     "price": 60000,
@@ -518,7 +518,7 @@ Response
 ```PUT /api/property/2/```
 
 Request Body
-```json
+```js
 {
     "price": 50000,
     "amenities": {
@@ -531,7 +531,7 @@ Request Body
 <br>
 
 Response
-```json
+```js
 {
     "id": 2,
     "price": 50000,
