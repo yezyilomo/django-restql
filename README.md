@@ -49,7 +49,7 @@ A regular request returns all fields as specified on DRF serializer, in fact **d
 
 `GET /users`
 
-``` json
+```js
     [
       {
         "id": 1,
