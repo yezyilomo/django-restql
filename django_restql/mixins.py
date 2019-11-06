@@ -82,7 +82,7 @@ class DynamicFieldsMixin(object):
             return fields
 
         is_top_retrieve_request = (
-            self.source is None and 
+            self.field_name is None and 
             self.parent is None
         )
         is_top_list_request = (
@@ -104,17 +104,17 @@ class DynamicFieldsMixin(object):
                     raise ValidationError(msg) from None
                     
         elif isinstance(self.parent, ListSerializer):
-            source = self.parent.source
+            field_name = self.parent.field_name
             parent = self.parent.parent
             fields_query = []
             if hasattr(parent, "nested_fields_queries"):
-                fields_query = parent.nested_fields_queries.get(source, None)
+                fields_query = parent.nested_fields_queries.get(field_name, None)
         elif isinstance(self.parent, Serializer):
-            source = self.source
+            field_name = self.field_name
             parent = self.parent
             fields_query = []
             if hasattr(parent, "nested_fields_queries"):
-                fields_query = parent.nested_fields_queries.get(source, None)
+                fields_query = parent.nested_fields_queries.get(field_name, None)
         else:
             # Unkown scenario
             return fields

@@ -27,6 +27,7 @@ router.register('courses', views.CourseViewSet, base_name='course')
 router.register('courses-with-returnpk-kwarg', views.CourseWithReturnPkkwargViewSet, base_name='course_with_returnpk_kwarg')
 router.register('courses-with-field-kwarg', views.CourseWithFieldsKwargViewSet, base_name='course_with_field_kwarg')
 router.register('courses-with-exclude-kwarg', views.CourseWithExcludeKwargViewSet, base_name='course_with_exclude_kwarg')
+router.register('courses-with-aliased-books', views.CourseWithAliasedBooksViewSet, base_name='course_with_aliased_books')
 router.register('students', views.StudentViewSet, base_name='student')
 
 router.register('writable-courses', views.WritableCourseViewSet, base_name='wcourse')

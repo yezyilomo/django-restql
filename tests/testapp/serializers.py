@@ -45,6 +45,13 @@ class CourseWithExcludeKwargSerializer(CourseSerializer):
         pass
 
 
+class CourseWithAliasedBooksSerializer(CourseSerializer):
+    tomes = BookSerializer(source="books", many=True, read_only=True)
+    class Meta:
+        model = Course
+        fields = ['name', 'code', 'tomes']
+
+
 class StudentSerializer(DynamicFieldsMixin, serializers.ModelSerializer):
     course = CourseSerializer(many=False, read_only=True)
     phone_numbers = PhoneSerializer(many=True, read_only=True)

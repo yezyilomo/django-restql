@@ -303,6 +303,24 @@ class DataQueryingTests(APITestCase):
             ]
         )
 
+    def test_list_with_aliased_books(self):
+        url = reverse_lazy("course_with_aliased_books-list")
+        
+        response = self.client.get(url + '?query={name, tomes{title}}', format="json")
+
+        self.assertEqual(
+            response.data,
+            [
+                {
+                    "name": "Data Structures",
+                    "tomes": [
+                        {"title": "Advanced Data Structures"},
+                        {"title": "Basic Data Structures"}
+                    ]
+                }
+            ]
+        )
+
 
 
 class DataMutationTests(APITestCase):
