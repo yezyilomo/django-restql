@@ -1,7 +1,7 @@
 import copy
 
 from rest_framework.serializers import (
-    Serializer, ListSerializer, 
+    Serializer, ListSerializer, SerializerMethodField,
     ValidationError, PrimaryKeyRelatedField
 )
 from django.db.models.fields.related import ManyToOneRel
@@ -12,6 +12,9 @@ from .operations import ADD, CREATE, REMOVE, UPDATE
 
 CREATE_SUPPORTED_OPERATIONS = (ADD, CREATE)
 UPDATE_SUPPORTED_OPERATIONS = (ADD, CREATE, REMOVE, UPDATE)
+
+class DynamicSerializerMethodField(SerializerMethodField):
+    pass
 
 class _ReplaceableField(object):
     pass
@@ -154,7 +157,7 @@ def BaseNestedFieldSerializerFactory(*args,
                 return data
             else:
                 wrap_quotes = lambda op: "'" + op + "'"
-                op_list =list(map(wrap_quotes, update_ops))
+                op_list = list(map(wrap_quotes, update_ops))
                 msg = (
                     "Expected data of form " +
                     "{" + ": [..], ".join(op_list) + ": [..]}"
@@ -163,8 +166,8 @@ def BaseNestedFieldSerializerFactory(*args,
 
         def to_internal_value(self, data):
             request = self.context.get('request')
-            context={"request": request}
-            if  request.method in ["PUT", "PATCH"]:
+            context = {"request": request}
+            if request.method in ["PUT", "PATCH"]:
                 return self.data_for_update(data)
 
             if request.method in ["POST"]:
@@ -213,7 +216,7 @@ def BaseNestedFieldSerializerFactory(*args,
 
         def validate_data_based_nested(self, data):
             request = self.context.get("request")
-            context={"request": request}
+            context = {"request": request}
             parent_serializer = serializer_class(
                 data=data, 
                 partial=self.is_partial,
@@ -240,7 +243,6 @@ def BaseNestedFieldSerializerFactory(*args,
         "args": args,
         "kwargs": kwargs
     }
-
 
 
 def NestedFieldWraper(*args, **kwargs):

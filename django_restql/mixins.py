@@ -1,7 +1,7 @@
 import copy
 
 from rest_framework.serializers import (
-    Serializer, ListSerializer, 
+    Serializer, ListSerializer,
     ValidationError
 )
 from django.db.models.fields.related import(
@@ -11,14 +11,18 @@ from django.db.models.fields.related import(
 from .parser import Parser
 from .exceptions import FieldNotFound
 from .operations import ADD, CREATE, REMOVE, UPDATE
-from .fields import _ReplaceableField, _WritableField
+from .fields import (
+    _ReplaceableField, _WritableField,
+    DynamicSerializerMethodField
+)
 
 
 class DynamicFieldsMixin(object):
     query_param_name = "query"
 
     def __init__(self, *args, **kwargs):
-        # Don't pass the 'fields' and 'exclude' arg up to the superclass
+        # Don't pass 'query', 'fields' and 'exclude' arg up to the superclass
+        self.query = kwargs.pop('query', None)  # Parsed query
         self.allowed_fields = kwargs.pop('fields', None)
         self.excluded_fields = kwargs.pop('exclude', None)
         self.return_pk = kwargs.pop('return_pk', False)
@@ -39,8 +43,22 @@ class DynamicFieldsMixin(object):
     def has_query_param(self, request):
         return self.query_param_name in request.query_params
 
-    def get_query_str(self, request):
+    def get_raw_query(self, request):
         return request.query_params[self.query_param_name]
+
+    def get_parsed_query_from_req(self, request):
+        raw_query = self.get_raw_query(request)
+        parser = Parser(raw_query)
+        try:
+            parsed_query = parser.get_parsed()
+            return parsed_query
+        except SyntaxError as e:
+            msg = (
+                "QueryFormatError: " + 
+                e.msg + " on " + 
+                e.text
+            )
+            raise ValidationError(msg) from None
 
     def get_allowed_fields(self):
         fields = super().fields
@@ -53,7 +71,7 @@ class DynamicFieldsMixin(object):
                 try:
                     fields.pop(field_name)
                 except KeyError:
-                    msg = "Field `%s` is not found"%field_name
+                    msg = "Field `%s` is not found" % field_name
                     raise FieldNotFound(msg) from None
 
         if self.excluded_fields is not None:
@@ -63,7 +81,7 @@ class DynamicFieldsMixin(object):
                 try:
                     fields.pop(field_name)
                 except KeyError:
-                    msg = "Field `%s` is not found"%field_name
+                    msg = "Field `%s` is not found" % field_name
                     raise FieldNotFound(msg) from None
         return fields
 
@@ -92,35 +110,26 @@ class DynamicFieldsMixin(object):
         )
 
         if is_top_retrieve_request or is_top_list_request:
-            query_str = self.get_query_str(request)
-            parser = Parser(query_str)
-            try:
-                fields_query = parser.get_parsed()
-            except SyntaxError as e:
-                msg = (
-                    "QueryFormatError: " + 
-                    e.msg + " on " + 
-                    e.text
-                )
-                raise ValidationError(msg) from None           
+            if self.query is None:
+                self.query = self.get_parsed_query_from_req(request)
         elif isinstance(self.parent, ListSerializer):
             field_name = self.parent.field_name
             parent = self.parent.parent
             if hasattr(parent, "nested_fields_queries"):
                 parent_nested_fields = parent.nested_fields_queries
-                fields_query = parent_nested_fields.get(field_name, None)
+                self.query = parent_nested_fields.get(field_name, None)
         elif isinstance(self.parent, Serializer):
             field_name = self.field_name
             parent = self.parent
             if hasattr(parent, "nested_fields_queries"):
                 parent_nested_fields = parent.nested_fields_queries
-                fields_query = parent_nested_fields.get(field_name, None)
+                self.query = parent_nested_fields.get(field_name, None)
         else:
             # Unkown scenario
             # No filtering of fields
             return fields
 
-        if fields_query is None:
+        if self.query is None:
             # No filtering on nested fields
             # Retrieve all nested fields
             return fields
@@ -128,14 +137,17 @@ class DynamicFieldsMixin(object):
         all_fields = list(fields.keys())
         allowed_nested_fields = {}
         allowed_flat_fields = []
-        for field in fields_query:
+        for field in self.query:
             if isinstance(field, dict):
                 # Nested field
                 for nested_field in field:
                     if nested_field not in all_fields:
                         msg = "'%s' field is not found" % field
                         raise ValidationError(msg)
-                    nested_classes = (Serializer, ListSerializer)
+                    nested_classes = (
+                        Serializer, ListSerializer, 
+                        DynamicSerializerMethodField
+                    )
                     if not isinstance(fields[nested_field], nested_classes):
                         msg = "'%s' is not a nested field" % nested_field
                         raise ValidationError(msg)
@@ -163,7 +175,7 @@ class NestedCreateMixin(object):
     def create_writable_foreignkey_related(self, data):
         # data format {field: {sub_field: value}}
         request = self.context.get("request")
-        context={"request": request}
+        context = {"request": request}
         objs = {}
         for field, value in data.items():
             # Get serializer class for nested field
@@ -176,7 +188,7 @@ class NestedCreateMixin(object):
 
     def bulk_create_objs(self, field, data):
         request = self.context.get("request")
-        context={"request": request}
+        context = {"request": request}
         model = self.get_fields()[field].child.Meta.model
         SerializerClass = type(self.get_fields()[field].child)
         pks = []
@@ -313,7 +325,7 @@ class NestedUpdateMixin(object):
     def update_writable_foreignkey_related(self, instance, data):
         # data format {field: {sub_field: value}}
         request = self.context.get("request")
-        context={"request": request}
+        context = {"request": request}
         objs = {}
         for field, values in data.items():
             # Get serializer class for nested field
@@ -332,7 +344,8 @@ class NestedUpdateMixin(object):
 
     def bulk_create_many_to_many_related(self, field, nested_obj, data):
         request = self.context.get("request")
-        context={"request": request}
+        context = {"request": request}
+
         # Get serializer class for nested field
         SerializerClass = type(self.get_fields()[field].child)
         pks = []
@@ -346,7 +359,8 @@ class NestedUpdateMixin(object):
 
     def bulk_create_many_to_one_related(self, field, nested_obj, data):
         request = self.context.get("request")
-        context={"request": request}
+        context = {"request": request}
+
         # Get serializer class for nested field
         SerializerClass = type(self.get_fields()[field].child)
         pks = []
@@ -361,7 +375,8 @@ class NestedUpdateMixin(object):
         # {pk: {sub_field: values}}
         objs = []
         request = self.context.get("request")
-        context={"request": request}
+        context = {"request": request}
+
         # Get serializer class for nested field
         SerializerClass = type(self.get_fields()[field].child)
         for pk, values in data.items():
@@ -381,7 +396,8 @@ class NestedUpdateMixin(object):
         # {pk: {sub_field: values}}
         objs = []
         request = self.context.get("request")
-        context={"request": request}
+        context = {"request": request}
+
         # Get serializer class for nested field
         SerializerClass = type(self.get_fields()[field].child)
         model = self.Meta.model

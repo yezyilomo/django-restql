@@ -8,7 +8,8 @@ from tests.testapp.serializers import (
 	CourseWithFieldsKwargSerializer, CourseWithExcludeKwargSerializer,
 	CourseWithReturnPkkwargSerializer, ReplaceableStudentSerializer,
 	WritableStudentSerializer, WritableCourseSerializer,
-	ReplaceableCourseSerializer, CourseWithAliasedBooksSerializer
+	ReplaceableCourseSerializer, CourseWithAliasedBooksSerializer,
+	CourseWithDynamicSerializerMethodField
 )
 
 
@@ -41,6 +42,11 @@ class CourseWithExcludeKwargViewSet(viewsets.ModelViewSet):
 
 class CourseWithAliasedBooksViewSet(viewsets.ModelViewSet):
 	serializer_class = CourseWithAliasedBooksSerializer
+	queryset = Course.objects.all()
+
+
+class CourseWithDynamicSerializerMethodFieldViewSet(viewsets.ModelViewSet):
+	serializer_class = CourseWithDynamicSerializerMethodField
 	queryset = Course.objects.all()
 
 
