@@ -21,6 +21,30 @@ class DataQueryingTests(APITestCase):
         self.phone1 = Phone.objects.create(number="076711110", type="Office", student=self.student)
         self.phone2 = Phone.objects.create(number="073008880", type="Home", student=self.student)
 
+    def add_second_student(self):
+        """
+        Adds an additional student with their own course, course books, and phone numbers.
+        """
+        book1 = Book.objects.create(title="Algorithm Design", author="S.Mobit")
+        book2 = Book.objects.create(title="Proving Algorithms", author="S.Mobit")
+
+        course = Course.objects.create(
+            name="Algorithms", code="CS260"
+        )
+
+        course.books.set([book1, book2])
+
+        student = Student.objects.create(
+            name="Tyler", age=25, course=course
+        )
+
+        Phone.objects.create(number="075711110", type="Office", student=student)
+        Phone.objects.create(number="073008880", type="Home", student=student)
+
+        student.refresh_from_db()
+
+        return student
+
     def tearDown(self):
         Book.objects.all().delete()
         Course.objects.all().delete()
@@ -111,6 +135,78 @@ class DataQueryingTests(APITestCase):
             }
         )
 
+    def test_retrieve_with_restql_view_mixin(self):
+        """
+        Ensure that we apply our prefetching or joins when we explicitly ask for fields in the
+        mapping.
+        """
+        non_mixin_url = reverse_lazy("student-detail", args=[self.student.id])
+        mixin_url = reverse_lazy("student_with_restql_mixin-detail", args=[self.student.id])
+
+        expected_data = {
+            "name": "Yezy",
+            "age": 24,
+            "course": {
+                "name": "Data Structures",
+                "books": [
+                    {"title": "Advanced Data Structures", "author": "S.Mobit"},
+                    {"title": "Basic Data Structures", "author": "S.Mobit"}
+                ]
+            }
+        }
+
+        # Will need to fetch the course and books on serialization.
+        with self.assertNumQueries(3):
+            response = self.client.get(non_mixin_url + '?query={name, age, course{name, books}}', format="json")
+            self.assertEqual(response.data, expected_data)
+
+        # Should select_related the course and prefetch the books.
+        with self.assertNumQueries(2):
+            response = self.client.get(mixin_url + '?query={name, age, course{name, books}}', format="json")
+            self.assertEqual(response.data, expected_data)
+
+    def test_retrieve_with_restql_view_mixin_ignored(self):
+        """
+        Ensure that we do not apply our joining/prefetching if the mapped fields aren't present.
+        """
+        url = reverse_lazy("student_with_restql_mixin-detail", args=[self.student.id])
+
+        # Make sure that no additional prefetching or select_related are run if we don't ask for
+        # nested values.
+        with self.assertNumQueries(1):
+            response = self.client.get(url + '?query={name, age}', format="json")
+            self.assertEqual(
+                response.data,
+                {
+                    "name": "Yezy",
+                    "age": 24,
+                }
+            )
+
+    def test_retrieve_with_restql_view_mixin_implicit(self):
+        """
+        Test that we implicitly apply our nested prefetching, since the field is present.
+        """
+        url = reverse_lazy("student_with_restql_mixin-detail", args=[self.student.id])
+
+        # This would be 3 without doing a select_related.
+        with self.assertNumQueries(2):
+            response = self.client.get(url + '?query={name, age, course}', format="json")
+            self.assertEqual(
+                response.data,
+                {
+                    "name": "Yezy",
+                    "age": 24,
+                    "course": {
+                        "name": "Data Structures",
+                        "code": "CS210",
+                        "books": [
+                            {"title": "Advanced Data Structures", "author": "S.Mobit"},
+                            {"title": "Basic Data Structures", "author": "S.Mobit"}
+                        ]
+                    },
+                }
+            )
 
     # *************** list tests **************
 
@@ -131,7 +227,6 @@ class DataQueryingTests(APITestCase):
                 }
             ]
         )
-
 
     def test_list_with_nested_flat_query(self):
         url = reverse_lazy("student-list")
@@ -338,6 +433,117 @@ class DataQueryingTests(APITestCase):
                 }
             ]
         )
+
+    def test_list_with_restql_view_mixin(self):
+        """
+        Ensure that we apply our prefetching or joins when we explicitly ask for fields in the
+        mapping.
+        """
+        non_mixin_url = reverse_lazy("student-list")
+        mixin_url = reverse_lazy("student_with_restql_mixin-list")
+
+        self.add_second_student()
+
+        expected_data = [
+            {
+                "name": "Yezy",
+                "age": 24,
+                "course": {
+                    "name": "Data Structures",
+                    "books": [
+                        {"title": "Advanced Data Structures", "author": "S.Mobit"},
+                        {"title": "Basic Data Structures", "author": "S.Mobit"}
+                    ]
+                }
+            },
+            {
+                "name": "Tyler",
+                "age": 25,
+                "course": {
+                    "name": "Algorithms",
+                    "books": [
+                        {"title": "Algorithm Design", "author": "S.Mobit"},
+                        {"title": "Proving Algorithms", "author": "S.Mobit"}
+                    ]
+                }
+            },
+        ]
+
+        # This fetches both course names and books for each, so 5 queries total.
+        with self.assertNumQueries(5):
+            response = self.client.get(non_mixin_url + '?query={name, age, course{name, books}}', format="json")
+            self.assertEqual(response.data, expected_data)
+
+        # This fetches the course information with the student and prefetches once for the books.
+        with self.assertNumQueries(2):
+            response = self.client.get(mixin_url + '?query={name, age, course{name, books}}', format="json")
+            self.assertEqual(response.data, expected_data)
+
+    def test_list_with_restql_view_mixin_ignored(self):
+        """
+        Ensure that we do not apply our joining/prefetching if the mapped fields aren't present.
+        """
+        url = reverse_lazy("student_with_restql_mixin-list")
+        self.add_second_student()
+
+        # Make sure that no additional prefetching or select_related are run if we don't ask for
+        # nested values.
+        with self.assertNumQueries(1):
+            response = self.client.get(url + '?query={name, age}', format="json")
+            self.assertEqual(
+                response.data,
+                [
+                    {
+                        "name": "Yezy",
+                        "age": 24,
+                    },
+                    {
+                        "name": "Tyler",
+                        "age": 25,
+                    }
+                ]
+
+            )
+
+    def test_list_with_restql_view_mixin_implicit(self):
+        """
+        Test that we implicitly apply our nested prefetching, since the field is present.
+        """
+        url = reverse_lazy("student_with_restql_mixin-list")
+        self.add_second_student()
+
+        # This would be 5 without doing a select_related and prefetch_related.
+        with self.assertNumQueries(2):
+            response = self.client.get(url + '?query={name, age, course}', format="json")
+            self.assertEqual(
+                response.data,
+                [
+                    {
+                        "name": "Yezy",
+                        "age": 24,
+                        "course": {
+                            "name": "Data Structures",
+                            "code": "CS210",
+                            "books": [
+                                {"title": "Advanced Data Structures", "author": "S.Mobit"},
+                                {"title": "Basic Data Structures", "author": "S.Mobit"}
+                            ]
+                        },
+                    },
+                    {
+                        "name": "Tyler",
+                        "age": 25,
+                        "course": {
+                            "name": "Algorithms",
+                            "code": "CS260",
+                            "books": [
+                                {"title": "Algorithm Design", "author": "S.Mobit"},
+                                {"title": "Proving Algorithms", "author": "S.Mobit"}
+                            ]
+                        }
+                    }
+                ]
+            )
 
 
 class DataMutationTests(APITestCase):
