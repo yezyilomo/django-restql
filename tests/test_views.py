@@ -321,6 +321,23 @@ class DataQueryingTests(APITestCase):
             ]
         )
 
+    def test_list_with_dynamic_serializer_method_field(self):
+        url = reverse_lazy("course_with_dynamic_serializer_method_field-list")
+        
+        response = self.client.get(url + '?query={name, tomes{title}}', format="json")
+
+        self.assertEqual(
+            response.data,
+            [
+                {
+                    "name": "Data Structures",
+                    "tomes": [
+                        {"title": "Advanced Data Structures"},
+                        {"title": "Basic Data Structures"}
+                    ]
+                }
+            ]
+        )
 
 
 class DataMutationTests(APITestCase):

@@ -1,6 +1,6 @@
 from rest_framework import serializers
 from tests.testapp.models import Book, Course, Student, Phone
-from django_restql.fields import  NestedField
+from django_restql.fields import  NestedField, DynamicSerializerMethodField
 from django_restql.mixins import DynamicFieldsMixin
 from django_restql.serializers import NestedModelSerializer
 
@@ -50,6 +50,23 @@ class CourseWithAliasedBooksSerializer(CourseSerializer):
     class Meta:
         model = Course
         fields = ['name', 'code', 'tomes']
+
+
+class CourseWithDynamicSerializerMethodField(CourseSerializer):
+    tomes = DynamicSerializerMethodField()
+    class Meta:
+        model = Course
+        fields = ['name', 'code', 'tomes']
+
+    def get_tomes(self, obj):
+        request = self.context.get("request")
+        context = {"request": request}
+        books = obj.books.all()
+
+        # get child query from parent
+        query = self.nested_fields_queries["tomes"]
+        serializer = BookSerializer(books, query=query, many=True, read_only=True, context=context)
+        return serializer.data
 
 
 class StudentSerializer(DynamicFieldsMixin, serializers.ModelSerializer):
