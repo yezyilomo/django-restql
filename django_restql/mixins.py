@@ -87,36 +87,37 @@ class DynamicFieldsMixin(object):
         )
         is_top_list_request = (
             isinstance(self.parent, ListSerializer) and 
-            self.parent.parent is None
+            self.parent.parent is None and
+            self.parent.field_name is None
         )
 
         if is_top_retrieve_request or is_top_list_request:
-                query_str = self.get_query_str(request)
-                parser = Parser(query_str)
-                try:
-                    fields_query = parser.get_parsed()
-                except SyntaxError as e:
-                    msg = (
-                        "QueryFormatError: " + 
-                        e.msg + " on " + 
-                        e.text
-                    )
-                    raise ValidationError(msg) from None
-                    
+            query_str = self.get_query_str(request)
+            parser = Parser(query_str)
+            try:
+                fields_query = parser.get_parsed()
+            except SyntaxError as e:
+                msg = (
+                    "QueryFormatError: " + 
+                    e.msg + " on " + 
+                    e.text
+                )
+                raise ValidationError(msg) from None           
         elif isinstance(self.parent, ListSerializer):
             field_name = self.parent.field_name
             parent = self.parent.parent
-            fields_query = []
             if hasattr(parent, "nested_fields_queries"):
-                fields_query = parent.nested_fields_queries.get(field_name, None)
+                parent_nested_fields = parent.nested_fields_queries
+                fields_query = parent_nested_fields.get(field_name, None)
         elif isinstance(self.parent, Serializer):
             field_name = self.field_name
             parent = self.parent
-            fields_query = []
             if hasattr(parent, "nested_fields_queries"):
-                fields_query = parent.nested_fields_queries.get(field_name, None)
+                parent_nested_fields = parent.nested_fields_queries
+                fields_query = parent_nested_fields.get(field_name, None)
         else:
             # Unkown scenario
+            # No filtering of fields
             return fields
 
         if fields_query is None:
@@ -147,7 +148,9 @@ class DynamicFieldsMixin(object):
                 allowed_flat_fields.append(field)
         self.nested_fields_queries = allowed_nested_fields
         
-        all_allowed_fields = allowed_flat_fields + list(allowed_nested_fields)
+        all_allowed_fields = (
+            allowed_flat_fields + list(allowed_nested_fields.keys())
+        )
         for field in all_fields:
             if field not in all_allowed_fields:
                 fields.pop(field)
