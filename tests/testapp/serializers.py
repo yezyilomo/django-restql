@@ -1,6 +1,6 @@
 from rest_framework import serializers
 from tests.testapp.models import Book, Course, Student, Phone
-from django_restql.fields import  NestedField, DynamicSerializerMethodField
+from django_restql.fields import NestedField, DynamicSerializerMethodField
 from django_restql.mixins import DynamicFieldsMixin
 from django_restql.serializers import NestedModelSerializer
 
@@ -21,6 +21,7 @@ class PhoneSerializer(DynamicFieldsMixin, serializers.ModelSerializer):
 ################# Serializers for Data Querying Testing ################
 class CourseSerializer(DynamicFieldsMixin, serializers.ModelSerializer):
     books = BookSerializer(many=True, read_only=True)
+
     class Meta:
         model = Course
         fields = ['name', 'code', 'books']
@@ -28,6 +29,7 @@ class CourseSerializer(DynamicFieldsMixin, serializers.ModelSerializer):
 
 class CourseWithReturnPkkwargSerializer(CourseSerializer):
     books = BookSerializer(many=True, read_only=True, return_pk=True)
+
     class Meta:
         model = Course
         fields = ['name', 'code', 'books']
@@ -35,18 +37,21 @@ class CourseWithReturnPkkwargSerializer(CourseSerializer):
 
 class CourseWithFieldsKwargSerializer(CourseSerializer):
     books = BookSerializer(many=True, read_only=True, fields=["title"])
+
     class Meta(CourseSerializer.Meta):
         pass
 
 
 class CourseWithExcludeKwargSerializer(CourseSerializer):
     books = BookSerializer(many=True, read_only=True, exclude=["author"])
+
     class Meta(CourseSerializer.Meta):
         pass
 
 
 class CourseWithAliasedBooksSerializer(CourseSerializer):
     tomes = BookSerializer(source="books", many=True, read_only=True)
+
     class Meta:
         model = Course
         fields = ['name', 'code', 'tomes']
@@ -54,6 +59,7 @@ class CourseWithAliasedBooksSerializer(CourseSerializer):
 
 class CourseWithDynamicSerializerMethodField(CourseSerializer):
     tomes = DynamicSerializerMethodField()
+
     class Meta:
         model = Course
         fields = ['name', 'code', 'tomes']
@@ -72,6 +78,7 @@ class CourseWithDynamicSerializerMethodField(CourseSerializer):
 class StudentSerializer(DynamicFieldsMixin, serializers.ModelSerializer):
     course = CourseSerializer(many=False, read_only=True)
     phone_numbers = PhoneSerializer(many=True, read_only=True)
+
     class Meta:
         model = Student
         fields = ['name', 'age', 'course', 'phone_numbers']
