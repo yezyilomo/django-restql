@@ -110,11 +110,7 @@ class DynamicFieldsMixin(object):
         )
 
         if is_top_retrieve_request or is_top_list_request:
-            if self.query is not None:
-                # The field_query is specified as kwarg
-                pass
-            else:
-                # Get field_query from the request
+            if self.query is None:
                 self.query = self.get_parsed_query_from_req(request)
         elif isinstance(self.parent, ListSerializer):
             field_name = self.parent.field_name
