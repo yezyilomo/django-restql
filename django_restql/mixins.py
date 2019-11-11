@@ -1,7 +1,7 @@
 import copy
 
 from rest_framework.serializers import (
-    Serializer, ListSerializer, SerializerMethodField,
+    Serializer, ListSerializer,
     ValidationError
 )
 from django.db.models.fields.related import(
