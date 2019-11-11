@@ -1,7 +1,7 @@
 import copy
 
 from rest_framework.serializers import (
-    Serializer, ListSerializer, 
+    Serializer, ListSerializer, SerializerMethodField,
     ValidationError, PrimaryKeyRelatedField
 )
 from django.db.models.fields.related import ManyToOneRel
@@ -12,6 +12,9 @@ from .operations import ADD, CREATE, REMOVE, UPDATE
 
 CREATE_SUPPORTED_OPERATIONS = (ADD, CREATE)
 UPDATE_SUPPORTED_OPERATIONS = (ADD, CREATE, REMOVE, UPDATE)
+
+class DynamicSerializerMethodField(SerializerMethodField):
+    pass
 
 class _ReplaceableField(object):
     pass

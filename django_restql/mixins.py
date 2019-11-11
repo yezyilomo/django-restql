@@ -1,7 +1,7 @@
 import copy
 
 from rest_framework.serializers import (
-    Serializer, ListSerializer, 
+    Serializer, ListSerializer, SerializerMethodField,
     ValidationError
 )
 from django.db.models.fields.related import(
@@ -11,14 +11,18 @@ from django.db.models.fields.related import(
 from .parser import Parser
 from .exceptions import FieldNotFound
 from .operations import ADD, CREATE, REMOVE, UPDATE
-from .fields import _ReplaceableField, _WritableField
+from .fields import (
+    _ReplaceableField, _WritableField, 
+    DynamicSerializerMethodField
+)
 
 
 class DynamicFieldsMixin(object):
     query_param_name = "query"
 
     def __init__(self, *args, **kwargs):
-        # Don't pass the 'fields' and 'exclude' arg up to the superclass
+        # Don't pass 'query', 'fields' and 'exclude' arg up to the superclass
+        self.query = kwargs.pop('query', None) # Parsed query
         self.allowed_fields = kwargs.pop('fields', None)
         self.excluded_fields = kwargs.pop('exclude', None)
         self.return_pk = kwargs.pop('return_pk', False)
@@ -39,8 +43,22 @@ class DynamicFieldsMixin(object):
     def has_query_param(self, request):
         return self.query_param_name in request.query_params
 
-    def get_query_str(self, request):
+    def get_raw_query(self, request):
         return request.query_params[self.query_param_name]
+
+    def get_parsed_query_from_req(self, request):
+        raw_query = self.get_raw_query(request)
+        parser = Parser(raw_query)
+        try:
+            pared_query = parser.get_parsed()
+            return pared_query
+        except SyntaxError as e:
+            msg = (
+                "QueryFormatError: " + 
+                e.msg + " on " + 
+                e.text
+            )
+            raise ValidationError(msg) from None
 
     def get_allowed_fields(self):
         fields = super().fields
@@ -92,35 +110,30 @@ class DynamicFieldsMixin(object):
         )
 
         if is_top_retrieve_request or is_top_list_request:
-            query_str = self.get_query_str(request)
-            parser = Parser(query_str)
-            try:
-                fields_query = parser.get_parsed()
-            except SyntaxError as e:
-                msg = (
-                    "QueryFormatError: " + 
-                    e.msg + " on " + 
-                    e.text
-                )
-                raise ValidationError(msg) from None           
+            if self.query is not None:
+                # The field_query is specified as kwarg
+                pass
+            else:
+                # Get field_query from the request
+                self.query = self.get_parsed_query_from_req(request)
         elif isinstance(self.parent, ListSerializer):
             field_name = self.parent.field_name
             parent = self.parent.parent
             if hasattr(parent, "nested_fields_queries"):
                 parent_nested_fields = parent.nested_fields_queries
-                fields_query = parent_nested_fields.get(field_name, None)
+                self.query = parent_nested_fields.get(field_name, None)
         elif isinstance(self.parent, Serializer):
             field_name = self.field_name
             parent = self.parent
             if hasattr(parent, "nested_fields_queries"):
                 parent_nested_fields = parent.nested_fields_queries
-                fields_query = parent_nested_fields.get(field_name, None)
+                self.query = parent_nested_fields.get(field_name, None)
         else:
             # Unkown scenario
             # No filtering of fields
             return fields
 
-        if fields_query is None:
+        if self.query is None:
             # No filtering on nested fields
             # Retrieve all nested fields
             return fields
@@ -128,14 +141,17 @@ class DynamicFieldsMixin(object):
         all_fields = list(fields.keys())
         allowed_nested_fields = {}
         allowed_flat_fields = []
-        for field in fields_query:
+        for field in self.query:
             if isinstance(field, dict):
                 # Nested field
                 for nested_field in field:
                     if nested_field not in all_fields:
                         msg = "'%s' field is not found" % field
                         raise ValidationError(msg)
-                    nested_classes = (Serializer, ListSerializer)
+                    nested_classes = (
+                        Serializer, ListSerializer, 
+                        DynamicSerializerMethodField
+                    )
                     if not isinstance(fields[nested_field], nested_classes):
                         msg = "'%s' is not a nested field" % nested_field
                         raise ValidationError(msg)
