@@ -8,6 +8,7 @@ from django.db.models.fields.related import(
     ManyToOneRel, ManyToManyRel
 )
 
+from .utils import apply_restql_orm_mapping
 from .parser import Parser
 from .exceptions import FieldNotFound
 from .operations import ADD, CREATE, REMOVE, UPDATE
@@ -565,3 +566,33 @@ class NestedUpdateMixin(object):
         )
 
         return super().update(instance, validated_data)
+
+
+class RestQLViewMixin(object):
+    @property
+    def restql_query(self):
+        if "query" in self.request.query_params.keys():
+            try:
+                return Parser(self.request.query_params["query"]).get_parsed()
+            except SyntaxError:
+                pass
+        return None
+
+    def get_restql_orm_mapping(self):
+        if hasattr(self, "restql_orm_mapping"):
+            return self.restql_orm_mapping
+        elif (
+            self.get_serializer_class()
+            and hasattr(self.get_serializer_class(), "Meta")
+            and hasattr(self.get_serializer_class().Meta, "restql_orm_mapping")
+        ):
+            return self.get_serializer_class().Meta.restql_orm_mapping
+
+        return None
+
+    def get_restql_queryset(self, queryset):
+        if self.restql_query is not None:
+            restql_keys = Parser(self.request.query_params["query"]).get_dict()
+            mapping = self.get_restql_orm_mapping()
+            queryset = apply_restql_orm_mapping(queryset, restql_keys, mapping)
+        return queryset
