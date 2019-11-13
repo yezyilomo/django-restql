@@ -20,8 +20,6 @@ class BookViewSet(viewsets.ModelViewSet):
 
 
 class CourseViewSet(viewsets.ModelViewSet):
-	select_related = []
-	prefetch_related = ["books"]
 	serializer_class = CourseSerializer
 	queryset = Course.objects.all()
 
