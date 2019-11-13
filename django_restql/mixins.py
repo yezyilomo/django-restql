@@ -559,13 +559,10 @@ class NestedUpdateMixin(object):
 class RestQLViewMixin(object):
     @property
     def restql_query(self):
-        query_param = self.get_restql_query_param()
-        if query_param and query_param in self.request.query_params.keys():
-            try:
-                return Parser(self.request.query_params[query_param]).get_parsed()
-            except SyntaxError:
-                pass
-        return None
+        serializer_class = self.get_serializer_class()
+
+        if hasattr(serializer_class, "query_param_name"):
+            return serializer_class.get_parsed_query_from_req(self.request)
 
     def get_queryset(self):
         queryset = super().get_queryset()
@@ -573,11 +570,6 @@ class RestQLViewMixin(object):
         if self.restql_query is not None:
             queryset = self.get_restql_queryset(queryset)
         return queryset
-
-    def get_restql_query_param(self):
-        serializer_class = self.get_serializer_class()
-        if hasattr(serializer_class, "query_param_name"):
-            return serializer_class.query_param_name
 
     def get_prefetch_related_mapping(self):
         serializer_class = self.get_serializer_class()
@@ -626,7 +618,6 @@ class RestQLViewMixin(object):
 
     def get_restql_queryset(self, queryset):
         if self.restql_query is not None:
-            query_param = self.get_restql_query_param()
             queryset = self.apply_restql_orm_mapping(queryset)
         return queryset
 
