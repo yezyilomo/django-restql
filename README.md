@@ -615,6 +615,92 @@ location = NestedField(LocationSerializer, return_pk=True)
     **Note:** To be able to do this you must understand how **django-restql** is implemented, specifically **DynamicFieldsMixin** class, you can check it [here](https://github.com/yezyilomo/django-restql/blob/master/django_restql/mixins.py). In fact this is how **django-restql** is implemented(just by overriding `field` method of a serializer, nothing more and nothing less).
 
 
+## View Query Control (`RestQLViewMixin`)
+Often times, using `prefetch_related` or `select_related` on a view queryset can help speed up the serialization. For example, if you had a many-to-many relation like Books to a Course, it's usually more efficient to call `prefetch_related` on the books so that serializing a list of courses only triggers one additional query, instead of a number of queries equal to the number of courses.
+
+This mixin gives access to `prefetch_related` and `select_related` properties which are dictionaries that match serializer field names to respective values that would be passed into `prefetch_related` or `select_related`. Take the following serializers as examples.
+
+```python
+class CourseSerializer(DynamicFieldsMixin, serializers.ModelSerializer):
+    books = BookSerializer(many=True, read_only=True)
+
+    class Meta:
+        model = Course
+        fields = ['name', 'code', 'books']
+
+class StudentWithAliasSerializer(DynamicFieldsMixin, serializers.ModelSerializer):
+    program = CourseSerializer(source="course", many=False, read_only=True)
+    phone_numbers = PhoneSerializer(many=True, read_only=True)
+
+    class Meta:
+        model = Student
+        fields = ['name', 'age', 'program', 'phone_numbers']
+```
+
+In a view, these can be used as described earlier in this readme. However, if prefetching of `books` always happened, but we did not ask for `{program}` or `program{books}`, then we did an additional query for nothing. Conversely, not prefetching can lead to even more queries being triggered. When leveraging the `RestQLViewMixin` on a view, the specific fields that warrant a `select_related` or `prefetch_related` can be described.
+
+
+### View `prefetch_related` and `select_related` syntax
+Strings and `Prefetch` objects are passed directly into the corresponding ORM functions on the queryset (`prefetch_related` or `select_related`). The accepted values for keys include:
+
+- A single string or `Prefetch` object.
+- A list of strings or `Prefetch` objects.
+- A dictionary with the optional keys `base` and `nested`.
+  - `base` accepts
+    - A single string or `Prefetch` object.
+    - A list of strings or `Prefetch` objects.
+  - `nested` accepts
+    - A dictionary of keys matching nested field names under the base key. The vales for these can be any listed at the top level of this list.
+
+When fetching a field with a dictionary, `base` is always run, and `nested` fields are only run if they are present on that nested key, like `books` on `program`.
+
+### Example viewset usage
+
+```python
+from rest_framework import viewsets
+from django_restql.mixins import RestQLViewMixin
+from myapp.serializers import StudentWithAliasSerializer
+from myapp.models import Student
+
+class StudentRestQLViewSet(RestQLViewMixin, viewsets.ModelViewSet):
+	serializer_class = StudentWithAliasSerializer
+	queryset = Student.objects.all()
+	select_related = {
+		"program": "course"
+	}
+	prefetch_related = {
+		"program": {
+			"nested": {
+				"books": "course__books"
+			}
+		}
+	}
+```
+
+### Example Queries
+
+- `{name}`
+
+  Neither `select_related` or `prefetch_related` will be run since neither field is present on the serializer for this query.
+
+- `{program}`
+  
+  Both `select_related` and `prefetch_related` will be run, since `program` is present in it's entirety (including the `books` field).
+
+- `{program{name}}`
+  
+  Only `select_related` will be run, since `books` are not present on the program fields.
+
+- `{program{books}}`
+  
+  Both will be run here as well, since this explicitly fetches books.
+
+### Known Caveats
+When prefetching with a `to_attr`, ensure that there are no collisions. Django does not allow multiple prefetches with the same `to_attr` on the same queryset.
+
+When prefetching *and* calling `select_related` on a field, Django may error, since the ORM does allow prefetching a selectable field, but not both at the same time.
+
+
 ## Running Tests
 `python setup.py test`
 
