@@ -32,25 +32,6 @@ class Parser(object):
         parsed = parse(self._query, Block)
         return self._transform_block(parsed)
 
-    def get_dict(self, data=None):
-        """
-        Returns the RestQL query as a dict.
-        """
-        keys = {}
-        if not data:
-            data = self.get_parsed()
-
-        for item in data:
-            if isinstance(item, str):
-                keys[item] = None
-            elif isinstance(item, dict):
-                for key, nested_items in item.items():
-                    key_base = key
-                    nested_keys = self.get_dict(nested_items)
-                    keys[key_base] = nested_keys
-
-        return keys
-
     def _transform_block(self, block):
         return [self._transform_child(child) for child in block]
     

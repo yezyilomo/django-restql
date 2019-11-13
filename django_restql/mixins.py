@@ -587,11 +587,9 @@ class RestQLViewMixin(object):
         return queryset
 
     def get_restql_query_param(self):
-        query_param = None
         serializer_class = self.get_serializer_class()
         if hasattr(serializer_class, "query_param_name"):
-            query_param = serializer_class.query_param_name
-        return query_param
+            return serializer_class.query_param_name
 
     def get_prefetch_related_mapping(self):
         serializer_class = self.get_serializer_class()
@@ -619,11 +617,29 @@ class RestQLViewMixin(object):
 
         return {}
 
+    def get_restql_query_dict(self, data=None):
+        """
+        Returns the RestQL query as a dict.
+        """
+        keys = {}
+        if not data:
+            data = self.restql_query
+
+        for item in data:
+            if isinstance(item, str):
+                keys[item] = None
+            elif isinstance(item, dict):
+                for key, nested_items in item.items():
+                    key_base = key
+                    nested_keys = self.get_restql_query_dict(nested_items)
+                    keys[key_base] = nested_keys
+
+        return keys
+
     def get_restql_queryset(self, queryset):
         if self.restql_query is not None:
             query_param = self.get_restql_query_param()
-            restql_keys = Parser(self.request.query_params[query_param]).get_dict()
-            queryset = self.apply_restql_orm_mapping(queryset, restql_keys)
+            queryset = self.apply_restql_orm_mapping(queryset)
         return queryset
 
     def get_all_dict_values(self, dict_to_parse):
@@ -675,11 +691,12 @@ class RestQLViewMixin(object):
                         values.extend(nested_values)
         return values
 
-    def apply_restql_orm_mapping(self, queryset, parsed_keys):
+    def apply_restql_orm_mapping(self, queryset):
         """
         Applies appropriate select_related and prefetch_related calls on a
         queryset based on the passed on dictionaries provided.
         """
+        parsed_keys = self.get_restql_query_dict()
         select = self.get_select_related_mapping()
         prefetch = self.get_prefetch_related_mapping()
 
