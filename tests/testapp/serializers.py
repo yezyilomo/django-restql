@@ -84,6 +84,15 @@ class StudentSerializer(DynamicFieldsMixin, serializers.ModelSerializer):
         fields = ['name', 'age', 'course', 'phone_numbers']
 
 
+class StudentWithAliasSerializer(DynamicFieldsMixin, serializers.ModelSerializer):
+    program = CourseSerializer(source="course", many=False, read_only=True)
+    phone_numbers = PhoneSerializer(many=True, read_only=True)
+
+    class Meta:
+        model = Student
+        fields = ['name', 'age', 'program', 'phone_numbers']
+
+
 ############### Serializers for Nested Data Mutation Testing ##############
 class WritableCourseSerializer(NestedModelSerializer):
     books = NestedField(BookSerializer, many=True, required=False)

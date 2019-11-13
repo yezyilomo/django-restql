@@ -4,11 +4,11 @@ from rest_framework.serializers import (
     Serializer, ListSerializer,
     ValidationError
 )
+from django.db.models import Prefetch
 from django.db.models.fields.related import(
     ManyToOneRel, ManyToManyRel
 )
 
-from .utils import apply_restql_orm_mapping
 from .parser import Parser
 from .exceptions import FieldNotFound
 from .operations import ADD, CREATE, REMOVE, UPDATE
@@ -571,28 +571,133 @@ class NestedUpdateMixin(object):
 class RestQLViewMixin(object):
     @property
     def restql_query(self):
-        if "query" in self.request.query_params.keys():
+        query_param = self.get_restql_query_param()
+        if query_param and query_param in self.request.query_params.keys():
             try:
-                return Parser(self.request.query_params["query"]).get_parsed()
+                return Parser(self.request.query_params[query_param]).get_parsed()
             except SyntaxError:
                 pass
         return None
 
-    def get_restql_orm_mapping(self):
-        if hasattr(self, "restql_orm_mapping"):
-            return self.restql_orm_mapping
-        elif (
-            self.get_serializer_class()
-            and hasattr(self.get_serializer_class(), "Meta")
-            and hasattr(self.get_serializer_class().Meta, "restql_orm_mapping")
-        ):
-            return self.get_serializer_class().Meta.restql_orm_mapping
+    def get_queryset(self):
+        queryset = super().get_queryset()
 
-        return None
+        if self.restql_query is not None:
+            queryset = self.get_restql_queryset(queryset)
+        return queryset
+
+    def get_restql_query_param(self):
+        query_param = None
+        serializer_class = self.get_serializer_class()
+        if hasattr(serializer_class, "query_param_name"):
+            query_param = serializer_class.query_param_name
+        return query_param
+
+    def get_prefetch_related_mapping(self):
+        serializer_class = self.get_serializer_class()
+        if hasattr(self, "prefetch_related"):
+            return self.prefetch_related
+        elif (
+            serializer_class
+            and hasattr(serializer_class, "Meta")
+            and hasattr(serializer_class.Meta, "prefetch_related")
+        ):
+            return self.get_serializer_class().Meta.prefetch_related
+
+        return {}
+
+    def get_select_related_mapping(self):
+        serializer_class = self.get_serializer_class()
+        if hasattr(self, "select_related"):
+            return self.select_related
+        elif (
+            serializer_class
+            and hasattr(serializer_class, "Meta")
+            and hasattr(serializer_class.Meta, "select_related")
+        ):
+            return self.get_serializer_class().Meta.select_related
+
+        return {}
 
     def get_restql_queryset(self, queryset):
         if self.restql_query is not None:
-            restql_keys = Parser(self.request.query_params["query"]).get_dict()
-            mapping = self.get_restql_orm_mapping()
-            queryset = apply_restql_orm_mapping(queryset, restql_keys, mapping)
+            query_param = self.get_restql_query_param()
+            restql_keys = Parser(self.request.query_params[query_param]).get_dict()
+            queryset = self.apply_restql_orm_mapping(queryset, restql_keys)
+        return queryset
+
+    def get_all_dict_values(self, dict_to_parse):
+        """
+        Helper function to get *all* values from a dict and it's nested dicts.
+        """
+        values = []
+
+        for value in dict_to_parse.values():
+            if isinstance(value, dict):
+                values.extend(self.get_all_dict_values(value))
+            else:
+                values.append(value)
+
+        return values
+
+    def get_mapping_values(self, parsed, mapping):
+        """
+        Returns the mapping value (or nested mapping values as needed) of a particular parsed dict
+        against the mapping provided. Parsed input expected to come from get_dict from the parser.
+        """
+        values = []
+
+        for parsed_key, parsed_value in parsed.items():
+            if parsed_key in mapping.keys():
+                mapping_value = mapping[parsed_key]
+
+                if isinstance(mapping_value, dict):
+                    base = mapping_value.get("base")
+                    nested = mapping_value.get("nested")
+                else:
+                    base = mapping_value
+                    nested = None
+
+                # This should never be a falsy value, but we're being safe here.
+                if base:
+                    values.append(base)
+
+                if nested:
+                    # If we're given a dict, we only want keys that were mapped as needed, so
+                    # recursively call with the smaller map.
+                    if isinstance(parsed_value, dict):
+                        nested_values = self.get_mapping_values(parsed_value, nested)
+                        values.extend(nested_values)
+                    else:
+                        # If we don't have a dict, we want every nested value, since it's assumed
+                        # all of them will be present. We recursively get all values from here.
+                        nested_values = self.get_all_dict_values(nested)
+                        values.extend(nested_values)
+        return values
+
+    def apply_restql_orm_mapping(self, queryset, parsed_keys):
+        """
+        Applies appropriate select_related and prefetch_related calls on a
+        queryset based on the passed on dictionaries provided.
+        """
+        select = self.get_select_related_mapping()
+        prefetch = self.get_prefetch_related_mapping()
+
+        select_mapped = self.get_mapping_values(parsed_keys, select)
+        prefetch_mapped = self.get_mapping_values(parsed_keys, prefetch)
+
+        for value in select_mapped:
+            if isinstance(value, str):
+                queryset = queryset.select_related(value)
+            elif isinstance(value, list):
+                for select_value in value:
+                    queryset = queryset.select_related(select_value)
+
+        for value in prefetch_mapped:
+            if isinstance(value, str) or isinstance(value, Prefetch):
+                queryset = queryset.prefetch_related(value)
+            elif isinstance(value, list):
+                for prefetch_value in value:
+                    queryset = queryset.prefetch_related(prefetch_value)
+
         return queryset

@@ -7,7 +7,7 @@ from tests.testapp.serializers import (
 	CourseWithReturnPkkwargSerializer, ReplaceableStudentSerializer,
 	WritableStudentSerializer, WritableCourseSerializer,
 	ReplaceableCourseSerializer, CourseWithAliasedBooksSerializer,
-	CourseWithDynamicSerializerMethodField
+	CourseWithDynamicSerializerMethodField, StudentWithAliasSerializer
 )
 from django_restql.mixins import RestQLViewMixin
 
@@ -55,27 +55,18 @@ class StudentViewSet(viewsets.ModelViewSet):
 
 
 class StudentRestQLViewSet(RestQLViewMixin, viewsets.ModelViewSet):
-	serializer_class = StudentSerializer
+	serializer_class = StudentWithAliasSerializer
 	queryset = Student.objects.all()
-	restql_orm_mapping = {
-		"select": {
-			"course": "course"
-		},
-		"prefetch": {
-			"course": {
-				"nested": {
-					"books": "course__books"
-				}
+	select_related = {
+		"program": "course"
+	}
+	prefetch_related = {
+		"program": {
+			"nested": {
+				"books": "course__books"
 			}
 		}
 	}
-
-	def get_queryset(self):
-		queryset = super().get_queryset()
-
-		if self.restql_query is not None:
-			queryset = self.get_restql_queryset(queryset)
-		return queryset
 
 
 ######### ViewSets For Data Mutations Testing ##########

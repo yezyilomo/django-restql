@@ -143,27 +143,41 @@ class DataQueryingTests(APITestCase):
         non_mixin_url = reverse_lazy("student-detail", args=[self.student.id])
         mixin_url = reverse_lazy("student_with_restql_mixin-detail", args=[self.student.id])
 
-        expected_data = {
-            "name": "Yezy",
-            "age": 24,
-            "course": {
-                "name": "Data Structures",
-                "books": [
-                    {"title": "Advanced Data Structures", "author": "S.Mobit"},
-                    {"title": "Basic Data Structures", "author": "S.Mobit"}
-                ]
-            }
-        }
-
         # Will need to fetch the course and books on serialization.
         with self.assertNumQueries(3):
             response = self.client.get(non_mixin_url + '?query={name, age, course{name, books}}', format="json")
-            self.assertEqual(response.data, expected_data)
+            self.assertEqual(
+                response.data,
+                {
+                    "name": "Yezy",
+                    "age": 24,
+                    "course": {
+                        "name": "Data Structures",
+                        "books": [
+                            {"title": "Advanced Data Structures", "author": "S.Mobit"},
+                            {"title": "Basic Data Structures", "author": "S.Mobit"}
+                        ]
+                    }
+                }
+            )
 
         # Should select_related the course and prefetch the books.
         with self.assertNumQueries(2):
-            response = self.client.get(mixin_url + '?query={name, age, course{name, books}}', format="json")
-            self.assertEqual(response.data, expected_data)
+            response = self.client.get(mixin_url + '?query={name, age, program{name, books}}', format="json")
+            self.assertEqual(
+                response.data,
+                {
+                    "name": "Yezy",
+                    "age": 24,
+                    "program": {
+                        "name": "Data Structures",
+                        "books": [
+                            {"title": "Advanced Data Structures", "author": "S.Mobit"},
+                            {"title": "Basic Data Structures", "author": "S.Mobit"}
+                        ]
+                    }
+                }
+            )
 
     def test_retrieve_with_restql_view_mixin_ignored(self):
         """
@@ -191,13 +205,13 @@ class DataQueryingTests(APITestCase):
 
         # This would be 3 without doing a select_related.
         with self.assertNumQueries(2):
-            response = self.client.get(url + '?query={name, age, course}', format="json")
+            response = self.client.get(url + '?query={name, age, program}', format="json")
             self.assertEqual(
                 response.data,
                 {
                     "name": "Yezy",
                     "age": 24,
-                    "course": {
+                    "program": {
                         "name": "Data Structures",
                         "code": "CS210",
                         "books": [
@@ -444,40 +458,68 @@ class DataQueryingTests(APITestCase):
 
         self.add_second_student()
 
-        expected_data = [
-            {
-                "name": "Yezy",
-                "age": 24,
-                "course": {
-                    "name": "Data Structures",
-                    "books": [
-                        {"title": "Advanced Data Structures", "author": "S.Mobit"},
-                        {"title": "Basic Data Structures", "author": "S.Mobit"}
-                    ]
-                }
-            },
-            {
-                "name": "Tyler",
-                "age": 25,
-                "course": {
-                    "name": "Algorithms",
-                    "books": [
-                        {"title": "Algorithm Design", "author": "S.Mobit"},
-                        {"title": "Proving Algorithms", "author": "S.Mobit"}
-                    ]
-                }
-            },
-        ]
-
         # This fetches both course names and books for each, so 5 queries total.
         with self.assertNumQueries(5):
             response = self.client.get(non_mixin_url + '?query={name, age, course{name, books}}', format="json")
-            self.assertEqual(response.data, expected_data)
+            self.assertEqual(
+                response.data,
+                [
+                    {
+                        "name": "Yezy",
+                        "age": 24,
+                        "course": {
+                            "name": "Data Structures",
+                            "books": [
+                                {"title": "Advanced Data Structures", "author": "S.Mobit"},
+                                {"title": "Basic Data Structures", "author": "S.Mobit"}
+                            ]
+                        }
+                    },
+                    {
+                        "name": "Tyler",
+                        "age": 25,
+                        "course": {
+                            "name": "Algorithms",
+                            "books": [
+                                {"title": "Algorithm Design", "author": "S.Mobit"},
+                                {"title": "Proving Algorithms", "author": "S.Mobit"}
+                            ]
+                        }
+                    },
+                ]
+            )
 
         # This fetches the course information with the student and prefetches once for the books.
         with self.assertNumQueries(2):
-            response = self.client.get(mixin_url + '?query={name, age, course{name, books}}', format="json")
-            self.assertEqual(response.data, expected_data)
+            response = self.client.get(mixin_url + '?query={name, age, program{name, books}}', format="json")
+            self.assertEqual(
+                response.data,
+                [
+                    {
+                        "name": "Yezy",
+                        "age": 24,
+                        "program": {
+                            "name": "Data Structures",
+                            "books": [
+                                {"title": "Advanced Data Structures", "author": "S.Mobit"},
+                                {"title": "Basic Data Structures", "author": "S.Mobit"}
+                            ]
+                        }
+                    },
+                    {
+                        "name": "Tyler",
+                        "age": 25,
+                        "program": {
+                            "name": "Algorithms",
+                            "books": [
+                                {"title": "Algorithm Design", "author": "S.Mobit"},
+                                {"title": "Proving Algorithms", "author": "S.Mobit"}
+                            ]
+                        }
+                    },
+                ]
+
+            )
 
     def test_list_with_restql_view_mixin_ignored(self):
         """
@@ -514,14 +556,14 @@ class DataQueryingTests(APITestCase):
 
         # This would be 5 without doing a select_related and prefetch_related.
         with self.assertNumQueries(2):
-            response = self.client.get(url + '?query={name, age, course}', format="json")
+            response = self.client.get(url + '?query={name, age, program}', format="json")
             self.assertEqual(
                 response.data,
                 [
                     {
                         "name": "Yezy",
                         "age": 24,
-                        "course": {
+                        "program": {
                             "name": "Data Structures",
                             "code": "CS210",
                             "books": [
@@ -533,7 +575,7 @@ class DataQueryingTests(APITestCase):
                     {
                         "name": "Tyler",
                         "age": 25,
-                        "course": {
+                        "program": {
                             "name": "Algorithms",
                             "code": "CS260",
                             "books": [
