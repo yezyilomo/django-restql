@@ -173,36 +173,6 @@ class DynamicFieldsMixin(object):
         return fields
 
 
-class DynamicPerformance(object):
-    select_related = []
-    prefetch_related = []
-
-    def get_queryset(self):
-        request = self.request
-        query = self.serializer_class.get_parsed_query_from_req(request)
-
-        included_fields = []
-        for field in query:
-            if isinstance(field, dict):
-                for field_name in field:
-                    included_fields.append(field_name)
-            else:
-                included_fields.append(field)
-
-        queryset = super().get_queryset()
-
-        if self.select_related:
-            to_select = set(included_fields)\
-                .intersection(set(self.select_related))
-            queryset = queryset.select_related(*to_select)
-        if self.prefetch_related:
-            to_prefetch = set(included_fields)\
-                .intersection(set(self.prefetch_related))
-            queryset = queryset.prefetch_related(*to_prefetch)
-
-        return queryset
-
-
 class NestedCreateMixin(object):
     """ Create Mixin """
     def create_writable_foreignkey_related(self, data):
@@ -566,7 +536,7 @@ class NestedUpdateMixin(object):
             instance,
             fields["foreignkey_related"]["replaceable"]
         )
-        
+
         self.update_writable_foreignkey_related(
             instance,
             fields["foreignkey_related"]["writable"]
