@@ -61,11 +61,11 @@ def BaseNestedFieldSerializerFactory(*args,
     
         def validate_data_list(self, data, partial=False):
             model = self.parent.Meta.model
-            rel = getattr(model, self.source).rel
+            rel = getattr(model, self.field_name).rel
 
             if isinstance(rel, ManyToOneRel):
                 # ManyToOne Relation
-                field_name = getattr(model, self.source).field.name
+                field_name = getattr(model, self.field_name).field.name
                 # remove field_name to validated fields
                 contain_field = lambda a: a != field_name
                 fields = filter(contain_field, serializer_class.Meta.fields)
