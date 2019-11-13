@@ -40,14 +40,17 @@ class DynamicFieldsMixin(object):
             return instance.pk
         return super().to_representation(instance)
 
-    def has_query_param(self, request):
-        return self.query_param_name in request.query_params
+    @classmethod
+    def has_query_param(cls, request):
+        return cls.query_param_name in request.query_params
 
-    def get_raw_query(self, request):
-        return request.query_params[self.query_param_name]
+    @classmethod
+    def get_raw_query(cls, request):
+        return request.query_params[cls.query_param_name]
 
-    def get_parsed_query_from_req(self, request):
-        raw_query = self.get_raw_query(request)
+    @classmethod
+    def get_parsed_query_from_req(cls, request):
+        raw_query = cls.get_raw_query(request)
         parser = Parser(raw_query)
         try:
             parsed_query = parser.get_parsed()
@@ -168,6 +171,36 @@ class DynamicFieldsMixin(object):
                 fields.pop(field)
 
         return fields
+
+
+class DynamicPerformance(object):
+    select_related = []
+    prefetch_related = []
+
+    def get_queryset(self):
+        request = self.request
+        query = self.serializer_class.get_parsed_query_from_req(request)
+
+        included_fields = []
+        for field in query:
+            if isinstance(field, dict):
+                for field_name in field:
+                    included_fields.append(field_name)
+            else:
+                included_fields.append(field)
+
+        queryset = super().get_queryset()
+
+        if self.select_related:
+            to_select = set(included_fields)\
+                .intersection(set(self.select_related))
+            queryset = queryset.select_related(*to_select)
+        if self.prefetch_related:
+            to_prefetch = set(included_fields)\
+                .intersection(set(self.prefetch_related))
+            queryset = queryset.prefetch_related(*to_prefetch)
+
+        return queryset
 
 
 class NestedCreateMixin(object):

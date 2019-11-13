@@ -1,6 +1,6 @@
 from rest_framework import viewsets
 from rest_framework.response import Response
-from django_restql.mixins import DynamicFieldsMixin
+from django_restql.mixins import DynamicFieldsMixin, DynamicPerformance
 
 from tests.testapp.models import Book, Course, Student
 from tests.testapp.serializers import (
@@ -19,7 +19,9 @@ class BookViewSet(viewsets.ModelViewSet):
 	queryset = Book.objects.all()
 
 
-class CourseViewSet(viewsets.ModelViewSet):
+class CourseViewSet(DynamicPerformance ,viewsets.ModelViewSet):
+	select_related = []
+	prefetch_related = ["books"]
 	serializer_class = CourseSerializer
 	queryset = Course.objects.all()
 
