@@ -60,8 +60,6 @@ def BaseNestedFieldSerializerFactory(*args,
             return validator.run_validation(pks)
     
         def validate_data_list(self, data, partial=False):
-            request = self.context.get('request')
-            context = {"request": request}
             model = self.parent.Meta.model
             rel = getattr(model, self.source).rel
 
@@ -77,7 +75,7 @@ def BaseNestedFieldSerializerFactory(*args,
                     data=data, 
                     many=True, 
                     partial=partial,
-                    context=context
+                    context=self.context
                 )
                 parent_serializer.is_valid(raise_exception=True)
                 serializer_class.Meta.fields = original_fields
@@ -87,7 +85,7 @@ def BaseNestedFieldSerializerFactory(*args,
                     data=data, 
                     many=True, 
                     partial=partial,
-                    context={"request": request}
+                    context=self.context
                 )
                 parent_serializer.is_valid(raise_exception=True)
             return parent_serializer.validated_data
@@ -166,7 +164,6 @@ def BaseNestedFieldSerializerFactory(*args,
 
         def to_internal_value(self, data):
             request = self.context.get('request')
-            context = {"request": request}
             if request.method in ["PUT", "PATCH"]:
                 return self.data_for_update(data)
 
@@ -177,7 +174,7 @@ def BaseNestedFieldSerializerFactory(*args,
                 data=data, 
                 many=True, 
                 partial=self.is_partial,
-                context=context
+                context=self.context
             )
             parent_serializer.is_valid(raise_exception=True)
             return parent_serializer.validated_data
@@ -215,12 +212,10 @@ def BaseNestedFieldSerializerFactory(*args,
             return obj
 
         def validate_data_based_nested(self, data):
-            request = self.context.get("request")
-            context = {"request": request}
             parent_serializer = serializer_class(
                 data=data, 
                 partial=self.is_partial,
-                context=context
+                context=self.context
             )
             parent_serializer.is_valid(raise_exception=True)
             return parent_serializer.validated_data
