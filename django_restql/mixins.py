@@ -40,14 +40,17 @@ class DynamicFieldsMixin(object):
             return instance.pk
         return super().to_representation(instance)
 
-    def has_query_param(self, request):
-        return self.query_param_name in request.query_params
+    @classmethod
+    def has_query_param(cls, request):
+        return cls.query_param_name in request.query_params
 
-    def get_raw_query(self, request):
-        return request.query_params[self.query_param_name]
+    @classmethod
+    def get_raw_query(cls, request):
+        return request.query_params[cls.query_param_name]
 
-    def get_parsed_query_from_req(self, request):
-        raw_query = self.get_raw_query(request)
+    @classmethod
+    def get_parsed_query_from_req(cls, request):
+        raw_query = cls.get_raw_query(request)
         parser = Parser(raw_query)
         try:
             parsed_query = parser.get_parsed()
@@ -174,26 +177,22 @@ class NestedCreateMixin(object):
     """ Create Mixin """
     def create_writable_foreignkey_related(self, data):
         # data format {field: {sub_field: value}}
-        request = self.context.get("request")
-        context = {"request": request}
         objs = {}
         for field, value in data.items():
             # Get serializer class for nested field
             SerializerClass = type(self.get_fields()[field])
-            serializer = SerializerClass(data=value, context=context)
+            serializer = SerializerClass(data=value, context=self.context)
             serializer.is_valid()
             obj = serializer.save()
             objs.update({field: obj})
         return objs
 
     def bulk_create_objs(self, field, data):
-        request = self.context.get("request")
-        context = {"request": request}
         model = self.get_fields()[field].child.Meta.model
         SerializerClass = type(self.get_fields()[field].child)
         pks = []
         for values in data:
-            serializer = SerializerClass(data=values, context=context)
+            serializer = SerializerClass(data=values, context=self.context)
             serializer.is_valid()
             obj = serializer.save()
             pks.append(obj.pk)
@@ -324,8 +323,6 @@ class NestedUpdateMixin(object):
 
     def update_writable_foreignkey_related(self, instance, data):
         # data format {field: {sub_field: value}}
-        request = self.context.get("request")
-        context = {"request": request}
         objs = {}
         for field, values in data.items():
             # Get serializer class for nested field
@@ -334,7 +331,7 @@ class NestedUpdateMixin(object):
             serializer = SerializerClass(
                 nested_obj, 
                 data=values, 
-                context=context,
+                context=self.context,
                 partial=self.partial
             )
             serializer.is_valid()
@@ -343,14 +340,11 @@ class NestedUpdateMixin(object):
         return objs
 
     def bulk_create_many_to_many_related(self, field, nested_obj, data):
-        request = self.context.get("request")
-        context = {"request": request}
-
         # Get serializer class for nested field
         SerializerClass = type(self.get_fields()[field].child)
         pks = []
         for values in data:
-            serializer = SerializerClass(data=values, context=context)
+            serializer = SerializerClass(data=values, context=self.context)
             serializer.is_valid()
             obj = serializer.save()
             pks.append(obj.pk)
@@ -358,14 +352,11 @@ class NestedUpdateMixin(object):
         return pks
 
     def bulk_create_many_to_one_related(self, field, nested_obj, data):
-        request = self.context.get("request")
-        context = {"request": request}
-
         # Get serializer class for nested field
         SerializerClass = type(self.get_fields()[field].child)
         pks = []
         for values in data:
-            serializer = SerializerClass(data=values, context=context)
+            serializer = SerializerClass(data=values, context=self.context)
             serializer.is_valid()
             obj = serializer.save()
             pks.append(obj.pk)
@@ -374,8 +365,6 @@ class NestedUpdateMixin(object):
     def bulk_update_many_to_many_related(self, field, nested_obj, data):
         # {pk: {sub_field: values}}
         objs = []
-        request = self.context.get("request")
-        context = {"request": request}
 
         # Get serializer class for nested field
         SerializerClass = type(self.get_fields()[field].child)
@@ -384,7 +373,7 @@ class NestedUpdateMixin(object):
             serializer = SerializerClass(
                 obj, 
                 data=values, 
-                context=context, 
+                context=self.context, 
                 partial=self.partial
             )
             serializer.is_valid()
@@ -395,8 +384,6 @@ class NestedUpdateMixin(object):
     def bulk_update_many_to_one_related(self, field, instance, data):
         # {pk: {sub_field: values}}
         objs = []
-        request = self.context.get("request")
-        context = {"request": request}
 
         # Get serializer class for nested field
         SerializerClass = type(self.get_fields()[field].child)
@@ -409,7 +396,7 @@ class NestedUpdateMixin(object):
             serializer = SerializerClass(
                 obj, 
                 data=values, 
-                context=context, 
+                context=self.context, 
                 partial=self.partial
             )
             serializer.is_valid()
@@ -549,6 +536,7 @@ class NestedUpdateMixin(object):
             instance,
             fields["foreignkey_related"]["replaceable"]
         )
+
         self.update_writable_foreignkey_related(
             instance,
             fields["foreignkey_related"]["writable"]
