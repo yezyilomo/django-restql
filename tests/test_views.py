@@ -135,13 +135,13 @@ class DataQueryingTests(APITestCase):
             }
         )
 
-    def test_retrieve_with_restql_view_mixin(self):
+    def test_retrieve_eager_loading_view_mixin(self):
         """
         Ensure that we apply our prefetching or joins when we explicitly ask for fields in the
         mapping.
         """
         non_mixin_url = reverse_lazy("student-detail", args=[self.student.id])
-        mixin_url = reverse_lazy("student_with_restql_mixin-detail", args=[self.student.id])
+        mixin_url = reverse_lazy("student_eager_loading-detail", args=[self.student.id])
 
         # Will need to fetch the course and books on serialization.
         with self.assertNumQueries(3):
@@ -179,11 +179,11 @@ class DataQueryingTests(APITestCase):
                 }
             )
 
-    def test_retrieve_with_restql_view_mixin_ignored(self):
+    def test_retrieve_eager_loading_view_mixin_ignored(self):
         """
         Ensure that we do not apply our joining/prefetching if the mapped fields aren't present.
         """
-        url = reverse_lazy("student_with_restql_mixin-detail", args=[self.student.id])
+        url = reverse_lazy("student_eager_loading-detail", args=[self.student.id])
 
         # Make sure that no additional prefetching or select_related are run if we don't ask for
         # nested values.
@@ -197,11 +197,11 @@ class DataQueryingTests(APITestCase):
                 }
             )
 
-    def test_retrieve_with_restql_view_mixin_implicit(self):
+    def test_retrieve_eager_loading_view_mixin_implicit(self):
         """
         Test that we implicitly apply our nested prefetching, since the field is present.
         """
-        url = reverse_lazy("student_with_restql_mixin-detail", args=[self.student.id])
+        url = reverse_lazy("student_eager_loading-detail", args=[self.student.id])
 
         # This would be 3 without doing a select_related.
         with self.assertNumQueries(2):
@@ -448,13 +448,13 @@ class DataQueryingTests(APITestCase):
             ]
         )
 
-    def test_list_with_restql_view_mixin(self):
+    def test_list_eager_loading_view_mixin(self):
         """
         Ensure that we apply our prefetching or joins when we explicitly ask for fields in the
         mapping.
         """
         non_mixin_url = reverse_lazy("student-list")
-        mixin_url = reverse_lazy("student_with_restql_mixin-list")
+        mixin_url = reverse_lazy("student_eager_loading-list")
 
         self.add_second_student()
 
@@ -521,11 +521,11 @@ class DataQueryingTests(APITestCase):
 
             )
 
-    def test_list_with_restql_view_mixin_ignored(self):
+    def test_list_eager_loading_view_mixin_ignored(self):
         """
         Ensure that we do not apply our joining/prefetching if the mapped fields aren't present.
         """
-        url = reverse_lazy("student_with_restql_mixin-list")
+        url = reverse_lazy("student_eager_loading-list")
         self.add_second_student()
 
         # Make sure that no additional prefetching or select_related are run if we don't ask for
@@ -547,11 +547,11 @@ class DataQueryingTests(APITestCase):
 
             )
 
-    def test_list_with_restql_view_mixin_implicit(self):
+    def test_list_eager_loading_view_mixin_implicit(self):
         """
         Test that we implicitly apply our nested prefetching, since the field is present.
         """
-        url = reverse_lazy("student_with_restql_mixin-list")
+        url = reverse_lazy("student_eager_loading-list")
         self.add_second_student()
 
         # This would be 5 without doing a select_related and prefetch_related.

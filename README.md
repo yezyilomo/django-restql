@@ -607,7 +607,7 @@ class StudentSerializer(DynamicFieldsMixin, serializers.ModelSerializer):
         fields = ['name', 'age', 'program', 'phone_numbers']
 ```
 
-In a view, these can be used as described earlier in this readme. However, if prefetching of `books` always happened, but we did not ask for `{program}` or `program{books}`, then we did an additional query for nothing. Conversely, not prefetching can lead to even more queries being triggered. When leveraging the `RestQLViewMixin` on a view, the specific fields that warrant a `select_related` or `prefetch_related` can be described.
+In a view, these can be used as described earlier in this readme. However, if prefetching of `books` always happened, but we did not ask for `{program}` or `program{books}`, then we did an additional query for nothing. Conversely, not prefetching can lead to even more queries being triggered. When leveraging the `EagerLoadingMixin` on a view, the specific fields that warrant a `select_related` or `prefetch_related` can be described.
 
 
 ### View `prefetch_related` and `select_related` syntax

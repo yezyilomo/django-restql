@@ -30,7 +30,7 @@ router.register('courses-with-exclude-kwarg', views.CourseWithExcludeKwargViewSe
 router.register('courses-with-aliased-books', views.CourseWithAliasedBooksViewSet, base_name='course_with_aliased_books')
 router.register('course-with-dynamic-serializer-method-field', views.CourseWithDynamicSerializerMethodFieldViewSet, base_name='course_with_dynamic_serializer_method_field')
 router.register('students', views.StudentViewSet, base_name='student')
-router.register('students-with-restql-mixin', views.StudentRestQLViewSet, base_name='student_with_restql_mixin')
+router.register('students-eager-loading', views.StudentEagerLoadingViewSet, base_name='student_eager_loading')
 
 router.register('writable-courses', views.WritableCourseViewSet, base_name='wcourse')
 router.register('replaceable-courses', views.ReplaceableCourseViewSet, base_name='rcourse')

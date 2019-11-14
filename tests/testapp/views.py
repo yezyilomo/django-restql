@@ -54,7 +54,7 @@ class StudentViewSet(viewsets.ModelViewSet):
 	queryset = Student.objects.all()
 
 
-class StudentRestQLViewSet(EagerLoadingMixin, viewsets.ModelViewSet):
+class StudentEagerLoadingViewSet(EagerLoadingMixin, viewsets.ModelViewSet):
 	serializer_class = StudentWithAliasSerializer
 	queryset = Student.objects.all()
 	select_related = {
