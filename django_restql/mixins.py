@@ -21,16 +21,16 @@ class DynamicFieldsMixin(object):
     query_param_name = "query"
 
     def __init__(self, *args, **kwargs):
-        # Don't pass 'query', 'fields' and 'exclude' arg up to the superclass
+        # Don't pass 'query', 'fields' and 'exclude' kwargs to the superclass
         self.query = kwargs.pop('query', None)  # Parsed query
         self.allowed_fields = kwargs.pop('fields', None)
         self.excluded_fields = kwargs.pop('exclude', None)
         self.return_pk = kwargs.pop('return_pk', False)
 
-        is_field_set = self.allowed_fields is not None
-        is_exclude_set = self.excluded_fields is not None
+        is_field_kwarg_set = self.allowed_fields is not None
+        is_exclude_kwarg_set = self.excluded_fields is not None
         msg = "May not set both `fields` and `exclude`"
-        assert not(is_field_set and is_exclude_set), msg
+        assert not(is_field_kwarg_set and is_exclude_kwarg_set), msg
 
         # Instantiate the superclass normally
         super().__init__(*args, **kwargs)
@@ -88,6 +88,71 @@ class DynamicFieldsMixin(object):
                     raise FieldNotFound(msg) from None
         return fields
 
+    def include_fields(self):
+        fields = self.get_allowed_fields()
+        all_fields = list(fields.keys())
+
+        allowed_flat_fields = []
+        allowed_nested_fields = {}
+        for field in self.query["include"]:
+            if isinstance(field, dict):
+                # Nested field
+                for nested_field in field:
+                    if nested_field not in all_fields:
+                        msg = "'%s' field is not found" % field
+                        raise ValidationError(msg)
+                    nested_classes = (
+                        Serializer, ListSerializer, 
+                        DynamicSerializerMethodField
+                    )
+                    if not isinstance(fields[nested_field], nested_classes):
+                        msg = "'%s' is not a nested field" % nested_field
+                        raise ValidationError(msg)
+                allowed_nested_fields.update(field)
+            else:
+                # Flat field
+                if field not in all_fields:
+                    msg = "'%s' field is not found" % field
+                    raise ValidationError(msg)
+                allowed_flat_fields.append(field)
+
+        self.nested_fields_queries = allowed_nested_fields
+        all_allowed_fields = (
+            allowed_flat_fields + list(allowed_nested_fields.keys())
+        )
+        for field in all_fields:
+            if field not in all_allowed_fields:
+                fields.pop(field)
+        return fields
+
+    def exclude_fields(self):
+        fields = self.get_allowed_fields()
+        all_fields = list(fields.keys())
+
+        allowed_nested_fields = {}
+        for field in self.query["include"]:
+            for nested_field in field:
+                if nested_field not in all_fields:
+                    msg = "'%s' field is not found" % field
+                    raise ValidationError(msg)
+                nested_classes = (
+                    Serializer, ListSerializer, 
+                    DynamicSerializerMethodField
+                )
+                if not isinstance(fields[nested_field], nested_classes):
+                    msg = "'%s' is not a nested field" % nested_field
+                    raise ValidationError(msg)
+            allowed_nested_fields.update(field)
+        for field in self.query["exclude"]:
+            # Flat field
+            if field not in all_fields:
+                msg = "'%s' field is not found" % field
+                raise ValidationError(msg)
+            fields.pop(field)
+
+        self.nested_fields_queries = allowed_nested_fields
+        return fields
+
     @property
     def fields(self):
         fields = self.get_allowed_fields()
@@ -139,37 +204,13 @@ class DynamicFieldsMixin(object):
             
         all_fields = list(fields.keys())
         allowed_nested_fields = {}
-        allowed_flat_fields = []
-        for field in self.query:
-            if isinstance(field, dict):
-                # Nested field
-                for nested_field in field:
-                    if nested_field not in all_fields:
-                        msg = "'%s' field is not found" % field
-                        raise ValidationError(msg)
-                    nested_classes = (
-                        Serializer, ListSerializer, 
-                        DynamicSerializerMethodField
-                    )
-                    if not isinstance(fields[nested_field], nested_classes):
-                        msg = "'%s' is not a nested field" % nested_field
-                        raise ValidationError(msg)
-                allowed_nested_fields.update(field)
-            else:
-                # Flat field
-                if field not in all_fields:
-                    msg = "'%s' field is not found" % field
-                    raise ValidationError(msg)
-                allowed_flat_fields.append(field)
-        self.nested_fields_queries = allowed_nested_fields
-        
-        all_allowed_fields = (
-            allowed_flat_fields + list(allowed_nested_fields.keys())
-        )
-        for field in all_fields:
-            if field not in all_allowed_fields:
-                fields.pop(field)
 
+        if not self.query["exclude"]:
+            # Include fields from a query
+            return self.include_fields()
+        else:
+            # Exclude fields from a query
+            return self.exclude_fields()
         return fields
 
 
