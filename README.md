@@ -585,7 +585,7 @@ location = NestedField(LocationSerializer, return_pk=True)
 ``` 
 
 
-## View queryset control (`EagerLoadingMixin`)
+## Setting up eager loading with `EagerLoadingMixin`
 Often times, using `prefetch_related` or `select_related` on a view queryset can help speed up the serialization. For example, if you had a many-to-many relation like Books to a Course, it's usually more efficient to call `prefetch_related` on the books so that serializing a list of courses only triggers one additional query, instead of a number of queries equal to the number of courses.
 
 This mixin gives access to `prefetch_related` and `select_related` properties which are dictionaries that match serializer field names to respective values that would be passed into `prefetch_related` or `select_related`. Take the following serializers as examples.
