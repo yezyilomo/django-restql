@@ -88,6 +88,50 @@ class DataQueryingTests(APITestCase):
             }
         )
 
+    def test_retrieve_with_exclude_operator_applied_at_the_top_level(self):
+        url = reverse_lazy("course-detail", args=[self.course.id])
+        response = self.client.get(url + '?query={-books}', format="json")
+
+        self.assertEqual(
+            response.data,
+            {
+                "name": "Data Structures",
+                "code": "CS210",
+            }
+        )
+
+
+    def test_retrieve_with_exclude_operator_applied_on_a_nested_field(self):
+        url = reverse_lazy("student-detail", args=[self.student.id])
+        response = self.client.get(url + '?query={name, age, phone_numbers{-number, -student}}', format="json")
+
+        self.assertEqual(
+            response.data,
+            {
+                "name": "Yezy",
+                "age": 24,
+                "phone_numbers": [
+                    {"type": "Office"},
+                    {"type": "Home"}
+                ]
+            }
+        )
+
+    def test_retrieve_with_exclude_operator_applied_at_the_top_level_and_expand_a_nested_field(self):
+        url = reverse_lazy("student-detail", args=[self.student.id])
+        response = self.client.get(url + '?query={-age, -course, phone_numbers{number}}', format="json")
+
+        self.assertEqual(
+            response.data,
+            {
+                "name": "Yezy",
+                "phone_numbers": [
+                    {"number": "076711110"},
+                    {"number": "073008880"}
+                ]
+            }
+        )
+
     def test_retrieve_without_query_param(self):
         url = reverse_lazy("student-detail", args=[self.student.id])
         response = self.client.get(url, format="json")
@@ -202,6 +246,56 @@ class DataQueryingTests(APITestCase):
                             {"title": "Basic Data Structures"}
                         ]
                     }
+                }
+            ]
+        )
+
+    def test_list_with_exclude_operator_applied_at_the_top_level(self):
+        url = reverse_lazy("course-list")
+        response = self.client.get(url + '?query={-books}', format="json")
+
+        self.assertEqual(
+            response.data,
+            [
+                {
+                    "name": "Data Structures",
+                    "code": "CS210",
+                }
+            ]
+        )
+
+
+    def test_list_with_exclude_operator_applied_on_a_nested_field(self):
+        url = reverse_lazy("student-list")
+        response = self.client.get(url + '?query={name, age, phone_numbers{-number, -student}}', format="json")
+
+        self.assertEqual(
+            response.data,
+            [
+                {
+                    "name": "Yezy",
+                    "age": 24,
+                    "phone_numbers": [
+                        {"type": "Office"},
+                        {"type": "Home"}
+                    ]
+                }
+            ]
+        )
+
+    def test_list_with_exclude_operator_applied_at_the_top_level_and_expand_a_nested_field(self):
+        url = reverse_lazy("student-list")
+        response = self.client.get(url + '?query={-age, -course, phone_numbers{number}}', format="json")
+
+        self.assertEqual(
+            response.data,
+            [
+                {
+                    "name": "Yezy",
+                    "phone_numbers": [
+                        {"number": "076711110"},
+                        {"number": "073008880"}
+                    ]
                 }
             ]
         )
