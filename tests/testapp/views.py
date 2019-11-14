@@ -9,7 +9,7 @@ from tests.testapp.serializers import (
 	ReplaceableCourseSerializer, CourseWithAliasedBooksSerializer,
 	CourseWithDynamicSerializerMethodField, StudentWithAliasSerializer
 )
-from django_restql.mixins import RestQLViewMixin
+from django_restql.mixins import EagerLoadingMixin
 
 
 #### ViewSets for Data Querying And Mutations Testing ####
@@ -54,7 +54,7 @@ class StudentViewSet(viewsets.ModelViewSet):
 	queryset = Student.objects.all()
 
 
-class StudentRestQLViewSet(RestQLViewMixin, viewsets.ModelViewSet):
+class StudentRestQLViewSet(EagerLoadingMixin, viewsets.ModelViewSet):
 	serializer_class = StudentWithAliasSerializer
 	queryset = Student.objects.all()
 	select_related = {

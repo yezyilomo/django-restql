@@ -556,69 +556,62 @@ class NestedUpdateMixin(object):
         return super().update(instance, validated_data)
 
 
-class RestQLViewMixin(object):
+class EagerLoadingMixin(object):
     @property
-    def restql_query(self):
-        serializer_class = self.get_serializer_class()
+    def parsed_query(self):
+        """
+        Gets parsed query for use in eager loading. Defaults to the serializer parsed query assuming
+        using django-restql DynamicsFieldMixin.
+        """
+        if hasattr(self, "get_serializer_class"):
+            serializer_class = self.get_serializer_class()
 
-        if hasattr(serializer_class, "query_param_name"):
-            return serializer_class.get_parsed_query_from_req(self.request)
+            if hasattr(serializer_class, "query_param_name"):
+                return serializer_class.get_parsed_query_from_req(self.request)
 
     def get_queryset(self):
-        queryset = super().get_queryset()
-
-        if self.restql_query is not None:
-            queryset = self.get_restql_queryset(queryset)
-        return queryset
+        """
+        Override for DRF's get_queryset on the view. If get_queryset is not present, we don't try to
+        run this. Instead, this can still be used by manually calling self.get_eager_queryset and
+        passing in the queryset desired.
+        """
+        if hasattr(super(), "get_queryset"):
+            queryset = super().get_queryset()
+            queryset = self.get_eager_queryset(queryset)
+            return queryset
 
     def get_prefetch_related_mapping(self):
-        serializer_class = self.get_serializer_class()
         if hasattr(self, "prefetch_related"):
             return self.prefetch_related
-        elif (
-            serializer_class
-            and hasattr(serializer_class, "Meta")
-            and hasattr(serializer_class.Meta, "prefetch_related")
-        ):
-            return self.get_serializer_class().Meta.prefetch_related
-
         return {}
 
     def get_select_related_mapping(self):
-        serializer_class = self.get_serializer_class()
         if hasattr(self, "select_related"):
             return self.select_related
-        elif (
-            serializer_class
-            and hasattr(serializer_class, "Meta")
-            and hasattr(serializer_class.Meta, "select_related")
-        ):
-            return self.get_serializer_class().Meta.select_related
-
         return {}
 
-    def get_restql_query_dict(self, data=None):
+    def get_parsed_dict(self, data=None):
         """
-        Returns the RestQL query as a dict.
+        Returns the parsed query as a dict.
         """
         keys = {}
-        if not data:
-            data = self.restql_query
+        if data is None:
+            data = self.parsed_query
 
-        for item in data:
-            if isinstance(item, str):
-                keys[item] = None
-            elif isinstance(item, dict):
-                for key, nested_items in item.items():
-                    key_base = key
-                    nested_keys = self.get_restql_query_dict(nested_items)
-                    keys[key_base] = nested_keys
+        if data is not None:
+            for item in data:
+                if isinstance(item, str):
+                    keys[item] = None
+                elif isinstance(item, dict):
+                    for key, nested_items in item.items():
+                        key_base = key
+                        nested_keys = self.get_parsed_dict(nested_items)
+                        keys[key_base] = nested_keys
 
         return keys
 
-    def get_restql_queryset(self, queryset):
-        if self.restql_query is not None:
-            queryset = self.apply_restql_orm_mapping(queryset)
+    def get_eager_queryset(self, queryset):
+        queryset = self.apply_eager_loading(queryset)
         return queryset
 
     def get_all_dict_values(self, dict_to_parse):
@@ -638,7 +631,7 @@ class RestQLViewMixin(object):
     def get_mapping_values(self, parsed, mapping):
         """
         Returns the mapping value (or nested mapping values as needed) of a particular parsed dict
-        against the mapping provided. Parsed input expected to come from get_dict from the parser.
+        against the mapping provided. Parsed input expected to come from self.get_parsed_dict.
         """
         values = []
 
@@ -670,12 +663,14 @@ class RestQLViewMixin(object):
                         values.extend(nested_values)
         return values
 
-    def apply_restql_orm_mapping(self, queryset):
+    def apply_eager_loading(self, queryset, parsed_keys=None):
         """
         Applies appropriate select_related and prefetch_related calls on a
         queryset based on the passed on dictionaries provided.
         """
-        parsed_keys = self.get_restql_query_dict()
+        if parsed_keys is None:
+            parsed_keys = self.get_parsed_dict()
+
         select = self.get_select_related_mapping()
         prefetch = self.get_prefetch_related_mapping()
 

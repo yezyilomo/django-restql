@@ -585,37 +585,7 @@ location = NestedField(LocationSerializer, return_pk=True)
 ``` 
 
 
-## Customizing django-restql
-**django-restql**  is very configurable, here is what you can customize on it.
-* Change the name of ```query``` parameter when querying data.
-
-    If you don't want to use the name ```query``` as your parameter, you can inherit `DynamicFieldsMixin` and change it as shown below
-    ```python
-    from django_restql.mixins import DynamicFieldsMixin
-
-    class MyDynamicFieldMixin(DynamicFieldsMixin):
-        query_param_name = "your_favourite_name"
-     ```
-     Now you can use this Mixin on your serializer and use the name `your_favourite_name` as your parameter. E.g
-
-     `GET /users/?your_favourite_name={id, username}`
-
-* Customize how fields to include in a response are filtered.
-    You can do this by inheriting DynamicFieldsMixin and override `field` methods as shown below.
-
-    ```python
-    from django_restql.mixins import DynamicFieldsMixin
-
-    class CustomDynamicFieldMixin(DynamicFieldsMixin):
-        @property
-        def fields(self):
-            # Your customization here
-            return fields
-    ```
-    **Note:** To be able to do this you must understand how **django-restql** is implemented, specifically **DynamicFieldsMixin** class, you can check it [here](https://github.com/yezyilomo/django-restql/blob/master/django_restql/mixins.py). In fact this is how **django-restql** is implemented(just by overriding `field` method of a serializer, nothing more and nothing less).
-
-
-## View Query Control (`RestQLViewMixin`)
+## View queryset control (`EagerLoadingMixin`)
 Often times, using `prefetch_related` or `select_related` on a view queryset can help speed up the serialization. For example, if you had a many-to-many relation like Books to a Course, it's usually more efficient to call `prefetch_related` on the books so that serializing a list of courses only triggers one additional query, instead of a number of queries equal to the number of courses.
 
 This mixin gives access to `prefetch_related` and `select_related` properties which are dictionaries that match serializer field names to respective values that would be passed into `prefetch_related` or `select_related`. Take the following serializers as examples.
@@ -628,7 +598,7 @@ class CourseSerializer(DynamicFieldsMixin, serializers.ModelSerializer):
         model = Course
         fields = ['name', 'code', 'books']
 
-class StudentWithAliasSerializer(DynamicFieldsMixin, serializers.ModelSerializer):
+class StudentSerializer(DynamicFieldsMixin, serializers.ModelSerializer):
     program = CourseSerializer(source="course", many=False, read_only=True)
     phone_numbers = PhoneSerializer(many=True, read_only=True)
 
@@ -658,12 +628,12 @@ When fetching a field with a dictionary, `base` is always run, and `nested` fiel
 
 ```python
 from rest_framework import viewsets
-from django_restql.mixins import RestQLViewMixin
-from myapp.serializers import StudentWithAliasSerializer
+from django_restql.mixins import EagerLoadingMixin
+from myapp.serializers import StudentSerializer
 from myapp.models import Student
 
-class StudentRestQLViewSet(RestQLViewMixin, viewsets.ModelViewSet):
-	serializer_class = StudentWithAliasSerializer
+class StudentViewSet(EagerLoadingMixin, viewsets.ModelViewSet):
+	serializer_class = StudentSerializer
 	queryset = Student.objects.all()
 	select_related = {
 		"program": "course"
@@ -699,6 +669,36 @@ class StudentRestQLViewSet(RestQLViewMixin, viewsets.ModelViewSet):
 When prefetching with a `to_attr`, ensure that there are no collisions. Django does not allow multiple prefetches with the same `to_attr` on the same queryset.
 
 When prefetching *and* calling `select_related` on a field, Django may error, since the ORM does allow prefetching a selectable field, but not both at the same time.
+
+
+## Customizing django-restql
+**django-restql**  is very configurable, here is what you can customize on it.
+* Change the name of ```query``` parameter when querying data.
+
+    If you don't want to use the name ```query``` as your parameter, you can inherit `DynamicFieldsMixin` and change it as shown below
+    ```python
+    from django_restql.mixins import DynamicFieldsMixin
+
+    class MyDynamicFieldMixin(DynamicFieldsMixin):
+        query_param_name = "your_favourite_name"
+     ```
+     Now you can use this Mixin on your serializer and use the name `your_favourite_name` as your parameter. E.g
+
+     `GET /users/?your_favourite_name={id, username}`
+
+* Customize how fields to include in a response are filtered.
+    You can do this by inheriting DynamicFieldsMixin and override `field` methods as shown below.
+
+    ```python
+    from django_restql.mixins import DynamicFieldsMixin
+
+    class CustomDynamicFieldMixin(DynamicFieldsMixin):
+        @property
+        def fields(self):
+            # Your customization here
+            return fields
+    ```
+    **Note:** To be able to do this you must understand how **django-restql** is implemented, specifically **DynamicFieldsMixin** class, you can check it [here](https://github.com/yezyilomo/django-restql/blob/master/django_restql/mixins.py). In fact this is how **django-restql** is implemented(just by overriding `field` method of a serializer, nothing more and nothing less).
 
 
 ## Running Tests
