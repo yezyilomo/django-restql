@@ -66,7 +66,7 @@ class DynamicFieldsMixin(object):
     def get_allowed_fields(self):
         fields = super().fields
         if self.allowed_fields is not None:
-            # Drop any fields which are not specified on the `fields` kwarg.
+            # Drop all fields which are not specified on the `fields` kwarg.
             allowed = set(self.allowed_fields)
             existing = set(fields)
             not_allowed = existing.symmetric_difference(allowed)
@@ -78,7 +78,7 @@ class DynamicFieldsMixin(object):
                     raise FieldNotFound(msg) from None
 
         if self.excluded_fields is not None:
-            # Drop any fields which are not specified on the `exclude` kwarg.
+            # Drop all fields specified on the `exclude` kwarg.
             not_allowed = set(self.excluded_fields)
             for field_name in not_allowed:
                 try:
