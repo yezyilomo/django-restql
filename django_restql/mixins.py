@@ -118,11 +118,11 @@ class DynamicFieldsMixin(object):
 
         allowed_flat_fields = []
 
-        # The format is  {nested_field: [sub_fields..] ...}
+        # The format is  {nested_field: [sub_fields ...] ...}
         allowed_nested_fields = {}
 
         # The self.query["include"] contains a list of allowed fields
-        # The format is [field, {nested_field: [sub_fields..]} ..]
+        # The format is [field, {nested_field: [sub_fields ...]} ...]
         included_fields =  self.query["include"]
         for field in included_fields:
             if isinstance(field, dict):
@@ -159,11 +159,11 @@ class DynamicFieldsMixin(object):
         all_fields = self.get_allowed_fields()
         all_field_names = list(all_fields.keys())
 
-        # The format is  {nested_field: [sub_fields..] ...}
+        # The format is  {nested_field: [sub_fields ...] ...}
         allowed_nested_fields = {}
 
         # The self.query["include"] contains a list of expanded nested fields
-        # The format is [{nested_field: [sub_field]} ..]
+        # The format is [{nested_field: [sub_field]} ...]
         nested_fields = self.query["include"]
         for field in nested_fields:
             for nested_field in field:

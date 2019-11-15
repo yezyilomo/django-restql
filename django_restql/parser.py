@@ -12,8 +12,8 @@ class ExcludedField(List):
 class ParentField(List):
     """
     According to ParentField grammar:
-    self[0]  returns IncludedField,
-    self[1]  returns Block
+    self[0]  returns IncludedField instance,
+    self[1]  returns Block instance
     """
     @property
     def name(self):
