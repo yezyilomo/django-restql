@@ -213,6 +213,7 @@ class DynamicFieldsMixin(object):
 
         if is_top_retrieve_request or is_top_list_request:
             if self.query is None:
+                # Use a query from the request
                 self.query = self.get_parsed_query_from_req(request)
         elif isinstance(self.parent, ListSerializer):
             field_name = self.parent.field_name
@@ -243,12 +244,14 @@ class DynamicFieldsMixin(object):
         if self.query["exclude"]:
             # Exclude fields from a query
             return self.exclude_fields()
-        else:
+        elif self.query["include"]:
             # Here we are sure that self.query["exclude"] is empty
             # which means the exclude operator(-) is not used, so
             # self.query["include"] contains only fields to include
             return self.include_fields()
-        return fields
+        
+        # No fields to include or exclude so return all fields
+        return self.get_allowed_fields()
 
 
 class NestedCreateMixin(object):
