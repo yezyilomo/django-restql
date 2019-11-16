@@ -417,7 +417,7 @@ class LocationSerializer(serializers.ModelSerializer):
 
 
 class PropertySerializer(NestedModelSerializer):
-    location = NestedField(ocationSerializer, accept_pk=True)  # pk based nested field
+    location = NestedField(LocationSerializer, accept_pk=True)  # pk based nested field
     class Meta:
         model = Property
         fields = (
