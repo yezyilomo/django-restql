@@ -16,8 +16,8 @@ UPDATE_SUPPORTED_OPERATIONS = (ADD, CREATE, REMOVE, UPDATE)
 class DynamicSerializerMethodField(SerializerMethodField):
     def to_representation(self, value):
         method = getattr(self.parent, self.method_name)
-        if self.field_name in self.parent.nested_fields_queries:
-            query = self.parent.nested_fields_queries[self.field_name]
+        if self.field_name in self.parent.nested_fields:
+            query = self.parent.nested_fields[self.field_name]
         else:
             query = {
                 "include": [],

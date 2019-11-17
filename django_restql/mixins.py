@@ -144,7 +144,7 @@ class DynamicFieldsMixin(object):
                 self.is_field_found(field, all_field_names, raise_error=True)
                 allowed_flat_fields.append(field)
 
-        self.nested_fields_queries = allowed_nested_fields
+        self.nested_fields = allowed_nested_fields
 
         all_allowed_fields = (
             allowed_flat_fields + 
@@ -185,7 +185,7 @@ class DynamicFieldsMixin(object):
             self.is_field_found(field, all_field_names, raise_error=True)
             all_fields.pop(field)
 
-        self.nested_fields_queries = allowed_nested_fields
+        self.nested_fields = allowed_nested_fields
         return all_fields
 
     @property
@@ -218,14 +218,14 @@ class DynamicFieldsMixin(object):
         elif isinstance(self.parent, ListSerializer):
             field_name = self.parent.field_name
             parent = self.parent.parent
-            if hasattr(parent, "nested_fields_queries"):
-                parent_nested_fields = parent.nested_fields_queries
+            if hasattr(parent, "nested_fields"):
+                parent_nested_fields = parent.nested_fields
                 self.query = parent_nested_fields.get(field_name, None)
         elif isinstance(self.parent, Serializer):
             field_name = self.field_name
             parent = self.parent
-            if hasattr(parent, "nested_fields_queries"):
-                parent_nested_fields = parent.nested_fields_queries
+            if hasattr(parent, "nested_fields"):
+                parent_nested_fields = parent.nested_fields
                 self.query = parent_nested_fields.get(field_name, None)
         else:
             # Unkown scenario
