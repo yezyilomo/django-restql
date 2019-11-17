@@ -216,8 +216,6 @@ data = {
 
 # Here is how we can structure our query to exclude some fields using exclude operator(-)
 
-query = {username, birthdate, location{country}}   ≡   {username, birthdate, location{country}}
-
 query = {-username}   ≡   {birthdate, location{country, region}, contact{phone, email}}
 
 query = {-username, contact{phone}, location{country}}   ≡    {birthdate ,contact{phone}, location{country}}
