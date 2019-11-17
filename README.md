@@ -133,6 +133,109 @@ If a query contains nested field without expanding and it's not defined as a nes
     ]
 ```
 
+When using **django-restql** filtering as-is is great if there are no many fields on a serializer, but sometimes you might have a case where you would like everything except a handful of fields on a larger serializer. These fields might be nested and trying the whitelist approach is difficult or possibly too long for the url. **django-restql** comes with exclude operator(-) which can be used to exclude some fields in scenarios where you want to get all fields except few. Using exclude syntax is very simple,you just need to prepend the field to exclude with the exclude operator(-) when writing your query that's all. Take an example below
+
+```python
+from rest_framework import serializers 
+from django_restql.mixins import DynamicFieldsMixin
+
+from app.models import Location, Property
+
+
+class LocationSerializer(DynamicFieldsMixin, serializer.ModelSerializer):
+    class Meta:
+        model = Location
+        fields = ("id", "city", "country", "state", "street")
+
+
+class PropertySerializer(DynamicFieldsMixin, serializer.ModelSerializer):
+    location = LocationSerializer(many=False, read_only=True) 
+    class Meta:
+        model = Property
+        fields = (
+            'id', 'price', 'location'
+        )
+```
+
+Get all location fields except `id` and `street`
+
+`GET /location/?query={-id}`
+
+```js
+    [
+      {
+        "country": "China",
+        "city": "Beijing",
+        "state": "Chaoyang"
+      },
+      ...
+    ]
+```
+This is equivalent to `GET /location/?query={country, city, state}`
+
+You can use exclude operator on nested fields too, for example
+
+Get price and location fields but under location get all fields except `id`
+`GET /property/?query={price, location{-id}}`
+
+```js
+    [
+      {
+        "price": 5000
+        "location": {
+            "country": "China",
+            "city" "Beijing",
+            "state": "Chaoyang",
+            "street": "Hanang"
+        }
+      },
+      ...
+    ]
+```
+This is equivalent to `GET /property/?query={price, location{country, city, state, street}}`
+
+**Note:** Any field level should either be whitelisting or blacklisting fields but not both.
+
+More examples to get you comfortable with the exclude operator(-) syntax.
+```py
+# Assuming this is the structure of the model we are querying
+data = {
+    username,
+    birthdate,
+    location {
+        country,
+        region
+    },
+    contact {
+        phone,
+        email
+    }
+}
+
+
+# Here is how we can structure our query to exclude some fields using exclude operator(-)
+
+query = {username, birthdate, location{country}}   ≡   {username, birthdate, location{country}}
+
+query = {-username}   ≡   {birthdate, location{country, region}, contact{phone, email}}
+
+query = {-username, contact{phone}, location{country}}   ≡    {birthdate ,contact{phone}, location{country}}
+
+query = {-contact, location{country}}   ≡    {username, birthdate, location{country}}
+
+query = {-contact, -location}   ≡    {username, birthdate}
+
+query = {username, location{-country}}   ≡    {username, location{region}}
+
+query = {username, location{-country}, contact{-email}}   ≡    {username, birthdate, location{region}, contact{phone}}
+
+
+# These may happen accidentally as it's very easy/tempting to make 
+# these kind of mistakes with the exclude operator(-) syntax, 
+query = {username, -location{country}}  # Syntax error(Should not expand excluded field)
+query = {-username, birthdate}   # Syntax error(Should not whitelist and blacklist fields at the same field level)
+```
+
 
 ### Using `fields=[..]` and `exclude=[..]` kwargs
 With **django-restql** you can specify fields to be included when instantiating a serializer, this provides a way to refilter fields on nested fields(i.e you can opt to remove some fields on a nested field). Below is an example which shows how you can specify fields to be included on nested resources. 
