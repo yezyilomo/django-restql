@@ -133,7 +133,9 @@ If a query contains nested field without expanding and it's not defined as a nes
     ]
 ```
 
-When using **django-restql** filtering as-is is great if there are no many fields on a serializer, but sometimes you might have a case where you would like everything except a handful of fields on a larger serializer. These fields might be nested and trying the whitelist approach is difficult or possibly too long for the url. **django-restql** comes with exclude operator(-) which can be used to exclude some fields in scenarios where you want to get all fields except few. Using exclude syntax is very simple,you just need to prepend the field to exclude with the exclude operator(-) when writing your query that's all. Take an example below
+
+### Using exclude operator(-)
+When using **django-restql** filtering as-is is great if there are no many fields on a serializer, but sometimes you might have a case where you would like everything except a handful of fields on a larger serializer. These fields might be nested and trying the whitelist approach is difficult or possibly too long for the url. **django-restql** comes with the exclude operator(-) which can be used to exclude some fields in scenarios where you want to get all fields except few. Using exclude syntax is very simple,you just need to prepend the field to exclude with the exclude operator(-) when writing your query that's all. Take an example below
 
 ```python
 from rest_framework import serializers 
@@ -171,11 +173,10 @@ Get all location fields except `id` and `street`
       ...
     ]
 ```
-This is equivalent to `GET /location/?query={country, city, state}`
+This is equivalent to `query={country, city, state}`
 
-You can use exclude operator on nested fields too, for example
+You can use exclude operator on nested fields too, for example if you want to get `price` and `location` fields but under `location` you want all fields except `id` here is how you can do it.
 
-Get price and location fields but under location get all fields except `id`
 `GET /property/?query={price, location{-id}}`
 
 ```js
@@ -192,7 +193,7 @@ Get price and location fields but under location get all fields except `id`
       ...
     ]
 ```
-This is equivalent to `GET /property/?query={price, location{country, city, state, street}}`
+This is equivalent to `query={price, location{country, city, state, street}}`
 
 **Note:** Any field level should either be whitelisting or blacklisting fields but not both.
 
