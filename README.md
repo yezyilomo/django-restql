@@ -229,7 +229,7 @@ query = {username, location{-country}}   ≡    {username, location{region}}
 query = {username, location{-country}, contact{-email}}   ≡    {username, birthdate, location{region}, contact{phone}}
 ```
 
-In addition to exclude operator(-), **django-restql** comes with an operator for including all fields(\*). Just like exclude operator(-) using include all fields operator(\*) is very simple, for example if you want to get all fields from a model you just need to do `query={*}`. This operator can be used to simplify some filtering which might endup being very long if done with other approaches. For example if you have a model with this format
+In addition to exclude operator(-), **django-restql** comes with an operator for including all fields(\*). Just like exclude operator(-) using include all fields operator(\*) is very simple, for example if you want to get all fields from a model you just need to do `query={*}`. This operator can be used to simplify some filtering which might endup being very long if done with other approaches. For example if you have a model with this format 
 
 ```py
 user = {
@@ -265,6 +265,7 @@ query = {-username, birthdate}   # Syntax error(Should not whitelist and blackli
 query = {*username}  # Syntax error (What are you even trying to accomplish)
 query = {*location{country}}  # Syntax error (This is def wrong)
 ```
+
 
 ### Using `fields=[..]` and `exclude=[..]` kwargs
 With **django-restql** you can specify fields to be included when instantiating a serializer, this provides a way to refilter fields on nested fields(i.e you can opt to remove some fields on a nested field). Below is an example which shows how you can specify fields to be included on nested resources. 
