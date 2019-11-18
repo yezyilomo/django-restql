@@ -9,6 +9,10 @@ class ExcludedField(List):
     grammar = contiguous('-', name())
 
 
+class AllFields(str):
+    grammar = '*'
+
+
 class ParentField(List):
     """
     According to ParentField grammar:
@@ -24,17 +28,23 @@ class ParentField(List):
         return self[1]
 
 
-# A block which contains IncludedField and ParentField only
-include_block = optional(csl([ParentField, IncludedField], separator=','))
+# A block which contains included fields(No excluded fields here)
+include_block = csl(
+    [ParentField, IncludedField, optional(AllFields)], 
+    separator=','
+)
 
-# A block which contains ExcludedField and ParentField only
-exclude_block = optional(csl([ParentField, ExcludedField], separator=','))
+# A block which contains excluded fields(No included fields here)
+exclude_block = csl(
+    [ParentField, ExcludedField, optional(AllFields)], 
+    separator=','
+)
 
 
 class Block(List):
     # A block with either `include_block` or `exclude_block` 
     # features but not both
-    grammar = '{', include_block, exclude_block, '}'
+    grammar = '{', optional(include_block, exclude_block), '}'
 
 
 # ParentField grammar,
@@ -65,11 +75,12 @@ class Parser(object):
                 # A child is a parent
                 fields["include"].append(child)
             elif isinstance(child, IncludedField):
-                # A child is an instance of `IncludedField`
                 fields["include"].append(str(child.name))
             elif isinstance(child, ExcludedField):
-                # A child is an instance of `ExcludedField`
                 fields["exclude"].append(str(child.name))
+            elif isinstance(child, AllFields):
+                # include all fields
+                fields["include"].append("*")
         return fields
     
     def _transform_child(self, child):
@@ -77,8 +88,7 @@ class Parser(object):
         if isinstance(child, ParentField):
             # A child is a parent
             return self._transform_parent(child)
-        elif isinstance(child, (IncludedField, ExcludedField)):
-            # A child is an instance of `IncludedField` or `ExcludedField`
+        elif isinstance(child, (IncludedField, ExcludedField, AllFields)):
             return child
     
     def _transform_parent(self, parent):

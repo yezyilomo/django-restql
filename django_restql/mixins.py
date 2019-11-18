@@ -124,7 +124,12 @@ class DynamicFieldsMixin(object):
         # The self.query["include"] contains a list of allowed fields
         # The format is [field, {nested_field: [sub_fields ...]} ...]
         included_fields =  self.query["include"]
+        include_all_fields = False
         for field in included_fields:
+            if field == "*":
+                # Include all fields
+                include_all_fields = True
+                continue
             if isinstance(field, dict):
                 # Nested field
                 for nested_field in field:
@@ -146,6 +151,10 @@ class DynamicFieldsMixin(object):
 
         self.nested_fields = allowed_nested_fields
 
+        if include_all_fields:
+            # Return all fields
+            return all_fields
+
         all_allowed_fields = (
             allowed_flat_fields + 
             list(allowed_nested_fields.keys())
@@ -166,14 +175,17 @@ class DynamicFieldsMixin(object):
         # The format is [{nested_field: [sub_field]} ...]
         nested_fields = self.query["include"]
         for field in nested_fields:
+            if field == "*":
+                # Ignore this since it's not an actual field(it's just a flag)
+                continue
             for nested_field in field:
                 self.is_field_found(
-                    nested_field, 
+                    nested_field,
                     all_field_names,
                     raise_error=True
                 )
                 self.is_nested_field(
-                    nested_field, 
+                    nested_field,
                     all_fields[nested_field],
                     raise_error=True
                 )
