@@ -132,6 +132,7 @@ If a query contains nested field without expanding and it's not defined as a nes
       ...
     ]
 ```
+<br/>
 
 
 ### Using exclude(-) and wildcard(*) operators
@@ -224,7 +225,7 @@ data = {
 
 {username, location{-country}}   ≡    {username, location{region}}
 
-{username, location{-country}, contact{-email}}   ≡    {username, birthdate, location{region}, contact{phone}}
+{username, location{-region}, contact{-email}}   ≡    {username, location{country}, contact{phone}}
 ```
 
 In addition to exclude operator(-), **django-restql** comes with a wildcard(\*) operator for including all fields. Just like exclude operator(-) using a wildcard operator(\*) is very simple, for example if you want to get all fields from a model you just need to do `query={*}`. This operator can be used to simplify some filtering which might endup being very long if done with other approaches. For example if you have a model with this format 
@@ -248,11 +249,11 @@ Let's say you want to get all user fields but under `contact` field you want to 
 More examples to get you comfortable with a wildcard operator(\*) syntax.
 
 ```py
-{*, -username, contact{phone}}    ≡    {birthdate, contact{phone}}
+{*, -username, contact{phone}}   ≡   {birthdate, contact{phone}}
 
-{username, contact{*, -facebook, -linkedin}}    ≡    {username, contact{phone, email, twitter, github}}
+{username, contact{*, -facebook, -linkedin}}   ≡   {username, contact{phone, email, twitter, github}}
 
-{*, -username, contact{*, -facebook, -linkedin}}    ≡    {birthdate, contact{phone, email, twitter, github}}
+{*, -username, contact{*, -facebook, -linkedin}}   ≡   {birthdate, contact{phone, email, twitter, github}}
 ```
 
 ```py
@@ -265,6 +266,7 @@ More examples to get you comfortable with a wildcard operator(\*) syntax.
 ```
 
 **Note:** Any field level should either be whitelisting or blacklisting fields but not both.
+<br/>
 
 
 ### Using `DynamicSerializerMethodField`
@@ -322,6 +324,7 @@ class CourseSerializer(DynamicFieldsMixin, serializers.ModelSerializer):
         }
     ]
 ```
+<br/>
 
 
 ### Using `fields=[..]` and `exclude=[..]` kwargs
@@ -419,6 +422,7 @@ From the response above you can see that `author` field has been excluded fom bo
     ]
 ```
 So you can see that all fields have appeared as specified on `fields = ['id', 'title', 'author']` on BookSerializer class.
+<br/>
 
 
 ### Using `return_pk=True` kwargs
@@ -457,6 +461,7 @@ class CourseSerializer(DynamicFieldsMixin, serializers.ModelSerializer):
     ]
 ```
 So you can see that on a nested field `books` book pks have been returned instead of books data as specified on `return_pk=True` kwarg on `BookSerializer`.
+<br/>
 
 
 ## Mutating Data(Creating and Updating Data)
@@ -773,6 +778,7 @@ location = NestedField(LocationSerializer, exclude=[..])
 ```python
 location = NestedField(LocationSerializer, return_pk=True)
 ``` 
+<br/>
 
 
 ## Customizing django-restql
