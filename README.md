@@ -1,5 +1,5 @@
 # django-restql
-
+<br/>
 <div align="center">
 <a href="https://api.travis-ci.com/yezyilomo/django-restql">
 <img src="https://api.travis-ci.com/yezyilomo/django-restql.svg?branch=master" alt="Build Status"/>
