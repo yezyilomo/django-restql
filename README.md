@@ -1,6 +1,6 @@
 # django-restql
 
-<div align="center" style="padding: 10px 0 10px 0;">
+<div align="center">
 <a href="https://api.travis-ci.com/yezyilomo/django-restql">
 <img src="https://api.travis-ci.com/yezyilomo/django-restql.svg?branch=master" alt="Build Status"/>
 </a>
@@ -28,6 +28,7 @@
 <img src="https://pepy.tech/badge/django-restql/week" alt="Weekly Downloads"/>
 </a>
 </div>
+<hr/>
 
 **django-restql** is a python library which allows you to turn your API made with **Django REST Framework(DRF)** into a GraphQL like API. With **django-restql** you will be able to
 * Send a query to your API and get exactly what you need, nothing more and nothing less.
