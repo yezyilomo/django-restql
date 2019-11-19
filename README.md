@@ -1,32 +1,36 @@
 # django-restql
 
-<div align="center">
+<div align="center" style="padding: 10px 0 10px 0;">
+<div style="display: inline-block; padding: 0 5px 0 5px;">
 <a href="https://api.travis-ci.com/yezyilomo/django-restql">
-<img src="https://api.travis-ci.com/yezyilomo/django-restql.svg?branch=master" alt="Build Status"/>
+<img height="25" src="https://api.travis-ci.com/yezyilomo/django-restql.svg?branch=master" alt="Build Status"/>
 </a>
 
 <a href="https://pypi.org/project/django-restql/">
-<img src="https://img.shields.io/pypi/v/django-restql.svg"/ alt="Latest Version">
+<img height="25" src="https://img.shields.io/pypi/v/django-restql.svg"/ alt="Latest Version">
 </a>
 
 <a href="https://pypi.org/project/django-restql/">
-<img src="https://img.shields.io/pypi/pyversions/django-restql.svg" alt="Python Versions"/>
+<img height="25" src="https://img.shields.io/pypi/pyversions/django-restql.svg" alt="Python Versions"/>
 </a>
 <a href="https://pypi.org/project/django-restql/">
-<img src="https://img.shields.io/pypi/l/django-restql.svg" alt="Licence"/>
+<img height="25" src="https://img.shields.io/pypi/l/django-restql.svg" alt="Licence"/>
 </a>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</div>
+
+<div style="display: inline-block; padding: 0 5px 0 5px;">
 <a href="https://pepy.tech/badge/django-restql">
-<img src="https://pepy.tech/badge/django-restql" alt="Total Downloads"/>
+<img height="25" src="https://pepy.tech/badge/django-restql" alt="Total Downloads"/>
 </a>
 
 <a href="https://pepy.tech/badge/django-restql/month">
-<img src="https://pepy.tech/badge/django-restql/month"/ alt="Monthly Downloads">
+<img height="25" src="https://pepy.tech/badge/django-restql/month"/ alt="Monthly Downloads">
 </a>
 
 <a href="https://pepy.tech/badge/django-restql/week">
-<img src="https://pepy.tech/badge/django-restql/week" alt="Weekly Downloads"/>
+<img height="25" src="https://pepy.tech/badge/django-restql/week" alt="Weekly Downloads"/>
 </a>
+</div>
 </div>
 
 **django-restql** is a python library which allows you to turn your API made with **Django REST Framework(DRF)** into a GraphQL like API. With **django-restql** you will be able to
