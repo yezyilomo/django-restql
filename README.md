@@ -134,7 +134,7 @@ If a query contains nested field without expanding and it's not defined as a nes
 ```
 
 
-### Using exclude operator(-)
+### Using exclude(-) and wildcard(*) operators
 When using **django-restql** filtering as-is is great if there are no many fields on a serializer, but sometimes you might have a case where you would like everything except a handful of fields on a larger serializer. These fields might be nested and trying the whitelist approach is difficult or possibly too long for the url. **django-restql** comes with the exclude operator(-) which can be used to exclude some fields in scenarios where you want to get all fields except few. Using exclude syntax is very simple,you just need to prepend the field to exclude with the exclude operator(-) when writing your query that's all. Take an example below
 
 ```python
@@ -229,7 +229,7 @@ query = {username, location{-country}}   ≡    {username, location{region}}
 query = {username, location{-country}, contact{-email}}   ≡    {username, birthdate, location{region}, contact{phone}}
 ```
 
-In addition to exclude operator(-), **django-restql** comes with an operator for including all fields(\*). Just like exclude operator(-) using include all fields operator(\*) is very simple, for example if you want to get all fields from a model you just need to do `query={*}`. This operator can be used to simplify some filtering which might endup being very long if done with other approaches. For example if you have a model with this format 
+In addition to exclude operator(-), **django-restql** comes with a wildcard(\*) operator for including all fields. Just like exclude operator(-) using a wildcard operator(\*) is very simple, for example if you want to get all fields from a model you just need to do `query={*}`. This operator can be used to simplify some filtering which might endup being very long if done with other approaches. For example if you have a model with this format 
 
 ```py
 user = {
@@ -247,7 +247,7 @@ user = {
 ```
 Let's say you want to get all user fields but under contact you want to get only phone, you could use the whitelisting approach as `query={username, birthdate, contact{phone}}` but if you have many fields on user model you might endup writing a very long query, so with `*` operator you can simply do `query={*, contace{phone}}` which means get me all fields on user model but under `contact` field I want only `phone` field, as you see the query is very short compared to the first one and it won't grow if more fields are added to user model.
 
-More examples to get you comfortable with the include all fields operator(\*) syntax.
+More examples to get you comfortable with a wildcard operator(\*) syntax.
 
 ```py
 query = {*, -username, contact{phone}}    ≡    {birthdate, contact{phone}}
@@ -259,11 +259,68 @@ query = {*, -username, contact{*, -facebook, -linkedin}}    ≡    {birthdate, c
 
 ```py
 # These may happen accidentally as it's very easy/tempting to make 
-# these kind of mistakes with the exclude operator(-) and include all fields operatory(*) syntax, 
+# these kind of mistakes with the exclude operator(-) and wildcard operator(*) syntax, 
 query = {username, -location{country}}  # Syntax error(Should not expand excluded field)
 query = {-username, birthdate}   # Syntax error(Should not whitelist and blacklist fields at the same field level)
 query = {*username}  # Syntax error (What are you even trying to accomplish)
 query = {*location{country}}  # Syntax error (This is def wrong)
+```
+
+
+### Using `DynamicSerializerMethodField`
+`DynamicSerializerMethodField` is a wraper of the `SerializerMethodField`, it adds a query argument from a parent serializer to a method bound to a `SerializerMethodField`, this query argument can be passed to a serializer used within a method to allow further querying. For example in the scenario below we are using `DynamicSerializerMethodField` because we want to be able to query `tomes` field.
+
+```py
+from django_restql.mixins import DynamicFieldsMixin
+from django_restql.fields import DynamicSerializerMethodField
+
+
+class CourseSerializer(DynamicFieldsMixin, serializers.ModelSerializer):
+    # Use `DynamicSerializerMethodField` instead of `SerializerMethodField`
+    # if you want to be able to query `tomes`
+    tomes = DynamicSerializerMethodField()
+    class Meta:
+        model = Course
+        fields = ['name', 'code', 'tomes']
+
+    def get_tomes(self, obj, query):
+        # With `DynamicSerializerMethodField` you get this extra
+        # `query` argument in addition to `obj`
+        books = obj.books.all()
+
+        # You can do what ever you want in here
+
+        # `query` param and context are passed to BookSerializer to allow querying it
+        serializer = BookSerializer(books, query=query, many=True, context=self.context)
+        return serializer.data
+```
+
+`GET /course/?query={name, tomes}`
+
+```js
+    [
+        {
+            "name": "Data Structures",
+            "tomes": [
+                {"title": "Advanced Data Structures", "author": "S.Mobit"},
+                {"title": "Basic Data Structures", "author": "S.Mobit"}
+            ]
+        }
+    ]
+```
+
+`GET /course/?query={name, tomes{title}}`
+
+```js
+    [
+        {
+            "name": "Data Structures",
+            "tomes": [
+                {"title": "Advanced Data Structures"},
+                {"title": "Basic Data Structures"}
+            ]
+        }
+    ]
 ```
 
 
