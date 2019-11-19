@@ -1,7 +1,7 @@
 # django-restql
 
-<div align="center">
-<div style="display: inline-block;">
+<div align="center" style="padding: 10px 0 10px 0;">
+<div style="display: inline;">
 <a href="https://api.travis-ci.com/yezyilomo/django-restql">
 <img src="https://api.travis-ci.com/yezyilomo/django-restql.svg?branch=master" alt="Build Status"/>
 </a>
@@ -17,7 +17,7 @@
 <img src="https://img.shields.io/pypi/l/django-restql.svg" alt="Licence"/>
 </a>
 </div>
-<div style="display: inline-block;">
+<div style="display: inline;">
 <a href="https://pepy.tech/badge/django-restql">
 <img src="https://pepy.tech/badge/django-restql" alt="Total Downloads"/>
 </a>
