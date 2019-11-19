@@ -1,6 +1,6 @@
 # django-restql
 
-<div align="center" style="padding: 10px 0 10px 0;">
+<div align="center">
 <div style="display: inline-block;">
 <a href="https://api.travis-ci.com/yezyilomo/django-restql">
 <img src="https://api.travis-ci.com/yezyilomo/django-restql.svg?branch=master" alt="Build Status"/>
