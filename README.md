@@ -15,10 +15,6 @@
 <a href="https://pypi.org/project/django-restql/">
 <img src="https://img.shields.io/pypi/l/django-restql.svg" alt="Licence"/>
 </a>
-
-
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-
 <a href="https://pepy.tech/badge/django-restql">
 <img src="https://pepy.tech/badge/django-restql" alt="Total Downloads"/>
 </a>
