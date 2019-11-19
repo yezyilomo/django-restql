@@ -266,7 +266,7 @@ More examples to get you comfortable with a wildcard operator(\*) syntax.
 ```
 
 **Note:** Any field level should either be whitelisting or blacklisting fields but not both.
-<br/>
+<br/><br/>
 
 
 ### Using `DynamicSerializerMethodField`
