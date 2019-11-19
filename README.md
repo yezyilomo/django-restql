@@ -3,7 +3,7 @@
 [![Latest Version](https://img.shields.io/pypi/v/django-restql.svg)](https://pypi.org/project/django-restql/)
 [![Python Versions](https://img.shields.io/pypi/pyversions/django-restql.svg)](https://pypi.org/project/django-restql/)
 [![License](https://img.shields.io/pypi/l/django-restql.svg)](https://pypi.org/project/django-restql/) 
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 [![Downloads](https://pepy.tech/badge/django-restql)](https://pepy.tech/project/django-restql)
 [![Downloads](https://pepy.tech/badge/django-restql/month)](https://pepy.tech/project/django-restql/month)
 [![Downloads](https://pepy.tech/badge/django-restql/week)](https://pepy.tech/project/django-restql/week)
