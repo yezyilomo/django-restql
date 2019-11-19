@@ -58,14 +58,9 @@ class CourseWithDynamicSerializerMethodField(CourseSerializer):
         model = Course
         fields = ['name', 'code', 'tomes']
 
-    def get_tomes(self, obj):
-        request = self.context.get("request")
-        context = {"request": request}
+    def get_tomes(self, obj, query):
         books = obj.books.all()
-
-        # get child query from parent
-        query = self.nested_fields_queries["tomes"]
-        serializer = BookSerializer(books, query=query, many=True, read_only=True, context=context)
+        serializer = BookSerializer(books, query=query, many=True, read_only=True, context=self.context)
         return serializer.data
 
 

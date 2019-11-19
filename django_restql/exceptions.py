@@ -1,5 +1,5 @@
 class DjangoRESTQLException(Exception):
-    """Base class for exceptions in this module."""
+    """Base class for exceptions in this package."""
 
 
 class InvalidOperation(DjangoRESTQLException):
