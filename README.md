@@ -17,7 +17,6 @@
 <img src="https://img.shields.io/pypi/l/django-restql.svg" alt="Licence"/>
 </a>
 </div>
-&nbsp;&nbsp;
 <div style="display: inline-block;">
 <a href="https://pepy.tech/badge/django-restql">
 <img src="https://pepy.tech/badge/django-restql" alt="Total Downloads"/>
