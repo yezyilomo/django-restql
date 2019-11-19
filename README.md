@@ -3,32 +3,32 @@
 <div align="center" style="padding: 10px 0 10px 0;">
 <div style="display: inline-block;">
 <a href="https://api.travis-ci.com/yezyilomo/django-restql">
-<img height="22" src="https://api.travis-ci.com/yezyilomo/django-restql.svg?branch=master" alt="Build Status"/>
+<img src="https://api.travis-ci.com/yezyilomo/django-restql.svg?branch=master" alt="Build Status"/>
 </a>
 
 <a href="https://pypi.org/project/django-restql/">
-<img height="22" src="https://img.shields.io/pypi/v/django-restql.svg"/ alt="Latest Version">
+<img src="https://img.shields.io/pypi/v/django-restql.svg"/ alt="Latest Version">
 </a>
 
 <a href="https://pypi.org/project/django-restql/">
-<img height="22" src="https://img.shields.io/pypi/pyversions/django-restql.svg" alt="Python Versions"/>
+<img src="https://img.shields.io/pypi/pyversions/django-restql.svg" alt="Python Versions"/>
 </a>
 <a href="https://pypi.org/project/django-restql/">
-<img height="22" src="https://img.shields.io/pypi/l/django-restql.svg" alt="Licence"/>
+<img src="https://img.shields.io/pypi/l/django-restql.svg" alt="Licence"/>
 </a>
 </div>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 <div style="display: inline-block;">
 <a href="https://pepy.tech/badge/django-restql">
-<img height="22" src="https://pepy.tech/badge/django-restql" alt="Total Downloads"/>
+<img src="https://pepy.tech/badge/django-restql" alt="Total Downloads"/>
 </a>
 
 <a href="https://pepy.tech/badge/django-restql/month">
-<img height="22" src="https://pepy.tech/badge/django-restql/month"/ alt="Monthly Downloads">
+<img src="https://pepy.tech/badge/django-restql/month"/ alt="Monthly Downloads">
 </a>
 
 <a href="https://pepy.tech/badge/django-restql/week">
-<img height="22" src="https://pepy.tech/badge/django-restql/week" alt="Weekly Downloads"/>
+<img src="https://pepy.tech/badge/django-restql/week" alt="Weekly Downloads"/>
 </a>
 </div>
 </div>
