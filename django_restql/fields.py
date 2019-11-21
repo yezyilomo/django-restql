@@ -13,10 +13,11 @@ from .operations import ADD, CREATE, REMOVE, UPDATE
 CREATE_SUPPORTED_OPERATIONS = (ADD, CREATE)
 UPDATE_SUPPORTED_OPERATIONS = (ADD, CREATE, REMOVE, UPDATE)
 
+
 class DynamicSerializerMethodField(SerializerMethodField):
     def to_representation(self, value):
         method = getattr(self.parent, self.method_name)
-        if self.field_name in self.parent.nested_fields:
+        if hasattr(self.parent, "nested_fields") and self.field_name in self.parent.nested_fields:
             query = self.parent.nested_fields[self.field_name]
         else:
             query = {
@@ -29,15 +30,19 @@ class DynamicSerializerMethodField(SerializerMethodField):
 class _ReplaceableField(object):
     pass
 
+
 class _WritableField(object):
     pass
 
-def BaseNestedFieldSerializerFactory(*args, 
-                                     accept_pk=False, 
-                                     create_ops=[ADD, CREATE], 
-                                     update_ops=[ADD, CREATE, REMOVE, UPDATE], 
-                                     serializer_class=None, 
-                                     **kwargs):
+
+def BaseNestedFieldSerializerFactory(
+        *args,
+        accept_pk=False,
+        create_ops=[ADD, CREATE],
+        update_ops=[ADD, CREATE, REMOVE, UPDATE],
+        serializer_class=None,
+        **kwargs
+):
     BaseClass = _ReplaceableField if accept_pk else _WritableField
     
     if not set(create_ops).issubset(set(CREATE_SUPPORTED_OPERATIONS)):
