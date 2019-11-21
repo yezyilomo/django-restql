@@ -149,3 +149,5 @@ dmypy.json
 # End of https://www.gitignore.io/api/linux,python,visualstudiocode
 
 # Custom 
+.DS_Store
+.idea

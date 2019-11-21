@@ -1,6 +1,4 @@
 from rest_framework import viewsets
-from rest_framework.response import Response
-from django_restql.mixins import DynamicFieldsMixin
 
 from tests.testapp.models import Book, Course, Student
 from tests.testapp.serializers import (
@@ -9,8 +7,9 @@ from tests.testapp.serializers import (
 	CourseWithReturnPkkwargSerializer, ReplaceableStudentSerializer,
 	WritableStudentSerializer, WritableCourseSerializer,
 	ReplaceableCourseSerializer, CourseWithAliasedBooksSerializer,
-	CourseWithDynamicSerializerMethodField
+	CourseWithDynamicSerializerMethodField, StudentWithAliasSerializer
 )
+from django_restql.mixins import EagerLoadingMixin
 
 
 #### ViewSets for Data Querying And Mutations Testing ####
@@ -55,10 +54,26 @@ class StudentViewSet(viewsets.ModelViewSet):
 	queryset = Student.objects.all()
 
 
+class StudentEagerLoadingViewSet(EagerLoadingMixin, viewsets.ModelViewSet):
+	serializer_class = StudentWithAliasSerializer
+	queryset = Student.objects.all()
+	select_related = {
+		"program": "course"
+	}
+	prefetch_related = {
+		"program": {
+			"nested": {
+				"books": "course__books"
+			}
+		}
+	}
+
+
 ######### ViewSets For Data Mutations Testing ##########
 class WritableCourseViewSet(viewsets.ModelViewSet):
 	serializer_class = WritableCourseSerializer
 	queryset = Course.objects.all()
+
 
 class ReplaceableCourseViewSet(viewsets.ModelViewSet):
 	serializer_class = ReplaceableCourseSerializer
