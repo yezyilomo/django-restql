@@ -692,9 +692,20 @@ class EagerLoadingMixin(object):
             data = self.parsed_query
 
         if data is not None:
-            for item in data:
+            include = data.get("include", [])
+            exclude = data.get("exclude", [])
+            for item in include:
                 if isinstance(item, str):
-                    keys[item] = None
+                    keys[item] = True
+                elif isinstance(item, dict):
+                    for key, nested_items in item.items():
+                        key_base = key
+                        nested_keys = self.get_parsed_dict(nested_items)
+                        keys[key_base] = nested_keys
+
+            for item in exclude:
+                if isinstance(item, str):
+                    keys[item] = False
                 elif isinstance(item, dict):
                     for key, nested_items in item.items():
                         key_base = key
@@ -727,17 +738,27 @@ class EagerLoadingMixin(object):
         against the mapping provided. Parsed input expected to come from self.get_parsed_dict.
         """
         values = []
+        parsed_keys = list(parsed.keys())
+        parsed_dict = parsed
 
-        for parsed_key, parsed_value in parsed.items():
+        if "*" in parsed_keys:
+            parsed_keys.remove("*")
+            parsed_dict = {}
+            for key in mapping.keys():
+                if key not in parsed_keys or parsed[key] is not False:
+                    parsed_dict[key] = parsed.get(key, True)
+
+        for parsed_key, parsed_value in parsed_dict.items():
             if parsed_key in mapping.keys():
                 mapping_value = mapping[parsed_key]
+                base = None
+                nested = None
 
                 if isinstance(mapping_value, dict):
                     base = mapping_value.get("base")
                     nested = mapping_value.get("nested")
-                else:
+                elif mapping_value:
                     base = mapping_value
-                    nested = None
 
                 # This should never be a falsy value, but we're being safe here.
                 if base:

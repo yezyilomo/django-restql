@@ -339,6 +339,31 @@ class DataQueryingTests(APITestCase):
                 }
             )
 
+    def test_retrieve_eager_loading_view_mixin_all_exclude(self):
+        """
+        Test that we implicitly apply our prefetching with * and exclusion.
+        """
+        url = reverse_lazy("student_eager_loading-detail", args=[self.student.id])
+
+        # This would be 3 without doing a select_related.
+        with self.assertNumQueries(2):
+            response = self.client.get(url + '?query={*, -phone_numbers, program{*, books{title}}}', format="json")
+            self.assertEqual(
+                response.data,
+                {
+                    "name": "Yezy",
+                    "age": 24,
+                    "program": {
+                        "name": "Data Structures",
+                        "code": "CS210",
+                        "books": [
+                            {"title": "Advanced Data Structures"},
+                            {"title": "Basic Data Structures"}
+                        ]
+                    },
+                }
+            )
+
     # *************** list tests **************
 
     def test_list_with_flat_query(self):
@@ -715,6 +740,46 @@ class DataQueryingTests(APITestCase):
                             "books": [
                                 {"title": "Algorithm Design", "author": "S.Mobit"},
                                 {"title": "Proving Algorithms", "author": "S.Mobit"}
+                            ]
+                        }
+                    }
+                ]
+            )
+
+    def test_list_eager_loading_view_mixin_all_exclude(self):
+        """
+        Test that we implicitly apply our prefetching with * and exclusion.
+        """
+        url = reverse_lazy("student_eager_loading-list")
+        self.add_second_student()
+
+        # This would be 5 without doing a select_related and prefetch_related.
+        with self.assertNumQueries(2):
+            response = self.client.get(url + '?query={*, -phone_numbers, program{*, books{title}}}', format="json")
+            self.assertEqual(
+                response.data,
+                [
+                    {
+                        "name": "Yezy",
+                        "age": 24,
+                        "program": {
+                            "name": "Data Structures",
+                            "code": "CS210",
+                            "books": [
+                                {"title": "Advanced Data Structures"},
+                                {"title": "Basic Data Structures"}
+                            ]
+                        },
+                    },
+                    {
+                        "name": "Tyler",
+                        "age": 25,
+                        "program": {
+                            "name": "Algorithms",
+                            "code": "CS260",
+                            "books": [
+                                {"title": "Algorithm Design"},
+                                {"title": "Proving Algorithms"}
                             ]
                         }
                     }
