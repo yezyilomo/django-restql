@@ -607,6 +607,27 @@ class DataQueryingTests(APITestCase):
             ]
         )
 
+    def test_list_with_expanded_dynamic_serializer_method_field_without_query(self):
+        """
+        Test that the DynamicSerializerMethodField works without a query present.
+        """
+        url = reverse_lazy("course_with_dynamic_serializer_method_field-list")
+        response = self.client.get(url, format="json")
+
+        self.assertEqual(
+            response.data,
+            [
+                {
+                    "name": "Data Structures",
+                    "code": "CS210",
+                    "tomes": [
+                        {"title": "Advanced Data Structures", "author": "S.Mobit"},
+                        {"title": "Basic Data Structures", "author": "S.Mobit"}
+                    ]
+                }
+            ]
+        )
+
     def test_list_eager_loading_view_mixin(self):
         """
         Ensure that we apply our prefetching or joins when we explicitly ask for fields in the
