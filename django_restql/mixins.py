@@ -653,25 +653,15 @@ class EagerLoadingMixin(object):
     @property
     def parsed_query(self):
         """
-        Gets parsed query for use in eager loading. Defaults to the serializer parsed query assuming
+        Gets parsed query for use in eager loading. 
+        Defaults to the serializer parsed query assuming
         using django-restql DynamicsFieldMixin.
         """
         if hasattr(self, "get_serializer_class"):
             serializer_class = self.get_serializer_class()
 
-            if hasattr(serializer_class, "query_param_name"):
+            if issubclass(serializer_class, DynamicFieldsMixin):
                 return serializer_class.get_parsed_query_from_req(self.request)
-
-    def get_queryset(self):
-        """
-        Override for DRF's get_queryset on the view. If get_queryset is not present, we don't try to
-        run this. Instead, this can still be used by manually calling self.get_eager_queryset and
-        passing in the queryset desired.
-        """
-        if hasattr(super(), "get_queryset"):
-            queryset = super().get_queryset()
-            queryset = self.get_eager_queryset(queryset)
-            return queryset
 
     def get_prefetch_related_mapping(self):
         if hasattr(self, "prefetch_related"):
@@ -683,7 +673,7 @@ class EagerLoadingMixin(object):
             return self.select_related
         return {}
 
-    def get_parsed_dict(self, data=None):
+    def get_dict_parsed_query(self, data=None):
         """
         Returns the parsed query as a dict.
         """
@@ -700,7 +690,7 @@ class EagerLoadingMixin(object):
                 elif isinstance(item, dict):
                     for key, nested_items in item.items():
                         key_base = key
-                        nested_keys = self.get_parsed_dict(nested_items)
+                        nested_keys = self.get_dict_parsed_query(nested_items)
                         keys[key_base] = nested_keys
 
             for item in exclude:
@@ -709,100 +699,66 @@ class EagerLoadingMixin(object):
                 elif isinstance(item, dict):
                     for key, nested_items in item.items():
                         key_base = key
-                        nested_keys = self.get_parsed_dict(nested_items)
+                        nested_keys = self.get_dict_parsed_query(nested_items)
                         keys[key_base] = nested_keys
 
         return keys
 
-    def get_eager_queryset(self, queryset):
-        queryset = self.apply_eager_loading(queryset)
-        return queryset
-
-    def get_all_dict_values(self, dict_to_parse):
+    @staticmethod
+    def get_related_fields(related_fields_mapping, dict_parsed_query):
         """
-        Helper function to get *all* values from a dict and it's nested dicts.
+        Returns only whitelisted related fields from a query to be used on
+        `select_related` and `prefetch_related`
         """
-        values = []
+        related_fields = []
+        for key, related_field in related_fields_mapping.items():
+            fields = key.split(".")
+            if isinstance(related_field, str):
+                related_field = [related_field]
 
-        for value in dict_to_parse.values():
-            if isinstance(value, dict):
-                values.extend(self.get_all_dict_values(value))
-            else:
-                values.append(value)
-
-        return values
-
-    def get_mapping_values(self, parsed, mapping):
-        """
-        Returns the mapping value (or nested mapping values as needed) of a particular parsed dict
-        against the mapping provided. Parsed input expected to come from self.get_parsed_dict.
-        """
-        values = []
-        parsed_keys = list(parsed.keys())
-        parsed_dict = parsed
-
-        if "*" in parsed_keys:
-            parsed_keys.remove("*")
-            parsed_dict = {}
-            for key in mapping.keys():
-                if key not in parsed_keys or parsed[key] is not False:
-                    parsed_dict[key] = parsed.get(key, True)
-
-        for parsed_key, parsed_value in parsed_dict.items():
-            if parsed_key in mapping.keys():
-                mapping_value = mapping[parsed_key]
-                base = None
-                nested = None
-
-                if isinstance(mapping_value, dict):
-                    base = mapping_value.get("base")
-                    nested = mapping_value.get("nested")
-                elif mapping_value:
-                    base = mapping_value
-
-                # This should never be a falsy value, but we're being safe here.
-                if base:
-                    values.append(base)
-
-                if nested:
-                    # If we're given a dict, we only want keys that were mapped as needed, so
-                    # recursively call with the smaller map.
-                    if isinstance(parsed_value, dict):
-                        nested_values = self.get_mapping_values(parsed_value, nested)
-                        values.extend(nested_values)
+            query_node = dict_parsed_query
+            for field in fields:
+                if isinstance(query_node, dict):
+                    if field in query_node:
+                        # Get a more specific query node
+                        query_node = query_node[field]
                     else:
-                        # If we don't have a dict, we want every nested value, since it's assumed
-                        # all of them will be present. We recursively get all values from here.
-                        nested_values = self.get_all_dict_values(nested)
-                        values.extend(nested_values)
-        return values
+                        # The field is not included in a query so
+                        # don't include this field in `related_fields`
+                        break
+            else:
+                # If the loop completed without breaking
+                if isinstance(query_node, dict) or query_node:
+                    related_fields.extend(related_field)
+        return related_fields
 
-    def apply_eager_loading(self, queryset, parsed_keys=None):
+    def apply_eager_loading(self, queryset):
         """
         Applies appropriate select_related and prefetch_related calls on a
-        queryset based on the passed on dictionaries provided.
+        queryset
         """
-        if parsed_keys is None:
-            parsed_keys = self.get_parsed_dict()
+        parsed_query = self.get_dict_parsed_query()
+        select_mapping = self.get_select_related_mapping()
+        prefetch_mapping = self.get_prefetch_related_mapping()
 
-        select = self.get_select_related_mapping()
-        prefetch = self.get_prefetch_related_mapping()
+        to_select = self.get_related_fields(select_mapping, parsed_query)
+        to_prefetch = self.get_related_fields(prefetch_mapping, parsed_query)
 
-        select_mapped = self.get_mapping_values(parsed_keys, select)
-        prefetch_mapped = self.get_mapping_values(parsed_keys, prefetch)
-
-        for value in select_mapped:
-            if isinstance(value, str):
-                queryset = queryset.select_related(value)
-            elif isinstance(value, list):
-                for select_value in value:
-                    queryset = queryset.select_related(select_value)
-
-        for value in prefetch_mapped:
-            if isinstance(value, str) or isinstance(value, Prefetch):
-                queryset = queryset.prefetch_related(value)
-            elif isinstance(value, list):
-                for prefetch_value in value:
-                    queryset = queryset.prefetch_related(prefetch_value)
-
+        queryset = queryset.select_related(*to_select)
+        queryset = queryset.prefetch_related(*to_prefetch)
         return queryset
+
+    def get_eager_queryset(self, queryset):
+        return self.apply_eager_loading(queryset)
+
+    def get_queryset(self):
+        """
+        Override for DRF's get_queryset on the view. 
+        If get_queryset is not present, we don't try to run this. 
+        Instead, this can still be used by manually calling 
+        self.get_eager_queryset and passing in the queryset desired.
+        """
+        if hasattr(super(), "get_queryset"):
+            queryset = super().get_queryset()
+            queryset = self.get_eager_queryset(queryset)
+            return queryset

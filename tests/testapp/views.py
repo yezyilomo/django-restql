@@ -61,11 +61,7 @@ class StudentEagerLoadingViewSet(EagerLoadingMixin, viewsets.ModelViewSet):
 		"program": "course"
 	}
 	prefetch_related = {
-		"program": {
-			"nested": {
-				"books": "course__books"
-			}
-		}
+		"program.books": "course__books"
 	}
 
 
