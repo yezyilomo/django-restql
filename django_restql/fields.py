@@ -36,12 +36,12 @@ class _WritableField(object):
 
 
 def BaseNestedFieldSerializerFactory(
-    *args,
-    accept_pk=False,
-    create_ops=[ADD, CREATE],
-    update_ops=[ADD, CREATE, REMOVE, UPDATE],
-    serializer_class=None,
-    **kwargs
+        *args,
+        accept_pk=False,
+        create_ops=[ADD, CREATE],
+        update_ops=[ADD, CREATE, REMOVE, UPDATE],
+        serializer_class=None,
+        **kwargs
 ):
     BaseClass = _ReplaceableField if accept_pk else _WritableField
     
