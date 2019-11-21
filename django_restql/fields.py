@@ -41,8 +41,7 @@ def BaseNestedFieldSerializerFactory(
         create_ops=[ADD, CREATE],
         update_ops=[ADD, CREATE, REMOVE, UPDATE],
         serializer_class=None,
-        **kwargs
-):
+        **kwargs):
     BaseClass = _ReplaceableField if accept_pk else _WritableField
     
     if not set(create_ops).issubset(set(CREATE_SUPPORTED_OPERATIONS)):
