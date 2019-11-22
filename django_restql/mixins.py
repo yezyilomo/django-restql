@@ -262,10 +262,135 @@ class DynamicFieldsMixin(object):
             # which means the exclude operator(-) is not used, so
             # self.query["include"] contains only fields to include
             return self.include_fields()
-        
-        # No fields to include or exclude so return all fields
-        return self.get_allowed_fields()
+        else:
+            # The query is empty i.e query={}
+            # return nothing
+            return {}
 
+
+class EagerLoadingMixin(object):
+    @property
+    def parsed_query(self):
+        """
+        Gets parsed query for use in eager loading. 
+        Defaults to the serializer parsed query assuming
+        using django-restql DynamicsFieldMixin.
+        """
+        if hasattr(self, "get_serializer_class"):
+            serializer_class = self.get_serializer_class()
+
+            if issubclass(serializer_class, DynamicFieldsMixin):
+                if serializer_class.has_query_param(self.request):
+                    return serializer_class.get_parsed_query_from_req(self.request)
+
+        # Else include all fields
+        query = {
+            "include": ["*"],
+            "exclude": []
+        }
+        return query
+
+    def get_select_related_mapping(self):
+        if hasattr(self, "select_related"):
+            return self.select_related
+        # Else select nothing
+        return {}
+
+    def get_prefetch_related_mapping(self):
+        if hasattr(self, "prefetch_related"):
+            return self.prefetch_related
+        # Else prefetch nothing
+        return {}
+
+    def get_dict_parsed_query(self, parsed_query):
+        """
+        Returns the parsed query as a dict.
+        """
+        keys = {}
+        include = parsed_query.get("include", [])
+        exclude = parsed_query.get("exclude", [])
+
+        for item in include:
+            if isinstance(item, str):
+                keys[item] = True
+            elif isinstance(item, dict):
+                for key, nested_items in item.items():
+                    key_base = key
+                    nested_keys = self.get_dict_parsed_query(nested_items)
+                    keys[key_base] = nested_keys
+
+        for item in exclude:
+            if isinstance(item, str):
+                keys[item] = False
+            elif isinstance(item, dict):
+                for key, nested_items in item.items():
+                    key_base = key
+                    nested_keys = self.get_dict_parsed_query(nested_items)
+                    keys[key_base] = nested_keys
+        return keys
+
+    @staticmethod
+    def get_related_fields(related_fields_mapping, dict_parsed_query):
+        """
+        Returns only whitelisted related fields from a query to be used on
+        `select_related` and `prefetch_related`
+        """
+        related_fields = []
+        for key, related_field in related_fields_mapping.items():
+            fields = key.split(".")
+            if isinstance(related_field, str):
+                related_field = [related_field]
+
+            query_node = dict_parsed_query
+            for field in fields:
+                if isinstance(query_node, dict):
+                    if field in query_node:
+                        # Get a more specific query node
+                        query_node = query_node[field]
+                    elif "*" in query_node:
+                        # All fields are included
+                        continue
+                    else:
+                        # The field is not included in a query so
+                        # don't include this field in `related_fields`
+                        break
+            else:
+                # If the loop completed without breaking
+                if isinstance(query_node, dict) or query_node:
+                    related_fields.extend(related_field)
+        return related_fields
+
+    def apply_eager_loading(self, queryset):
+        """
+        Applies appropriate select_related and prefetch_related calls on a
+        queryset
+        """
+        query = self.get_dict_parsed_query(self.parsed_query)
+        select_mapping = self.get_select_related_mapping()
+        prefetch_mapping = self.get_prefetch_related_mapping()
+
+        to_select = self.get_related_fields(select_mapping, query)
+        to_prefetch = self.get_related_fields(prefetch_mapping, query)
+
+        queryset = queryset.select_related(*to_select)
+        queryset = queryset.prefetch_related(*to_prefetch)
+        return queryset
+
+    def get_eager_queryset(self, queryset):
+        return self.apply_eager_loading(queryset)
+
+    def get_queryset(self):
+        """
+        Override for DRF's get_queryset on the view. 
+        If get_queryset is not present, we don't try to run this. 
+        Instead, this can still be used by manually calling 
+        self.get_eager_queryset and passing in the queryset desired.
+        """
+        if hasattr(super(), "get_queryset"):
+            queryset = super().get_queryset()
+            queryset = self.get_eager_queryset(queryset)
+            return queryset
+            
 
 class NestedCreateMixin(object):
     """ Create Mixin """
@@ -647,118 +772,3 @@ class NestedUpdateMixin(object):
         )
 
         return super().update(instance, validated_data)
-
-
-class EagerLoadingMixin(object):
-    @property
-    def parsed_query(self):
-        """
-        Gets parsed query for use in eager loading. 
-        Defaults to the serializer parsed query assuming
-        using django-restql DynamicsFieldMixin.
-        """
-        if hasattr(self, "get_serializer_class"):
-            serializer_class = self.get_serializer_class()
-
-            if issubclass(serializer_class, DynamicFieldsMixin):
-                return serializer_class.get_parsed_query_from_req(self.request)
-
-    def get_prefetch_related_mapping(self):
-        if hasattr(self, "prefetch_related"):
-            return self.prefetch_related
-        return {}
-
-    def get_select_related_mapping(self):
-        if hasattr(self, "select_related"):
-            return self.select_related
-        return {}
-
-    def get_dict_parsed_query(self, data=None):
-        """
-        Returns the parsed query as a dict.
-        """
-        keys = {}
-        if data is None:
-            data = self.parsed_query
-
-        if data is not None:
-            include = data.get("include", [])
-            exclude = data.get("exclude", [])
-            for item in include:
-                if isinstance(item, str):
-                    keys[item] = True
-                elif isinstance(item, dict):
-                    for key, nested_items in item.items():
-                        key_base = key
-                        nested_keys = self.get_dict_parsed_query(nested_items)
-                        keys[key_base] = nested_keys
-
-            for item in exclude:
-                if isinstance(item, str):
-                    keys[item] = False
-                elif isinstance(item, dict):
-                    for key, nested_items in item.items():
-                        key_base = key
-                        nested_keys = self.get_dict_parsed_query(nested_items)
-                        keys[key_base] = nested_keys
-
-        return keys
-
-    @staticmethod
-    def get_related_fields(related_fields_mapping, dict_parsed_query):
-        """
-        Returns only whitelisted related fields from a query to be used on
-        `select_related` and `prefetch_related`
-        """
-        related_fields = []
-        for key, related_field in related_fields_mapping.items():
-            fields = key.split(".")
-            if isinstance(related_field, str):
-                related_field = [related_field]
-
-            query_node = dict_parsed_query
-            for field in fields:
-                if isinstance(query_node, dict):
-                    if field in query_node:
-                        # Get a more specific query node
-                        query_node = query_node[field]
-                    else:
-                        # The field is not included in a query so
-                        # don't include this field in `related_fields`
-                        break
-            else:
-                # If the loop completed without breaking
-                if isinstance(query_node, dict) or query_node:
-                    related_fields.extend(related_field)
-        return related_fields
-
-    def apply_eager_loading(self, queryset):
-        """
-        Applies appropriate select_related and prefetch_related calls on a
-        queryset
-        """
-        parsed_query = self.get_dict_parsed_query()
-        select_mapping = self.get_select_related_mapping()
-        prefetch_mapping = self.get_prefetch_related_mapping()
-
-        to_select = self.get_related_fields(select_mapping, parsed_query)
-        to_prefetch = self.get_related_fields(prefetch_mapping, parsed_query)
-
-        queryset = queryset.select_related(*to_select)
-        queryset = queryset.prefetch_related(*to_prefetch)
-        return queryset
-
-    def get_eager_queryset(self, queryset):
-        return self.apply_eager_loading(queryset)
-
-    def get_queryset(self):
-        """
-        Override for DRF's get_queryset on the view. 
-        If get_queryset is not present, we don't try to run this. 
-        Instead, this can still be used by manually calling 
-        self.get_eager_queryset and passing in the queryset desired.
-        """
-        if hasattr(super(), "get_queryset"):
-            queryset = super().get_queryset()
-            queryset = self.get_eager_queryset(queryset)
-            return queryset
