@@ -26,7 +26,6 @@ Isn't it cool?.
 
 
 ## Installing
-
 ```py
 pip install django-restql
 ```
@@ -51,33 +50,32 @@ A regular request returns all fields as specified on a DRF serializer, in fact *
 `GET /users`
 
 ```js
-    [
-      {
+[
+    {
         "id": 1,
         "username": "yezyilomo",
         "email": "yezileliilomo@hotmail.com",
-      },
-      ...
-    ]
+    },
+    ...
+]
 ```
 
 ### Querying fields
 **django-restql** handle all GET requests with a `query` parameter, this parameter is the one used to pass all fields to be included/excluded in a response. For example to select `id` and `username` fields from User model, send a request with a ` query` parameter as shown below.
 
 `GET /users/?query={id, username}`
-
 ```js
-    [
-      {
+[
+    {
         "id": 1,
         "username": "yezyilomo"
-      },
-      ...
-    ]
+    },
+    ...
+]
 ```
 
 ### Querying/Expanding nested fields
-**django-restql** support querying both flat and nested resources, so you can expand or query nested fields at any level as defined on a serializer. In an example below we have `location` and `groups` fields as nested fields on User model.
+**django-restql** support querying both flat and nested resources, so you can expand or query nested fields at any level as defined on a serializer. In an example below we have `location` and `groups` as nested fields on User model.
 
 ```py
 from rest_framework import serializers
@@ -90,13 +88,13 @@ from app.models import GroupSerializer, LocationSerializer
 class GroupSerializer(DynamicFieldsMixin, serializer.ModelSerializer):
     class Meta:
         model = Group
-        fields = ('id', 'name')
+        fields = ['id', 'name']
 
 
 class LocationSerializer(DynamicFieldsMixin, serializer.ModelSerializer):
     class Meta:
         model = Location
-        fields = ('id', 'country',  'city', 'street')
+        fields = ['id', 'country',  'city', 'street']
 
 
 class UserSerializer(DynamicFieldsMixin, serializer.ModelSerializer):
@@ -110,28 +108,25 @@ class UserSerializer(DynamicFieldsMixin, serializer.ModelSerializer):
 If you want only `country` and `city` fields on a `location` field when retrieving users here is how you can do it
 
 `GET /users/?query={id, username, location{country, city}}`
-
 ```js
-    [
-      {
+[
+    {
         "id": 1,
         "username": "yezyilomo",
         "location": {
             "contry": "Tanzania",
             "city": "Dar es salaam"
         }
-      },
-      ...
-    ]
+    },
+    ...
+]
 ```
 
 ### More Examples to get you comfortable with the query syntax
-
 `GET /users/?query={location, groups}`
-
 ```js
-    [
-      {
+[
+    {
         "location": {
             "id": 1,
             "contry": "Tanzania",
@@ -142,27 +137,26 @@ If you want only `country` and `city` fields on a `location` field when retrievi
             {"id": 2, "name": "Auth_User"},
             {"id": 3, "name": "Admin_User"}
         ]
-      },
-      ...
-    ]
+    },
+    ...
+]
 ```
+<br/>
 
 `GET /users/?query={id, username, groups{name}}`
-
 ```js
-    [
-      {
+[
+    {
         "id": 1,
         "username": "yezyilomo",
         "groups": [
             {"name": "Auth_User"},
             {"name": "Admin_User"}
         ]
-      },
-      ...
-    ]
+    },
+    ...
+]
 ```
-
 
 ### Using exclude(-) and wildcard(*) operators
 When using **django-restql** filtering as-is is great if there are no many fields on a serializer, but sometimes you might have a case where you would like everything except a handful of fields on a larger serializer. These fields might be nested and trying the whitelist approach is difficult or possibly too long for the url. **django-restql** comes with the exclude operator(-) which can be used to exclude some fields in scenarios where you want to get all fields except few. Using exclude syntax is very simple,you just need to prepend the field to exclude with the exclude operator(-) when writing your query that's all. Take an example below
@@ -177,41 +171,39 @@ from app.models import Location, Property
 class LocationSerializer(DynamicFieldsMixin, serializer.ModelSerializer):
     class Meta:
         model = Location
-        fields = ("id", "city", "country", "state", "street")
+        fields = ["id", "city", "country", "state", "street"]
 
 
 class PropertySerializer(DynamicFieldsMixin, serializer.ModelSerializer):
     location = LocationSerializer(many=False, read_only=True) 
     class Meta:
         model = Property
-        fields = (
+        fields = [
             'id', 'price', 'location'
-        )
+        ]
 ```
 
 Get all location fields except `id` and `street`
 
 `GET /location/?query={-id, -street}`
-
 ```js
-    [
-      {
+[
+    {
         "country": "China",
         "city": "Beijing",
         "state": "Chaoyang"
-      },
-      ...
-    ]
+    },
+    ...
+]
 ```
 This is equivalent to `query={country, city, state}`
 
 You can use exclude operator on nested fields too, for example if you want to get `price` and `location` fields but under `location` you want all fields except `id` here is how you can do it.
 
 `GET /property/?query={price, location{-id}}`
-
 ```js
-    [
-      {
+[
+    {
         "price": 5000
         "location": {
             "country": "China",
@@ -219,9 +211,9 @@ You can use exclude operator on nested fields too, for example if you want to ge
             "state": "Chaoyang",
             "street": "Hanang"
         }
-      },
-      ...
-    ]
+    },
+    ...
+]
 ```
 This is equivalent to `query={price, location{country, city, state, street}}`
 
@@ -233,7 +225,7 @@ data = {
     birthdate,
     location {
         country,
-        region
+        city
     },
     contact {
         phone,
@@ -244,7 +236,7 @@ data = {
 
 # Here is how we can structure our query to exclude some fields using exclude operator(-)
 
-{-username}   ≡   {birthdate, location{country, region}, contact{phone, email}}
+{-username}   ≡   {birthdate, location{country, city}, contact{phone, email}}
 
 {-username, contact{phone}, location{country}}   ≡    {birthdate ,contact{phone}, location{country}}
 
@@ -252,9 +244,9 @@ data = {
 
 {-contact, -location}   ≡    {username, birthdate}
 
-{username, location{-country}}   ≡    {username, location{region}}
+{username, location{-country}}   ≡    {username, location{city}}
 
-{username, location{-region}, contact{-email}}   ≡    {username, location{country}, contact{phone}}
+{username, location{-city}, contact{-email}}   ≡    {username, location{country}, contact{phone}}
 ```
 
 In addition to exclude operator(-), **django-restql** comes with a wildcard(\*) operator for including all fields. Just like exclude operator(-) using a wildcard operator(\*) is very simple, for example if you want to get all fields from a model you just need to do `query={*}`. This operator can be used to simplify some filtering which might endup being very long if done with other approaches. For example if you have a model with this format 
@@ -327,31 +319,30 @@ class CourseSerializer(DynamicFieldsMixin, serializers.ModelSerializer):
 ```
 
 `GET /course/?query={name, tomes}`
-
 ```js
-    [
-        {
-            "name": "Data Structures",
-            "tomes": [
-                {"title": "Advanced Data Structures", "author": "S.Mobit"},
-                {"title": "Basic Data Structures", "author": "S.Mobit"}
-            ]
-        }
-    ]
+[
+    {
+        "name": "Data Structures",
+        "tomes": [
+            {"title": "Advanced Data Structures", "author": "S.Mobit"},
+            {"title": "Basic Data Structures", "author": "S.Mobit"}
+        ]
+    }
+]
 ```
+<br/>
 
 `GET /course/?query={name, tomes{title}}`
-
 ```js
-    [
-        {
-            "name": "Data Structures",
-            "tomes": [
-                {"title": "Advanced Data Structures"},
-                {"title": "Basic Data Structures"}
-            ]
-        }
-    ]
+[
+    {
+        "name": "Data Structures",
+        "tomes": [
+            {"title": "Advanced Data Structures"},
+            {"title": "Basic Data Structures"}
+        ]
+    }
+]
 ```
 <br/>
 
@@ -381,19 +372,18 @@ class CourseSerializer(DynamicFieldsMixin, serializers.ModelSerializer):
 ```
 
 `GET /courses/`
-
 ```js
-    [
-      {
+[
+    {
         "name": "Computer Programming",
         "code": "CS50",
         "books": [
-          {"title": "Computer Programming Basics"},
-          {"title": "Data structures"}
+            {"title": "Computer Programming Basics"},
+            {"title": "Data structures"}
         ]
-      },
-      ...
-    ]
+    },
+    ...
+]
 ```
 As you see from the response above, the nested resource(book) has only one field(title) as specified on  `fields=["title"]` kwarg during instantiating BookSerializer, so if you send a request like `GET /course?query={name, code, books{title, author}}` you will get an error that `author` field is not found because it was not included on `fields=["title"]` kwarg.
 
@@ -420,35 +410,33 @@ class CourseSerializer(DynamicFieldsMixin, serializers.ModelSerializer):
 ```
 
 `GET /courses/`
-
 ```js
-    [
-      {
+[
+    {
         "name": "Computer Programming",
         "code": "CS50",
         "books": [
-          {"id": 1, "title": "Computer Programming Basics"},
-          {"id": 2, "title": "Data structures"}
+            {"id": 1, "title": "Computer Programming Basics"},
+            {"id": 2, "title": "Data structures"}
         ]
-      },
-      ...
-    ]
+    },
+    ...
+]
 ```
 From the response above you can see that `author` field has been excluded fom book nested resource as specified on  `exclude=["author"]` kwarg during instantiating BookSerializer.
 
 **Note:** `fields` and `exclude` kwargs have no effect when you access the resources directly, so when you access books you will still get all fields i.e
 
 `GET /books/`
-
 ```js
-    [
-      {
+[
+    {
         "id": 1,
         "title": "Computer Programming Basics",
         "author": "S.Mobit"
-      },
-      ...
-    ]
+    },
+    ...
+]
 ```
 So you can see that all fields have appeared as specified on `fields = ['id', 'title', 'author']` on BookSerializer class.
 <br/>
@@ -478,16 +466,15 @@ class CourseSerializer(DynamicFieldsMixin, serializers.ModelSerializer):
 ```
 
 `GET /course/`
-
 ```js
-    [
-      {
+[
+    {
         "name": "Computer Programming",
         "code": "CS50",
-        "books": [1,2]
-      },
-      ...
-    ]
+        "books": [1, 2]
+    },
+    ...
+]
 ```
 So you can see that on a nested field `books` book pks have been returned instead of books data as specified on `return_pk=True` kwarg on `BookSerializer`.
 <br/>
@@ -552,7 +539,7 @@ class StudentViewSet(EagerLoadingMixin, viewsets.ModelViewSet):
 
     # The Interpretation of this is 
     # Select `course` only if program field is included in a query
-	select_related = {
+    select_related = {
 		"program": "course"
 	}
 
@@ -662,13 +649,13 @@ from app.models import Location, Amenity, Property
 class LocationSerializer(serializers.ModelSerializer):
     class Meta:
         model = Location
-        fields = ("id", "city", "country")
+        fields = ["id", "city", "country"]
 
 
 class AmenitySerializer(serializers.ModelSerializer):
     class Meta:
         model = Amenity
-        fields = ("id", "name")
+        fields = ["id", "name"]
         
 
 # Inherit NestedModelSerializer to support create and update 
@@ -678,9 +665,9 @@ class PropertySerializer(NestedModelSerializer):
     amenities = NestedField(AmenitySerializer, many=True)  # Define amenities as nested field
     class Meta:
         model = Property
-        fields = (
+        fields = [
             'id', 'price', 'location', 'amenities'
-        )
+        ]
 ```
 <br>
 
@@ -789,16 +776,16 @@ from app.models import Location, Property
 class LocationSerializer(serializers.ModelSerializer):
     class Meta:
         model = Location
-        fields = ("id", "city", "country")
+        fields = ["id", "city", "country"]
 
 
 class PropertySerializer(NestedModelSerializer):
     location = NestedField(LocationSerializer, accept_pk=True)  # pk based nested field
     class Meta:
         model = Property
-        fields = (
+        fields = [
             'id', 'price', 'location'
-        )
+        ]
 ```
 <br>
 
@@ -844,7 +831,7 @@ from app.models import Location, Amenity, Property
 class AmenitySerializer(serializers.ModelSerializer):
     class Meta:
         model = Amenity
-        fields = ("id", "name")
+        fields = ["id", "name"]
         
 
 class PropertySerializer(NestedModelSerializer):
@@ -856,9 +843,9 @@ class PropertySerializer(NestedModelSerializer):
     )
     class Meta:
         model = Property
-        fields = (
+        fields = [
             'id', 'price', 'amenities'
-        )
+        ]
 ```
 <br>
 
@@ -934,16 +921,16 @@ from app.models import Location, Property
 class LocationSerializer(DynamicFieldsMixin, serializers.ModelSerializer):
     class Meta:
         model = Location
-        fields = ("id", "city", "country")
+        fields = ["id", "city", "country"]
 
 # Inherit both DynamicFieldsMixin and NestedModelSerializer
 class PropertySerializer(DynamicFieldsMixin, NestedModelSerializer):
     location = NestedField(LocationSerializer)
     class Meta:
         model = Property
-        fields = (
+        fields = [
             'id', 'price', 'location'
-        )
+        ]
 ```
 
 `NestedField` is nothing but a serializer wrapper, it returns an instance of a modified version of a serializer passed, so you can pass all the args and kwargs accepted by a serializer on it, it will simply pass them to a serializer passed when instantiating an instance. So you can pass anything accepted by a serializer to a `NestedField` wrapper, and if a serializer passed inherits `DynamicFieldsMini` just like `LocationSerializer` on above example then you can pass any arg or kwarg accepted by `DynamicFieldsMixin` when defining location as a nested field, i.e
