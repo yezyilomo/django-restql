@@ -21,8 +21,9 @@ class DynamicSerializerMethodField(SerializerMethodField):
                 self.field_name in self.parent.nested_fields):
             query = self.parent.nested_fields[self.field_name]
         else:
+            # Include all fields
             query = {
-                "include": [],
+                "include": ["*"],
                 "exclude": []
             }
         return method(value, query)
