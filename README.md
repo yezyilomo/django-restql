@@ -326,7 +326,7 @@ class CourseSerializer(DynamicFieldsMixin, serializers.ModelSerializer):
 <br/>
 
 
-### Using `fields=[..]` and `exclude=[..]` kwargs
+### Using `fields=[...]` and `exclude=[...]` kwargs
 With **django-restql** you can specify fields to be included when instantiating a serializer, this provides a way to refilter fields on nested fields(i.e you can opt to remove some fields on a nested field). Below is an example which shows how you can specify fields to be included on nested resources. 
 
 ```py
@@ -406,7 +406,7 @@ class CourseSerializer(DynamicFieldsMixin, serializers.ModelSerializer):
 ```
 From the response above you can see that `author` field has been excluded fom book nested resource as specified on  `exclude=["author"]` kwarg during instantiating BookSerializer.
 
-**Note:** `fields=[..]` and `exclude=[]` kwargs have no effect when you access the resources directly, so when you access books you will still get all fields i.e
+**Note:** `fields` and `exclude` kwargs have no effect when you access the resources directly, so when you access books you will still get all fields i.e
 
 `GET /books/`
 
@@ -460,6 +460,115 @@ class CourseSerializer(DynamicFieldsMixin, serializers.ModelSerializer):
     ]
 ```
 So you can see that on a nested field `books` book pks have been returned instead of books data as specified on `return_pk=True` kwarg on `BookSerializer`.
+<br/>
+
+
+### Setting up eager loading with `EagerLoadingMixin`
+Often times, using `prefetch_related` or `select_related` on a view queryset can help speed up the serialization. For example, if you had a many-to-many relation like Books to a Course, it's usually more efficient to call `prefetch_related` on the books so that serializing a list of courses only triggers one additional query, instead of a number of queries equal to the number of courses.
+
+`EagerLoadingMixin` gives access to `prefetch_related` and `select_related` properties, these two are dictionaries that match serializer field names to respective values that would be passed into `prefetch_related` or `select_related`. Take the following serializers as examples.
+
+```py
+class CourseSerializer(DynamicFieldsMixin, serializers.ModelSerializer):
+    books = BookSerializer(many=True, read_only=True)
+
+    class Meta:
+        model = Course
+        fields = ['name', 'code', 'books']
+
+class StudentSerializer(DynamicFieldsMixin, serializers.ModelSerializer):
+    program = CourseSerializer(source="course", many=False, read_only=True)
+    phone_numbers = PhoneSerializer(many=True, read_only=True)
+
+    class Meta:
+        model = Student
+        fields = ['name', 'age', 'program', 'phone_numbers']
+```
+
+In a view, these can be used as described earlier in this documentation. However, if prefetching of `books` always happened, but we did not ask for `{program}` or `program{books}`, then we did an additional query for nothing. Conversely, not prefetching can lead to even more queries being triggered. When leveraging the `EagerLoadingMixin` on a view, the specific fields that warrant a `select_related` or `prefetch_related` can be described.
+
+
+#### Syntax for `prefetch_related` and `select_related`
+The format of syntax for `select_related` and  `prefetch_related` is as follows
+
+```py
+select_related = {"serializer_field_name": ["fields_to_select"]}
+prefetch_related = {"serializer_field_name": ["fields_to_prefetch"]}
+```
+
+If you are selecting or prefetching one field per serializer field name you can use
+```py
+select_related = {"serializer_field_name": "field_to_select"}
+prefetch_related = {"serializer_field_name": "field_to_prefetch"}
+```
+**Syntax Interpretation**
+- `serializer_field_name` stands for the name of the field to prefetch or select(as named on a serializer)
+- `fields_to_select` stands for argument(s) to pass when calling `select_related` method
+- `fields_to_prefetch` stands for arguments(s) to pass when calling `prefetch_related` method
+- If you want to select or prefetch nested field use dot(.) to separate parent and child fields on `serializer_field_name` eg `parent.child`
+
+
+#### Example of `EagerLoadingMixin` usage
+
+```py
+from rest_framework import viewsets
+from django_restql.mixins import EagerLoadingMixin
+from myapp.serializers import StudentSerializer
+from myapp.models import Student
+
+class StudentViewSet(EagerLoadingMixin, viewsets.ModelViewSet):
+	serializer_class = StudentSerializer
+	queryset = Student.objects.all()
+
+    # The Interpretation of this is 
+    # Select `course` only if program field is included in a query
+	select_related = {
+		"program": "course"
+	}
+
+    # The Interpretation of this is 
+    # Prefetch `course__books` only if program or program.books 
+    # fields are included in a query
+	prefetch_related = {
+		"program.books": "course__books"
+	}
+```
+
+#### Example Queries
+
+- `{name}`
+
+  Neither `select_related` or `prefetch_related` will be run since neither field is present on the serializer for this query.
+
+- `{program}`
+  
+  Both `select_related` and `prefetch_related` will be run, since `program` is present in it's entirety (including the `books` field).
+
+- `{program{name}}`
+  
+  Only `select_related` will be run, since `books` are not present on the program fields.
+
+- `{program{books}}`
+  
+  Both will be run here as well, since this explicitly fetches books.
+
+#### Known Caveats
+When prefetching with a `to_attr`, ensure that there are no collisions. Django does not allow multiple prefetches with the same `to_attr` on the same queryset.
+
+When prefetching *and* calling `select_related` on a field, Django may error, since the ORM does allow prefetching a selectable field, but not both at the same time.
+
+### Changing the name of `query` parameter when querying data
+If you don't want to use the name `query` as your parameter, you can inherit `DynamicFieldsMixin` and change it as shown below
+
+```py
+from django_restql.mixins import DynamicFieldsMixin
+class MyDynamicFieldMixin(DynamicFieldsMixin):
+    query_param_name = "your_favourite_name"
+ ```
+
+ Now you can use this Mixin on your serializer and use the name `your_favourite_name` as your parameter. E.g
+ 
+ `GET /users/?your_favourite_name={id, username}`
 <br/>
 
 
@@ -648,7 +757,7 @@ Response
 <br>
 
 
-### Using NestedField with `create_ops=[..]` and `update_ops=[..]` kwargs.
+### Using NestedField with `create_ops=[...]` and `update_ops=[...]` kwargs.
 You can restrict some operations by using `create_ops` and `update_ops` keyword arguments as follows
 
 ```py
@@ -767,142 +876,17 @@ class PropertySerializer(DynamicFieldsMixin, NestedModelSerializer):
 `NestedField` is nothing but a serializer wrapper, it returns an instance of a modified version of a serializer passed, so you can pass all the args and kwargs accepted by a serializer on it, it will simply pass them to a serializer passed when instantiating an instance. So you can pass anything accepted by a serializer to a `NestedField` wrapper, and if a serializer passed inherits `DynamicFieldsMini` just like `LocationSerializer` on above example then you can pass any arg or kwarg accepted by `DynamicFieldsMixin` when defining location as a nested field, i.e
 
 ```py
-location = NestedField(LocationSerializer, fields=[..])
+location = NestedField(LocationSerializer, fields=[...])
 ```
 
 ```py 
-location = NestedField(LocationSerializer, exclude=[..])
+location = NestedField(LocationSerializer, exclude=[...])
 ``` 
 
 ```py
 location = NestedField(LocationSerializer, return_pk=True)
 ``` 
 <br/>
-
-
-## Setting up eager loading with `EagerLoadingMixin`
-Often times, using `prefetch_related` or `select_related` on a view queryset can help speed up the serialization. For example, if you had a many-to-many relation like Books to a Course, it's usually more efficient to call `prefetch_related` on the books so that serializing a list of courses only triggers one additional query, instead of a number of queries equal to the number of courses.
-
-`EagerLoadingMixin` gives access to `prefetch_related` and `select_related` properties, these two are dictionaries that match serializer field names to respective values that would be passed into `prefetch_related` or `select_related`. Take the following serializers as examples.
-
-```py
-class CourseSerializer(DynamicFieldsMixin, serializers.ModelSerializer):
-    books = BookSerializer(many=True, read_only=True)
-
-    class Meta:
-        model = Course
-        fields = ['name', 'code', 'books']
-
-class StudentSerializer(DynamicFieldsMixin, serializers.ModelSerializer):
-    program = CourseSerializer(source="course", many=False, read_only=True)
-    phone_numbers = PhoneSerializer(many=True, read_only=True)
-
-    class Meta:
-        model = Student
-        fields = ['name', 'age', 'program', 'phone_numbers']
-```
-
-In a view, these can be used as described earlier in this documentation. However, if prefetching of `books` always happened, but we did not ask for `{program}` or `program{books}`, then we did an additional query for nothing. Conversely, not prefetching can lead to even more queries being triggered. When leveraging the `EagerLoadingMixin` on a view, the specific fields that warrant a `select_related` or `prefetch_related` can be described.
-
-
-### Syntax for `prefetch_related` and `select_related`
-The format of syntax for `select_related` and  `prefetch_related` is as follows
-
-```py
-select_related = {"serializer_field_name": ["fields_to_select"]}
-prefetch_related = {"serializer_field_name": ["fields_to_prefetch"]}
-```
-
-If you are selecting or prefetching one field per serializer field name you can use
-```py
-select_related = {"serializer_field_name": "field_to_select"}
-prefetch_related = {"serializer_field_name": "field_to_prefetch"}
-```
-**Syntax Interpretation**
-- `serializer_field_name` stands for the name of the field to prefetch or select(as named on a serializer)
-- `fields_to_select` stands for argument(s) to pass when calling `select_related` method
-- `fields_to_prefetch` stands for arguments(s) to pass when calling `prefetch_related` method
-- If you want to select or prefetch nested field use dot(.) to separate parent and child fields on `serializer_field_name` eg `parent.child`
-
-
-### Example viewset usage
-
-```py
-from rest_framework import viewsets
-from django_restql.mixins import EagerLoadingMixin
-from myapp.serializers import StudentSerializer
-from myapp.models import Student
-
-class StudentViewSet(EagerLoadingMixin, viewsets.ModelViewSet):
-	serializer_class = StudentSerializer
-	queryset = Student.objects.all()
-
-    # The Interpretation of this is 
-    # Select `course` only if program field is included in a query
-	select_related = {
-		"program": "course"
-	}
-
-    # The Interpretation of this is 
-    # Prefetch `course__books` only if program or program.books 
-    # fields are included in a query
-	prefetch_related = {
-		"program.books": "course__books"
-	}
-```
-
-### Example Queries
-
-- `{name}`
-
-  Neither `select_related` or `prefetch_related` will be run since neither field is present on the serializer for this query.
-
-- `{program}`
-  
-  Both `select_related` and `prefetch_related` will be run, since `program` is present in it's entirety (including the `books` field).
-
-- `{program{name}}`
-  
-  Only `select_related` will be run, since `books` are not present on the program fields.
-
-- `{program{books}}`
-  
-  Both will be run here as well, since this explicitly fetches books.
-
-### Known Caveats
-When prefetching with a `to_attr`, ensure that there are no collisions. Django does not allow multiple prefetches with the same `to_attr` on the same queryset.
-
-When prefetching *and* calling `select_related` on a field, Django may error, since the ORM does allow prefetching a selectable field, but not both at the same time.
-
-
-## Customizing django-restql
-**django-restql**  is very configurable, here is what you can customize on it.
-* Change the name of ```query``` parameter when querying data.
-
-    If you don't want to use the name ```query``` as your parameter, you can inherit `DynamicFieldsMixin` and change it as shown below
-    ```py
-    from django_restql.mixins import DynamicFieldsMixin
-
-    class MyDynamicFieldMixin(DynamicFieldsMixin):
-        query_param_name = "your_favourite_name"
-     ```
-     Now you can use this Mixin on your serializer and use the name `your_favourite_name` as your parameter. E.g
-
-     `GET /users/?your_favourite_name={id, username}`
-
-* Customize how fields to include in a response are filtered.
-    You can do this by inheriting DynamicFieldsMixin and override `field` methods as shown below.
-
-    ```py
-    from django_restql.mixins import DynamicFieldsMixin
-
-    class CustomDynamicFieldMixin(DynamicFieldsMixin):
-        @property
-        def fields(self):
-            # Your customization here
-            return fields
-    ```
-    **Note:** To be able to do this you must understand how **django-restql** is implemented, specifically **DynamicFieldsMixin** class, you can check it [here](https://github.com/yezyilomo/django-restql/blob/master/django_restql/mixins.py). In fact this is how **django-restql** is implemented(just by overriding `field` method of a serializer, nothing more and nothing less).
 
 
 ## Running Tests
