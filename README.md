@@ -3,6 +3,31 @@
 # [![Build Status](https://api.travis-ci.com/yezyilomo/django-restql.svg?branch=master)](https://api.travis-ci.com/yezyilomo/django-restql) [![Latest Version](https://img.shields.io/pypi/v/django-restql.svg)](https://pypi.org/project/django-restql/) [![Python Versions](https://img.shields.io/pypi/pyversions/django-restql.svg)](https://pypi.org/project/django-restql/) [![License](https://img.shields.io/pypi/l/django-restql.svg)](https://pypi.org/project/django-restql/) &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; [![Downloads](https://pepy.tech/badge/django-restql)](https://pepy.tech/project/django-restql) [![Downloads](https://pepy.tech/badge/django-restql/month)](https://pepy.tech/project/django-restql/month) [![Downloads](https://pepy.tech/badge/django-restql/week)](https://pepy.tech/project/django-restql/week)
 
 
+## Table Of Contents
+- [Introduction](#introduction)
+- [Requirements](#requirements)
+- [Installation](#installing)
+- [Querying Data](#querying-data)
+    - [Querying Flat Fields](#querying-fields)
+    - [Querying Nested Fields](#queryingexpanding-nested-fields)
+    - [Exclude(-) Operator](#using-exclude-operator)
+    - [Wildcard(\*) Operator](#using-wildcard-operator)
+    - [Query on SerializerMethodField](#using-dynamicserializermethodfield)
+    - [DynamicFieldsMixin `fields` & `exclude` kwargs](#using-fields-and-exclude-kwargs)
+    - [DynamicFieldsMixin `return_pk` kwarg](#using-return_pktrue-kwargs)
+    - [Setting Up Eager Loading](#setting-up-eager-loading-with-eagerloadingmixin)
+    - [Change `query` Parameter Name](#changing-the-name-of-query-parameter-when-querying-data)
+- [Mutating Data](#mutating-datacreating-and-updating-data)
+    - [NestedField & NestedModelSerializer](#using-nestedfield--nestedmodelserializer-to-mutate-data)
+    - [NestedField with accept_pk kwarg](#using-nestedfield-with-accept_pktrue-kwarg)
+    - [NestedField with create_ops and update_ops kwargs](#using-nestedfield-with-create_ops-and-update_ops-kwargs)
+    - [NestedField with DynamicFieldsmixin](#using-dynamicfieldsmixin-and-nestedfield-together)
+- [Running Tests](#running-tests)
+- [Credits](#credits)
+- [Contributing](#contributing)
+<br/><br/>
+
+## Introduction
 **django-restql** is a python library which allows you to turn your API made with **Django REST Framework(DRF)** into a GraphQL like API. With **django-restql** you will be able to
 * Send a query to your API and get exactly what you need, nothing more and nothing less.
 
@@ -122,7 +147,7 @@ If you want only `country` and `city` fields on a `location` field when retrievi
 ]
 ```
 
-### More Examples to get you comfortable with the query syntax
+#### More examples to get you comfortable with the query syntax
 `GET /users/?query={location, groups}`
 ```js
 [
@@ -158,7 +183,7 @@ If you want only `country` and `city` fields on a `location` field when retrievi
 ]
 ```
 
-### Using exclude(-) and wildcard(*) operators
+### Using the exclude(-) operator
 When using **django-restql** filtering as-is is great if there are no many fields on a serializer, but sometimes you might have a case where you would like everything except a handful of fields on a larger serializer. These fields might be nested and trying the whitelist approach is difficult or possibly too long for the url. **django-restql** comes with the exclude operator(-) which can be used to exclude some fields in scenarios where you want to get all fields except few. Using exclude syntax is very simple,you just need to prepend the field to exclude with the exclude operator(-) when writing your query that's all. Take an example below
 
 ```py
@@ -217,9 +242,9 @@ You can use exclude operator on nested fields too, for example if you want to ge
 ```
 This is equivalent to `query={price, location{country, city, state, street}}`
 
-More examples to get you comfortable with the exclude operator(-) syntax.
+#### More examples to get you comfortable with the exclude operator(-) syntax
+Assuming this is the structure of the model we are querying
 ```py
-# Assuming this is the structure of the model we are querying
 data = {
     username,
     birthdate,
@@ -232,10 +257,10 @@ data = {
         email
     }
 }
+```
 
-
-# Here is how we can structure our query to exclude some fields using exclude operator(-)
-
+Here is how we can structure our query to exclude some fields using exclude operator(-)
+```py
 {-username}   ≡   {birthdate, location{country, city}, contact{phone, email}}
 
 {-username, contact{phone}, location{country}}   ≡    {birthdate ,contact{phone}, location{country}}
@@ -249,6 +274,7 @@ data = {
 {username, location{-city}, contact{-email}}   ≡    {username, location{country}, contact{phone}}
 ```
 
+### Using the wildcard(*) operator
 In addition to exclude operator(-), **django-restql** comes with a wildcard(\*) operator for including all fields. Just like exclude operator(-) using a wildcard operator(\*) is very simple, for example if you want to get all fields from a model you just need to do `query={*}`. This operator can be used to simplify some filtering which might endup being very long if done with other approaches. For example if you have a model with this format 
 
 ```py
@@ -267,8 +293,7 @@ user = {
 ```
 Let's say you want to get all user fields but under `contact` field you want to get only `phone`, you could use the whitelisting approach as `query={username, birthdate, contact{phone}}` but if you have many fields on user model you might endup writing a very long query, so with `*` operator you can simply do `query={*, contace{phone}}` which means get me all fields on user model but under `contact` field I want only `phone` field, as you see the query is very short compared to the first one and it won't grow if more fields are added to the user model.
 
-More examples to get you comfortable with a wildcard operator(\*) syntax.
-
+#### More examples to get you comfortable with the wildcard operator(\*) syntax
 ```py
 {*, -username, contact{phone}}   ≡   {birthdate, contact{phone}}
 
@@ -442,7 +467,7 @@ So you can see that all fields have appeared as specified on `fields = ['id', 't
 <br/>
 
 
-### Using `return_pk=True` kwargs
+### Using `return_pk=True` kwarg
 With **django-restql** you can specify whether to return nested resource pk or data. Below is an example which shows how we can specify fields to be included on nested resources. 
 
 ```py
@@ -907,7 +932,7 @@ Response
 <br>
 
 
-## Using `DynamicFieldsMixin` and `NestedField` together
+### Using `DynamicFieldsMixin` and `NestedField` together
 You can use `DynamicFieldsMixin` and `NestedModelSerializer` together if you want your serializer to be writable(on nested fields) and support querying data, this is very common. Below is an example which shows how you can use `DynamicFieldsMixin` and `NestedField` together.
 ```py
 from rest_framework import serializers 
