@@ -61,6 +61,7 @@ class StudentEagerLoadingViewSet(EagerLoadingMixin, viewsets.ModelViewSet):
 		"program": "course"
 	}
 	prefetch_related = {
+		"phone_numbers": "phone_numbers",
 		"program.books": "course__books"
 	}
 

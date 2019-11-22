@@ -807,6 +807,101 @@ class DataQueryingTests(APITestCase):
                 ]
             )
 
+    def test_list_eager_loading_mixin_without_query_param(self):
+        url = reverse_lazy("student_eager_loading-list")
+        self.add_second_student()
+
+        with self.assertNumQueries(3):
+            response = self.client.get(url, format="json")
+            self.assertEqual(
+                response.data,
+                [
+                    {
+                        "name": "Yezy",
+                        "age": 24,
+                        "program": {
+                            "name": "Data Structures",
+                            "code": "CS210",
+                            "books": [
+                                {"title": "Advanced Data Structures", "author": "S.Mobit"},
+                                {"title": "Basic Data Structures", "author": "S.Mobit"}
+                            ]
+                        },
+                        "phone_numbers": [
+                            {'number': '076711110', 'type': 'Office', 'student': 1},
+                            {'number': '073008880', 'type': 'Home', 'student': 1}
+                        ]
+                    },
+                    {
+                        "name": "Tyler",
+                        "age": 25,
+                        "program": {
+                            "name": "Algorithms",
+                            "code": "CS260",
+                            "books": [
+                                {"title": "Algorithm Design", "author": "S.Mobit"},
+                                {"title": "Proving Algorithms", "author": "S.Mobit"}
+                            ]
+                        },
+                        "phone_numbers": [
+                            {'number': '075711110', 'type': 'Office', 'student': 2},
+                            {'number': '073008880', 'type': 'Home', 'student': 2}
+                        ]
+                    },
+                ]
+            )
+
+    def test_list_eager_loading_mixin_with_exclude_operator_but_without_wildcard(self):
+        url = reverse_lazy("student_eager_loading-list")
+        self.add_second_student()
+
+        with self.assertNumQueries(2):
+            response = self.client.get(url + '?query={-phone_numbers}' , format="json")
+            self.assertEqual(
+                response.data,
+                [
+                    {
+                        "name": "Yezy",
+                        "age": 24,
+                        "program": {
+                            "name": "Data Structures",
+                            "code": "CS210",
+                            "books": [
+                                {"title": "Advanced Data Structures", "author": "S.Mobit"},
+                                {"title": "Basic Data Structures", "author": "S.Mobit"}
+                            ]
+                        }
+                    },
+                    {
+                        "name": "Tyler",
+                        "age": 25,
+                        "program": {
+                            "name": "Algorithms",
+                            "code": "CS260",
+                            "books": [
+                                {"title": "Algorithm Design", "author": "S.Mobit"},
+                                {"title": "Proving Algorithms", "author": "S.Mobit"}
+                            ]
+                        }
+                    },
+                ]
+            )
+
+    def test_list_eager_loading_mixin_with_empty_query_param(self):
+        url = reverse_lazy("student_eager_loading-list")
+        self.add_second_student()
+
+        with self.assertNumQueries(1):
+            response = self.client.get(url + '?query={}' , format="json")
+
+            self.assertEqual(
+                response.data,
+                [
+                    {},
+                    {},
+                ]
+            )
+
 
 class DataMutationTests(APITestCase):
     def setUp(self):
