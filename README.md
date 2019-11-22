@@ -10,7 +10,9 @@
 
 * Get predictable results, since you control what you get from the server.
 
-* Save the load of fetching unused data from the server(Over-fetching and Under-fetching problem).
+* Get nested resources in a single request.
+
+* Avoid Over-fetching and Under-fetching problem.
 
 * Write(create & update) nested data of any level with flexibility.
 
@@ -31,20 +33,20 @@ pip install django-restql
 
 
 ## Querying Data
-Using **django-restql** to query data is very simple, you just have to inherit the `DynamicFieldsMixin` class when defining a serializer.
+Using **django-restql** to query data is very simple, you just have to inherit the `DynamicFieldsMixin` class when defining a serializer that's all.
 ```py
 from rest_framework import serializers
 from django.contrib.auth.models import User
-
 from django_restql.mixins import DynamicFieldsMixin
+
 
 class UserSerializer(DynamicFieldsMixin, serializer.ModelSerializer):
     class Meta:
         model = User
-        fields = ['id', 'username', 'email', 'groups']
+        fields = ['id', 'username', 'email']
 ```
 
-A regular request returns all fields as specified on DRF serializer, in fact **django-restql** doesn't handle this request at all. Below is an example of a request without a query parameter, as you see all fields are retured as specified on `UserSerializer`.
+A regular request returns all fields as specified on a DRF serializer, in fact **django-restql** doesn't handle this request at all. Below is an example of regular request, as you see all fields are returned as specified on `UserSerializer`.
 
 `GET /users`
 
@@ -54,13 +56,13 @@ A regular request returns all fields as specified on DRF serializer, in fact **d
         "id": 1,
         "username": "yezyilomo",
         "email": "yezileliilomo@hotmail.com",
-        "groups": [1,2]
       },
       ...
     ]
 ```
 
-**django-restql** handle all GET requests with `query` parameter, this parameter is the one used to pass all fields to be included in a response. For example to select `id` and `username` fields from User model, send a request with a ` query` parameter as shown below.
+### Querying fields
+**django-restql** handle all GET requests with a `query` parameter, this parameter is the one used to pass all fields to be included/excluded in a response. For example to select `id` and `username` fields from User model, send a request with a ` query` parameter as shown below.
 
 `GET /users/?query={id, username}`
 
@@ -74,9 +76,40 @@ A regular request returns all fields as specified on DRF serializer, in fact **d
     ]
 ```
 
-**django-restql** support querying both flat and nested resources, so you can expand or query nested fields at any level as long as your field is defined as nested field on a serializer. For example you can query a country and region field from location.
+### Querying/Expanding nested fields
+**django-restql** support querying both flat and nested resources, so you can expand or query nested fields at any level as defined on a serializer. In an example below we have `location` and `groups` fields as nested fields on User model.
 
-`GET /users/?query={id, username, location{country, region}}`
+```py
+from rest_framework import serializers
+from django.contrib.auth.models import User
+from django_restql.mixins import DynamicFieldsMixin
+
+from app.models import GroupSerializer, LocationSerializer
+
+
+class GroupSerializer(DynamicFieldsMixin, serializer.ModelSerializer):
+    class Meta:
+        model = Group
+        fields = ('id', 'name')
+
+
+class LocationSerializer(DynamicFieldsMixin, serializer.ModelSerializer):
+    class Meta:
+        model = Location
+        fields = ('id', 'country',  'city', 'street')
+
+
+class UserSerializer(DynamicFieldsMixin, serializer.ModelSerializer):
+    groups = GroupSerializer(many=True, read_only=True)
+    location = LocationSerializer(many=False, read_only=True) 
+    class Meta:
+        model = User
+        fields = ['id', 'username', 'email', 'location', 'groups']
+```
+
+If you want only `country` and `city` fields on a `location` field when retrieving users here is how you can do it
+
+`GET /users/?query={id, username, location{country, city}}`
 
 ```js
     [
@@ -85,16 +118,36 @@ A regular request returns all fields as specified on DRF serializer, in fact **d
         "username": "yezyilomo",
         "location": {
             "contry": "Tanzania",
-            "region": "Dar es salaam"
+            "city": "Dar es salaam"
         }
       },
       ...
     ]
 ```
 
-**django-restql** got your back on querying iterable nested fields(one2many or many2many) too. For example if you want to expand `groups` field into `id` and `name`, here is how you would do it.
+### More Examples to get you comfortable with the query syntax
 
-`GET /users/?query={id, username, groups{id, name}}`
+`GET /users/?query={location, groups}`
+
+```js
+    [
+      {
+        "location": {
+            "id": 1,
+            "contry": "Tanzania",
+            "city": "Dar es salaam",
+            "street": "Oyster Bay"
+        }
+        "groups": [
+            {"id": 2, "name": "Auth_User"},
+            {"id": 3, "name": "Admin_User"}
+        ]
+      },
+      ...
+    ]
+```
+
+`GET /users/?query={id, username, groups{name}}`
 
 ```js
     [
@@ -102,36 +155,13 @@ A regular request returns all fields as specified on DRF serializer, in fact **d
         "id": 1,
         "username": "yezyilomo",
         "groups": [
-            {
-                "id": 2,
-                "name": "Auth_User"
-            }
-            {
-                "id": 3,
-                "name": "Admin_User"
-            }
+            {"name": "Auth_User"},
+            {"name": "Admin_User"}
         ]
       },
       ...
     ]
 ```
-
-If a query contains nested field without expanding and it's not defined as a nested field on a serializer, **django-restql** will return its id or array of ids for the case of nested iterable field(one2many or many2many). For example on a request below `location` is a flat nested field(many2one) and `groups` is an iterable nested field(one2many or many2many).
-
-`GET /users/?query={id, username, location, group}`
-
-```js
-    [
-      {
-        "id": 1,
-        "username": "yezyilomo",
-        "location": 6,
-        "groups": [1,2]
-      },
-      ...
-    ]
-```
-<br/>
 
 
 ### Using exclude(-) and wildcard(*) operators
@@ -492,8 +522,8 @@ In a view, these can be used as described earlier in this documentation. However
 The format of syntax for `select_related` and  `prefetch_related` is as follows
 
 ```py
-select_related = {"serializer_field_name": ["fields_to_select"]}
-prefetch_related = {"serializer_field_name": ["fields_to_prefetch"]}
+select_related = {"serializer_field_name": ["field_to_select"]}
+prefetch_related = {"serializer_field_name": ["field_to_prefetch"]}
 ```
 
 If you are selecting or prefetching one field per serializer field name you can use
@@ -551,6 +581,49 @@ class StudentViewSet(EagerLoadingMixin, viewsets.ModelViewSet):
 - `{program{books}}`
   
   Both will be run here as well, since this explicitly fetches books.
+
+#### More example to get you comfortable with `select_related` and `prefetch_related` syntax
+Assuming this is the structure of the model and corresponding field types 
+
+```py
+user = {
+    username,        # string
+    birthdate,       # string
+    location {       # foreign key related field
+        country,     # string
+        city         # string
+    },
+    contact {        # foreign key related field
+        email,       # string
+        phone {      # foreign key related field
+            number,  # string
+            type     # string
+        }
+    }
+    articles {       # many related field
+        title,       # string
+        body,        # text
+        reviewers {  # many related field
+            name,    # string
+            rating   # number
+        }
+    }
+}
+```
+
+Here is how `select_related` and `prefetch_related` should be written for this model
+```py
+select_related = {
+    "location": "location",
+    "contact": "contact",
+    "contact.phone": "contact__phone
+}
+
+prefetch_related = {
+    "articles": "articles"
+    "articles.reviews": "articles__reviewers"
+}
+```
 
 #### Known Caveats
 When prefetching with a `to_attr`, ensure that there are no collisions. Django does not allow multiple prefetches with the same `to_attr` on the same queryset.
@@ -886,7 +959,6 @@ location = NestedField(LocationSerializer, exclude=[...])
 ```py
 location = NestedField(LocationSerializer, return_pk=True)
 ``` 
-<br/>
 
 
 ## Running Tests
