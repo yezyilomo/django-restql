@@ -10,11 +10,11 @@
 - [Querying Data](#querying-data)
     - [Querying Flat Fields](#querying-fields)
     - [Querying Nested Fields](#queryingexpanding-nested-fields)
-    - [Exclude(-) Operator](#using-exclude-operator)
-    - [Wildcard(\*) Operator](#using-wildcard-operator)
+    - [Exclude(-) Operator](#using-the-exclude--operator)
+    - [Wildcard(\*) Operator](#using-the-wildcard-operator)
     - [Query on SerializerMethodField](#using-dynamicserializermethodfield)
     - [DynamicFieldsMixin `fields` & `exclude` kwargs](#using-fields-and-exclude-kwargs)
-    - [DynamicFieldsMixin `return_pk` kwarg](#using-return_pktrue-kwargs)
+    - [DynamicFieldsMixin `return_pk` kwarg](#using-return_pktrue-kwarg)
     - [Setting Up Eager Loading](#setting-up-eager-loading-with-eagerloadingmixin)
     - [Change `query` Parameter Name](#changing-the-name-of-query-parameter-when-querying-data)
 - [Mutating Data](#mutating-datacreating-and-updating-data)
@@ -24,7 +24,7 @@
     - [NestedField with DynamicFieldsmixin](#using-dynamicfieldsmixin-and-nestedfield-together)
 - [Running Tests](#running-tests)
 - [Credits](#credits)
-- [Contributing](#contributing)
+- [Contributing](#contributing-)
 <br/><br/>
 
 ## Introduction
