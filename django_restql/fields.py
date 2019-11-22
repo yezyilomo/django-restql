@@ -126,7 +126,8 @@ def BaseNestedFieldSerializerFactory(
                     "Expected data of form {'pk': 'data'..}"
                 )
 
-        def create_data_is_valid(self, data):
+        @staticmethod
+        def create_data_is_valid(data):
             if (isinstance(data, dict) and 
                     set(data.keys()).issubset(create_ops)):
                 return True
@@ -151,7 +152,8 @@ def BaseNestedFieldSerializerFactory(
                 )
                 raise ValidationError(msg)
 
-        def update_data_is_valid(self, data):
+        @staticmethod
+        def update_data_is_valid(data):
             if (isinstance(data, dict) and 
                     set(data.keys()).issubset(update_ops)):
                 return True

@@ -302,7 +302,8 @@ class EagerLoadingMixin(object):
         # Else prefetch nothing
         return {}
 
-    def get_dict_parsed_query(self, parsed_query):
+    @classmethod
+    def get_dict_parsed_query(cls, parsed_query):
         """
         Returns the parsed query as a dict.
         """
@@ -316,7 +317,7 @@ class EagerLoadingMixin(object):
             elif isinstance(item, dict):
                 for key, nested_items in item.items():
                     key_base = key
-                    nested_keys = self.get_dict_parsed_query(nested_items)
+                    nested_keys = cls.get_dict_parsed_query(nested_items)
                     keys[key_base] = nested_keys
 
         for item in exclude:
@@ -325,7 +326,7 @@ class EagerLoadingMixin(object):
             elif isinstance(item, dict):
                 for key, nested_items in item.items():
                     key_base = key
-                    nested_keys = self.get_dict_parsed_query(nested_items)
+                    nested_keys = cls.get_dict_parsed_query(nested_items)
                     keys[key_base] = nested_keys
         return keys
 
@@ -528,10 +529,12 @@ class NestedCreateMixin(object):
 
 class NestedUpdateMixin(object):
     """ Update Mixin """
-    def constrain_error_prefix(self, field):
+    @staticmethod
+    def constrain_error_prefix(field):
         return "Error on %s field: " % (field,)
 
-    def update_replaceable_foreignkey_related(self, instance, data):
+    @staticmethod
+    def update_replaceable_foreignkey_related(instance, data):
         # data format {field: obj}
         objs = {}
         for field, nested_obj in data.items():
@@ -632,7 +635,6 @@ class NestedUpdateMixin(object):
         # REMOVE: [pk],
         # UPDATE: {pk: {sub_field: value}} 
         # }}}
-
         for field, values in data.items():
             nested_obj = getattr(instance, field)
             model = self.Meta.model
