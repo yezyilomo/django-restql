@@ -103,7 +103,7 @@ If you want only `country` and `city` fields on a `location` field when retrievi
 ```
 
 ## [Documentation :pencil:](https://yezyilomo.github.io/django-restql/)
-You can do a lot with **django-restql** apart from just querying data, the full documentation for this project is available at https://yezyilomo.github.io/django-restql/. You are encouraged to read the documentation to utilize this library to the full potential. 
+You can do a lot with **django-restql** apart from just querying data, full documentation for this project is available at https://yezyilomo.github.io/django-restql/, you are encouraged to read it inorder to utilize this library to the fullest.
 
 
 ## Running Tests
