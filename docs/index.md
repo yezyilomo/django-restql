@@ -8,7 +8,7 @@
 
 * Get nested resources in a single request.
 
-* Avoid Over-fetching and Under-fetching problem.
+* Avoid Over-fetching and Under-fetching of data.
 
 * Write(create & update) nested data of any level with flexibility.
 
