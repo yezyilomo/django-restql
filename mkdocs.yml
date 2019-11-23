@@ -4,6 +4,7 @@ repo_url: https://github.com/yezyilomo/django-restql/
 repo_name: GitHub
 site_author: Yezy Ilomo
 docs_dir: docs
+extra_css: [extra.css]
 markdown_extensions:
     - toc:
         permalink: True

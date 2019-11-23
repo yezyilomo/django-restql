@@ -1,0 +1,57 @@
+h1, h2, h3, h4, h5, h6 {
+    color: #159957;
+    font-family: sans-serif;
+    /* 1 */
+    font-weight: 400;
+}
+
+a {
+    color: #159957;
+}
+
+body {
+    margin: 0;
+    padding: 0;
+}
+
+p {
+    font-family: sans-serif;
+    /* 1 */
+    -ms-text-size-adjust: 100%;
+    /* 2 */
+    -webkit-text-size-adjust: 100%;
+    /* 2 */
+}
+
+html {
+    font-family: sans-serif;
+    /* 1 */
+}
+
+.py, .js {
+    font-family: monospace, monospace;
+    font-size: 0.95em;
+}
+
+.wy-nav-side {
+    /*background-color: red;*/
+    scroll-behavior: unset;
+}
+
+.wy-nav-content-wrap {
+    /*background-color: gray;*/
+}
+
+.wy-nav-content {
+    /*background-color: blue;*/
+}
+
+.wy-side-nav-search {
+    background-color: #343131;
+}
+
+.wy-side-nav-search, input[type=text] {
+    border-radius: 0;
+    border-width: 0;
+    border-color: white;
+}
