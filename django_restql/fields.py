@@ -17,11 +17,13 @@ UPDATE_SUPPORTED_OPERATIONS = (ADD, CREATE, REMOVE, UPDATE)
 class DynamicSerializerMethodField(SerializerMethodField):
     def to_representation(self, value):
         method = getattr(self.parent, self.method_name)
-        if hasattr(self.parent, "nested_fields") and self.field_name in self.parent.nested_fields:
+        if (hasattr(self.parent, "nested_fields") and 
+                self.field_name in self.parent.nested_fields):
             query = self.parent.nested_fields[self.field_name]
         else:
+            # Include all fields
             query = {
-                "include": [],
+                "include": ["*"],
                 "exclude": []
             }
         return method(value, query)
@@ -41,8 +43,7 @@ def BaseNestedFieldSerializerFactory(
         create_ops=[ADD, CREATE],
         update_ops=[ADD, CREATE, REMOVE, UPDATE],
         serializer_class=None,
-        **kwargs
-):
+        **kwargs):
     BaseClass = _ReplaceableField if accept_pk else _WritableField
     
     if not set(create_ops).issubset(set(CREATE_SUPPORTED_OPERATIONS)):
@@ -125,7 +126,8 @@ def BaseNestedFieldSerializerFactory(
                     "Expected data of form {'pk': 'data'..}"
                 )
 
-        def create_data_is_valid(self, data):
+        @staticmethod
+        def create_data_is_valid(data):
             if (isinstance(data, dict) and 
                     set(data.keys()).issubset(create_ops)):
                 return True
@@ -150,7 +152,8 @@ def BaseNestedFieldSerializerFactory(
                 )
                 raise ValidationError(msg)
 
-        def update_data_is_valid(self, data):
+        @staticmethod
+        def update_data_is_valid(data):
             if (isinstance(data, dict) and 
                     set(data.keys()).issubset(update_ops)):
                 return True

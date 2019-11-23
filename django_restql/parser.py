@@ -81,6 +81,10 @@ class Parser(object):
             elif isinstance(child, AllFields):
                 # include all fields
                 fields["include"].append("*")
+
+        if fields["exclude"] and "*" not in fields["include"]:
+            # Make sure we include * if there are excluded fields
+            fields["include"].append("*")
         return fields
     
     def _transform_child(self, child):
