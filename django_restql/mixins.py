@@ -4,7 +4,7 @@ from rest_framework.serializers import (
     Serializer, ListSerializer,
     ValidationError
 )
-from django.db.models import Prefetch
+from django.conf import settings
 from django.db.models.fields.related import(
     ManyToOneRel, ManyToManyRel
 )
@@ -18,9 +18,44 @@ from .fields import (
 )
 
 
-class DynamicFieldsMixin(object):
-    query_param_name = "query"
+class RequestQueryParserMixin(object):
+    @staticmethod
+    def get_query_param_name():
+        DEFAULT_QUERY_PARAM_NAME = 'query'
+        query_param_name = getattr(
+            settings,
+            "QUERY_PARAM_NAME",
+            DEFAULT_QUERY_PARAM_NAME
+        )
+        return query_param_name
 
+    @classmethod
+    def has_query_param(cls, request):
+        query_param_name = cls.get_query_param_name()
+        return query_param_name in request.query_params
+
+    @classmethod
+    def get_raw_query(cls, request):
+        query_param_name = cls.get_query_param_name()
+        return request.query_params[query_param_name]
+
+    @classmethod
+    def get_parsed_query_from_req(cls, request):
+        raw_query = cls.get_raw_query(request)
+        parser = Parser(raw_query)
+        try:
+            parsed_query = parser.get_parsed()
+            return parsed_query
+        except SyntaxError as e:
+            msg = (
+                "QueryFormatError: " + 
+                e.msg + " on " + 
+                e.text
+            )
+            raise ValidationError(msg) from None
+
+
+class DynamicFieldsMixin(RequestQueryParserMixin):
     def __init__(self, *args, **kwargs):
         # Don't pass 'query', 'fields' and 'exclude' kwargs to the superclass
         self.query = kwargs.pop('query', None)  # Parsed query
@@ -40,29 +75,6 @@ class DynamicFieldsMixin(object):
         if self.return_pk:
             return instance.pk
         return super().to_representation(instance)
-
-    @classmethod
-    def has_query_param(cls, request):
-        return cls.query_param_name in request.query_params
-
-    @classmethod
-    def get_raw_query(cls, request):
-        return request.query_params[cls.query_param_name]
-
-    @classmethod
-    def get_parsed_query_from_req(cls, request):
-        raw_query = cls.get_raw_query(request)
-        parser = Parser(raw_query)
-        try:
-            parsed_query = parser.get_parsed()
-            return parsed_query
-        except SyntaxError as e:
-            msg = (
-                "QueryFormatError: " + 
-                e.msg + " on " + 
-                e.text
-            )
-            raise ValidationError(msg) from None
 
     def get_allowed_fields(self):
         fields = super().fields
@@ -268,7 +280,7 @@ class DynamicFieldsMixin(object):
             return {}
 
 
-class EagerLoadingMixin(object):
+class EagerLoadingMixin(RequestQueryParserMixin):
     @property
     def parsed_query(self):
         """
@@ -276,12 +288,8 @@ class EagerLoadingMixin(object):
         Defaults to the serializer parsed query assuming
         using django-restql DynamicsFieldMixin.
         """
-        if hasattr(self, "get_serializer_class"):
-            serializer_class = self.get_serializer_class()
-
-            if issubclass(serializer_class, DynamicFieldsMixin):
-                if serializer_class.has_query_param(self.request):
-                    return serializer_class.get_parsed_query_from_req(self.request)
+        if self.has_query_param(self.request):
+            return self.get_parsed_query_from_req(self.request)
 
         # Else include all fields
         query = {
@@ -391,7 +399,7 @@ class EagerLoadingMixin(object):
             queryset = super().get_queryset()
             queryset = self.get_eager_queryset(queryset)
             return queryset
-            
+
 
 class NestedCreateMixin(object):
     """ Create Mixin """
