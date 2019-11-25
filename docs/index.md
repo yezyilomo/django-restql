@@ -614,15 +614,11 @@ When prefetching with a `to_attr`, ensure that there are no collisions. Django d
 When prefetching *and* calling `select_related` on a field, Django may error, since the ORM does allow prefetching a selectable field, but not both at the same time.
 
 ### Changing `query` parameter name
-If you don't want to use the name `query` as your parameter, you can inherit `DynamicFieldsMixin` and change it as shown below
-
+If you don't want to use the name `query` as your parameter, you can change it with`QUERY_PARAM_NAME` on settings file e.g 
 ```py
-from django_restql.mixins import DynamicFieldsMixin
-class MyDynamicFieldMixin(DynamicFieldsMixin):
-    query_param_name = "your_favourite_name"
+QUERY_PARAM_NAME = "your_favourite_name"
 ```
-
- Now you can use this Mixin on your serializer and use the name `your_favourite_name` as your parameter. E.g
+ Now you can use the name `your_favourite_name` as your query parameter. E.g
  
  `GET /users/?your_favourite_name={id, username}`
 
