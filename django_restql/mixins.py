@@ -270,18 +270,24 @@ class DynamicFieldsMixin(object):
 
 class EagerLoadingMixin(object):
     @property
+    def has_query_param(self):
+        if hasattr(self, "get_serializer_class"):
+            serializer_class = self.get_serializer_class()
+
+            if issubclass(serializer_class, DynamicFieldsMixin):
+                return serializer_class.has_query_param(self.request)
+        return False
+
+    @property
     def parsed_query(self):
         """
         Gets parsed query for use in eager loading. 
         Defaults to the serializer parsed query assuming
         using django-restql DynamicsFieldMixin.
         """
-        if hasattr(self, "get_serializer_class"):
+        if self.has_query_param:
             serializer_class = self.get_serializer_class()
-
-            if issubclass(serializer_class, DynamicFieldsMixin):
-                if serializer_class.has_query_param(self.request):
-                    return serializer_class.get_parsed_query_from_req(self.request)
+            return serializer_class.get_parsed_query_from_req(self.request)
 
         # Else include all fields
         query = {
