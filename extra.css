@@ -29,7 +29,7 @@ code, .py, .js {
 }
 
 code {
-    background-color: white;
+    background-color: unset;
     border-width: 0;
 }
 
