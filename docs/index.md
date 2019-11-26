@@ -622,18 +622,57 @@ When prefetching with a `to_attr`, ensure that there are no collisions. Django d
 
 When prefetching *and* calling `select_related` on a field, Django may error, since the ORM does allow prefetching a selectable field, but not both at the same time.
 
-### Changing `query` parameter name
+### Settings
+Configuration for **Django RESTQL** is all namespaced inside a single Django setting named `RESTQL`.
+
+#### `QUERY_PARAM_NAME`
+The default value for this is `query`. 
 If you don't want to use the name `query` as your parameter, you can change it with`QUERY_PARAM_NAME` on settings file e.g 
 ```py
 RESTQL = {
     'QUERY_PARAM_NAME' = "your_favourite_name"
 }
 ```
- Now you can use the name `your_favourite_name` as your query parameter. E.g
+Now you can use the name `your_favourite_name` as your query parameter. E.g
  
- `GET /users/?your_favourite_name={id, username}`
+`GET /users/?your_favourite_name={id, username}`
 
-**Note:** Configuration for **Django RESTQL** is all namespaced inside a single Django setting named `RESTQL`.
+#### `AUTO_APPLY_EAGER_LOADING`
+The default value for this is `True`.
+When using the `EagerLoadingMixin`, this setting controls if the mappings for `select_related` and `prefetch_related` are
+applied automatically when calling `get_queryset`. To turn it off, set the setting to `False` or
+override the property `auto_apply_eager_loading` on the view.
+```py
+RESTQL = {
+    'AUTO_APPLY_EAGER_LOADING' = False
+}
+```
+
+If turned off, the method `apply_eager_loading` can be used on your queryset and you can check if
+there was a query passed in by using `has_restql_query_param`.
+```py
+from rest_framework import viewsets
+from django_restql.mixins import EagerLoadingMixin
+from myapp.serializers import StudentSerializer
+from myapp.models import Student
+
+class StudentViewSet(EagerLoadingMixin, viewsets.ModelViewSet):
+	serializer_class = StudentSerializer
+	queryset = Student.objects.all()
+    auto_apply_eager_loading = False
+    select_related = {
+		"program": "course"
+	}
+	prefetch_related = {
+		"program.books": "course__books"
+	}
+	
+	def get_queryset(self):
+	    queryset = super().get_queryset()
+	    if self.has_restql_query_param:
+	        queryset = self.apply_eager_loading(queryset)
+        return queryset
+```
 
 
 ## Mutating Data
