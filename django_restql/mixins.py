@@ -4,7 +4,7 @@ from rest_framework.serializers import (
     Serializer, ListSerializer,
     ValidationError
 )
-from django.db.models import Prefetch
+from .settings import restql_settings
 from django.db.models.fields.related import(
     ManyToOneRel, ManyToManyRel
 )
@@ -18,12 +18,47 @@ from .fields import (
 )
 
 
-class DynamicFieldsMixin(object):
-    query_param_name = "query"
+class RequestQueryParserMixin(object):
+    @staticmethod
+    def get_restql_query_param_name():
+        DEFAULT_QUERY_PARAM_NAME = 'query'
+        query_param_name = getattr(
+            restql_settings,
+            "QUERY_PARAM_NAME",
+            DEFAULT_QUERY_PARAM_NAME
+        )
+        return query_param_name
 
+    @classmethod
+    def has_restql_query_param(cls, request):
+        query_param_name = cls.get_restql_query_param_name()
+        return query_param_name in request.query_params
+
+    @classmethod
+    def get_raw_restql_query(cls, request):
+        query_param_name = cls.get_restql_query_param_name()
+        return request.query_params[query_param_name]
+
+    @classmethod
+    def get_parsed_restql_query_from_req(cls, request):
+        raw_query = cls.get_raw_restql_query(request)
+        parser = Parser(raw_query)
+        try:
+            parsed_restql_query = parser.get_parsed()
+            return parsed_restql_query
+        except SyntaxError as e:
+            msg = (
+                "QueryFormatError: " + 
+                e.msg + " on " + 
+                e.text
+            )
+            raise ValidationError(msg) from None
+
+
+class DynamicFieldsMixin(RequestQueryParserMixin):
     def __init__(self, *args, **kwargs):
         # Don't pass 'query', 'fields' and 'exclude' kwargs to the superclass
-        self.query = kwargs.pop('query', None)  # Parsed query
+        self.parsed_restql_query = kwargs.pop('query', None)
         self.allowed_fields = kwargs.pop('fields', None)
         self.excluded_fields = kwargs.pop('exclude', None)
         self.return_pk = kwargs.pop('return_pk', False)
@@ -40,29 +75,6 @@ class DynamicFieldsMixin(object):
         if self.return_pk:
             return instance.pk
         return super().to_representation(instance)
-
-    @classmethod
-    def has_query_param(cls, request):
-        return cls.query_param_name in request.query_params
-
-    @classmethod
-    def get_raw_query(cls, request):
-        return request.query_params[cls.query_param_name]
-
-    @classmethod
-    def get_parsed_query_from_req(cls, request):
-        raw_query = cls.get_raw_query(request)
-        parser = Parser(raw_query)
-        try:
-            parsed_query = parser.get_parsed()
-            return parsed_query
-        except SyntaxError as e:
-            msg = (
-                "QueryFormatError: " + 
-                e.msg + " on " + 
-                e.text
-            )
-            raise ValidationError(msg) from None
 
     def get_allowed_fields(self):
         fields = super().fields
@@ -122,9 +134,10 @@ class DynamicFieldsMixin(object):
         # The format is  {nested_field: [sub_fields ...] ...}
         allowed_nested_fields = {}
 
-        # The self.query["include"] contains a list of allowed fields
+        # The self.parsed_restql_query["include"] 
+        # contains a list of allowed fields,
         # The format is [field, {nested_field: [sub_fields ...]} ...]
-        included_fields =  self.query["include"]
+        included_fields =  self.parsed_restql_query["include"]
         include_all_fields = False
         for field in included_fields:
             if field == "*":
@@ -172,9 +185,10 @@ class DynamicFieldsMixin(object):
         # The format is  {nested_field: [sub_fields ...] ...}
         allowed_nested_fields = {}
 
-        # The self.query["include"] contains a list of expanded nested fields
+        # The self.parsed_restql_query["include"] 
+        # contains a list of expanded nested fields
         # The format is [{nested_field: [sub_field]} ...]
-        nested_fields = self.query["include"]
+        nested_fields = self.parsed_restql_query["include"]
         for field in nested_fields:
             if field == "*":
                 # Ignore this since it's not an actual field(it's just a flag)
@@ -192,8 +206,9 @@ class DynamicFieldsMixin(object):
                 )
             allowed_nested_fields.update(field)
 
-        # self.query["exclude"] is a list of names of excluded fields
-        excluded_fields = self.query["exclude"]
+        # self.parsed_restql_query["exclude"] 
+        # is a list of names of excluded fields
+        excluded_fields = self.parsed_restql_query["exclude"]
         for field in excluded_fields:
             self.is_field_found(field, all_field_names, raise_error=True)
             all_fields.pop(field)
@@ -208,7 +223,7 @@ class DynamicFieldsMixin(object):
         is_not_a_request_to_process = (
             request is None or 
             request.method != "GET" or 
-            not self.has_query_param(request)
+            not self.has_restql_query_param(request)
         )
 
         if is_not_a_request_to_process:
@@ -225,42 +240,46 @@ class DynamicFieldsMixin(object):
         )
 
         if is_top_retrieve_request or is_top_list_request:
-            if self.query is None:
-                # Use a query from the request
-                self.query = self.get_parsed_query_from_req(request)
+            if self.parsed_restql_query is None:
+                # Use a parsed query from the request
+                self.parsed_restql_query = \
+                    self.get_parsed_restql_query_from_req(request)
         elif isinstance(self.parent, ListSerializer):
             field_name = self.parent.field_name
             parent = self.parent.parent
             if hasattr(parent, "nested_fields"):
                 parent_nested_fields = parent.nested_fields
-                self.query = parent_nested_fields.get(field_name, None)
+                self.parsed_restql_query = \
+                    parent_nested_fields.get(field_name, None)
         elif isinstance(self.parent, Serializer):
             field_name = self.field_name
             parent = self.parent
             if hasattr(parent, "nested_fields"):
                 parent_nested_fields = parent.nested_fields
-                self.query = parent_nested_fields.get(field_name, None)
+                self.parsed_restql_query = \
+                    parent_nested_fields.get(field_name, None)
         else:
             # Unkown scenario
             # No filtering of fields
             return self.get_allowed_fields()
 
-        if self.query is None:
+        if self.parsed_restql_query is None:
             # No filtering on nested fields
             # Retrieve all nested fields
             return self.get_allowed_fields()
 
-        # NOTE: self.query["include"] not being empty is not a guarantee 
-        # that the exclude operator(-) has not been used because the same 
-        # self.query["include"] is used to store nested fields when the
-        # exclude operator(-) is used
-        if self.query["exclude"]:
+        # NOTE: self.parsed_restql_query["include"] not being empty 
+        # is not a guarantee that the exclude operator(-) has not been 
+        # used because the same self.parsed_restql_query["include"]
+        # is used to store nested fields when the exclude operator(-) is used
+        if self.parsed_restql_query["exclude"]:
             # Exclude fields from a query
             return self.exclude_fields()
-        elif self.query["include"]:
-            # Here we are sure that self.query["exclude"] is empty
-            # which means the exclude operator(-) is not used, so
-            # self.query["include"] contains only fields to include
+        elif self.parsed_restql_query["include"]:
+            # Here we are sure that self.parsed_restql_query["exclude"] 
+            # is empty which means the exclude operator(-) is not used,
+            # so self.parsed_restql_query["include"] contains only fields
+            # to include
             return self.include_fields()
         else:
             # The query is empty i.e query={}
@@ -268,20 +287,16 @@ class DynamicFieldsMixin(object):
             return {}
 
 
-class EagerLoadingMixin(object):
+class EagerLoadingMixin(RequestQueryParserMixin):
     @property
-    def parsed_query(self):
+    def parsed_restql_query(self):
         """
         Gets parsed query for use in eager loading. 
         Defaults to the serializer parsed query assuming
         using django-restql DynamicsFieldMixin.
         """
-        if hasattr(self, "get_serializer_class"):
-            serializer_class = self.get_serializer_class()
-
-            if issubclass(serializer_class, DynamicFieldsMixin):
-                if serializer_class.has_query_param(self.request):
-                    return serializer_class.get_parsed_query_from_req(self.request)
+        if self.has_restql_query_param(self.request):
+            return self.get_parsed_restql_query_from_req(self.request)
 
         # Else include all fields
         query = {
@@ -303,13 +318,13 @@ class EagerLoadingMixin(object):
         return {}
 
     @classmethod
-    def get_dict_parsed_query(cls, parsed_query):
+    def get_dict_parsed_restql_query(cls, parsed_restql_query):
         """
         Returns the parsed query as a dict.
         """
         keys = {}
-        include = parsed_query.get("include", [])
-        exclude = parsed_query.get("exclude", [])
+        include = parsed_restql_query.get("include", [])
+        exclude = parsed_restql_query.get("exclude", [])
 
         for item in include:
             if isinstance(item, str):
@@ -317,7 +332,7 @@ class EagerLoadingMixin(object):
             elif isinstance(item, dict):
                 for key, nested_items in item.items():
                     key_base = key
-                    nested_keys = cls.get_dict_parsed_query(nested_items)
+                    nested_keys = cls.get_dict_parsed_restql_query(nested_items)
                     keys[key_base] = nested_keys
 
         for item in exclude:
@@ -326,12 +341,12 @@ class EagerLoadingMixin(object):
             elif isinstance(item, dict):
                 for key, nested_items in item.items():
                     key_base = key
-                    nested_keys = cls.get_dict_parsed_query(nested_items)
+                    nested_keys = cls.get_dict_parsed_restql_query(nested_items)
                     keys[key_base] = nested_keys
         return keys
 
     @staticmethod
-    def get_related_fields(related_fields_mapping, dict_parsed_query):
+    def get_related_fields(related_fields_mapping, dict_parsed_restql_query):
         """
         Returns only whitelisted related fields from a query to be used on
         `select_related` and `prefetch_related`
@@ -342,7 +357,7 @@ class EagerLoadingMixin(object):
             if isinstance(related_field, str):
                 related_field = [related_field]
 
-            query_node = dict_parsed_query
+            query_node = dict_parsed_restql_query
             for field in fields:
                 if isinstance(query_node, dict):
                     if field in query_node:
@@ -366,7 +381,7 @@ class EagerLoadingMixin(object):
         Applies appropriate select_related and prefetch_related calls on a
         queryset
         """
-        query = self.get_dict_parsed_query(self.parsed_query)
+        query = self.get_dict_parsed_restql_query(self.parsed_restql_query)
         select_mapping = self.get_select_related_mapping()
         prefetch_mapping = self.get_prefetch_related_mapping()
 
@@ -391,7 +406,7 @@ class EagerLoadingMixin(object):
             queryset = super().get_queryset()
             queryset = self.get_eager_queryset(queryset)
             return queryset
-            
+
 
 class NestedCreateMixin(object):
     """ Create Mixin """
