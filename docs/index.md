@@ -532,10 +532,10 @@ prefetch_related = {"serializer_field_name": "field_to_prefetch"}
 
 **Syntax Interpretation**
 
-* `serializer_field_name` stands for the name of the field to prefetch or select(as named on a serializer)
-* `fields_to_select` stands for argument(s) to pass when calling `select_related` method
-* `fields_to_prefetch` stands for arguments(s) to pass when calling `prefetch_related` method
-* If you want to select or prefetch nested field use dot(.) to separate parent and child fields on `serializer_field_name` eg `parent.child`
+* `serializer_field_name` stands for the name of the field to prefetch or select(as named on a serializer).
+* `fields_to_select` stands for argument(s) to pass when calling `select_related` method. This can be a string or `Prefetch` object.
+* `fields_to_prefetch` stands for arguments(s) to pass when calling `prefetch_related` method.
+* If you want to select or prefetch nested field use dot(.) to separate parent and child fields on `serializer_field_name` eg `parent.child`.
 
 
 #### Example of `EagerLoadingMixin` usage
@@ -603,16 +603,16 @@ user = {
 }
 ```
 
-Here is how `select_related` and `prefetch_related` should be written for this model
+Here is how `select_related` and `prefetch_related` could be written for this model
 ```py
 select_related = {
     "location": "location",
     "contact": "contact",
-    "contact.phone": "contact__phone
+    "contact.phone": "contact__phone"
 }
 
 prefetch_related = {
-    "articles": "articles"
+    "articles": Prefetch("articles", queryset=Article.objects.all()),
     "articles.reviews": "articles__reviewers"
 }
 ```
