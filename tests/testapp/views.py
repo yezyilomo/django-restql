@@ -1,6 +1,7 @@
+from django.db.models import Prefetch
 from rest_framework import viewsets
 
-from tests.testapp.models import Book, Course, Student
+from tests.testapp.models import Book, Course, Student, Phone
 from tests.testapp.serializers import (
 	BookSerializer, CourseSerializer, StudentSerializer,
 	CourseWithFieldsKwargSerializer, CourseWithExcludeKwargSerializer,
@@ -63,6 +64,18 @@ class StudentEagerLoadingViewSet(EagerLoadingMixin, viewsets.ModelViewSet):
 	prefetch_related = {
 		"phone_numbers": "phone_numbers",
 		"program.books": "course__books"
+	}
+
+
+class StudentEagerLoadingPrefetchObjectViewSet(EagerLoadingMixin, viewsets.ModelViewSet):
+	serializer_class = StudentWithAliasSerializer
+	queryset = Student.objects.all()
+	select_related = {
+		"program": "course"
+	}
+	prefetch_related = {
+		"phone_numbers": [Prefetch("phone_numbers", queryset=Phone.objects.all()),],
+		"program.books": Prefetch("course__books", queryset=Book.objects.all())
 	}
 
 
