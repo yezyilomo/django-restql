@@ -1,9 +1,17 @@
 # [django-restql](https://yezyilomo.github.io/django-restql/)
 
-[![Build Status](https://api.travis-ci.com/yezyilomo/django-restql.svg?branch=master)](https://api.travis-ci.com/yezyilomo/django-restql) [![Latest Version](https://img.shields.io/pypi/v/django-restql.svg)](https://pypi.org/project/django-restql/) [![Python Versions](https://img.shields.io/pypi/pyversions/django-restql.svg)](https://pypi.org/project/django-restql/) [![License](https://img.shields.io/pypi/l/django-restql.svg)](https://pypi.org/project/django-restql/) &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; [![Downloads](https://pepy.tech/badge/django-restql)](https://pepy.tech/project/django-restql) [![Downloads](https://pepy.tech/badge/django-restql/month)](https://pepy.tech/project/django-restql/month) [![Downloads](https://pepy.tech/badge/django-restql/week)](https://pepy.tech/project/django-restql/week)
+[![Build Status](https://api.travis-ci.com/yezyilomo/django-restql.svg?branch=master)](https://api.travis-ci.com/yezyilomo/django-restql) 
+[![Latest Version](https://img.shields.io/pypi/v/django-restql.svg)](https://pypi.org/project/django-restql/) 
+[![Python Versions](https://img.shields.io/pypi/pyversions/django-restql.svg)](https://pypi.org/project/django-restql/) 
+[![License](https://img.shields.io/pypi/l/django-restql.svg)](https://pypi.org/project/django-restql/)
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 
+[![Downloads](https://pepy.tech/badge/django-restql)](https://pepy.tech/project/django-restql) 
+[![Downloads](https://pepy.tech/badge/django-restql/month)](https://pepy.tech/project/django-restql/month) 
+[![Downloads](https://pepy.tech/badge/django-restql/week)](https://pepy.tech/project/django-restql/week)
 
 
-**django-restql** is a python library which allows you to turn your API made with **Django REST Framework(DRF)** into a GraphQL like API. With **django-restql** you will be able to
+**Django RESTQL** is a python library which allows you to turn your API made with **Django REST Framework(DRF)** into a GraphQL like API. With **Django RESTQL** you will be able to
+
 * Send a query to your API and get exactly what you need, nothing more and nothing less.
 
 * Control the data you get, not the server.
@@ -36,7 +44,7 @@ pip install django-restql
 
 
 ## Getting Started
-Using **django-restql** to query data is very simple, you just have to inherit the `DynamicFieldsMixin` class when defining a serializer that's all.
+Using **Django RESTQL** to query data is very simple, you just have to inherit the `DynamicFieldsMixin` class when defining a serializer that's all.
 ```py
 from rest_framework import serializers
 from django.contrib.auth.models import User
@@ -49,7 +57,7 @@ class UserSerializer(DynamicFieldsMixin, serializer.ModelSerializer):
         fields = ['id', 'username', 'email']
 ```
 
-**django-restql** handle all GET requests with a `query` parameter, this parameter is the one used to pass all fields to be included/excluded in a response. For example to select `id` and `username` fields from User model, send a request with a ` query` parameter as shown below.
+**Django RESTQL** handle all GET requests with a `query` parameter, this parameter is the one used to pass all fields to be included/excluded in a response. For example to select `id` and `username` fields from User model, send a request with a ` query` parameter as shown below.
 
 `GET /users/?query={id, username}`
 ```js
@@ -62,7 +70,7 @@ class UserSerializer(DynamicFieldsMixin, serializer.ModelSerializer):
 ]
 ```
 
-**django-restql** support querying both flat and nested resources, so you can expand or query nested fields at any level as defined on a serializer. In an example below we have `location` as a nested field on User model.
+**Django RESTQL** support querying both flat and nested resources, so you can expand or query nested fields at any level as defined on a serializer. In an example below we have `location` as a nested field on User model.
 
 ```py
 from rest_framework import serializers
@@ -103,7 +111,7 @@ If you want only `country` and `city` fields on a `location` field when retrievi
 ```
 
 ## [Documentation :pencil:](https://yezyilomo.github.io/django-restql/)
-You can do a lot with **django-restql** apart from just querying data, full documentation for this project is available at https://yezyilomo.github.io/django-restql/, you are encouraged to read it inorder to utilize this library to the fullest.
+You can do a lot with **Django RESTQL** apart from just querying data, full documentation for this project is available at https://yezyilomo.github.io/django-restql/, you are encouraged to read it inorder to utilize this library to the fullest.
 
 
 ## Running Tests
