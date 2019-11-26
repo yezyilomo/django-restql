@@ -1,7 +1,6 @@
 h1, h2, h3, h4, h5, h6 {
     color: #159957;
     font-family: sans-serif;
-    /* 1 */
     font-weight: 400;
 }
 
@@ -16,38 +15,51 @@ body {
 
 p {
     font-family: sans-serif;
-    /* 1 */
     -ms-text-size-adjust: 100%;
-    /* 2 */
     -webkit-text-size-adjust: 100%;
-    /* 2 */
 }
 
 html {
     font-family: sans-serif;
-    /* 1 */
+}
+
+code, .py, .js {
+    font-family: monospace, monospace;
+    font-size: 0.93em;
+}
+
+code {
+    background-color: white;
+    border-width: 0;
 }
 
 .py, .js {
-    font-family: monospace, monospace;
-    font-size: 0.95em;
+    border-width: 1px;
+    border-radius: 4px;
+    border-color: rgb(240, 240, 240);
 }
 
 .wy-nav-side {
-    /*background-color: red;*/
-    scroll-behavior: unset;
+    height: calc(100% - 20px);
+    overflow: hidden;
+    position: fixed;
 }
 
-.wy-nav-content-wrap {
-    /*background-color: gray;*/
+.wy-nav-side .wy-menu {
+    height: calc(100% - 70px);
+    overflow: auto;
 }
 
-.wy-nav-content {
-    /*background-color: blue;*/
+.wy-nav-top .fa-bars {
+    margin: 8px 0 0 0;
 }
 
-.wy-side-nav-search {
+.wy-nav-top, .wy-nav-side, .wy-side-nav-search {
     background-color: #343131;
+}
+
+.rst-versions {
+    display: none;
 }
 
 .wy-side-nav-search, input[type=text] {
