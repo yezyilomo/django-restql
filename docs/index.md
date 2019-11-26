@@ -616,11 +616,15 @@ When prefetching *and* calling `select_related` on a field, Django may error, si
 ### Changing `query` parameter name
 If you don't want to use the name `query` as your parameter, you can change it with`QUERY_PARAM_NAME` on settings file e.g 
 ```py
-QUERY_PARAM_NAME = "your_favourite_name"
+RESTQL = {
+    'QUERY_PARAM_NAME' = "your_favourite_name"
+}
 ```
  Now you can use the name `your_favourite_name` as your query parameter. E.g
  
  `GET /users/?your_favourite_name={id, username}`
+
+**Note:** Configuration for **django-restql** is all namespaced inside a single Django setting named `RESTQL`.
 
 
 ## Mutating Data
