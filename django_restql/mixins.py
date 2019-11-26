@@ -5,6 +5,7 @@ from rest_framework.serializers import (
     ValidationError
 )
 from .settings import restql_settings
+from django.db.models import Prefetch
 from django.db.models.fields.related import(
     ManyToOneRel, ManyToManyRel
 )
@@ -354,7 +355,7 @@ class EagerLoadingMixin(RequestQueryParserMixin):
         related_fields = []
         for key, related_field in related_fields_mapping.items():
             fields = key.split(".")
-            if isinstance(related_field, str):
+            if isinstance(related_field, (str, Prefetch)):
                 related_field = [related_field]
 
             query_node = dict_parsed_restql_query
