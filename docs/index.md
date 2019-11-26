@@ -950,14 +950,3 @@ location = NestedField(LocationSerializer, exclude=[...])
 ```py
 location = NestedField(LocationSerializer, return_pk=True)
 ``` 
-
-## Hello
-
-## There
-
-## Hello
-
-## There
-## Hello
-
-## There
