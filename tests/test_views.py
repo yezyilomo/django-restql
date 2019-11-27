@@ -902,6 +902,68 @@ class DataQueryingTests(APITestCase):
                 ]
             )
 
+    def test_list_eager_loading_mixin_with_prefetch_object_outside_of_list(self):
+        """
+        Test that a Prefetch object can be provided in the mapping outside of a list.
+        """
+        url = reverse_lazy("student_eager_loading_prefetch-list")
+        self.add_second_student()
+
+        with self.assertNumQueries(2):
+            response = self.client.get(url + '?query={program}' , format="json")
+            self.assertEqual(
+                response.data,
+                [
+                    {
+                        "program": {
+                            "name": "Data Structures",
+                            "code": "CS210",
+                            "books": [
+                                {"title": "Advanced Data Structures", "author": "S.Mobit"},
+                                {"title": "Basic Data Structures", "author": "S.Mobit"}
+                            ]
+                        }
+                    },
+                    {
+                        "program": {
+                            "name": "Algorithms",
+                            "code": "CS260",
+                            "books": [
+                                {"title": "Algorithm Design", "author": "S.Mobit"},
+                                {"title": "Proving Algorithms", "author": "S.Mobit"}
+                            ]
+                        }
+                    },
+                ]
+            )
+
+    def test_list_eager_loading_mixin_with_prefetch_object_in_list(self):
+        """
+        Test that a Prefetch object can be provided in the mapping inside of a list.s
+        """
+        url = reverse_lazy("student_eager_loading_prefetch-list")
+        self.add_second_student()
+
+        with self.assertNumQueries(2):
+            response = self.client.get(url + '?query={phone_numbers}' , format="json")
+            self.assertEqual(
+                response.data,
+                [
+                    {
+                        "phone_numbers": [
+                            {'number': '076711110', 'type': 'Office', 'student': 1},
+                            {'number': '073008880', 'type': 'Home', 'student': 1}
+                        ]
+                    },
+                    {
+                        "phone_numbers": [
+                            {'number': '075711110', 'type': 'Office', 'student': 2},
+                            {'number': '073008880', 'type': 'Home', 'student': 2}
+                        ]
+                    },
+                ]
+            )
+
 
 class DataMutationTests(APITestCase):
     def setUp(self):
