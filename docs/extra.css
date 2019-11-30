@@ -40,18 +40,27 @@ code {
 }
 
 .wy-nav-side {
-    height: calc(100% - 20px);
     overflow: hidden;
     position: fixed;
 }
 
 .wy-nav-side .wy-menu {
-    height: calc(100% - 70px);
+    height: calc(100% - 100px);
+    margin-top: 60px;
+    top: 40px;
+    position: relative;
     overflow: auto;
 }
 
 .wy-nav-top .fa-bars {
-    margin: 8px 0 0 0;
+    position: fixed;
+    bottom: 10px;
+    right: 1.5%;
+    border-width: 0;
+    border-radius: 50%;
+    padding: 9px 12px;
+    background-color: #343131;
+    box-shadow: 1px 1px 20px #343131;
 }
 
 .wy-nav-top, .wy-nav-side, .wy-side-nav-search {
@@ -62,8 +71,25 @@ code {
     display: none;
 }
 
-.wy-side-nav-search, input[type=text] {
-    border-radius: 0;
+.wy-side-nav-search {
+    left: 0;
+    top: 0;
+    position: absolute;
+    width: 100%;
+    height: 100px;
+}
+
+.wy-side-nav-search input[type="text"] {
+    width: 100%;
     border-width: 0;
     border-color: white;
+    border-radius: 5px;
+    padding: 9px 0 9px 8px;
+    background-color: rgba(250, 250, 250, 0.3);
+    box-shadow: 0 0 0 #343131;
+    transition: background-color .3s;
+}
+
+.wy-side-nav-search input[type="text"]:focus {
+    background-color: white;
 }
