@@ -52,6 +52,10 @@ code {
     overflow: auto;
 }
 
+.wy-menu-vertical ul {
+    margin-bottom: 0;
+}
+
 .wy-nav-top .fa-bars {
     position: fixed;
     bottom: 10px;
@@ -63,12 +67,17 @@ code {
     box-shadow: 1px 1px 20px #343131;
 }
 
-.wy-nav-top, .wy-nav-side, .wy-side-nav-search {
+.wy-nav-top, .wy-nav-side, .wy-side-nav-search, .rst-versions, .rst-versions .rst-current-version {
     background-color: #343131;
 }
 
-.rst-versions {
-    display: none;
+.rst-current-version .fa-github {
+    margin-top: 3px;
+    font-size: 1.2em;
+}
+
+.rst-current-version .fa-github::before {
+    font-size: 1.3em;
 }
 
 .wy-side-nav-search {
