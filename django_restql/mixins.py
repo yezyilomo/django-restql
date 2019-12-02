@@ -389,8 +389,10 @@ class EagerLoadingMixin(RequestQueryParserMixin):
         to_select = self.get_related_fields(select_mapping, query)
         to_prefetch = self.get_related_fields(prefetch_mapping, query)
 
-        queryset = queryset.select_related(*to_select)
-        queryset = queryset.prefetch_related(*to_prefetch)
+        if to_select:
+            queryset = queryset.select_related(*to_select)
+        if to_prefetch:
+            queryset = queryset.prefetch_related(*to_prefetch)
         return queryset
 
     def get_eager_queryset(self, queryset):
