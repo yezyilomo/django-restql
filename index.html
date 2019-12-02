@@ -83,7 +83,7 @@
         
             <li><a class="toctree-l3" href="#setting-up-eager-loading">Setting up eager loading</a></li>
         
-            <li><a class="toctree-l3" href="#changing-query-parameter-name">Changing query parameter name</a></li>
+            <li><a class="toctree-l3" href="#settings">Settings</a></li>
         
         </ul>
     
@@ -621,10 +621,10 @@ prefetch_related = {&quot;serializer_field_name&quot;: &quot;field_to_prefetch&q
 
 <p><strong>Syntax Interpretation</strong></p>
 <ul>
-<li><code>serializer_field_name</code> stands for the name of the field to prefetch or select(as named on a serializer)</li>
-<li><code>fields_to_select</code> stands for argument(s) to pass when calling <code>select_related</code> method</li>
-<li><code>fields_to_prefetch</code> stands for arguments(s) to pass when calling <code>prefetch_related</code> method</li>
-<li>If you want to select or prefetch nested field use dot(.) to separate parent and child fields on <code>serializer_field_name</code> eg <code>parent.child</code></li>
+<li><code>serializer_field_name</code> stands for the name of the field to prefetch or select(as named on a serializer).</li>
+<li><code>fields_to_select</code> stands for argument(s) to pass when calling <code>select_related</code> method.</li>
+<li><code>fields_to_prefetch</code> stands for arguments(s) to pass when calling <code>prefetch_related</code> method. This can be a string or <code>Prefetch</code> object.</li>
+<li>If you want to select or prefetch nested field use dot(.) to separate parent and child fields on <code>serializer_field_name</code> eg <code>parent.child</code>.</li>
 </ul>
 <h4 id="example-of-eagerloadingmixin-usage">Example of <code>EagerLoadingMixin</code> usage<a class="headerlink" href="#example-of-eagerloadingmixin-usage" title="Permanent link">&para;</a></h4>
 <pre><code class="py">from rest_framework import viewsets
@@ -692,15 +692,15 @@ class StudentViewSet(EagerLoadingMixin, viewsets.ModelViewSet):
 }
 </code></pre>
 
-<p>Here is how <code>select_related</code> and <code>prefetch_related</code> should be written for this model</p>
+<p>Here is how <code>select_related</code> and <code>prefetch_related</code> could be written for this model</p>
 <pre><code class="py">select_related = {
     &quot;location&quot;: &quot;location&quot;,
     &quot;contact&quot;: &quot;contact&quot;,
-    &quot;contact.phone&quot;: &quot;contact__phone
+    &quot;contact.phone&quot;: &quot;contact__phone&quot;
 }
 
 prefetch_related = {
-    &quot;articles&quot;: &quot;articles&quot;
+    &quot;articles&quot;: Prefetch(&quot;articles&quot;, queryset=Article.objects.all()),
     &quot;articles.reviews&quot;: &quot;articles__reviewers&quot;
 }
 </code></pre>
@@ -708,8 +708,11 @@ prefetch_related = {
 <h4 id="known-caveats">Known Caveats<a class="headerlink" href="#known-caveats" title="Permanent link">&para;</a></h4>
 <p>When prefetching with a <code>to_attr</code>, ensure that there are no collisions. Django does not allow multiple prefetches with the same <code>to_attr</code> on the same queryset.</p>
 <p>When prefetching <em>and</em> calling <code>select_related</code> on a field, Django may error, since the ORM does allow prefetching a selectable field, but not both at the same time.</p>
-<h3 id="changing-query-parameter-name">Changing <code>query</code> parameter name<a class="headerlink" href="#changing-query-parameter-name" title="Permanent link">&para;</a></h3>
-<p>If you don't want to use the name <code>query</code> as your parameter, you can change it with<code>QUERY_PARAM_NAME</code> on settings file e.g </p>
+<h3 id="settings">Settings<a class="headerlink" href="#settings" title="Permanent link">&para;</a></h3>
+<p>Configuration for <strong>Django RESTQL</strong> is all namespaced inside a single Django setting named <code>RESTQL</code>.</p>
+<h4 id="query_param_name"><code>QUERY_PARAM_NAME</code><a class="headerlink" href="#query_param_name" title="Permanent link">&para;</a></h4>
+<p>The default value for this is <code>query</code>. 
+If you don't want to use the name <code>query</code> as your parameter, you can change it with<code>QUERY_PARAM_NAME</code> on settings file e.g </p>
 <pre><code class="py">RESTQL = {
     'QUERY_PARAM_NAME' = &quot;your_favourite_name&quot;
 }
@@ -717,7 +720,43 @@ prefetch_related = {
 
 <p>Now you can use the name <code>your_favourite_name</code> as your query parameter. E.g</p>
 <p><code>GET /users/?your_favourite_name={id, username}</code></p>
-<p><strong>Note:</strong> Configuration for <strong>Django RESTQL</strong> is all namespaced inside a single Django setting named <code>RESTQL</code>.</p>
+<h4 id="auto_apply_eager_loading"><code>AUTO_APPLY_EAGER_LOADING</code><a class="headerlink" href="#auto_apply_eager_loading" title="Permanent link">&para;</a></h4>
+<p>The default value for this is <code>True</code>.
+When using the <code>EagerLoadingMixin</code>, this setting controls if the mappings for <code>select_related</code> and <code>prefetch_related</code> are applied automatically when calling <code>get_queryset</code>. To turn it off, set the <code>AUTO_APPLY_EAGER_LOADING</code> setting or <code>auto_apply_eager_loading</code> attribute on the view to <code>False</code>. </p>
+<pre><code class="py"># settings.py file
+# This will turn off auto apply eager loading globally
+RESTQL = {
+    'AUTO_APPLY_EAGER_LOADING' = False
+}
+</code></pre>
+
+<p>If auto apply eager loading is turned off, the method <code>apply_eager_loading</code> can still be used on your queryset if you wish to select or prefetch related fields according to your conditions, For example you can check if there was a query parameter passed in by using <code>has_restql_query_param</code>, if true then apply eager loading otherwise return a normal queryset.</p>
+<pre><code class="py">from rest_framework import viewsets
+from django_restql.mixins import EagerLoadingMixin
+from myapp.serializers import StudentSerializer
+from myapp.models import Student
+
+class StudentViewSet(EagerLoadingMixin, viewsets.ModelViewSet):
+    serializer_class = StudentSerializer
+    queryset = Student.objects.all()
+
+    # Turn off auto apply eager loading per view
+    # This overrides the `AUTO_APPLY_EAGER_LOADING` setting on this view
+    auto_apply_eager_loading = False
+    select_related = {
+        &quot;program&quot;: &quot;course&quot;
+    }
+    prefetch_related = {
+        &quot;program.books&quot;: &quot;course__books&quot;
+    }
+
+    def get_queryset(self):
+        queryset = super().get_queryset()
+        if self.has_restql_query_param:
+            queryset = self.apply_eager_loading(queryset)
+        return queryset
+</code></pre>
+
 <h2 id="mutating-data">Mutating Data<a class="headerlink" href="#mutating-data" title="Permanent link">&para;</a></h2>
 <p><strong>Django RESTQL</strong> got your back on creating and updating nested data too, it has two components for mutating nested data, <code>NestedModelSerializer</code> and <code>NestedField</code>. A serializer <code>NestedModelSerializer</code> has <code>update</code> and <code>create</code> logics for nested fields on the other hand <code>NestedField</code> is used to validate data before calling <code>update</code> or <code>create</code> method.</p>
 <h3 id="using-nestedfield-nestedmodelserializer">Using NestedField &amp; NestedModelSerializer<a class="headerlink" href="#using-nestedfield-nestedmodelserializer" title="Permanent link">&para;</a></h3>
@@ -1036,5 +1075,5 @@ class PropertySerializer(DynamicFieldsMixin, NestedModelSerializer):
 
 <!--
 MkDocs version : 1.0.4
-Build Date UTC : 2019-11-26 20:16:07
+Build Date UTC : 2019-12-02 20:47:48
 -->
