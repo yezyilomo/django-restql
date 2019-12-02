@@ -307,7 +307,9 @@ class EagerLoadingMixin(RequestQueryParserMixin):
         return query
 
     @property
-    def auto_apply_eager_loading(self):
+    def should_auto_apply_eager_loading(self):
+        if hasattr(self, 'auto_apply_eager_loading'):
+            return self.auto_apply_eager_loading
         return getattr(
             restql_settings,
             "AUTO_APPLY_EAGER_LOADING",
@@ -415,7 +417,7 @@ class EagerLoadingMixin(RequestQueryParserMixin):
         """
         if hasattr(super(), "get_queryset"):
             queryset = super().get_queryset()
-            if self.auto_apply_eager_loading:
+            if self.should_auto_apply_eager_loading:
                 queryset = self.get_eager_queryset(queryset)
             return queryset
 
