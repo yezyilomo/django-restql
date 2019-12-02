@@ -32,6 +32,7 @@ router.register('course-with-dynamic-serializer-method-field', views.CourseWithD
 router.register('students', views.StudentViewSet, base_name='student')
 router.register('students-eager-loading', views.StudentEagerLoadingViewSet, base_name='student_eager_loading')
 router.register('students-eager-loading-prefetch', views.StudentEagerLoadingPrefetchObjectViewSet, base_name='student_eager_loading_prefetch')
+router.register('students-auto-apply-eager-loading', views.StudentAutoApplyEagerLoadingViewSet, base_name='student_auto_apply_eager_loading')
 
 router.register('writable-courses', views.WritableCourseViewSet, base_name='wcourse')
 router.register('replaceable-courses', views.ReplaceableCourseViewSet, base_name='rcourse')

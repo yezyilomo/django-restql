@@ -78,6 +78,18 @@ class StudentEagerLoadingPrefetchObjectViewSet(EagerLoadingMixin, viewsets.Model
 		"program.books": Prefetch("course__books", queryset=Book.objects.all())
 	}
 
+class StudentAutoApplyEagerLoadingViewSet(EagerLoadingMixin, viewsets.ModelViewSet):
+	serializer_class = StudentWithAliasSerializer
+	queryset = Student.objects.all()
+	auto_apply_eager_loading = False
+	select_related = {
+		"program": "course"
+	}
+	prefetch_related = {
+		"phone_numbers": [Prefetch("phone_numbers", queryset=Phone.objects.all()),],
+		"program.books": Prefetch("course__books", queryset=Book.objects.all())
+	}
+
 
 ######### ViewSets For Data Mutations Testing ##########
 class WritableCourseViewSet(viewsets.ModelViewSet):
