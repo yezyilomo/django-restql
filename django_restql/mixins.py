@@ -306,6 +306,14 @@ class EagerLoadingMixin(RequestQueryParserMixin):
         }
         return query
 
+    @property
+    def auto_apply_eager_loading(self):
+        return getattr(
+            restql_settings,
+            "AUTO_APPLY_EAGER_LOADING",
+            True
+        )
+
     def get_select_related_mapping(self):
         if hasattr(self, "select_related"):
             return self.select_related
@@ -407,7 +415,8 @@ class EagerLoadingMixin(RequestQueryParserMixin):
         """
         if hasattr(super(), "get_queryset"):
             queryset = super().get_queryset()
-            queryset = self.get_eager_queryset(queryset)
+            if self.auto_apply_eager_loading:
+                queryset = self.get_eager_queryset(queryset)
             return queryset
 
 

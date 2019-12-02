@@ -14,7 +14,8 @@ from django.utils.module_loading import import_string
 
 
 DEFAULTS = {
-    'QUERY_PARAM_NAME': 'query'
+    'QUERY_PARAM_NAME': 'query',
+    'AUTO_APPLY_EAGER_LOADING': True,
 }
 
 
