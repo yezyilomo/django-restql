@@ -964,6 +964,53 @@ class DataQueryingTests(APITestCase):
                 ]
             )
 
+    def test_list_with_auto_apply_eager_loading_set_false(self):
+        """
+        Test that a Prefetch object can be provided in the mapping inside of a list.s
+        """
+        url = reverse_lazy("student_auto_apply_eager_loading-list")
+        self.add_second_student()
+
+        with self.assertNumQueries(7):
+            response = self.client.get(url, format="json")
+            self.assertEqual(
+                response.data,
+                [
+                    {
+                        "name": "Yezy",
+                        "age": 24,
+                        "program": {
+                            "name": "Data Structures",
+                            "code": "CS210",
+                            "books": [
+                                {"title": "Advanced Data Structures", "author": "S.Mobit"},
+                                {"title": "Basic Data Structures", "author": "S.Mobit"}
+                            ]
+                        },
+                        "phone_numbers": [
+                            {'number': '076711110', 'type': 'Office', 'student': 1},
+                            {'number': '073008880', 'type': 'Home', 'student': 1}
+                        ]
+                    },
+                    {
+                        "name": "Tyler",
+                        "age": 25,
+                        "program": {
+                            "name": "Algorithms",
+                            "code": "CS260",
+                            "books": [
+                                {"title": "Algorithm Design", "author": "S.Mobit"},
+                                {"title": "Proving Algorithms", "author": "S.Mobit"}
+                            ]
+                        },
+                        "phone_numbers": [
+                            {'number': '075711110', 'type': 'Office', 'student': 2},
+                            {'number': '073008880', 'type': 'Home', 'student': 2}
+                        ]
+                    },
+                ]
+            )
+
 
 class DataMutationTests(APITestCase):
     def setUp(self):
