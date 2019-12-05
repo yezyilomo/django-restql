@@ -11,7 +11,7 @@ from django.db.models.fields.related import(
 )
 
 from .parser import Parser
-from .exceptions import FieldNotFound
+from .exceptions import FieldNotFound, QueryFormatError
 from .operations import ADD, CREATE, REMOVE, UPDATE
 from .fields import (
     _ReplaceableField, _WritableField,
@@ -44,16 +44,8 @@ class RequestQueryParserMixin(object):
     def get_parsed_restql_query_from_req(cls, request):
         raw_query = cls.get_raw_restql_query(request)
         parser = Parser(raw_query)
-        try:
-            parsed_restql_query = parser.get_parsed()
-            return parsed_restql_query
-        except SyntaxError as e:
-            msg = (
-                "QueryFormatError: " + 
-                e.msg + " on " + 
-                e.text
-            )
-            raise ValidationError(msg) from None
+        parsed_restql_query = parser.get_parsed()
+        return parsed_restql_query
 
 
 class DynamicFieldsMixin(RequestQueryParserMixin):
@@ -243,8 +235,16 @@ class DynamicFieldsMixin(RequestQueryParserMixin):
         if is_top_retrieve_request or is_top_list_request:
             if self.parsed_restql_query is None:
                 # Use a parsed query from the request
-                self.parsed_restql_query = \
-                    self.get_parsed_restql_query_from_req(request)
+                try:
+                    self.parsed_restql_query = \
+                        self.get_parsed_restql_query_from_req(request)
+                except SyntaxError as e:
+                    msg = "QuerySyntaxError: " + e.msg + " on " + e.text
+                    raise ValidationError(msg) from None
+                except QueryFormatError as e:
+                    msg = "QueryFormatError: " + str(e)
+                    raise ValidationError(msg) from None
+
         elif isinstance(self.parent, ListSerializer):
             field_name = self.parent.field_name
             parent = self.parent.parent
@@ -297,7 +297,10 @@ class EagerLoadingMixin(RequestQueryParserMixin):
         using django-restql DynamicsFieldMixin.
         """
         if self.has_restql_query_param(self.request):
-            return self.get_parsed_restql_query_from_req(self.request)
+            try:
+                return self.get_parsed_restql_query_from_req(self.request)
+            except (SyntaxError, QueryFormatError):
+                pass
 
         # Else include all fields
         query = {
