@@ -8,7 +8,7 @@
   <meta name="description" content="None">
   <meta name="author" content="Yezy Ilomo">
   <link rel="shortcut icon" href="img/favicon.ico">
-  <title>Home - Django RESTQL</title>
+  <title>Introduction - Django RESTQL</title>
   <link href='https://fonts.googleapis.com/css?family=Lato:400,700|Roboto+Slab:400,700|Inconsolata:400,700' rel='stylesheet' type='text/css'>
 
   <link rel="stylesheet" href="css/theme.css" type="text/css" />
@@ -18,7 +18,7 @@
   
   <script>
     // Current page data
-    var mkdocs_page_name = "Home";
+    var mkdocs_page_name = "Introduction";
     var mkdocs_page_input_path = "index.md";
     var mkdocs_page_url = null;
   </script>
@@ -51,7 +51,7 @@
           
             <li class="toctree-l1 current">
 		
-    <a class="current" href=".">Home</a>
+    <a class="current" href=".">Introduction</a>
     <ul class="subnav">
             
     <li class="toctree-l2"><a href="#introduction">Introduction</a></li>
@@ -77,9 +77,7 @@
         
             <li><a class="toctree-l3" href="#dynamicserializermethodfield">DynamicSerializerMethodField</a></li>
         
-            <li><a class="toctree-l3" href="#fields-and-exclude-kwargs">fields and exclude kwargs</a></li>
-        
-            <li><a class="toctree-l3" href="#return_pk-kwarg">return_pk kwarg</a></li>
+            <li><a class="toctree-l3" href="#dynamicfieldsmixin-kwargs">DynamicFieldsMixin kwargs</a></li>
         
             <li><a class="toctree-l3" href="#setting-up-eager-loading">Setting up eager loading</a></li>
         
@@ -92,7 +90,7 @@
     
         <ul>
         
-            <li><a class="toctree-l3" href="#using-nestedfield-nestedmodelserializer">Using NestedField &amp; NestedModelSerializer</a></li>
+            <li><a class="toctree-l3" href="#using-nestedfield-and-nestedmodelserializer">Using NestedField and NestedModelSerializer</a></li>
         
             <li><a class="toctree-l3" href="#using-nestedfield-with-accept_pk-kwarg">Using NestedField with accept_pk kwarg.</a></li>
         
@@ -128,7 +126,7 @@
     
       
     
-    <li>Home</li>
+    <li>Introduction</li>
     <li class="wy-breadcrumbs-aside">
       
         <a href="https://github.com/yezyilomo/django-restql/edit/master/docs/index.md"
@@ -141,7 +139,7 @@
           <div role="main">
             <div class="section">
               
-                <h2 id="introduction">Introduction<a class="headerlink" href="#introduction" title="Permanent link">&para;</a></h2>
+                <h1 id="introduction">Introduction<a class="headerlink" href="#introduction" title="Permanent link">&para;</a></h1>
 <p><strong>Django RESTQL</strong> is a python library which allows you to turn your API made with <strong>Django REST Framework(DRF)</strong> into a GraphQL like API. With <strong>Django RESTQL</strong>  you will be able to</p>
 <ul>
 <li>
@@ -164,17 +162,17 @@
 </li>
 </ul>
 <p>Isn't it cool?.</p>
-<h2 id="requirements">Requirements<a class="headerlink" href="#requirements" title="Permanent link">&para;</a></h2>
+<h1 id="requirements">Requirements<a class="headerlink" href="#requirements" title="Permanent link">&para;</a></h1>
 <ul>
 <li>Python &gt;= 3.5</li>
 <li>Django &gt;= 1.10</li>
 <li>Django REST Framework &gt;= 3.5</li>
 </ul>
-<h2 id="installing">Installing<a class="headerlink" href="#installing" title="Permanent link">&para;</a></h2>
+<h1 id="installing">Installing<a class="headerlink" href="#installing" title="Permanent link">&para;</a></h1>
 <pre><code class="py">pip install django-restql
 </code></pre>
 
-<h2 id="querying-data">Querying Data<a class="headerlink" href="#querying-data" title="Permanent link">&para;</a></h2>
+<h1 id="querying-data">Querying Data<a class="headerlink" href="#querying-data" title="Permanent link">&para;</a></h1>
 <p>Using <strong>Django RESTQL</strong> to query data is very simple, you just have to inherit the <code>DynamicFieldsMixin</code> class when defining a serializer that's all.</p>
 <pre><code class="py">from rest_framework import serializers
 from django.contrib.auth.models import User
@@ -199,7 +197,7 @@ class UserSerializer(DynamicFieldsMixin, serializer.ModelSerializer):
 ]
 </code></pre>
 
-<h3 id="querying-flat-fields">Querying flat fields<a class="headerlink" href="#querying-flat-fields" title="Permanent link">&para;</a></h3>
+<h2 id="querying-flat-fields">Querying flat fields<a class="headerlink" href="#querying-flat-fields" title="Permanent link">&para;</a></h2>
 <p><strong>Django RESTQL</strong> handle all GET requests with a <code>query</code> parameter, this parameter is the one used to pass all fields to be included/excluded in a response. For example to select <code>id</code> and <code>username</code> fields from User model, send a request with a <code>query</code> parameter as shown below.</p>
 <p><code>GET /users/?query={id, username}</code></p>
 <pre><code class="js">[
@@ -211,7 +209,7 @@ class UserSerializer(DynamicFieldsMixin, serializer.ModelSerializer):
 ]
 </code></pre>
 
-<h3 id="querying-nested-fields">Querying nested fields<a class="headerlink" href="#querying-nested-fields" title="Permanent link">&para;</a></h3>
+<h2 id="querying-nested-fields">Querying nested fields<a class="headerlink" href="#querying-nested-fields" title="Permanent link">&para;</a></h2>
 <p><strong>Django RESTQL</strong> support querying both flat and nested resources, so you can expand or query nested fields at any level as defined on a serializer. In an example below we have <code>location</code> and <code>groups</code> as nested fields on User model.</p>
 <pre><code class="py">from rest_framework import serializers
 from django.contrib.auth.models import User
@@ -255,7 +253,7 @@ class UserSerializer(DynamicFieldsMixin, serializer.ModelSerializer):
 ]
 </code></pre>
 
-<h4 id="more-examples-to-get-you-comfortable-with-the-query-syntax">More examples to get you comfortable with the query syntax<a class="headerlink" href="#more-examples-to-get-you-comfortable-with-the-query-syntax" title="Permanent link">&para;</a></h4>
+<h3 id="more-examples-to-get-you-comfortable-with-the-query-syntax">More examples to get you comfortable with the query syntax<a class="headerlink" href="#more-examples-to-get-you-comfortable-with-the-query-syntax" title="Permanent link">&para;</a></h3>
 <p><code>GET /users/?query={location, groups}</code></p>
 <pre><code class="js">[
     {
@@ -289,7 +287,7 @@ class UserSerializer(DynamicFieldsMixin, serializer.ModelSerializer):
 ]
 </code></pre>
 
-<h3 id="exclude-operator">Exclude(-) operator<a class="headerlink" href="#exclude-operator" title="Permanent link">&para;</a></h3>
+<h2 id="exclude-operator">Exclude(-) operator<a class="headerlink" href="#exclude-operator" title="Permanent link">&para;</a></h2>
 <p>When using <strong>Django RESTQL</strong> filtering as-is is great if there are no many fields on a serializer, but sometimes you might have a case where you would like everything except a handful of fields on a larger serializer. These fields might be nested and trying the whitelist approach is difficult or possibly too long for the url. <strong>Django RESTQL</strong> comes with the exclude(-) operator which can be used to exclude some fields in scenarios where you want to get all fields except few. Using exclude syntax is very simple,you just need to prepend the field to exclude with the exclude(-) operator when writing your query that's all. Take an example below</p>
 <pre><code class="py">from rest_framework import serializers 
 from django_restql.mixins import DynamicFieldsMixin
@@ -342,7 +340,7 @@ class PropertySerializer(DynamicFieldsMixin, serializer.ModelSerializer):
 </code></pre>
 
 <p>This is equivalent to <code>query={price, location{country, city, state, street}}</code></p>
-<h4 id="more-examples-to-get-you-comfortable-with-the-exclude-operator-syntax">More examples to get you comfortable with the exclude(-) operator syntax<a class="headerlink" href="#more-examples-to-get-you-comfortable-with-the-exclude-operator-syntax" title="Permanent link">&para;</a></h4>
+<h3 id="more-examples-to-get-you-comfortable-with-the-exclude-operator-syntax">More examples to get you comfortable with the exclude(-) operator syntax<a class="headerlink" href="#more-examples-to-get-you-comfortable-with-the-exclude-operator-syntax" title="Permanent link">&para;</a></h3>
 <p>Assuming this is the structure of the model we are querying</p>
 <pre><code class="py">data = {
     username,
@@ -372,7 +370,7 @@ class PropertySerializer(DynamicFieldsMixin, serializer.ModelSerializer):
 {username, location{-city}, contact{-email}}   ≡    {username, location{country}, contact{phone}}
 </code></pre>
 
-<h3 id="wildcard-operator">Wildcard(*) operator<a class="headerlink" href="#wildcard-operator" title="Permanent link">&para;</a></h3>
+<h2 id="wildcard-operator">Wildcard(*) operator<a class="headerlink" href="#wildcard-operator" title="Permanent link">&para;</a></h2>
 <p>In addition to exclude(-) operator, <strong>Django RESTQL</strong> comes with a wildcard(*) operator for including all fields. Just like exclude(-) operator using a wildcard(*) operator is very simple, for example if you want to get all fields from a model you just need to do <code>query={*}</code>. This operator can be used to simplify some filtering which might endup being very long if done with other approaches. For example if you have a model with this format </p>
 <pre><code class="py">user = {
     username,
@@ -391,7 +389,7 @@ class PropertySerializer(DynamicFieldsMixin, serializer.ModelSerializer):
 <p>Let's say you want to get all user fields but under <code>contact</code> field you want to get only <code>phone</code>, you could use the whitelisting approach as </p>
 <p><code>query={username, birthdate, contact{phone}}</code> </p>
 <p>but if you have many fields on user model you might endup writing a very long query, so with <code>*</code> operator you can simply do <code>query={*, contact{phone}}</code> which means get me all fields on user model but under <code>contact</code> field I want only <code>phone</code> field, as you see the query is very short compared to the first one and it won't grow if more fields are added to the user model.</p>
-<h4 id="more-examples-to-get-you-comfortable-with-the-wildcard42-operator-syntax">More examples to get you comfortable with the wildcard(*) operator syntax<a class="headerlink" href="#more-examples-to-get-you-comfortable-with-the-wildcard42-operator-syntax" title="Permanent link">&para;</a></h4>
+<h3 id="more-examples-to-get-you-comfortable-with-the-wildcard42-operator-syntax">More examples to get you comfortable with the wildcard(*) operator syntax<a class="headerlink" href="#more-examples-to-get-you-comfortable-with-the-wildcard42-operator-syntax" title="Permanent link">&para;</a></h3>
 <pre><code class="py">{*, -username, contact{phone}}   ≡   {birthdate, contact{phone}}
 
 {username, contact{*, -facebook, -linkedin}}   ≡   {username, contact{phone, email, twitter, github}}
@@ -409,7 +407,7 @@ class PropertySerializer(DynamicFieldsMixin, serializer.ModelSerializer):
 
 <p><strong>Note:</strong> Any field level should either be whitelisting or blacklisting fields but not both.
 <br/></p>
-<h3 id="dynamicserializermethodfield"><code>DynamicSerializerMethodField</code><a class="headerlink" href="#dynamicserializermethodfield" title="Permanent link">&para;</a></h3>
+<h2 id="dynamicserializermethodfield">DynamicSerializerMethodField<a class="headerlink" href="#dynamicserializermethodfield" title="Permanent link">&para;</a></h2>
 <p><code>DynamicSerializerMethodField</code> is a wraper of the <code>SerializerMethodField</code>, it adds a query argument from a parent serializer to a method bound to a <code>SerializerMethodField</code>, this query argument can be passed to a serializer used within a method to allow further querying. For example in the scenario below we are using <code>DynamicSerializerMethodField</code> because we want to be able to query <code>tomes</code> field.</p>
 <pre><code class="py">from django_restql.mixins import DynamicFieldsMixin
 from django_restql.fields import DynamicSerializerMethodField
@@ -466,7 +464,9 @@ class CourseSerializer(DynamicFieldsMixin, serializers.ModelSerializer):
 </code></pre>
 
 <p><br/></p>
-<h3 id="fields-and-exclude-kwargs"><code>fields</code> and <code>exclude</code> kwargs<a class="headerlink" href="#fields-and-exclude-kwargs" title="Permanent link">&para;</a></h3>
+<h2 id="dynamicfieldsmixin-kwargs">DynamicFieldsMixin kwargs<a class="headerlink" href="#dynamicfieldsmixin-kwargs" title="Permanent link">&para;</a></h2>
+<p><code>DynamicFieldsMixin</code> accepts extra kwargs in addition to those accepted by a serializer, these extra kwargs can be used to do more customizations on a serializer as explained below.</p>
+<h3 id="fields-kwarg">fields kwarg<a class="headerlink" href="#fields-kwarg" title="Permanent link">&para;</a></h3>
 <p>With <strong>Django RESTQL</strong> you can specify fields to be included when instantiating a serializer, this provides a way to refilter fields on nested fields(i.e you can opt to remove some fields on a nested field). Below is an example which shows how you can specify fields to be included on nested resources. </p>
 <pre><code class="py">from rest_framework import serializers
 from django.contrib.auth.models import User
@@ -505,7 +505,8 @@ class CourseSerializer(DynamicFieldsMixin, serializers.ModelSerializer):
 <p>As you see from the response above, the nested resource(book) has only one field(title) as specified on  <code>fields=["title"]</code> kwarg during instantiating BookSerializer, so if you send a request like </p>
 <p><code>GET /course?query={name, code, books{title, author}}</code> </p>
 <p>you will get an error that <code>author</code> field is not found because it was not included on <code>fields=["title"]</code> kwarg.</p>
-<p>You can also specify fields to be excluded when instantiating a serializer by using <code>exclude=[]</code> as shown below </p>
+<h3 id="exclude-kwarg">exclude kwarg<a class="headerlink" href="#exclude-kwarg" title="Permanent link">&para;</a></h3>
+<p>You can also specify fields to be excluded when instantiating a serializer by using <code>exclude</code> kwarg, below is an example which shows how to use <code>exclude</code> kwarg.</p>
 <pre><code class="py">from rest_framework import serializers
 from django_restql.mixins import DynamicFieldsMixin
 
@@ -554,7 +555,7 @@ class CourseSerializer(DynamicFieldsMixin, serializers.ModelSerializer):
 
 <p>So you can see that all fields have appeared as specified on <code>fields = ['id', 'title', 'author']</code> on BookSerializer class.
 <br/></p>
-<h3 id="return_pk-kwarg"><code>return_pk</code> kwarg<a class="headerlink" href="#return_pk-kwarg" title="Permanent link">&para;</a></h3>
+<h3 id="return_pk-kwarg">return_pk kwarg<a class="headerlink" href="#return_pk-kwarg" title="Permanent link">&para;</a></h3>
 <p>With <strong>Django RESTQL</strong> you can specify whether to return nested resource pk or data. Below is an example which shows how we can use <code>return_pk</code> kwarg.</p>
 <pre><code class="py">from rest_framework import serializers
 from django_restql.mixins import DynamicFieldsMixin
@@ -588,7 +589,7 @@ class CourseSerializer(DynamicFieldsMixin, serializers.ModelSerializer):
 
 <p>So you can see that on a nested field <code>books</code> pks have been returned instead of books data as specified on <code>return_pk=True</code> kwarg on <code>BookSerializer</code>.
 <br/></p>
-<h3 id="setting-up-eager-loading">Setting up eager loading<a class="headerlink" href="#setting-up-eager-loading" title="Permanent link">&para;</a></h3>
+<h2 id="setting-up-eager-loading">Setting up eager loading<a class="headerlink" href="#setting-up-eager-loading" title="Permanent link">&para;</a></h2>
 <p>Often times, using <code>prefetch_related</code> or <code>select_related</code> on a view queryset can help speed up the serialization. For example, if you had a many-to-many relation like Books to a Course, it's usually more efficient to call <code>prefetch_related</code> on the books so that serializing a list of courses only triggers one additional query, instead of a number of queries equal to the number of courses.</p>
 <p><code>EagerLoadingMixin</code> gives access to <code>prefetch_related</code> and <code>select_related</code> properties, these two are dictionaries that match serializer field names to respective values that would be passed into <code>prefetch_related</code> or <code>select_related</code>. Take the following serializers as examples.</p>
 <pre><code class="py">class CourseSerializer(DynamicFieldsMixin, serializers.ModelSerializer):
@@ -608,7 +609,7 @@ class StudentSerializer(DynamicFieldsMixin, serializers.ModelSerializer):
 </code></pre>
 
 <p>In a view, these can be used as described earlier in this documentation. However, if prefetching of <code>books</code> always happened, but we did not ask for <code>{program}</code> or <code>program{books}</code>, then we did an additional query for nothing. Conversely, not prefetching can lead to even more queries being triggered. When leveraging the <code>EagerLoadingMixin</code> on a view, the specific fields that warrant a <code>select_related</code> or <code>prefetch_related</code> can be described.</p>
-<h4 id="syntax-for-prefetch_related-and-select_related">Syntax for <code>prefetch_related</code> and <code>select_related</code><a class="headerlink" href="#syntax-for-prefetch_related-and-select_related" title="Permanent link">&para;</a></h4>
+<h3 id="syntax-for-prefetch_related-and-select_related">Syntax for prefetch_related and select_related<a class="headerlink" href="#syntax-for-prefetch_related-and-select_related" title="Permanent link">&para;</a></h3>
 <p>The format of syntax for <code>select_related</code> and  <code>prefetch_related</code> is as follows</p>
 <pre><code class="py">select_related = {&quot;serializer_field_name&quot;: [&quot;field_to_select&quot;]}
 prefetch_related = {&quot;serializer_field_name&quot;: [&quot;field_to_prefetch&quot;]}
@@ -626,7 +627,7 @@ prefetch_related = {&quot;serializer_field_name&quot;: &quot;field_to_prefetch&q
 <li><code>fields_to_prefetch</code> stands for arguments(s) to pass when calling <code>prefetch_related</code> method. This can be a string or <code>Prefetch</code> object.</li>
 <li>If you want to select or prefetch nested field use dot(.) to separate parent and child fields on <code>serializer_field_name</code> eg <code>parent.child</code>.</li>
 </ul>
-<h4 id="example-of-eagerloadingmixin-usage">Example of <code>EagerLoadingMixin</code> usage<a class="headerlink" href="#example-of-eagerloadingmixin-usage" title="Permanent link">&para;</a></h4>
+<h3 id="example-of-eagerloadingmixin-usage">Example of EagerLoadingMixin usage<a class="headerlink" href="#example-of-eagerloadingmixin-usage" title="Permanent link">&para;</a></h3>
 <pre><code class="py">from rest_framework import viewsets
 from django_restql.mixins import EagerLoadingMixin
 from myapp.serializers import StudentSerializer
@@ -650,7 +651,7 @@ class StudentViewSet(EagerLoadingMixin, viewsets.ModelViewSet):
     }
 </code></pre>
 
-<h4 id="example-queries">Example Queries<a class="headerlink" href="#example-queries" title="Permanent link">&para;</a></h4>
+<h3 id="example-queries">Example Queries<a class="headerlink" href="#example-queries" title="Permanent link">&para;</a></h3>
 <ul>
 <li>
 <p><code>{name}</code>:  &nbsp;&nbsp; Neither <code>select_related</code> or <code>prefetch_related</code> will be run since neither field is present on the serializer for this query.</p>
@@ -665,7 +666,7 @@ class StudentViewSet(EagerLoadingMixin, viewsets.ModelViewSet):
 <p><code>{program{books}}</code>: &nbsp;&nbsp; Both will be run here as well, since this explicitly fetches books.</p>
 </li>
 </ul>
-<h4 id="more-example-to-get-you-comfortable-with-select_related-and-prefetch_related-syntax">More example to get you comfortable with <code>select_related</code> and <code>prefetch_related</code> syntax<a class="headerlink" href="#more-example-to-get-you-comfortable-with-select_related-and-prefetch_related-syntax" title="Permanent link">&para;</a></h4>
+<h3 id="more-example-to-get-you-comfortable-with-the-syntax">More example to get you comfortable with the syntax<a class="headerlink" href="#more-example-to-get-you-comfortable-with-the-syntax" title="Permanent link">&para;</a></h3>
 <p>Assuming this is the structure of the model and corresponding field types </p>
 <pre><code class="py">user = {
     username,        # string
@@ -705,12 +706,12 @@ prefetch_related = {
 }
 </code></pre>
 
-<h4 id="known-caveats">Known Caveats<a class="headerlink" href="#known-caveats" title="Permanent link">&para;</a></h4>
+<h3 id="known-caveats">Known Caveats<a class="headerlink" href="#known-caveats" title="Permanent link">&para;</a></h3>
 <p>When prefetching with a <code>to_attr</code>, ensure that there are no collisions. Django does not allow multiple prefetches with the same <code>to_attr</code> on the same queryset.</p>
 <p>When prefetching <em>and</em> calling <code>select_related</code> on a field, Django may error, since the ORM does allow prefetching a selectable field, but not both at the same time.</p>
-<h3 id="settings">Settings<a class="headerlink" href="#settings" title="Permanent link">&para;</a></h3>
+<h2 id="settings">Settings<a class="headerlink" href="#settings" title="Permanent link">&para;</a></h2>
 <p>Configuration for <strong>Django RESTQL</strong> is all namespaced inside a single Django setting named <code>RESTQL</code>.</p>
-<h4 id="query_param_name"><code>QUERY_PARAM_NAME</code><a class="headerlink" href="#query_param_name" title="Permanent link">&para;</a></h4>
+<h3 id="query_param_name-setting">QUERY_PARAM_NAME setting<a class="headerlink" href="#query_param_name-setting" title="Permanent link">&para;</a></h3>
 <p>The default value for this is <code>query</code>. 
 If you don't want to use the name <code>query</code> as your parameter, you can change it with<code>QUERY_PARAM_NAME</code> on settings file e.g </p>
 <pre><code class="py">RESTQL = {
@@ -720,7 +721,7 @@ If you don't want to use the name <code>query</code> as your parameter, you can 
 
 <p>Now you can use the name <code>your_favourite_name</code> as your query parameter. E.g</p>
 <p><code>GET /users/?your_favourite_name={id, username}</code></p>
-<h4 id="auto_apply_eager_loading"><code>AUTO_APPLY_EAGER_LOADING</code><a class="headerlink" href="#auto_apply_eager_loading" title="Permanent link">&para;</a></h4>
+<h3 id="auto_apply_eager_loading-setting">AUTO_APPLY_EAGER_LOADING setting<a class="headerlink" href="#auto_apply_eager_loading-setting" title="Permanent link">&para;</a></h3>
 <p>The default value for this is <code>True</code>.
 When using the <code>EagerLoadingMixin</code>, this setting controls if the mappings for <code>select_related</code> and <code>prefetch_related</code> are applied automatically when calling <code>get_queryset</code>. To turn it off, set the <code>AUTO_APPLY_EAGER_LOADING</code> setting or <code>auto_apply_eager_loading</code> attribute on the view to <code>False</code>. </p>
 <pre><code class="py"># settings.py file
@@ -757,9 +758,9 @@ class StudentViewSet(EagerLoadingMixin, viewsets.ModelViewSet):
         return queryset
 </code></pre>
 
-<h2 id="mutating-data">Mutating Data<a class="headerlink" href="#mutating-data" title="Permanent link">&para;</a></h2>
+<h1 id="mutating-data">Mutating Data<a class="headerlink" href="#mutating-data" title="Permanent link">&para;</a></h1>
 <p><strong>Django RESTQL</strong> got your back on creating and updating nested data too, it has two components for mutating nested data, <code>NestedModelSerializer</code> and <code>NestedField</code>. A serializer <code>NestedModelSerializer</code> has <code>update</code> and <code>create</code> logics for nested fields on the other hand <code>NestedField</code> is used to validate data before calling <code>update</code> or <code>create</code> method.</p>
-<h3 id="using-nestedfield-nestedmodelserializer">Using NestedField &amp; NestedModelSerializer<a class="headerlink" href="#using-nestedfield-nestedmodelserializer" title="Permanent link">&para;</a></h3>
+<h2 id="using-nestedfield-and-nestedmodelserializer">Using NestedField and NestedModelSerializer<a class="headerlink" href="#using-nestedfield-and-nestedmodelserializer" title="Permanent link">&para;</a></h2>
 <p>Just like in querying data, mutating nested data with <strong>Django RESTQL</strong> is very simple, you just have to inherit <code>NestedModelSerializer</code> on a serializer with nested fields and use <code>NestedField</code> to define those nested fields. Below is an example which shows how to use <code>NestedModelSerializer</code> and <code>NestedField</code>.</p>
 <pre><code class="py">from rest_framework import serializers
 from django_restql.serializers import NestedModelSerializer
@@ -872,7 +873,7 @@ class PropertySerializer(NestedModelSerializer):
 </code></pre>
 
 <p><br></p>
-<h3 id="using-nestedfield-with-accept_pk-kwarg">Using NestedField with <code>accept_pk</code> kwarg.<a class="headerlink" href="#using-nestedfield-with-accept_pk-kwarg" title="Permanent link">&para;</a></h3>
+<h2 id="using-nestedfield-with-accept_pk-kwarg">Using NestedField with accept_pk kwarg.<a class="headerlink" href="#using-nestedfield-with-accept_pk-kwarg" title="Permanent link">&para;</a></h2>
 <p><code>accept_pk=True</code> is used if you want to update nested field by using pk/id of existing data(basically associate and dessociate existing nested resources with the parent resource without actually mutating the nested resource). This applies to ForeignKey relation only.</p>
 <pre><code class="py">from rest_framework import serializers 
 from django_restql.fields import NestedField
@@ -921,7 +922,7 @@ class PropertySerializer(NestedModelSerializer):
 </code></pre>
 
 <p><br></p>
-<h3 id="using-nestedfield-with-create_ops-and-update_ops-kwargs">Using NestedField with <code>create_ops</code> and <code>update_ops</code> kwargs.<a class="headerlink" href="#using-nestedfield-with-create_ops-and-update_ops-kwargs" title="Permanent link">&para;</a></h3>
+<h2 id="using-nestedfield-with-create_ops-and-update_ops-kwargs">Using NestedField with create_ops and update_ops kwargs.<a class="headerlink" href="#using-nestedfield-with-create_ops-and-update_ops-kwargs" title="Permanent link">&para;</a></h2>
 <p>You can restrict some operations by using <code>create_ops</code> and <code>update_ops</code> keyword arguments as follows</p>
 <pre><code class="py">from rest_framework import serializers 
 from django_restql.fields import NestedField
@@ -1000,7 +1001,7 @@ class PropertySerializer(NestedModelSerializer):
 </code></pre>
 
 <p><br></p>
-<h3 id="using-dynamicfieldsmixin-and-nestedfield-together">Using <code>DynamicFieldsMixin</code> and <code>NestedField</code> together<a class="headerlink" href="#using-dynamicfieldsmixin-and-nestedfield-together" title="Permanent link">&para;</a></h3>
+<h2 id="using-dynamicfieldsmixin-and-nestedfield-together">Using DynamicFieldsMixin and NestedField together<a class="headerlink" href="#using-dynamicfieldsmixin-and-nestedfield-together" title="Permanent link">&para;</a></h2>
 <p>You can use <code>DynamicFieldsMixin</code> and <code>NestedModelSerializer</code> together if you want your serializer to be writable(on nested fields) and support querying data, this is very common. Below is an example which shows how you can use <code>DynamicFieldsMixin</code> and <code>NestedField</code> together.</p>
 <pre><code class="py">from rest_framework import serializers 
 from django_restql.fields import NestedField
@@ -1075,5 +1076,5 @@ class PropertySerializer(DynamicFieldsMixin, NestedModelSerializer):
 
 <!--
 MkDocs version : 1.0.4
-Build Date UTC : 2019-12-02 20:47:48
+Build Date UTC : 2019-12-05 19:25:40
 -->
