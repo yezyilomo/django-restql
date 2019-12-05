@@ -710,8 +710,8 @@ prefetch_related = {
 <p>When prefetching with a <code>to_attr</code>, ensure that there are no collisions. Django does not allow multiple prefetches with the same <code>to_attr</code> on the same queryset.</p>
 <p>When prefetching <em>and</em> calling <code>select_related</code> on a field, Django may error, since the ORM does allow prefetching a selectable field, but not both at the same time.</p>
 <h2 id="settings">Settings<a class="headerlink" href="#settings" title="Permanent link">&para;</a></h2>
-<p>Configuration for <strong>Django RESTQL</strong> is all namespaced inside a single Django setting named <code>RESTQL</code>.</p>
-<h3 id="query_param_name-setting">QUERY_PARAM_NAME setting<a class="headerlink" href="#query_param_name-setting" title="Permanent link">&para;</a></h3>
+<p>Configuration for <strong>Django RESTQL</strong> is all namespaced inside a single Django setting named <code>RESTQL</code>, below is a list of what you can configure under <code>RESTQL</code> setting.</p>
+<h3 id="query_param_name">QUERY_PARAM_NAME<a class="headerlink" href="#query_param_name" title="Permanent link">&para;</a></h3>
 <p>The default value for this is <code>query</code>. 
 If you don't want to use the name <code>query</code> as your parameter, you can change it with<code>QUERY_PARAM_NAME</code> on settings file e.g </p>
 <pre><code class="py">RESTQL = {
@@ -721,7 +721,7 @@ If you don't want to use the name <code>query</code> as your parameter, you can 
 
 <p>Now you can use the name <code>your_favourite_name</code> as your query parameter. E.g</p>
 <p><code>GET /users/?your_favourite_name={id, username}</code></p>
-<h3 id="auto_apply_eager_loading-setting">AUTO_APPLY_EAGER_LOADING setting<a class="headerlink" href="#auto_apply_eager_loading-setting" title="Permanent link">&para;</a></h3>
+<h3 id="auto_apply_eager_loading">AUTO_APPLY_EAGER_LOADING<a class="headerlink" href="#auto_apply_eager_loading" title="Permanent link">&para;</a></h3>
 <p>The default value for this is <code>True</code>.
 When using the <code>EagerLoadingMixin</code>, this setting controls if the mappings for <code>select_related</code> and <code>prefetch_related</code> are applied automatically when calling <code>get_queryset</code>. To turn it off, set the <code>AUTO_APPLY_EAGER_LOADING</code> setting or <code>auto_apply_eager_loading</code> attribute on the view to <code>False</code>. </p>
 <pre><code class="py"># settings.py file
@@ -1076,5 +1076,5 @@ class PropertySerializer(DynamicFieldsMixin, NestedModelSerializer):
 
 <!--
 MkDocs version : 1.0.4
-Build Date UTC : 2019-12-05 19:37:56
+Build Date UTC : 2019-12-05 19:49:17
 -->
