@@ -1,5 +1,7 @@
 from pypeg2 import name, csl, List, parse, optional, contiguous
 
+from .exceptions import QueryFormatError
+
 
 class IncludedField(List):
     grammar = name()
@@ -28,23 +30,19 @@ class ParentField(List):
         return self[1]
 
 
-# A block which contains included fields(No excluded fields here)
-include_block = csl(
-    [ParentField, IncludedField, optional(AllFields)], 
-    separator=','
-)
-
-# A block which contains excluded fields(No included fields here)
-exclude_block = csl(
-    [ParentField, ExcludedField, optional(AllFields)], 
-    separator=','
-)
+class BlockBody(List):
+    grammar = optional(csl(
+        [ParentField, IncludedField, ExcludedField, AllFields], 
+        separator=','
+    ))
 
 
 class Block(List):
-    # A block with either `include_block` or `exclude_block` 
-    # features but not both
-    grammar = '{', optional(include_block, exclude_block), '}'
+    grammar = '{', BlockBody, '}'
+
+    @property
+    def body(self):
+        return self[0]
 
 
 # ParentField grammar,
@@ -63,14 +61,15 @@ class Parser(object):
         parse_tree = parse(self._query, Block)
         return self._transform_block(parse_tree)
     
-    def _transform_block(self, blocks):
+    def _transform_block(self, block):
         fields = {
             "include": [],
             "exclude": []
         }
-        for block in blocks:
+
+        for item in block.body:
             # A child may be a parent or included field or excluded field
-            child = self._transform_child(block)
+            child = self._transform_child(item)
             if isinstance(child, dict):
                 # A child is a parent
                 fields["include"].append(child)
@@ -82,9 +81,28 @@ class Parser(object):
                 # include all fields
                 fields["include"].append("*")
 
-        if fields["exclude"] and "*" not in fields["include"]:
-            # Make sure we include * if there are excluded fields
-            fields["include"].append("*")
+        if fields["exclude"]:
+            # fields['include'] should contain only nested fields
+
+            # We should add `*`` operator in fields['include']
+            add_include_all_operator = True
+            for field in fields["include"]:
+                if field == "*":
+                    # `*`` operator is alredy in fields['include']
+                    add_include_all_operator = False
+                    continue
+
+                if isinstance(field, str):
+                    # Including and excluding fields on the same field level
+                    msg = (
+                        "Can not include and exclude fields on the same "
+                        "field level"
+                    )
+                    raise QueryFormatError(msg)
+                    
+            if add_include_all_operator:
+                # Make sure we include * operator
+                fields["include"].append("*")
         return fields
     
     def _transform_child(self, child):
