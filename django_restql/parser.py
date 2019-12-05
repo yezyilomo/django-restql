@@ -1,4 +1,4 @@
-from pypeg2 import name, csl, List, parse, optional, contiguous, Enum
+from pypeg2 import name, csl, List, parse, optional, contiguous
 
 from .exceptions import QueryFormatError
 
