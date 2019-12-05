@@ -1,26 +1,50 @@
+import os
+import re
+import sys
+
 from codecs import open
 from setuptools import setup, find_packages
 
-DESCRIPTION = "Turn your API made with Django REST Framework(DRF) into a GraphQL like API."
-with open('README.md', 'r', 'utf-8') as f:
-    readme = f.read()
 
-REQUIRES_PYTHON = '>=3.5'
+# 'setup.py publish' shortcut.
+if sys.argv[-1] == 'publish':
+    os.system('python3 setup.py sdist bdist_wheel')
+    os.system('twine upload dist/*')
+    sys.exit()
+
+def get_readme():
+    readme = ''
+    with open('README.md', 'r', 'utf-8') as f:
+        readme = f.read()
+    return readme
+
+def get_info(info_name):
+    init_py = open(os.path.join('django_restql', '__init__.py')).read()
+    return re.search("%s = ['\"]([^'\"]+)['\"]" % info_name, init_py).group(1)
+
+url = get_info('__url__')
+version = get_info('__version__')
+license_ = get_info('__license__')
+description = get_info('__description__')
+author = get_info('__author__')
+author_email = get_info('__author_email__')
+required_python_version = '>=3.5'
+readme = get_readme()
 
 setup(
     name = 'django-restql',
-    version = '0.7.2',
-    description = DESCRIPTION,
+    version = version,
+    description = description,
     long_description = readme,
     long_description_content_type = 'text/markdown',
-    url = "https://github.com/yezyilomo/django-restql",
-    author = 'Yezy Ilomo',
-    author_email = 'yezileliilomo@hotmail.com',
-    license = 'MIT',
+    url = url,
+    author = author,
+    author_email = author_email,
+    license = license_,
     packages = find_packages(exclude=('tests','test')),
     package_data = {'': ['LICENSE']},
     install_requires = ['pypeg2', 'djangorestframework'],
-    python_requires = REQUIRES_PYTHON,
+    python_requires = required_python_version,
     classifiers = [
         'Development Status :: 5 - Production/Stable',
         'Intended Audience :: Developers',
