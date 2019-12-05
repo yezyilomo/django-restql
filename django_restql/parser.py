@@ -38,8 +38,6 @@ class BlockBody(List):
 
 
 class Block(List):
-    # A block with either `include_block` or `exclude_block` 
-    # features but not both
     grammar = '{', BlockBody, '}'
 
     @property
