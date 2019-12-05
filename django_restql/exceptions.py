@@ -8,3 +8,7 @@ class InvalidOperation(DjangoRESTQLException):
 
 class FieldNotFound(DjangoRESTQLException):
     """Field Not Found Exception."""
+
+
+class QueryFormatError(DjangoRESTQLException):
+    """Invalid Query Format."""
