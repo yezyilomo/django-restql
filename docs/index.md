@@ -1,4 +1,4 @@
-## Introduction
+# Introduction
 **Django RESTQL** is a python library which allows you to turn your API made with **Django REST Framework(DRF)** into a GraphQL like API. With **Django RESTQL**  you will be able to
 
 * Send a query to your API and get exactly what you need, nothing more and nothing less.
@@ -16,19 +16,19 @@
 Isn't it cool?.
 
 
-## Requirements
+# Requirements
 * Python >= 3.5
 * Django >= 1.10
 * Django REST Framework >= 3.5
 
 
-## Installing
+# Installing
 ```py
 pip install django-restql
 ```
 
 
-## Querying Data
+# Querying Data
 Using **Django RESTQL** to query data is very simple, you just have to inherit the `DynamicFieldsMixin` class when defining a serializer that's all.
 ```py
 from rest_framework import serializers
@@ -57,7 +57,7 @@ A regular request returns all fields as specified on a DRF serializer, in fact *
 ]
 ```
 
-### Querying flat fields
+## Querying flat fields
 **Django RESTQL** handle all GET requests with a `query` parameter, this parameter is the one used to pass all fields to be included/excluded in a response. For example to select `id` and `username` fields from User model, send a request with a ` query` parameter as shown below.
 
 `GET /users/?query={id, username}`
@@ -71,7 +71,7 @@ A regular request returns all fields as specified on a DRF serializer, in fact *
 ]
 ```
 
-### Querying nested fields
+## Querying nested fields
 **Django RESTQL** support querying both flat and nested resources, so you can expand or query nested fields at any level as defined on a serializer. In an example below we have `location` and `groups` as nested fields on User model.
 
 ```py
@@ -119,7 +119,7 @@ If you want only `country` and `city` fields on a `location` field when retrievi
 ]
 ```
 
-#### More examples to get you comfortable with the query syntax
+### More examples to get you comfortable with the query syntax
 `GET /users/?query={location, groups}`
 ```js
 [
@@ -155,7 +155,7 @@ If you want only `country` and `city` fields on a `location` field when retrievi
 ]
 ```
 
-### Exclude(-) operator
+## Exclude(-) operator
 When using **Django RESTQL** filtering as-is is great if there are no many fields on a serializer, but sometimes you might have a case where you would like everything except a handful of fields on a larger serializer. These fields might be nested and trying the whitelist approach is difficult or possibly too long for the url. **Django RESTQL** comes with the exclude(-) operator which can be used to exclude some fields in scenarios where you want to get all fields except few. Using exclude syntax is very simple,you just need to prepend the field to exclude with the exclude(-) operator when writing your query that's all. Take an example below
 
 ```py
@@ -214,7 +214,7 @@ You can use exclude operator on nested fields too, for example if you want to ge
 ```
 This is equivalent to `query={price, location{country, city, state, street}}`
 
-#### More examples to get you comfortable with the exclude(-) operator syntax
+### More examples to get you comfortable with the exclude(-) operator syntax
 Assuming this is the structure of the model we are querying
 ```py
 data = {
@@ -246,7 +246,7 @@ Here is how we can structure our query to exclude some fields using exclude(-) o
 {username, location{-city}, contact{-email}}   ≡    {username, location{country}, contact{phone}}
 ```
 
-### Wildcard(*) operator
+## Wildcard(*) operator
 In addition to exclude(-) operator, **Django RESTQL** comes with a wildcard(\*) operator for including all fields. Just like exclude(-) operator using a wildcard(\*) operator is very simple, for example if you want to get all fields from a model you just need to do `query={*}`. This operator can be used to simplify some filtering which might endup being very long if done with other approaches. For example if you have a model with this format 
 
 ```py
@@ -269,7 +269,7 @@ Let's say you want to get all user fields but under `contact` field you want to 
 
 but if you have many fields on user model you might endup writing a very long query, so with `*` operator you can simply do `query={*, contact{phone}}` which means get me all fields on user model but under `contact` field I want only `phone` field, as you see the query is very short compared to the first one and it won't grow if more fields are added to the user model.
 
-#### More examples to get you comfortable with the wildcard(\*) operator syntax
+### More examples to get you comfortable with the wildcard(\*) operator syntax
 ```py
 {*, -username, contact{phone}}   ≡   {birthdate, contact{phone}}
 
@@ -292,7 +292,7 @@ Below is a list of mistakes which leads to syntax error, these mistakes may happ
 <br/>
 
 
-### `DynamicSerializerMethodField`
+## DynamicSerializerMethodField
 `DynamicSerializerMethodField` is a wraper of the `SerializerMethodField`, it adds a query argument from a parent serializer to a method bound to a `SerializerMethodField`, this query argument can be passed to a serializer used within a method to allow further querying. For example in the scenario below we are using `DynamicSerializerMethodField` because we want to be able to query `tomes` field.
 
 ```py
@@ -353,8 +353,10 @@ class CourseSerializer(DynamicFieldsMixin, serializers.ModelSerializer):
 ```
 <br/>
 
+## DynamicFieldsMixin kwargs
+`DynamicFieldsMixin` accepts extra kwargs in addition to those accepted by a serializer, these extra kwargs can be used to do more customizations on a serializer as explained below.
 
-### `fields` and `exclude` kwargs
+### fields kwarg
 With **Django RESTQL** you can specify fields to be included when instantiating a serializer, this provides a way to refilter fields on nested fields(i.e you can opt to remove some fields on a nested field). Below is an example which shows how you can specify fields to be included on nested resources. 
 
 ```py
@@ -399,7 +401,8 @@ As you see from the response above, the nested resource(book) has only one field
 you will get an error that `author` field is not found because it was not included on `fields=["title"]` kwarg.
 
 
-You can also specify fields to be excluded when instantiating a serializer by using `exclude=[]` as shown below 
+### exclude kwarg
+You can also specify fields to be excluded when instantiating a serializer by using `exclude` kwarg, below is an example which shows how to use `exclude` kwarg.
 ```py
 from rest_framework import serializers
 from django_restql.mixins import DynamicFieldsMixin
@@ -453,7 +456,7 @@ So you can see that all fields have appeared as specified on `fields = ['id', 't
 <br/>
 
 
-### `return_pk` kwarg
+### return_pk kwarg
 With **Django RESTQL** you can specify whether to return nested resource pk or data. Below is an example which shows how we can use `return_pk` kwarg.
 
 ```py
@@ -491,7 +494,7 @@ So you can see that on a nested field `books` pks have been returned instead of 
 <br/>
 
 
-### Setting up eager loading
+## Setting up eager loading
 Often times, using `prefetch_related` or `select_related` on a view queryset can help speed up the serialization. For example, if you had a many-to-many relation like Books to a Course, it's usually more efficient to call `prefetch_related` on the books so that serializing a list of courses only triggers one additional query, instead of a number of queries equal to the number of courses.
 
 `EagerLoadingMixin` gives access to `prefetch_related` and `select_related` properties, these two are dictionaries that match serializer field names to respective values that would be passed into `prefetch_related` or `select_related`. Take the following serializers as examples.
@@ -516,7 +519,7 @@ class StudentSerializer(DynamicFieldsMixin, serializers.ModelSerializer):
 In a view, these can be used as described earlier in this documentation. However, if prefetching of `books` always happened, but we did not ask for `{program}` or `program{books}`, then we did an additional query for nothing. Conversely, not prefetching can lead to even more queries being triggered. When leveraging the `EagerLoadingMixin` on a view, the specific fields that warrant a `select_related` or `prefetch_related` can be described.
 
 
-#### Syntax for `prefetch_related` and `select_related`
+### Syntax for prefetch_related and select_related
 The format of syntax for `select_related` and  `prefetch_related` is as follows
 
 ```py
@@ -538,7 +541,7 @@ prefetch_related = {"serializer_field_name": "field_to_prefetch"}
 * If you want to select or prefetch nested field use dot(.) to separate parent and child fields on `serializer_field_name` eg `parent.child`.
 
 
-#### Example of `EagerLoadingMixin` usage
+### Example of EagerLoadingMixin usage
 
 ```py
 from rest_framework import viewsets
@@ -564,7 +567,7 @@ class StudentViewSet(EagerLoadingMixin, viewsets.ModelViewSet):
 	}
 ```
 
-#### Example Queries
+### Example Queries
 
 - `{name}`:  &nbsp;&nbsp; Neither `select_related` or `prefetch_related` will be run since neither field is present on the serializer for this query.
 
@@ -574,7 +577,7 @@ class StudentViewSet(EagerLoadingMixin, viewsets.ModelViewSet):
 
 - `{program{books}}`: &nbsp;&nbsp; Both will be run here as well, since this explicitly fetches books.
 
-#### More example to get you comfortable with `select_related` and `prefetch_related` syntax
+### More example to get you comfortable with the syntax
 Assuming this is the structure of the model and corresponding field types 
 
 ```py
@@ -617,15 +620,15 @@ prefetch_related = {
 }
 ```
 
-#### Known Caveats
+### Known Caveats
 When prefetching with a `to_attr`, ensure that there are no collisions. Django does not allow multiple prefetches with the same `to_attr` on the same queryset.
 
 When prefetching *and* calling `select_related` on a field, Django may error, since the ORM does allow prefetching a selectable field, but not both at the same time.
 
-### Settings
-Configuration for **Django RESTQL** is all namespaced inside a single Django setting named `RESTQL`.
+## Settings
+Configuration for **Django RESTQL** is all namespaced inside a single Django setting named `RESTQL`, below is a list of what you can configure under `RESTQL` setting.
 
-#### `QUERY_PARAM_NAME`
+### QUERY_PARAM_NAME
 The default value for this is `query`. 
 If you don't want to use the name `query` as your parameter, you can change it with`QUERY_PARAM_NAME` on settings file e.g 
 ```py
@@ -637,7 +640,7 @@ Now you can use the name `your_favourite_name` as your query parameter. E.g
  
 `GET /users/?your_favourite_name={id, username}`
 
-#### `AUTO_APPLY_EAGER_LOADING`
+### AUTO_APPLY_EAGER_LOADING
 The default value for this is `True`.
 When using the `EagerLoadingMixin`, this setting controls if the mappings for `select_related` and `prefetch_related` are applied automatically when calling `get_queryset`. To turn it off, set the `AUTO_APPLY_EAGER_LOADING` setting or `auto_apply_eager_loading` attribute on the view to `False`. 
 ```py
@@ -677,11 +680,11 @@ class StudentViewSet(EagerLoadingMixin, viewsets.ModelViewSet):
 ```
 
 
-## Mutating Data
+# Mutating Data
 **Django RESTQL** got your back on creating and updating nested data too, it has two components for mutating nested data, `NestedModelSerializer` and `NestedField`. A serializer `NestedModelSerializer` has `update` and `create` logics for nested fields on the other hand `NestedField` is used to validate data before calling `update` or `create` method.
 
 
-### Using NestedField & NestedModelSerializer
+## Using NestedField and NestedModelSerializer
 Just like in querying data, mutating nested data with **Django RESTQL** is very simple, you just have to inherit `NestedModelSerializer` on a serializer with nested fields and use `NestedField` to define those nested fields. Below is an example which shows how to use `NestedModelSerializer` and `NestedField`.
 ```py
 from rest_framework import serializers
@@ -806,7 +809,7 @@ Response
 <br>
 
 
-### Using NestedField with `accept_pk` kwarg.
+## Using NestedField with accept_pk kwarg.
 `accept_pk=True` is used if you want to update nested field by using pk/id of existing data(basically associate and dessociate existing nested resources with the parent resource without actually mutating the nested resource). This applies to ForeignKey relation only.
 
 ```py
@@ -862,7 +865,7 @@ Response
 <br>
 
 
-### Using NestedField with `create_ops` and `update_ops` kwargs.
+## Using NestedField with create_ops and update_ops kwargs.
 You can restrict some operations by using `create_ops` and `update_ops` keyword arguments as follows
 
 ```py
@@ -952,7 +955,7 @@ Response
 <br>
 
 
-### Using `DynamicFieldsMixin` and `NestedField` together
+## Using DynamicFieldsMixin and NestedField together
 You can use `DynamicFieldsMixin` and `NestedModelSerializer` together if you want your serializer to be writable(on nested fields) and support querying data, this is very common. Below is an example which shows how you can use `DynamicFieldsMixin` and `NestedField` together.
 ```py
 from rest_framework import serializers 
