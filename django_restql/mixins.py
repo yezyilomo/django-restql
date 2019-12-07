@@ -431,20 +431,37 @@ class NestedCreateMixin(object):
         # data format {field: {sub_field: value}}
         objs = {}
         for field, value in data.items():
-            # Get serializer class for nested field
-            SerializerClass = type(self.get_fields()[field])
-            serializer = SerializerClass(data=value, context=self.context)
+            # Get nested field serializer
+            serializer = self.get_fields()[field]
+            serializer_class = type(serializer)
+            kwargs = serializer.validation_kwargs
+            serializer = serializer_class(
+                **kwargs,
+                data=value,
+                context=self.context
+            )
             serializer.is_valid()
-            obj = serializer.save()
-            objs.update({field: obj})
+            if value is None:
+                objs.update({field: None})
+            else:
+                obj = serializer.save()
+                objs.update({field: obj})
         return objs
 
     def bulk_create_objs(self, field, data):
         model = self.get_fields()[field].child.Meta.model
-        SerializerClass = type(self.get_fields()[field].child)
+
+        # Get nested field serializer
+        serializer = self.get_fields()[field].child
+        serializer_class = type(serializer)
+        kwargs = serializer.validation_kwargs
         pks = []
         for values in data:
-            serializer = SerializerClass(data=values, context=self.context)
+            serializer = serializer_class(
+                **kwargs, 
+                data=values, 
+                context=self.context
+            )
             serializer.is_valid()
             obj = serializer.save()
             pks.append(obj.pk)
@@ -579,26 +596,39 @@ class NestedUpdateMixin(object):
         # data format {field: {sub_field: value}}
         objs = {}
         for field, values in data.items():
-            # Get serializer class for nested field
-            SerializerClass = type(self.get_fields()[field])
+            # Get nested field serializer
+            serializer = self.get_fields()[field]
+            serializer_class = type(serializer)
+            kwargs = serializer.validation_kwargs
             nested_obj = getattr(instance, field)
-            serializer = SerializerClass(
-                nested_obj, 
+            serializer = serializer_class(
+                nested_obj,
+                **kwargs,
                 data=values, 
                 context=self.context,
                 partial=self.partial
             )
             serializer.is_valid()
-            serializer.save()
-            objs.update({field: nested_obj})
+            if values is None:
+                setattr(instance, field, None)
+                objs.update({field: None})
+            else:
+                obj = serializer.save()
+                objs.update({field: nested_obj})
         return objs
 
     def bulk_create_many_to_many_related(self, field, nested_obj, data):
-        # Get serializer class for nested field
-        SerializerClass = type(self.get_fields()[field].child)
+        # Get nested field serializer
+        serializer = self.get_fields()[field].child
+        serializer_class = type(serializer)
+        kwargs = serializer.validation_kwargs
         pks = []
         for values in data:
-            serializer = SerializerClass(data=values, context=self.context)
+            serializer = serializer_class(
+                **kwargs, 
+                data=values, 
+                context=self.context
+            )
             serializer.is_valid()
             obj = serializer.save()
             pks.append(obj.pk)
@@ -606,11 +636,17 @@ class NestedUpdateMixin(object):
         return pks
 
     def bulk_create_many_to_one_related(self, field, nested_obj, data):
-        # Get serializer class for nested field
-        SerializerClass = type(self.get_fields()[field].child)
+        # Get nested field serializer
+        serializer = self.get_fields()[field].child
+        serializer_class = type(serializer)
+        kwargs = serializer.validation_kwargs
         pks = []
         for values in data:
-            serializer = SerializerClass(data=values, context=self.context)
+            serializer = serializer_class(
+                **kwargs, 
+                data=values, 
+                context=self.context
+            )
             serializer.is_valid()
             obj = serializer.save()
             pks.append(obj.pk)
@@ -620,14 +656,17 @@ class NestedUpdateMixin(object):
         # {pk: {sub_field: values}}
         objs = []
 
-        # Get serializer class for nested field
-        SerializerClass = type(self.get_fields()[field].child)
+        # Get nested field serializer
+        serializer = self.get_fields()[field].child
+        serializer_class = type(serializer)
+        kwargs = serializer.validation_kwargs
         for pk, values in data.items():
             obj = nested_obj.get(pk=pk)
-            serializer = SerializerClass(
-                obj, 
-                data=values, 
-                context=self.context, 
+            serializer = serializer_class(
+                obj,
+                **kwargs,
+                data=values,
+                context=self.context,
                 partial=self.partial
             )
             serializer.is_valid()
@@ -639,18 +678,21 @@ class NestedUpdateMixin(object):
         # {pk: {sub_field: values}}
         objs = []
 
-        # Get serializer class for nested field
-        SerializerClass = type(self.get_fields()[field].child)
+        # Get nested field serializer
+        serializer = self.get_fields()[field].child
+        serializer_class = type(serializer)
+        kwargs = serializer.validation_kwargs
         model = self.Meta.model
         foreignkey = getattr(model, field).field.name
         nested_obj = getattr(instance, field)
         for pk, values in data.items():
             obj = nested_obj.get(pk=pk)
             values.update({foreignkey: instance.pk})
-            serializer = SerializerClass(
-                obj, 
-                data=values, 
-                context=self.context, 
+            serializer = serializer_class(
+                obj,
+                **kwargs,
+                data=values,
+                context=self.context,
                 partial=self.partial
             )
             serializer.is_valid()
