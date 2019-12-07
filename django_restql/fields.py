@@ -1,5 +1,6 @@
 import copy
 
+from rest_framework.fields import empty
 from rest_framework.serializers import (
     Serializer, ListSerializer, SerializerMethodField,
     ValidationError, PrimaryKeyRelatedField
@@ -45,7 +46,7 @@ def BaseNestedFieldSerializerFactory(
         serializer_class=None,
         **kwargs):
     BaseClass = _ReplaceableField if accept_pk else _WritableField
-    
+
     if not set(create_ops).issubset(set(CREATE_SUPPORTED_OPERATIONS)):
         msg = (
             "Invalid create operation, Supported operations are " +
@@ -61,12 +62,6 @@ def BaseNestedFieldSerializerFactory(
         raise InvalidOperation(msg)
 
     class BaseNestedFieldListSerializer(ListSerializer, BaseClass):
-        @property
-        def is_partial(self):
-            request = self.context.get('request')
-            partial = True if request.method == "PATCH" else False
-            return partial
-
         def validate_pk_list(self, pks):
             queryset = self.child.Meta.model.objects.all()
             validator = PrimaryKeyRelatedField(
@@ -88,9 +83,9 @@ def BaseNestedFieldSerializerFactory(
                 original_fields = copy.copy(serializer_class.Meta.fields)
                 serializer_class.Meta.fields = list(fields)
                 parent_serializer = serializer_class(
+                    **self.child.validation_kwargs,
                     data=data, 
                     many=True, 
-                    partial=partial,
                     context=self.context
                 )
                 parent_serializer.is_valid(raise_exception=True)
@@ -98,9 +93,9 @@ def BaseNestedFieldSerializerFactory(
             else:
                 # ManyToMany Relation
                 parent_serializer = serializer_class(
+                    **self.child.validation_kwargs,
                     data=data, 
                     many=True, 
-                    partial=partial,
                     context=self.context
                 )
                 parent_serializer.is_valid(raise_exception=True)
@@ -120,7 +115,7 @@ def BaseNestedFieldSerializerFactory(
             if isinstance(data, dict):
                 self.validate_pk_list(data.keys())
                 values = list(data.values())
-                self.validate_data_list(values, partial=self.is_partial)
+                self.validate_data_list(values, self.partial)
             else:
                 raise ValidationError(
                     "Expected data of form {'pk': 'data'..}"
@@ -189,9 +184,9 @@ def BaseNestedFieldSerializerFactory(
                 return self.data_for_create(data)
 
             parent_serializer = serializer_class(
+                **self.child.validation_kwargs,
                 data=data, 
                 many=True, 
-                partial=self.is_partial,
                 context=self.context
             )
             parent_serializer.is_valid(raise_exception=True)
@@ -204,14 +199,9 @@ def BaseNestedFieldSerializerFactory(
             )
 
     class BaseNestedFieldSerializer(serializer_class, BaseClass):
+
         class Meta(serializer_class.Meta):
             list_serializer_class = BaseNestedFieldListSerializer
-
-        @property
-        def is_partial(self):
-            request = self.context.get('request')
-            partial = True if request.method == "PATCH" else False
-            return partial
 
         def run_validation(self, data):
             # Run `to_internal_value` only nothing more
@@ -223,6 +213,7 @@ def BaseNestedFieldSerializerFactory(
         def validate_pk_based_nested(self, data):
             queryset = self.Meta.model.objects.all()
             validator = PrimaryKeyRelatedField(
+                **self.validation_kwargs,
                 queryset=queryset,
                 many=False
             )
@@ -231,14 +222,31 @@ def BaseNestedFieldSerializerFactory(
 
         def validate_data_based_nested(self, data):
             parent_serializer = serializer_class(
+                **self.validation_kwargs,
                 data=data, 
-                partial=self.is_partial,
                 context=self.context
             )
             parent_serializer.is_valid(raise_exception=True)
             return parent_serializer.validated_data
 
         def to_internal_value(self, data):
+            required = kwargs.get('required', True)
+            default = kwargs.get('default', empty)
+
+            # Task: Handle read_only kwarg too
+
+            if data == empty and required and default == empty:
+                raise ValidationError(
+                    "This field is required.",
+                    code='required'
+                )
+            elif data == empty and required:
+                data = default
+            elif data == empty and default == empty:
+                data = ""
+                
+            if data == "":
+                data = None
             if accept_pk:
                 return self.validate_pk_based_nested(data)
             return self.validate_data_based_nested(data)
@@ -249,7 +257,9 @@ def BaseNestedFieldSerializerFactory(
                 (serializer_class.__name__, )
             )
 
-    kwargs.update({"read_only": False, "write_only": False})
+    read_only = kwargs.get('read_only', False)
+    write_only = kwargs.get('write_only', False)
+    kwargs.update({"read_only": read_only, "write_only": write_only})
     return {
         "serializer_class": BaseNestedFieldSerializer,
         "list_serializer_class": BaseNestedFieldListSerializer,
@@ -262,14 +272,24 @@ def NestedFieldWraper(*args, **kwargs):
     factory = BaseNestedFieldSerializerFactory(*args, **kwargs)
     serializer_class = kwargs["serializer_class"]
 
+    serializer_validation_kwargs = {**factory['kwargs']}
+    # Remove non validation related kwargs from `valdation_kwargs`
+    non_validation_kwargs = ['many', 'data', 'instance', 'context']
+    for kwarg in non_validation_kwargs:
+        if kwarg in serializer_validation_kwargs:
+            serializer_validation_kwargs.pop(kwarg)
+
     class NestedListSerializer(factory["list_serializer_class"]):
         def __repr__(self):
             return (
                 "NestedField(%s, many=False)" % 
                 (serializer_class.__name__, )
             )
-
+            
     class NestedSerializer(factory["serializer_class"]):
+        # set validation related kwargs to be used on 
+        # `NestedCreateMixin` and `NestedUpdateMixin`
+        validation_kwargs = serializer_validation_kwargs
         class Meta(factory["serializer_class"].Meta):
             list_serializer_class = NestedListSerializer
 
@@ -287,8 +307,7 @@ def NestedFieldWraper(*args, **kwargs):
 
 def NestedField(serializer_class, *args, **kwargs):
     return NestedFieldWraper(
-        *args, 
-        serializer_class=serializer_class, 
-        **kwargs
+        *args,
+        **kwargs,
+        serializer_class=serializer_class
     )
-

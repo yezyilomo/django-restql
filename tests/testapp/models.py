@@ -15,7 +15,7 @@ class Course(models.Model):
 class Student(models.Model):
     name = models.CharField(max_length=50)
     age = models.IntegerField()
-    course = models.ForeignKey(Course, on_delete=models.CASCADE, related_name="students")
+    course = models.ForeignKey(Course, blank=True, null=True, on_delete=models.CASCADE, related_name="students")
 
 
 class Phone(models.Model):

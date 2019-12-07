@@ -1066,7 +1066,44 @@ class DataMutationTests(APITestCase):
                 'phone_numbers': []
             }
         )
+
+    def test_post_on_pk_nested_nullable_foreignkey_related_field(self):
+        url = reverse_lazy("rstudent-list")
+        data = {
+            "name": "yezy",
+            "age": 33
+        }
+        response = self.client.post(url, data, format="json")
         
+        self.assertEqual(
+            response.data,
+            {
+                'name': 'yezy', 
+                'age': 33, 
+                'course': None, 
+                'phone_numbers': []
+            }
+        )
+
+    def test_post_on_pk_nested_nullable_foreignkey_related_field_with_empty_string(self):
+        url = reverse_lazy("rstudent-list")
+        data = {
+            "name": "yezy",
+            "age": 33,
+            "course": ""
+        }
+        response = self.client.post(url, data, format="json")
+        
+        self.assertEqual(
+            response.data,
+            {
+                'name': 'yezy', 
+                'age': 33, 
+                'course': None, 
+                'phone_numbers': []
+            }
+        )
+
     def test_post_on_writable_nested_foreignkey_related_field(self):
         url = reverse_lazy("wstudent-list")
         data = {
@@ -1086,6 +1123,25 @@ class DataMutationTests(APITestCase):
                     'code': 'CS50', 
                     'books': []
                 }, 
+                'phone_numbers': []
+            }
+        )
+
+    def test_post_on_writable_nested_nullable_foreignkey_related_field(self):
+        url = reverse_lazy("wstudent-list")
+        data = {
+            "name": "yezy",
+            "age": 33,
+            "course": ""
+        }
+        response = self.client.post(url, data, format="json")
+
+        self.assertEqual(
+            response.data,
+            {
+                'name': 'yezy',
+                'age': 33,
+                'course': None,
                 'phone_numbers': []
             }
         )
@@ -1224,6 +1280,27 @@ class DataMutationTests(APITestCase):
             }
         )
 
+    def test_put_on_pk_nested_nullable_foreignkey_related_field(self):
+        url = reverse_lazy("rstudent-detail", args=[self.student.id])
+        data = {
+            "name": "yezy",
+            "age": 33
+        }
+        response = self.client.put(url, data, format="json")
+
+        self.assertEqual(
+            response.data,
+            {
+                'name': 'yezy', 'age': 33,
+                'course': None,
+                'phone_numbers': [
+                    {'number': '076711110', 'type': 'Office', 'student': 1}, 
+                    {'number': '073008880', 'type': 'Home', 'student': 1} 
+                ]
+            }
+        )
+
+
     def test_put_on_writable_nested_foreignkey_related_field(self):
         url = reverse_lazy("wstudent-detail", args=[self.student.id])
         data = {
@@ -1248,6 +1325,47 @@ class DataMutationTests(APITestCase):
                     {'number': '076711110', 'type': 'Office', 'student': 1}, 
                     {'number': '073008880', 'type': 'Home', 'student': 1}
                     
+                ]
+            }
+        )
+
+    def test_put_on_writable_nested_nullable_foreignkey_related_field(self):
+        url = reverse_lazy("wstudent-detail", args=[self.student.id])
+        data = {
+            "name": "yezy",
+            "age": 33
+        }
+        response = self.client.put(url, data, format="json")
+
+        self.assertEqual(
+            response.data,
+            {
+                'name': 'yezy', 'age': 33, 
+                'course': None,
+                'phone_numbers': [
+                    {'number': '076711110', 'type': 'Office', 'student': 1}, 
+                    {'number': '073008880', 'type': 'Home', 'student': 1}
+                ]
+            }
+        )
+
+    def test_put_on_writable_nested_nullable_foreignkey_related_field_with_empty_string(self):
+        url = reverse_lazy("wstudent-detail", args=[self.student.id])
+        data = {
+            "name": "yezy",
+            "age": 33,
+            "course": ''
+        }
+        response = self.client.put(url, data, format="json")
+
+        self.assertEqual(
+            response.data,
+            {
+                'name': 'yezy', 'age': 33, 
+                'course': None,
+                'phone_numbers': [
+                    {'number': '076711110', 'type': 'Office', 'student': 1}, 
+                    {'number': '073008880', 'type': 'Home', 'student': 1}
                 ]
             }
         )

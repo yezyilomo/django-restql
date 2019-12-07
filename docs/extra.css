@@ -1,11 +1,7 @@
 h1, h2, h3, h4, h5, h6 {
-    color: #159957;
+    color: black;
     font-family: sans-serif;
     font-weight: 400;
-}
-
-a {
-    color: #159957;
 }
 
 body {
@@ -64,7 +60,7 @@ code {
     border-radius: 50%;
     padding: 9px 12px;
     background-color: #343131;
-    box-shadow: 1px 1px 20px #343131;
+    box-shadow: 0, 0 10px #343131;
 }
 
 .wy-nav-top, .wy-nav-side, .wy-side-nav-search, .rst-versions, .rst-versions .rst-current-version {
@@ -94,7 +90,7 @@ code {
     border-color: white;
     border-radius: 5px;
     padding: 9px 0 9px 8px;
-    background-color: rgba(250, 250, 250, 0.3);
+    background-color: rgba(250, 250, 250, 0.8);
     box-shadow: 0 0 0 #343131;
     transition: background-color .3s;
 }
