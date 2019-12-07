@@ -477,6 +477,8 @@ class NestedCreateMixin(object):
         field_pks = {}
         for field, values in data.items():
             model = self.Meta.model
+            # FIXME: raises AttributeError if the field 
+            # is aliased on a serializer
             foreignkey = getattr(model, field).field.name
             for operation in values:
                 if operation == ADD:
@@ -499,14 +501,15 @@ class NestedCreateMixin(object):
         # }}
         field_pks = {}
         for field, values in data.items():
+            # FIXME: raises AttributeError if the field 
+            # is aliased on a serializer
+            obj = getattr(instance, field)
             for operation in values:
                 if operation == ADD:
-                    obj = getattr(instance, field)
                     pks = values[operation]
                     obj.set(pks)
                     field_pks.update({field: pks})
                 elif operation == CREATE:
-                    obj = getattr(instance, field)
                     pks = self.bulk_create_objs(field, values[operation])
                     obj.set(pks)
                     field_pks.update({field: pks})
@@ -543,6 +546,8 @@ class NestedCreateMixin(object):
                     isinstance(field_serializer, _ReplaceableField))):
 
                 model = self.Meta.model
+                # FIXME: raises AttributeError if the field 
+                # is aliased on a serializer
                 rel = getattr(model, field).rel
     
                 if isinstance(rel, ManyToOneRel):
@@ -587,6 +592,8 @@ class NestedUpdateMixin(object):
         # data format {field: obj}
         objs = {}
         for field, nested_obj in data.items():
+            # FIXME: sets a different field/property if the field
+            # is aliased on a serializer
             setattr(instance, field, nested_obj)
             instance.save()
             objs.update({field: instance})
@@ -600,6 +607,8 @@ class NestedUpdateMixin(object):
             serializer = self.get_fields()[field]
             serializer_class = type(serializer)
             kwargs = serializer.validation_kwargs
+            # FIXME: raises AttributeError if the field 
+            # is aliased on a serializer
             nested_obj = getattr(instance, field)
             serializer = serializer_class(
                 nested_obj,
@@ -610,6 +619,8 @@ class NestedUpdateMixin(object):
             )
             serializer.is_valid()
             if values is None:
+                # FIXME: sets a different field/property if the field
+                # is aliased on a serializer
                 setattr(instance, field, None)
                 objs.update({field: None})
             else:
@@ -683,6 +694,8 @@ class NestedUpdateMixin(object):
         serializer_class = type(serializer)
         kwargs = serializer.validation_kwargs
         model = self.Meta.model
+        # FIXME: raises AttributeError if the field 
+        # is aliased on a serializer
         foreignkey = getattr(model, field).field.name
         nested_obj = getattr(instance, field)
         for pk, values in data.items():
@@ -710,6 +723,8 @@ class NestedUpdateMixin(object):
         # UPDATE: {pk: {sub_field: value}} 
         # }}}
         for field, values in data.items():
+            # FIXME: raises AttributeError if the field 
+            # is aliased on a serializer
             nested_obj = getattr(instance, field)
             model = self.Meta.model
             foreignkey = getattr(model, field).field.name
@@ -751,6 +766,8 @@ class NestedUpdateMixin(object):
         # UPDATE: {pk: {sub_field: value}} 
         # }}
         for field, values in data.items():
+            # FIXME: raises AttributeError if the field 
+            # is aliased on a serializer
             nested_obj = getattr(instance, field)
             for operation in values:
                 if operation == ADD:
@@ -816,6 +833,8 @@ class NestedUpdateMixin(object):
                     (isinstance(field_serializer, _WritableField) or 
                     isinstance(field_serializer, _ReplaceableField))):
                 model = self.Meta.model
+                # FIXME: raises AttributeError if the field 
+                # is aliased on a serializer
                 rel = getattr(model, field).rel
     
                 if isinstance(rel, ManyToOneRel):

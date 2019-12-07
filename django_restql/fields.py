@@ -117,12 +117,14 @@ def BaseNestedFieldSerializerFactory(
                 values = list(data.values())
                 self.validate_data_list(values, self.partial)
             else:
+                # TODO: Improve error message(add error code)
                 raise ValidationError(
                     "Expected data of form {'pk': 'data'..}"
                 )
 
         @staticmethod
         def create_data_is_valid(data):
+            # TODO: Use DictField and ListField to do validation
             if (isinstance(data, dict) and 
                     set(data.keys()).issubset(create_ops)):
                 return True
@@ -141,6 +143,7 @@ def BaseNestedFieldSerializerFactory(
             else:
                 wrap_quotes = lambda op: "'" + op + "'"
                 op_list =list(map(wrap_quotes, create_ops))
+                # TODO: Improve error message(add error code)
                 msg = (
                     "Expected data of form " +
                     "{" + ": [..], ".join(op_list) + ": [..]}"
@@ -149,6 +152,7 @@ def BaseNestedFieldSerializerFactory(
 
         @staticmethod
         def update_data_is_valid(data):
+            # TODO: Use DictField and ListField to do validation
             if (isinstance(data, dict) and 
                     set(data.keys()).issubset(update_ops)):
                 return True
@@ -169,6 +173,7 @@ def BaseNestedFieldSerializerFactory(
             else:
                 wrap_quotes = lambda op: "'" + op + "'"
                 op_list = list(map(wrap_quotes, update_ops))
+                # TODO: Improve error message(add error code)
                 msg = (
                     "Expected data of form " +
                     "{" + ": [..], ".join(op_list) + ": [..]}"
@@ -233,7 +238,7 @@ def BaseNestedFieldSerializerFactory(
             required = kwargs.get('required', True)
             default = kwargs.get('default', empty)
 
-            # Task: Handle read_only kwarg too
+            # TODO: Handle read_only kwarg too
 
             if data == empty and required and default == empty:
                 raise ValidationError(
@@ -257,6 +262,10 @@ def BaseNestedFieldSerializerFactory(
                 (serializer_class.__name__, )
             )
 
+    # TODO: get `partial` kwarg if it's not passed
+    # inherit the one used by the parent serializer
+    # it's needed in nested fields validation
+
     read_only = kwargs.get('read_only', False)
     write_only = kwargs.get('write_only', False)
     kwargs.update({"read_only": read_only, "write_only": write_only})
@@ -273,6 +282,8 @@ def NestedFieldWraper(*args, **kwargs):
     serializer_class = kwargs["serializer_class"]
 
     serializer_validation_kwargs = {**factory['kwargs']}
+    # TODO: Find all non validation kwargs to remove(below are just few)
+
     # Remove non validation related kwargs from `valdation_kwargs`
     non_validation_kwargs = ['many', 'data', 'instance', 'context']
     for kwarg in non_validation_kwargs:
