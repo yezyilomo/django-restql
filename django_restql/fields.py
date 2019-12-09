@@ -181,6 +181,12 @@ def BaseNestedFieldSerializerFactory(
                 raise ValidationError(msg)
 
         def to_internal_value(self, data):
+            source = kwargs.get('source', None)
+            if source is not None and self.parent is not None:
+                alias = self.field_name
+                self.parent._aliased_nested_fields.update({source: self})
+                self.parent._unaliased_fields.pop(alias)
+            required = kwargs.get('required', True)
             request = self.context.get('request')
             if request.method in ["PUT", "PATCH"]:
                 return self.data_for_update(data)
@@ -235,6 +241,11 @@ def BaseNestedFieldSerializerFactory(
             return parent_serializer.validated_data
 
         def to_internal_value(self, data):
+            source = kwargs.get('source', None)
+            if source is not None and self.parent is not None:
+                alias = self.field_name
+                self.parent._aliased_nested_fields.update({source: self})
+                self.parent._unaliased_fields.pop(alias)
             required = kwargs.get('required', True)
             default = kwargs.get('default', empty)
 
