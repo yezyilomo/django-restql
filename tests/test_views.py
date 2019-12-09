@@ -1067,6 +1067,31 @@ class DataMutationTests(APITestCase):
             }
         )
 
+    def test_post_on_pk_nested_foreignkey_related_field_with_alias(self):
+        url = reverse_lazy("rstudent_with_alias-list")
+        data = {
+            "name": "yezy",
+            "age": 33,
+            "program": 2
+        }
+        response = self.client.post(url, data, format="json")
+        
+        self.assertEqual(
+            response.data,
+            {
+                'name': 'yezy', 
+                'age': 33, 
+                'program': {
+                    'name': 'Programming', 
+                    'code': 'CS150', 
+                    'books': [
+                        {"title": "Advanced Data Structures", "author": "S.Mobit"}
+                    ]
+                },
+                'contacts': []
+            }
+        )
+
     def test_post_on_pk_nested_nullable_foreignkey_related_field(self):
         url = reverse_lazy("rstudent-list")
         data = {
@@ -1124,6 +1149,32 @@ class DataMutationTests(APITestCase):
                     'books': []
                 }, 
                 'phone_numbers': []
+            }
+        )
+
+    def test_post_on_writable_nested_foreignkey_related_field_with_aliased_fields(self):
+        url = reverse_lazy("wstudent_with_alias-list")
+        data = {
+            "name": "yezy",
+            "age": 27,
+            "program": {"name": "Programming", "code": "CS50"},
+            "contacts": { 'add': [1]}
+        }
+        response = self.client.post(url, data, format="json")
+
+        self.assertEqual(
+            response.data,
+            {
+                'name': 'yezy', 
+                'age': 27, 
+                'program': {
+                    'name': 'Programming', 
+                    'code': 'CS50', 
+                    'books': []
+                }, 
+                'contacts': [
+                    {'number': '076711110', 'type': 'Office', 'student': 2}
+                ]
             }
         )
 
@@ -1280,6 +1331,32 @@ class DataMutationTests(APITestCase):
             }
         )
 
+    def test_put_on_pk_nested_foreignkey_related_field_with_alias(self):
+        url = reverse_lazy("rstudent_with_alias-detail", args=[self.student.id])
+        data = {
+            "name": "yezy",
+            "age": 33,
+            "program": 2
+        }
+        response = self.client.put(url, data, format="json")
+
+        self.assertEqual(
+            response.data,
+            {
+                'name': 'yezy', 'age': 33, 
+                'program': {
+                    'name': 'Programming', 'code': 'CS150', 
+                    'books': [
+                        {"title": "Advanced Data Structures", "author": "S.Mobit"}
+                    ]
+                }, 
+                'contacts': [
+                    {'number': '076711110', 'type': 'Office', 'student': 1}, 
+                    {'number': '073008880', 'type': 'Home', 'student': 1} 
+                ]
+            }
+        )
+
     def test_put_on_pk_nested_nullable_foreignkey_related_field(self):
         url = reverse_lazy("rstudent-detail", args=[self.student.id])
         data = {
@@ -1325,6 +1402,36 @@ class DataMutationTests(APITestCase):
                     {'number': '076711110', 'type': 'Office', 'student': 1}, 
                     {'number': '073008880', 'type': 'Home', 'student': 1}
                     
+                ]
+            }
+        )
+
+    def test_put_on_writable_nested_foreignkey_related_field_with_aliased_fields(self):
+        url = reverse_lazy("wstudent_with_alias-detail", args=[self.student.id])
+        data = {
+            "name": "yezy",
+            "age": 27,
+            "program": {"name": "Programming & Data Analysis", "code": "CS55"},
+            "contacts": {}
+        }
+        response = self.client.put(url, data, format="json")
+
+        self.assertEqual(
+            response.data,
+            {
+                'name': 'yezy', 
+                'age': 27, 
+                'program': {
+                    'name': 'Programming & Data Analysis', 
+                    'code': 'CS55', 
+                    'books': [
+                        {'title': 'Advanced Data Structures', 'author': 'S.Mobit'},
+                        {'title': 'Basic Data Structures', 'author': 'S.Mobit'}
+                    ]
+                }, 
+                'contacts': [
+                    {'number': '076711110', 'type': 'Office', 'student': 1}, 
+                    {'number': '073008880', 'type': 'Home', 'student': 1},
                 ]
             }
         )

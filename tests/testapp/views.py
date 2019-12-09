@@ -8,7 +8,8 @@ from tests.testapp.serializers import (
 	CourseWithReturnPkkwargSerializer, ReplaceableStudentSerializer,
 	WritableStudentSerializer, WritableCourseSerializer,
 	ReplaceableCourseSerializer, CourseWithAliasedBooksSerializer,
-	CourseWithDynamicSerializerMethodField, StudentWithAliasSerializer
+	CourseWithDynamicSerializerMethodField, StudentWithAliasSerializer,
+	WritableStudentWithAliasSerializer, ReplaceableStudentWithAliasSerializer
 )
 from django_restql.mixins import EagerLoadingMixin
 
@@ -107,6 +108,16 @@ class ReplaceableStudentViewSet(viewsets.ModelViewSet):
 	queryset = Student.objects.all()
 
 
+class ReplaceableStudentWithAliasViewSet(viewsets.ModelViewSet):
+	serializer_class = ReplaceableStudentWithAliasSerializer
+	queryset = Student.objects.all()
+
+
 class WritableStudentViewSet(viewsets.ModelViewSet):
 	serializer_class = WritableStudentSerializer
+	queryset = Student.objects.all()
+
+
+class WritableStudentWithAliasViewSet(viewsets.ModelViewSet):
+	serializer_class = WritableStudentWithAliasSerializer
 	queryset = Student.objects.all()
