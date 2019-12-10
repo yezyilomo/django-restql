@@ -1,4 +1,5 @@
 import copy
+import collections
 
 from rest_framework.serializers import (
     Serializer, ListSerializer,
@@ -425,14 +426,31 @@ class EagerLoadingMixin(RequestQueryParserMixin):
             return queryset
 
 
-class NestedCreateMixin(object):
+class BaseNestedMixin(object):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self._unaliased_fields = self.get_fields()
+        self._aliased_nested_fields = {}
+
+    def _get_all_fields(self):
+        return collections.ChainMap(
+            self._unaliased_fields,
+            self._aliased_nested_fields
+        )
+
+    def to_internal_value(self, data):
+        return super().to_internal_value(data)
+
+
+class NestedCreateMixin(BaseNestedMixin):
     """ Create Mixin """
     def create_writable_foreignkey_related(self, data):
         # data format {field: {sub_field: value}}
         objs = {}
+        all_fields = self._get_all_fields()
         for field, value in data.items():
             # Get nested field serializer
-            serializer = self.get_fields()[field]
+            serializer = all_fields[field]
             serializer_class = type(serializer)
             kwargs = serializer.validation_kwargs
             serializer = serializer_class(
@@ -449,10 +467,11 @@ class NestedCreateMixin(object):
         return objs
 
     def bulk_create_objs(self, field, data):
-        model = self.get_fields()[field].child.Meta.model
+        all_fields = self._get_all_fields()
+        model = all_fields[field].child.Meta.model
 
         # Get nested field serializer
-        serializer = self.get_fields()[field].child
+        serializer = all_fields[field].child
         serializer_class = type(serializer)
         kwargs = serializer.validation_kwargs
         pks = []
@@ -477,13 +496,12 @@ class NestedCreateMixin(object):
         field_pks = {}
         for field, values in data.items():
             model = self.Meta.model
-            # FIXME: raises AttributeError if the field 
-            # is aliased on a serializer
             foreignkey = getattr(model, field).field.name
+            all_fields = self._get_all_fields()
             for operation in values:
                 if operation == ADD:
                     pks = values[operation]
-                    model = self.get_fields()[field].child.Meta.model
+                    model = all_fields[field].child.Meta.model
                     qs = model.objects.filter(pk__in=pks)
                     qs.update(**{foreignkey: instance.pk})
                     field_pks.update({field: pks})
@@ -501,8 +519,6 @@ class NestedCreateMixin(object):
         # }}
         field_pks = {}
         for field, values in data.items():
-            # FIXME: raises AttributeError if the field 
-            # is aliased on a serializer
             obj = getattr(instance, field)
             for operation in values:
                 if operation == ADD:
@@ -530,8 +546,9 @@ class NestedCreateMixin(object):
         # Make a partal copy of validated_data so that we can
         # iterate and alter it
         data = copy.copy(validated_data)
+        all_fields = self._get_all_fields()
         for field in data:
-            field_serializer = self.get_fields()[field]
+            field_serializer = all_fields[field]
             if isinstance(field_serializer, Serializer):
                 if isinstance(field_serializer, _ReplaceableField):
                     value = validated_data.pop(field)
@@ -546,8 +563,6 @@ class NestedCreateMixin(object):
                     isinstance(field_serializer, _ReplaceableField))):
 
                 model = self.Meta.model
-                # FIXME: raises AttributeError if the field 
-                # is aliased on a serializer
                 rel = getattr(model, field).rel
     
                 if isinstance(rel, ManyToOneRel):
@@ -581,7 +596,7 @@ class NestedCreateMixin(object):
         return instance
 
 
-class NestedUpdateMixin(object):
+class NestedUpdateMixin(BaseNestedMixin):
     """ Update Mixin """
     @staticmethod
     def constrain_error_prefix(field):
@@ -592,8 +607,6 @@ class NestedUpdateMixin(object):
         # data format {field: obj}
         objs = {}
         for field, nested_obj in data.items():
-            # FIXME: sets a different field/property if the field
-            # is aliased on a serializer
             setattr(instance, field, nested_obj)
             instance.save()
             objs.update({field: instance})
@@ -602,13 +615,12 @@ class NestedUpdateMixin(object):
     def update_writable_foreignkey_related(self, instance, data):
         # data format {field: {sub_field: value}}
         objs = {}
+        all_fields = self._get_all_fields()
         for field, values in data.items():
             # Get nested field serializer
-            serializer = self.get_fields()[field]
+            serializer = all_fields[field]
             serializer_class = type(serializer)
             kwargs = serializer.validation_kwargs
-            # FIXME: raises AttributeError if the field 
-            # is aliased on a serializer
             nested_obj = getattr(instance, field)
             serializer = serializer_class(
                 nested_obj,
@@ -619,8 +631,6 @@ class NestedUpdateMixin(object):
             )
             serializer.is_valid()
             if values is None:
-                # FIXME: sets a different field/property if the field
-                # is aliased on a serializer
                 setattr(instance, field, None)
                 objs.update({field: None})
             else:
@@ -630,7 +640,7 @@ class NestedUpdateMixin(object):
 
     def bulk_create_many_to_many_related(self, field, nested_obj, data):
         # Get nested field serializer
-        serializer = self.get_fields()[field].child
+        serializer = self._get_all_fields()[field].child
         serializer_class = type(serializer)
         kwargs = serializer.validation_kwargs
         pks = []
@@ -648,7 +658,7 @@ class NestedUpdateMixin(object):
 
     def bulk_create_many_to_one_related(self, field, nested_obj, data):
         # Get nested field serializer
-        serializer = self.get_fields()[field].child
+        serializer = self._get_all_fields()[field].child
         serializer_class = type(serializer)
         kwargs = serializer.validation_kwargs
         pks = []
@@ -668,7 +678,7 @@ class NestedUpdateMixin(object):
         objs = []
 
         # Get nested field serializer
-        serializer = self.get_fields()[field].child
+        serializer = self._get_all_fields()[field].child
         serializer_class = type(serializer)
         kwargs = serializer.validation_kwargs
         for pk, values in data.items():
@@ -690,12 +700,10 @@ class NestedUpdateMixin(object):
         objs = []
 
         # Get nested field serializer
-        serializer = self.get_fields()[field].child
+        serializer = self._get_all_fields()[field].child
         serializer_class = type(serializer)
         kwargs = serializer.validation_kwargs
         model = self.Meta.model
-        # FIXME: raises AttributeError if the field 
-        # is aliased on a serializer
         foreignkey = getattr(model, field).field.name
         nested_obj = getattr(instance, field)
         for pk, values in data.items():
@@ -723,15 +731,14 @@ class NestedUpdateMixin(object):
         # UPDATE: {pk: {sub_field: value}} 
         # }}}
         for field, values in data.items():
-            # FIXME: raises AttributeError if the field 
-            # is aliased on a serializer
             nested_obj = getattr(instance, field)
             model = self.Meta.model
             foreignkey = getattr(model, field).field.name
+            all_fields = self._get_all_fields()
             for operation in values:
                 if operation == ADD:
                     pks = values[operation]
-                    model = self.get_fields()[field].child.Meta.model
+                    model = all_fields[field].child.Meta.model
                     qs = model.objects.filter(pk__in=pks)
                     qs.update(**{foreignkey: instance.pk})
                 elif operation == CREATE:
@@ -766,8 +773,6 @@ class NestedUpdateMixin(object):
         # UPDATE: {pk: {sub_field: value}} 
         # }}
         for field, values in data.items():
-            # FIXME: raises AttributeError if the field 
-            # is aliased on a serializer
             nested_obj = getattr(instance, field)
             for operation in values:
                 if operation == ADD:
@@ -818,8 +823,9 @@ class NestedUpdateMixin(object):
         # Make a partal copy of validated_data so that we can
         # iterate and alter it
         data = copy.copy(validated_data)
+        all_fields = self._get_all_fields()
         for field in data:
-            field_serializer = self.get_fields()[field]
+            field_serializer = all_fields[field]
             if isinstance(field_serializer, Serializer):
                 if isinstance(field_serializer, _ReplaceableField):
                     value = validated_data.pop(field)
@@ -833,8 +839,6 @@ class NestedUpdateMixin(object):
                     (isinstance(field_serializer, _WritableField) or 
                     isinstance(field_serializer, _ReplaceableField))):
                 model = self.Meta.model
-                # FIXME: raises AttributeError if the field 
-                # is aliased on a serializer
                 rel = getattr(model, field).rel
     
                 if isinstance(rel, ManyToOneRel):

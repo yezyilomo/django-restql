@@ -37,7 +37,9 @@ router.register('students-auto-apply-eager-loading', views.StudentAutoApplyEager
 router.register('writable-courses', views.WritableCourseViewSet, 'wcourse')
 router.register('replaceable-courses', views.ReplaceableCourseViewSet, 'rcourse')
 router.register('replaceable-students', views.ReplaceableStudentViewSet, 'rstudent')
+router.register('replaceable-students-with-alias', views.ReplaceableStudentWithAliasViewSet, 'rstudent_with_alias')
 router.register('writable-students', views.WritableStudentViewSet, 'wstudent')
+router.register('writable-students-with-alias', views.WritableStudentWithAliasViewSet, 'wstudent_with_alias')
 
 urlpatterns = [
     url('', include(router.urls))

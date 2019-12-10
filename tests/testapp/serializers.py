@@ -114,6 +114,15 @@ class ReplaceableStudentSerializer(NestedModelSerializer):
         fields = ['name', 'age', 'course', 'phone_numbers']
 
 
+class ReplaceableStudentWithAliasSerializer(NestedModelSerializer):
+    program = NestedField(WritableCourseSerializer, source="course", accept_pk=True, allow_null=True, required=False)
+    contacts = NestedField(PhoneSerializer, source="phone_numbers", accept_pk=True,  many=True, required=False)
+
+    class Meta:
+        model = Student
+        fields = ['name', 'age', 'program', 'contacts']
+
+
 class WritableStudentSerializer(NestedModelSerializer):
     course = NestedField(WritableCourseSerializer, allow_null=True, required=False)
     phone_numbers = NestedField(PhoneSerializer, many=True, required=False)
@@ -121,3 +130,12 @@ class WritableStudentSerializer(NestedModelSerializer):
     class Meta:
         model = Student
         fields = ['name', 'age', 'course', 'phone_numbers']
+
+
+class WritableStudentWithAliasSerializer(NestedModelSerializer):
+    program = NestedField(WritableCourseSerializer, source="course", allow_null=True, required=False)
+    contacts = NestedField(PhoneSerializer, source="phone_numbers", many=True, required=False)
+
+    class Meta:
+        model = Student
+        fields = ['name', 'age', 'program', 'contacts']
