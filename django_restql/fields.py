@@ -32,10 +32,6 @@ class DynamicSerializerMethodField(SerializerMethodField):
         return method(value, query)
 
 
-class ListDictField(DictField):
-    child = ListField()
-
-
 class BaseReplaceableNestedField(object):
     def to_internal_value(self, data):
         raise NotImplementedError('`to_internal_value()` must be implemented.')
