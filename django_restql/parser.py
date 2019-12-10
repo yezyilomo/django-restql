@@ -32,7 +32,7 @@ class ParentField(List):
 
 class BlockBody(List):
     grammar = optional(csl(
-        [ParentField, IncludedField, ExcludedField, AllFields], 
+        [ParentField, IncludedField, ExcludedField, AllFields],
         separator=','
     ))
 

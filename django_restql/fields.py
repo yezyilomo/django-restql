@@ -1,6 +1,8 @@
 import copy
 
-from rest_framework.fields import empty
+from rest_framework.fields import (
+    empty, ListField, DictField
+)
 from rest_framework.serializers import (
     Serializer, ListSerializer, SerializerMethodField,
     ValidationError, PrimaryKeyRelatedField
@@ -30,23 +32,24 @@ class DynamicSerializerMethodField(SerializerMethodField):
         return method(value, query)
 
 
-class _ReplaceableField(object):
-    pass
+class BaseReplaceableNestedField(object):
+    def to_internal_value(self, data):
+        raise NotImplementedError('`to_internal_value()` must be implemented.')
 
 
-class _WritableField(object):
-    pass
+class BaseWritableNestedField(object):
+    def to_internal_value(self, data):
+        raise NotImplementedError('`to_internal_value()` must be implemented.')
 
 
 def BaseNestedFieldSerializerFactory(
         *args,
+        partial=None,
         accept_pk=False,
         create_ops=[ADD, CREATE],
         update_ops=[ADD, CREATE, REMOVE, UPDATE],
         serializer_class=None,
         **kwargs):
-    BaseClass = _ReplaceableField if accept_pk else _WritableField
-
     if not set(create_ops).issubset(set(CREATE_SUPPORTED_OPERATIONS)):
         msg = (
             "Invalid create operation, Supported operations are " +
@@ -60,17 +63,31 @@ def BaseNestedFieldSerializerFactory(
             ", ".join(UPDATE_SUPPORTED_OPERATIONS)
         )
         raise InvalidOperation(msg)
+    
+    BaseClass = BaseReplaceableNestedField if accept_pk \
+        else BaseWritableNestedField
 
-    class BaseNestedFieldListSerializer(ListSerializer, BaseClass):
+    class BaseNestedField(BaseClass):
+        @property
+        def is_partial(self):
+            if partial is None and self.parent is not None:
+                return self.parent.partial
+            else:
+                return partial
+
+    class BaseNestedFieldListSerializer(ListSerializer, BaseNestedField):
+
         def validate_pk_list(self, pks):
+            ListField().run_validation(pks)
             queryset = self.child.Meta.model.objects.all()
             validator = PrimaryKeyRelatedField(
-                queryset=queryset, 
-                many=True 
+                queryset=queryset,
+                many=True
             )
             return validator.run_validation(pks)
     
-        def validate_data_list(self, data, partial=False):
+        def validate_data_list(self, data):
+            ListField().run_validation(data)
             model = self.parent.Meta.model
             rel = getattr(model, self.field_name).rel
 
@@ -84,8 +101,9 @@ def BaseNestedFieldSerializerFactory(
                 serializer_class.Meta.fields = list(fields)
                 parent_serializer = serializer_class(
                     **self.child.validation_kwargs,
-                    data=data, 
-                    many=True, 
+                    data=data,
+                    many=True,
+                    partial=self.is_partial,
                     context=self.context
                 )
                 parent_serializer.is_valid(raise_exception=True)
@@ -94,8 +112,9 @@ def BaseNestedFieldSerializerFactory(
                 # ManyToMany Relation
                 parent_serializer = serializer_class(
                     **self.child.validation_kwargs,
-                    data=data, 
-                    many=True, 
+                    data=data,
+                    many=True,
+                    partial=self.is_partial,
                     context=self.context
                 )
                 parent_serializer.is_valid(raise_exception=True)
@@ -105,80 +124,69 @@ def BaseNestedFieldSerializerFactory(
             return self.validate_pk_list(data)
 
         def validate_create_list(self, data):
-            return self.validate_data_list(data, partial=False)
+            return self.validate_data_list(data)
     
         def validate_remove_list(self, data):
             return self.validate_pk_list(data)
     
         def validate_update_list(self, data):
-            # Obtain pks & data then
-            if isinstance(data, dict):
-                self.validate_pk_list(data.keys())
-                values = list(data.values())
-                self.validate_data_list(values, self.partial)
-            else:
-                # TODO: Improve error message(add error code)
-                raise ValidationError(
-                    "Expected data of form {'pk': 'data'..}"
-                )
-
-        @staticmethod
-        def create_data_is_valid(data):
-            # TODO: Use DictField and ListField to do validation
-            if (isinstance(data, dict) and 
-                    set(data.keys()).issubset(create_ops)):
-                return True
-            return False
+            DictField().run_validation(data)
+            pks = list(data.keys())
+            self.validate_pk_list(pks)
+            values = list(data.values())
+            self.validate_data_list(values)
 
         def data_for_create(self, data):
             validate = {
                 ADD: self.validate_add_list,
-                CREATE: self.validate_create_list, 
+                CREATE: self.validate_create_list,
             }
 
-            if self.create_data_is_valid(data):
-                for operation, values in data.items():
+            DictField().run_validation(data)
+            for operation, values in data.items():
+                try:
                     validate[operation](values)
-                return data
-            else:
-                wrap_quotes = lambda op: "'" + op + "'"
-                op_list =list(map(wrap_quotes, create_ops))
-                # TODO: Improve error message(add error code)
-                msg = (
-                    "Expected data of form " +
-                    "{" + ": [..], ".join(op_list) + ": [..]}"
-                )
-                raise ValidationError(msg)
-
-        @staticmethod
-        def update_data_is_valid(data):
-            # TODO: Use DictField and ListField to do validation
-            if (isinstance(data, dict) and 
-                    set(data.keys()).issubset(update_ops)):
-                return True
-            return False
+                except ValidationError as e:
+                    detail = {operation: e.detail}
+                    code = e.get_codes()
+                    raise ValidationError(detail, code) from None
+                except KeyError:
+                    wrap_quotes = lambda op: "`" + op + "`"
+                    op_list =list(map(wrap_quotes, create_ops))
+                    msg = (
+                        "`%s` is not a valid operation, valid operations "
+                        "for this request are %s" 
+                        % (operation, ', '.join(op_list))
+                    )
+                    raise ValidationError(msg, code='invalid_operation') from None
+            return data
 
         def data_for_update(self, data):
             validate = {
                 ADD: self.validate_add_list,
-                CREATE: self.validate_create_list, 
-                REMOVE: self.validate_remove_list, 
+                CREATE: self.validate_create_list,
+                REMOVE: self.validate_remove_list,
                 UPDATE: self.validate_update_list,
             }
 
-            if self.update_data_is_valid(data):
-                for operation, values in data.items():
+            DictField().run_validation(data)
+            for operation, values in data.items():
+                try:
                     validate[operation](values)
-                return data
-            else:
-                wrap_quotes = lambda op: "'" + op + "'"
-                op_list = list(map(wrap_quotes, update_ops))
-                # TODO: Improve error message(add error code)
-                msg = (
-                    "Expected data of form " +
-                    "{" + ": [..], ".join(op_list) + ": [..]}"
-                )
-                raise ValidationError(msg)
+                except ValidationError as e:
+                    detail = {operation: e.detail}
+                    code = e.get_codes()
+                    raise ValidationError(detail, code) from None
+                except KeyError:
+                    wrap_quotes = lambda op: "`" + op + "`"
+                    op_list =list(map(wrap_quotes, update_ops))
+                    msg = (
+                        "`%s` is not a valid operation, valid operations "
+                        "for this request are %s" 
+                        % (operation, ', '.join(op_list))
+                    )
+                    raise ValidationError(msg, code='invalid_operation') from None
+            return data
 
         def to_internal_value(self, data):
             source = kwargs.get('source', None)
@@ -196,8 +204,9 @@ def BaseNestedFieldSerializerFactory(
 
             parent_serializer = serializer_class(
                 **self.child.validation_kwargs,
-                data=data, 
-                many=True, 
+                data=data,
+                many=True,
+                partial=self.is_partial,
                 context=self.context
             )
             parent_serializer.is_valid(raise_exception=True)
@@ -209,8 +218,7 @@ def BaseNestedFieldSerializerFactory(
                 (serializer_class.__name__, )
             )
 
-    class BaseNestedFieldSerializer(serializer_class, BaseClass):
-
+    class BaseNestedFieldSerializer(serializer_class, BaseNestedField):
         class Meta(serializer_class.Meta):
             list_serializer_class = BaseNestedFieldListSerializer
 
@@ -234,7 +242,8 @@ def BaseNestedFieldSerializerFactory(
         def validate_data_based_nested(self, data):
             parent_serializer = serializer_class(
                 **self.validation_kwargs,
-                data=data, 
+                data=data,
+                partial=self.is_partial,
                 context=self.context
             )
             parent_serializer.is_valid(raise_exception=True)
@@ -248,8 +257,6 @@ def BaseNestedFieldSerializerFactory(
                 self.parent._unaliased_fields.pop(alias)
             required = kwargs.get('required', True)
             default = kwargs.get('default', empty)
-
-            # TODO: Handle read_only kwarg too
 
             if data == empty and required and default == empty:
                 raise ValidationError(
@@ -272,10 +279,6 @@ def BaseNestedFieldSerializerFactory(
                 "BaseNestedField(%s, many=False)" % 
                 (serializer_class.__name__, )
             )
-
-    # TODO: get `partial` kwarg if it's not passed
-    # inherit the one used by the parent serializer
-    # it's needed in nested fields validation
 
     read_only = kwargs.get('read_only', False)
     write_only = kwargs.get('write_only', False)

@@ -15,7 +15,7 @@ from .parser import Parser
 from .exceptions import FieldNotFound, QueryFormatError
 from .operations import ADD, CREATE, REMOVE, UPDATE
 from .fields import (
-    _ReplaceableField, _WritableField,
+    BaseReplaceableNestedField, BaseWritableNestedField,
     DynamicSerializerMethodField
 )
 
@@ -108,7 +108,7 @@ class DynamicFieldsMixin(RequestQueryParserMixin):
     @staticmethod
     def is_nested_field(field_name, field, raise_error=False):
         nested_classes = (
-            Serializer, ListSerializer, 
+            Serializer, ListSerializer,
             DynamicSerializerMethodField
         )
         if isinstance(field, nested_classes):
@@ -142,12 +142,12 @@ class DynamicFieldsMixin(RequestQueryParserMixin):
                 # Nested field
                 for nested_field in field:
                     self.is_field_found(
-                        nested_field, 
+                        nested_field,
                         all_field_names,
                         raise_error=True
                     )
                     self.is_nested_field(
-                        nested_field, 
+                        nested_field,
                         all_fields[nested_field],
                         raise_error=True
                     )
@@ -456,7 +456,8 @@ class NestedCreateMixin(BaseNestedMixin):
             serializer = serializer_class(
                 **kwargs,
                 data=value,
-                context=self.context
+                context=self.context,
+                partial=serializer.is_partial
             )
             serializer.is_valid()
             if value is None:
@@ -477,9 +478,10 @@ class NestedCreateMixin(BaseNestedMixin):
         pks = []
         for values in data:
             serializer = serializer_class(
-                **kwargs, 
-                data=values, 
-                context=self.context
+                **kwargs,
+                data=values,
+                context=self.context,
+                partial=serializer.is_partial
             )
             serializer.is_valid()
             obj = serializer.save()
@@ -490,7 +492,7 @@ class NestedCreateMixin(BaseNestedMixin):
         # data format {field: {
         # foreignkey_name: name,
         # data: {
-        # ADD: [pks], 
+        # ADD: [pks],
         # CREATE: [{sub_field: value}]
         # }}
         field_pks = {}
@@ -514,7 +516,7 @@ class NestedCreateMixin(BaseNestedMixin):
 
     def create_many_to_many_related(self, instance, data):
         # data format {field: {
-        # ADD: [pks], 
+        # ADD: [pks],
         # CREATE: [{sub_field: value}]
         # }}
         field_pks = {}
@@ -536,7 +538,7 @@ class NestedCreateMixin(BaseNestedMixin):
             "foreignkey_related": { 
                 "replaceable": {},
                 "writable": {}
-            }, 
+            },
             "many_to": {
                 "many_related": {},
                 "one_related": {}
@@ -550,17 +552,17 @@ class NestedCreateMixin(BaseNestedMixin):
         for field in data:
             field_serializer = all_fields[field]
             if isinstance(field_serializer, Serializer):
-                if isinstance(field_serializer, _ReplaceableField):
+                if isinstance(field_serializer, BaseReplaceableNestedField):
                     value = validated_data.pop(field)
                     fields["foreignkey_related"]["replaceable"] \
                         .update({field: value})
-                elif isinstance(field_serializer, _WritableField):
+                elif isinstance(field_serializer, BaseWritableNestedField):
                     value = validated_data.pop(field)
                     fields["foreignkey_related"]["writable"]\
                         .update({field: value})
             elif (isinstance(field_serializer, ListSerializer) and 
-                    (isinstance(field_serializer, _WritableField) or 
-                    isinstance(field_serializer, _ReplaceableField))):
+                    (isinstance(field_serializer, BaseWritableNestedField) or 
+                    isinstance(field_serializer, BaseReplaceableNestedField))):
 
                 model = self.Meta.model
                 rel = getattr(model, field).rel
@@ -584,12 +586,12 @@ class NestedCreateMixin(BaseNestedMixin):
         instance = super().create({**validated_data, **foreignkey_related})
         
         self.create_many_to_many_related(
-            instance, 
+            instance,
             fields["many_to"]["many_related"]
         )
 
         self.create_many_to_one_related(
-            instance, 
+            instance,
             fields["many_to"]["one_related"]
         )
         
@@ -625,9 +627,9 @@ class NestedUpdateMixin(BaseNestedMixin):
             serializer = serializer_class(
                 nested_obj,
                 **kwargs,
-                data=values, 
+                data=values,
                 context=self.context,
-                partial=self.partial
+                partial=serializer.is_partial
             )
             serializer.is_valid()
             if values is None:
@@ -646,9 +648,10 @@ class NestedUpdateMixin(BaseNestedMixin):
         pks = []
         for values in data:
             serializer = serializer_class(
-                **kwargs, 
-                data=values, 
-                context=self.context
+                **kwargs,
+                data=values,
+                context=self.context,
+                partial=serializer.is_partial
             )
             serializer.is_valid()
             obj = serializer.save()
@@ -664,9 +667,10 @@ class NestedUpdateMixin(BaseNestedMixin):
         pks = []
         for values in data:
             serializer = serializer_class(
-                **kwargs, 
-                data=values, 
-                context=self.context
+                **kwargs,
+                data=values,
+                context=self.context,
+                partial=serializer.is_partial
             )
             serializer.is_valid()
             obj = serializer.save()
@@ -688,7 +692,7 @@ class NestedUpdateMixin(BaseNestedMixin):
                 **kwargs,
                 data=values,
                 context=self.context,
-                partial=self.partial
+                partial=serializer.is_partial
             )
             serializer.is_valid()
             obj = serializer.save()
@@ -714,7 +718,7 @@ class NestedUpdateMixin(BaseNestedMixin):
                 **kwargs,
                 data=values,
                 context=self.context,
-                partial=self.partial
+                partial=serializer.is_partial
             )
             serializer.is_valid()
             obj = serializer.save()
@@ -725,8 +729,8 @@ class NestedUpdateMixin(BaseNestedMixin):
         # data format {field: {
         # foreignkey_name: name:
         # data: {
-        # ADD: [{sub_field: value}], 
-        # CREATE: [{sub_field: value}], 
+        # ADD: [{sub_field: value}],
+        # CREATE: [{sub_field: value}],
         # REMOVE: [pk],
         # UPDATE: {pk: {sub_field: value}} 
         # }}}
@@ -745,8 +749,8 @@ class NestedUpdateMixin(BaseNestedMixin):
                     for v in values[operation]:
                         v.update({foreignkey: instance.pk})
                     self.bulk_create_many_to_one_related(
-                        field, 
-                        nested_obj, 
+                        field,
+                        nested_obj,
                         values[operation]
                     )
                 elif operation == REMOVE:
@@ -754,7 +758,7 @@ class NestedUpdateMixin(BaseNestedMixin):
                     qs.filter(pk__in=values[operation]).delete()
                 elif operation == UPDATE:
                     self.bulk_update_many_to_one_related(
-                        field, 
+                        field,
                         instance,
                         values[operation]
                     )
@@ -767,8 +771,8 @@ class NestedUpdateMixin(BaseNestedMixin):
 
     def update_many_to_many_related(self, instance, data):
         # data format {field: {
-        # ADD: [{sub_field: value}], 
-        # CREATE: [{sub_field: value}], 
+        # ADD: [{sub_field: value}],
+        # CREATE: [{sub_field: value}],
         # REMOVE: [pk],
         # UPDATE: {pk: {sub_field: value}} 
         # }}
@@ -781,11 +785,11 @@ class NestedUpdateMixin(BaseNestedMixin):
                         nested_obj.add(*pks)
                     except Exception as e:
                         msg = self.constrain_error_prefix(field) + str(e)
-                        raise ValidationError(msg)
+                        raise ValidationError(msg) from None
                 elif operation == CREATE:
                     self.bulk_create_many_to_many_related(
-                        field, 
-                        nested_obj, 
+                        field,
+                        nested_obj,
                         values[operation]
                     )
                 elif operation == REMOVE:
@@ -794,11 +798,11 @@ class NestedUpdateMixin(BaseNestedMixin):
                         nested_obj.remove(*pks)
                     except Exception as e:
                         msg = self.constrain_error_prefix(field) + str(e)
-                        raise ValidationError(msg)
+                        raise ValidationError(msg) from None
                 elif operation == UPDATE:
                     self.bulk_update_many_to_many_related(
-                        field, 
-                        nested_obj, 
+                        field,
+                        nested_obj,
                         values[operation]
                     )
                 else:
@@ -827,17 +831,17 @@ class NestedUpdateMixin(BaseNestedMixin):
         for field in data:
             field_serializer = all_fields[field]
             if isinstance(field_serializer, Serializer):
-                if isinstance(field_serializer, _ReplaceableField):
+                if isinstance(field_serializer, BaseReplaceableNestedField):
                     value = validated_data.pop(field)
                     fields["foreignkey_related"]["replaceable"] \
                         .update({field: value})
-                elif isinstance(field_serializer, _WritableField):
+                elif isinstance(field_serializer, BaseWritableNestedField):
                     value = validated_data.pop(field)
                     fields["foreignkey_related"]["writable"] \
                         .update({field: value})
             elif (isinstance(field_serializer, ListSerializer) and
-                    (isinstance(field_serializer, _WritableField) or 
-                    isinstance(field_serializer, _ReplaceableField))):
+                    (isinstance(field_serializer, BaseWritableNestedField) or 
+                    isinstance(field_serializer, BaseReplaceableNestedField))):
                 model = self.Meta.model
                 rel = getattr(model, field).rel
     
