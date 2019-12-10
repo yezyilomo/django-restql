@@ -115,7 +115,7 @@ You can do a lot with **Django RESTQL** apart from just querying data, full docu
 
 
 ## Running Tests
-`python setup.py test`
+`python runtests.py`
 
 
 ## Credits
