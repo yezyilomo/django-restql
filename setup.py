@@ -57,5 +57,5 @@ setup(
         'Programming Language :: Python :: Implementation :: CPython',
         'Programming Language :: Python :: Implementation :: PyPy'
     ],
-    test_suite = "tests.runtests.runtests",
+    test_suite = "runtests",
 )
