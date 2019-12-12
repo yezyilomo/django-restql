@@ -28,7 +28,6 @@ license_ = get_info('__license__')
 description = get_info('__description__')
 author = get_info('__author__')
 author_email = get_info('__author_email__')
-required_python_version = '>=3.5'
 readme = get_readme()
 
 setup(
@@ -43,19 +42,32 @@ setup(
     license = license_,
     packages = find_packages(exclude=('tests','test')),
     package_data = {'': ['LICENSE']},
-    install_requires = ['pypeg2', 'djangorestframework'],
-    python_requires = required_python_version,
+    install_requires = [
+        'pypeg2',
+        'django>=1.10',
+        'djangorestframework>=3.5'
+    ],
+    extras_require={
+        'filters': ['django-filter', 'djangorestframework-filters'],
+    },
+    python_requires = '>=3.5',
     classifiers = [
         'Development Status :: 5 - Production/Stable',
         'Intended Audience :: Developers',
         'Natural Language :: English',
-        'License :: OSI Approved :: Apache Software License',
+        'License :: OSI Approved :: MIT License',
+        'Framework :: Django',
+        'Framework :: Django :: 1.10',
+        'Framework :: Django :: 1.11',
+        'Framework :: Django :: 2.0',
+        'Framework :: Django :: 2.1',
+        'Framework :: Django :: 2.2',
+        'Framework :: Django :: 3.0',
         'Programming Language :: Python',
         'Programming Language :: Python :: 3.5',
         'Programming Language :: Python :: 3.6',
         'Programming Language :: Python :: 3.7',
-        'Programming Language :: Python :: Implementation :: CPython',
-        'Programming Language :: Python :: Implementation :: PyPy'
+        'Programming Language :: Python :: 3.8',
     ],
-    test_suite = "runtests",
+    test_suite = 'runtests',
 )

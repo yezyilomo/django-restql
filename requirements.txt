@@ -1,4 +1,8 @@
+# Must
 pypeg2
 django
 djangorestframework
 
+# Optional
+django-filter
+djangorestframework-filters
