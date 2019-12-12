@@ -43,9 +43,15 @@ class RequestQueryParserMixin(object):
 
     @classmethod
     def get_parsed_restql_query_from_req(cls, request):
+        if hasattr(request, 'parsed_restql_query'):
+            return request.parsed_restql_query
         raw_query = cls.get_raw_restql_query(request)
         parser = Parser(raw_query)
         parsed_restql_query = parser.get_parsed()
+
+        # Save parsed restql query to the request so that
+        # we won't need to parse it again if needed
+        request.parsed_restql_query = parsed_restql_query
         return parsed_restql_query
 
 
@@ -306,7 +312,8 @@ class EagerLoadingMixin(RequestQueryParserMixin):
         # Else include all fields
         query = {
             "include": ["*"],
-            "exclude": []
+            "exclude": [],
+            "arguments": {}
         }
         return query
 
