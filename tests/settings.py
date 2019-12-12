@@ -40,7 +40,6 @@ INSTALLED_APPS = [
     'rest_framework',
     'tests.testapp',
     'django_restql',
-    'django_filters'
 ]
 
 MIDDLEWARE = [
