@@ -33,7 +33,7 @@ Check out the full documentation at https://yezyilomo.github.io/django-restql/
 
 ## Requirements
 * Python >= 3.5
-* Django >= 1.10
+* Django >= 1.11
 * Django REST Framework >= 3.5
 
 

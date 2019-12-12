@@ -54,6 +54,7 @@ class CourseWithDynamicSerializerMethodFieldViewSet(viewsets.ModelViewSet):
 class StudentViewSet(viewsets.ModelViewSet):
 	serializer_class = StudentSerializer
 	queryset = Student.objects.all()
+	filter_fields = {'name': ['exact'], 'course__code': ['exact']}
 
 
 class StudentEagerLoadingViewSet(EagerLoadingMixin, viewsets.ModelViewSet):

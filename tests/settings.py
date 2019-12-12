@@ -39,7 +39,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'rest_framework',
     'tests.testapp',
-    'django_restql'
+    'django_restql',
 ]
 
 MIDDLEWARE = [
@@ -79,6 +79,20 @@ DATABASES = {
         'ENGINE': 'django.db.backends.sqlite3',
         'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
     }
+}
+
+
+# REST Framework Settings
+REST_FRAMEWORK = {
+    'DEFAULT_FILTER_BACKENDS': (
+        'django_restql.filters.RESTQLFilterBackend',
+    ),
+}
+
+
+# RESTQL Settings
+RESTQL = {
+    'DEFAULT_BASE_FILTER_BACKEND': 'rest_framework_filters.backends.RestFrameworkFilterBackend',
 }
 
 

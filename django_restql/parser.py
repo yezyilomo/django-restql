@@ -1,4 +1,4 @@
-from pypeg2 import name, csl, List, parse, optional, contiguous
+from pypeg2 import name, csl, List, parse, optional, contiguous, word
 
 from .exceptions import QueryFormatError
 
@@ -13,6 +13,28 @@ class ExcludedField(List):
 
 class AllFields(str):
     grammar = '*'
+
+
+class Argument(List):
+    grammar = name(), ':', word
+
+    @property
+    def value(self):
+        return self[0]
+
+
+class Arguments(List):
+    grammar = optional(csl([Argument],separator=','))
+
+
+class ArgumentsBlock(List):
+    grammar = optional('(', Arguments, ')')
+
+    @property
+    def arguments(self):
+        if self[0] is None:
+            return []  # No arguments
+        return self[0]
 
 
 class ParentField(List):
@@ -38,11 +60,15 @@ class BlockBody(List):
 
 
 class Block(List):
-    grammar = '{', BlockBody, '}'
+    grammar = ArgumentsBlock, '{', BlockBody, '}'
+
+    @property
+    def arguments(self):
+        return self[0].arguments
 
     @property
     def body(self):
-        return self[0]
+        return self[1]
 
 
 # ParentField grammar,
@@ -64,12 +90,18 @@ class Parser(object):
     def _transform_block(self, block):
         fields = {
             "include": [],
-            "exclude": []
+            "exclude": [],
+            "arguments": {}
         }
+
+        for argument in block.arguments:
+            argument = {str(argument.name): argument.value}
+            fields['arguments'].update(argument)
 
         for item in block.body:
             # A child may be a parent or included field or excluded field
             child = self._transform_child(item)
+            
             if isinstance(child, dict):
                 # A child is a parent
                 fields["include"].append(child)

@@ -1011,6 +1011,24 @@ class DataQueryingTests(APITestCase):
                 ]
             )
 
+    def test_list_with_arguments(self):
+        url = reverse_lazy("student-list")
+        response = self.client.get(url + '?query=(name: Yez){name, age, course{name}}', format="json")
+
+        self.assertEqual(
+            response.data,
+            []
+        )
+
+    def test_list_with_nested_arguments(self):
+        url = reverse_lazy("student-list")
+        response = self.client.get(url + '?query={name, age, course(code: CS50){name}}', format="json")
+
+        self.assertEqual(
+            response.data,
+            []
+        )
+
 
 class DataMutationTests(APITestCase):
     def setUp(self):
