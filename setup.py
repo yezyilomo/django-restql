@@ -44,12 +44,9 @@ setup(
     package_data = {'': ['LICENSE']},
     install_requires = [
         'pypeg2',
-        'django>=1.10',
+        'django>=1.11',
         'djangorestframework>=3.5'
     ],
-    extras_require={
-        'filters': ['django-filter', 'djangorestframework-filters'],
-    },
     python_requires = '>=3.5',
     classifiers = [
         'Development Status :: 5 - Production/Stable',
