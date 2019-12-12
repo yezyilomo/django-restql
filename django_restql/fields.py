@@ -27,7 +27,8 @@ class DynamicSerializerMethodField(SerializerMethodField):
             # Include all fields
             query = {
                 "include": ["*"],
-                "exclude": []
+                "exclude": [],
+                "arguments": {}
             }
         return method(value, query)
 

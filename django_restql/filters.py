@@ -21,7 +21,7 @@ class RESTQLFilterBackendMixin(RequestQueryParserMixin):
         query = {
             "include": ["*"],
             "exclude": [],
-            "arguments": []
+            "arguments": {}
         }
         return query
 
