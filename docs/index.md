@@ -18,7 +18,7 @@ Isn't it cool?.
 
 # Requirements
 * Python >= 3.5
-* Django >= 1.10
+* Django >= 1.11
 * Django REST Framework >= 3.5
 
 
