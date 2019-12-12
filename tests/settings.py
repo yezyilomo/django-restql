@@ -92,7 +92,7 @@ REST_FRAMEWORK = {
 
 # RESTQL Settings
 RESTQL = {
-    'DEFAULT_BASE_FILTER_BACKEND': 'rest_framework_filters.backends.RestFrameworkFilterBackend',
+    'DEFAULT_BASE_FILTER_BACKEND': 'django_filters.rest_framework.DjangoFilterBackend',
 }
 
 
