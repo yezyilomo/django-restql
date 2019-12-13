@@ -96,6 +96,22 @@ class DataQueryingTests(APITestCase):
             }
         )
 
+    def test_retrieve_with_disable_dynamic_fields_enabled(self):
+        url = reverse_lazy("course_with_disable_dynamic_fields_kwarg-detail", args=[self.course.id])
+        response = self.client.get(url + '?query={name, code, books{title}}', format="json")
+
+        self.assertEqual(
+            response.data,
+            {
+                "name": "Data Structures",
+                "code": "CS210",
+                "books": [
+                    {"title": "Advanced Data Structures", "author": "S.Mobit"},
+                    {"title": "Basic Data Structures", "author": "S.Mobit"}
+                ]
+            }
+        )
+
     def test_retrieve_reverse_relation_with_nested_iterable_query(self):
         url = reverse_lazy("student-detail", args=[self.student.id])
         response = self.client.get(url + '?query={name, age, phone_numbers{number}}', format="json")
