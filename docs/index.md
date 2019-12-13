@@ -494,6 +494,47 @@ So you can see that on a nested field `books` pks have been returned instead of 
 <br/>
 
 
+### disable_dynamic_fields kwarg
+Sometimes there are cases where you want to disable fields filtering with on a specific nested field, **Django RESTQL** allows you to do so by using `disable_dynamic_fields` kwarg when instantiating a serializer. Below is an example which shows how to use `disable_dynamic_fields` kwarg.
+
+```py
+from rest_framework import serializers
+from django_restql.mixins import DynamicFieldsMixin
+
+from app.models import Book, Course
+
+
+class BookSerializer(DynamicFieldsMixin, serializers.ModelSerializer):
+    class Meta:
+        model = Book
+        fields = ['id', 'title', 'author']
+
+
+class CourseSerializer(DynamicFieldsMixin, serializers.ModelSerializer):
+    # Disable fields filtering on this field
+    books = BookSerializer(many=True, read_only=True, disable_dynamic_fields=True)
+    class Meta:
+        model = Course
+        fields = ['name', 'code', 'books']
+```
+
+`GET /course/?query={name, books{title}}`
+```js
+[
+    {
+        "name": "Computer Programming",
+        "books": [
+            {"id": 1, "title": "Computer Programming Basics", "author": "J.Vough"},
+            {"id": 2, "title": "Data structures", "author": "D.Denis"}
+        ]
+    },
+    ...
+]
+```
+So you can see that even though the query asked for only `title` field under `books`, all fields have been returned, so this means fields filtering has applied on `CourseSerializer` but not on `BookSerializer` because we used `disable_dynamic_fields=True` on it.
+<br/>
+
+
 ## Query arguments
 Just like GraphQL, Django RESTQL allows you to pass arguments on nested fields. These arguments can be used to do filtering, sorting and other stuffs that you like them to do. Below is a syntax for passing arguments
 
