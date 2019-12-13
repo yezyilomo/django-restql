@@ -494,6 +494,73 @@ So you can see that on a nested field `books` pks have been returned instead of 
 <br/>
 
 
+## Query arguments
+Just like GraphQL, Django RESTQL allows you to pass arguments on nested fields. These arguments can be used to do filtering, sorting and other stuffs that you like them to do. Below is a syntax for passing arguments
+
+```
+query = (age: 18){
+    name,
+    age,
+    location(country: Canada, city: Toronto){
+        country,
+        city
+    }
+}
+```
+Here we have three arguments, `age`, `country` and `city` and their corresponding values.
+
+
+### Filtering with query arguments
+As mentioned before you can use query arguments to do filtering, Django RESTQL itself doesn't do filtering but you can intergrate it with [django-filter](https://github.com/carltongibson/django-filter) or [djangorestframework-filters](https://github.com/philipn/django-rest-framework-filters) to do the actual filtering, in this case Django RESTQL will be providing query arguments as filter parameters to these libraries.
+
+To integrate with [django-filter](https://github.com/carltongibson/django-filter) edit your `settings.py` file as shown below
+```py
+# settings.py
+REST_FRAMEWORK = {
+    # This is needed to be able to get filter parameters from query arguments
+    DEFAULT_FILTER_BACKEND = 'django_restql.filters.RESTQLFilterBackend'
+}
+
+RESTQL = {
+    # This tells django-restql which filter backend to use(send generated filter parameters to)
+    DEFAULT_BASE_FILTER_BACKEND = 'django_filters.rest_framework.DjangoFilterBackend'
+}
+```
+
+And for [djangorestframework-filters](https://github.com/philipn/django-rest-framework-filters)
+```py
+# settings.py
+REST_FRAMEWORK = {
+    # This is needed to be able to get filter parameters from query arguments
+    DEFAULT_FILTER_BACKEND = 'django_restql.filters.RESTQLFilterBackend'
+}
+
+RESTQL = {
+    # This tells django-restql which filter backend to use(send generated filter parameters to)
+    DEFAULT_BASE_FILTER_BACKEND = 'rest_framework_filters.backends.RestFrameworkFilterBackend'
+}
+```
+
+Once configured, you can continue to use all of the features found in [django-filter](https://github.com/carltongibson/django-filter) or [djangorestframework-filters](https://github.com/philipn/django-rest-framework-filters) as usual. The purpose of Django RESTQL on filtering is only to generate filter parameters form query arguments, for example if you have a query like
+```
+query = (age: 18){
+    name,
+    age,
+    location(country: Canada, city: Toronto){
+        country,
+        city
+    }
+}
+```
+
+Django RESTQL would generate three filter parameters from this as shown below and send them to `DEFAULT_BASE_FILTER_BACKEND` set for it to do the filtering.
+```py
+filter_params = {"age": 18, "location__country": "Canada", "location__city": "Toronto"}
+```
+
+If those two libraries doesn't satisfy your needs on filtering, you can write your own filter backend or extend one of those provided by these two libraries and set it on `DEFAULT_BASE_FILTER_BACKEND`.
+
+
 ## Setting up eager loading
 Often times, using `prefetch_related` or `select_related` on a view queryset can help speed up the serialization. For example, if you had a many-to-many relation like Books to a Course, it's usually more efficient to call `prefetch_related` on the books so that serializing a list of courses only triggers one additional query, instead of a number of queries equal to the number of courses.
 
@@ -629,8 +696,7 @@ When prefetching *and* calling `select_related` on a field, Django may error, si
 Configuration for **Django RESTQL** is all namespaced inside a single Django setting named `RESTQL`, below is a list of what you can configure under `RESTQL` setting.
 
 ### QUERY_PARAM_NAME
-The default value for this is `query`. 
-If you don't want to use the name `query` as your parameter, you can change it with`QUERY_PARAM_NAME` on settings file e.g 
+The default value for this is `query`. If you don't want to use the name `query` as your parameter, you can change it with`QUERY_PARAM_NAME` on settings file e.g 
 ```py
 RESTQL = {
     'QUERY_PARAM_NAME' = "your_favourite_name"
@@ -640,9 +706,12 @@ Now you can use the name `your_favourite_name` as your query parameter. E.g
  
 `GET /users/?your_favourite_name={id, username}`
 
+### DEFAULT_BASE_FILTER_BACKEND
+The default value for this is `object`.
+This is used if you want to use query arguments to do filtering, this is discussed in detail on [Filtering with query arguments](#filtering-with-query-arguments)
+
 ### AUTO_APPLY_EAGER_LOADING
-The default value for this is `True`.
-When using the `EagerLoadingMixin`, this setting controls if the mappings for `select_related` and `prefetch_related` are applied automatically when calling `get_queryset`. To turn it off, set the `AUTO_APPLY_EAGER_LOADING` setting or `auto_apply_eager_loading` attribute on the view to `False`. 
+The default value for this is `True`. When using the `EagerLoadingMixin`, this setting controls if the mappings for `select_related` and `prefetch_related` are applied automatically when calling `get_queryset`. To turn it off, set the `AUTO_APPLY_EAGER_LOADING` setting or `auto_apply_eager_loading` attribute on the view to `False`. 
 ```py
 # settings.py file
 # This will turn off auto apply eager loading globally
