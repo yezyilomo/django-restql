@@ -159,7 +159,8 @@ def BaseNestedFieldSerializerFactory(
                         "for this request are %s" 
                         % (operation, ', '.join(op_list))
                     )
-                    raise ValidationError(msg, code='invalid_operation') from None
+                    code = 'invalid_operation'
+                    raise ValidationError(msg, code=code) from None
             return data
 
         def data_for_update(self, data):
@@ -186,7 +187,8 @@ def BaseNestedFieldSerializerFactory(
                         "for this request are %s" 
                         % (operation, ', '.join(op_list))
                     )
-                    raise ValidationError(msg, code='invalid_operation') from None
+                    code='invalid_operation'
+                    raise ValidationError(msg, code=code) from None
             return data
 
         def to_internal_value(self, data):

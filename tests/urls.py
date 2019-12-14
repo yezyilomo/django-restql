@@ -24,6 +24,7 @@ router = routers.DefaultRouter()
 
 router.register('books', views.BookViewSet, 'book')
 router.register('courses', views.CourseViewSet, 'course')
+router.register('courses-with-disable-dynamic-fields', views.CourseWithDisableDaynamicFieldsKwargViewSet, 'course_with_disable_dynamic_fields_kwarg')
 router.register('courses-with-returnpk-kwarg', views.CourseWithReturnPkkwargViewSet, 'course_with_returnpk_kwarg')
 router.register('courses-with-field-kwarg', views.CourseWithFieldsKwargViewSet, 'course_with_field_kwarg')
 router.register('courses-with-exclude-kwarg', views.CourseWithExcludeKwargViewSet, 'course_with_exclude_kwarg')

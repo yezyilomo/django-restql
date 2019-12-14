@@ -57,11 +57,13 @@ class RequestQueryParserMixin(object):
 
 class DynamicFieldsMixin(RequestQueryParserMixin):
     def __init__(self, *args, **kwargs):
-        # Don't pass 'query', 'fields' and 'exclude' kwargs to the superclass
+        # Don't pass 'query', 'fields', 'exclude', 'return_pk' 
+        # and 'disable_dynamic_fields'  kwargs to the superclass
         self.parsed_restql_query = kwargs.pop('query', None)
         self.allowed_fields = kwargs.pop('fields', None)
         self.excluded_fields = kwargs.pop('exclude', None)
         self.return_pk = kwargs.pop('return_pk', False)
+        self.disable_dynamic_fields = kwargs.pop('disable_dynamic_fields', False)
 
         is_field_kwarg_set = self.allowed_fields is not None
         is_exclude_kwarg_set = self.excluded_fields is not None
@@ -223,6 +225,7 @@ class DynamicFieldsMixin(RequestQueryParserMixin):
         is_not_a_request_to_process = (
             request is None or 
             request.method != "GET" or 
+            self.disable_dynamic_fields or
             not self.has_restql_query_param(request)
         )
 
