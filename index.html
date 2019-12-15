@@ -79,6 +79,8 @@
         
             <li><a class="toctree-l3" href="#dynamicfieldsmixin-kwargs">DynamicFieldsMixin kwargs</a></li>
         
+            <li><a class="toctree-l3" href="#query-arguments">Query arguments</a></li>
+        
             <li><a class="toctree-l3" href="#setting-up-eager-loading">Setting up eager loading</a></li>
         
             <li><a class="toctree-l3" href="#settings">Settings</a></li>
@@ -165,7 +167,7 @@
 <h1 id="requirements">Requirements<a class="headerlink" href="#requirements" title="Permanent link">&para;</a></h1>
 <ul>
 <li>Python &gt;= 3.5</li>
-<li>Django &gt;= 1.10</li>
+<li>Django &gt;= 1.11</li>
 <li>Django REST Framework &gt;= 3.5</li>
 </ul>
 <h1 id="installing">Installing<a class="headerlink" href="#installing" title="Permanent link">&para;</a></h1>
@@ -589,6 +591,100 @@ class CourseSerializer(DynamicFieldsMixin, serializers.ModelSerializer):
 
 <p>So you can see that on a nested field <code>books</code> pks have been returned instead of books data as specified on <code>return_pk=True</code> kwarg on <code>BookSerializer</code>.
 <br/></p>
+<h3 id="disable_dynamic_fields-kwarg">disable_dynamic_fields kwarg<a class="headerlink" href="#disable_dynamic_fields-kwarg" title="Permanent link">&para;</a></h3>
+<p>Sometimes there are cases where you want to disable fields filtering with on a specific nested field, <strong>Django RESTQL</strong> allows you to do so by using <code>disable_dynamic_fields</code> kwarg when instantiating a serializer. Below is an example which shows how to use <code>disable_dynamic_fields</code> kwarg.</p>
+<pre><code class="py">from rest_framework import serializers
+from django_restql.mixins import DynamicFieldsMixin
+
+from app.models import Book, Course
+
+
+class BookSerializer(DynamicFieldsMixin, serializers.ModelSerializer):
+    class Meta:
+        model = Book
+        fields = ['id', 'title', 'author']
+
+
+class CourseSerializer(DynamicFieldsMixin, serializers.ModelSerializer):
+    # Disable fields filtering on this field
+    books = BookSerializer(many=True, read_only=True, disable_dynamic_fields=True)
+    class Meta:
+        model = Course
+        fields = ['name', 'code', 'books']
+</code></pre>
+
+<p><code>GET /course/?query={name, books{title}}</code></p>
+<pre><code class="js">[
+    {
+        &quot;name&quot;: &quot;Computer Programming&quot;,
+        &quot;books&quot;: [
+            {&quot;id&quot;: 1, &quot;title&quot;: &quot;Computer Programming Basics&quot;, &quot;author&quot;: &quot;J.Vough&quot;},
+            {&quot;id&quot;: 2, &quot;title&quot;: &quot;Data structures&quot;, &quot;author&quot;: &quot;D.Denis&quot;}
+        ]
+    },
+    ...
+]
+</code></pre>
+
+<p>So you can see that even though the query asked for only <code>title</code> field under <code>books</code>, all fields have been returned, so this means fields filtering has applied on <code>CourseSerializer</code> but not on <code>BookSerializer</code> because we used <code>disable_dynamic_fields=True</code> on it.
+<br/></p>
+<h2 id="query-arguments">Query arguments<a class="headerlink" href="#query-arguments" title="Permanent link">&para;</a></h2>
+<p>Just like GraphQL, Django RESTQL allows you to pass arguments on nested fields. These arguments can be used to do filtering, sorting and other stuffs that you like them to do. Below is a syntax for passing arguments</p>
+<pre><code>query = (age: 18){
+    name,
+    age,
+    location(country: Canada, city: Toronto){
+        country,
+        city
+    }
+}
+</code></pre>
+
+<p>Here we have three arguments, <code>age</code>, <code>country</code> and <code>city</code> and their corresponding values.</p>
+<h3 id="filtering-with-query-arguments">Filtering with query arguments<a class="headerlink" href="#filtering-with-query-arguments" title="Permanent link">&para;</a></h3>
+<p>As mentioned before you can use query arguments to do filtering, Django RESTQL itself doesn't do filtering but you can intergrate it with <a href="https://github.com/carltongibson/django-filter">django-filter</a> or <a href="https://github.com/philipn/django-rest-framework-filters">djangorestframework-filters</a> to do the actual filtering, in this case Django RESTQL will be providing query arguments as filter parameters to these libraries.</p>
+<p>To integrate with <a href="https://github.com/carltongibson/django-filter">django-filter</a> edit your <code>settings.py</code> file as shown below</p>
+<pre><code class="py"># settings.py
+REST_FRAMEWORK = {
+    # This is needed to be able to get filter parameters from query arguments
+    DEFAULT_FILTER_BACKEND = 'django_restql.filters.RESTQLFilterBackend'
+}
+
+RESTQL = {
+    # This tells django-restql which filter backend to use(send generated filter parameters to)
+    DEFAULT_BASE_FILTER_BACKEND = 'django_filters.rest_framework.DjangoFilterBackend'
+}
+</code></pre>
+
+<p>And for <a href="https://github.com/philipn/django-rest-framework-filters">djangorestframework-filters</a></p>
+<pre><code class="py"># settings.py
+REST_FRAMEWORK = {
+    # This is needed to be able to get filter parameters from query arguments
+    DEFAULT_FILTER_BACKEND = 'django_restql.filters.RESTQLFilterBackend'
+}
+
+RESTQL = {
+    # This tells django-restql which filter backend to use(send generated filter parameters to)
+    DEFAULT_BASE_FILTER_BACKEND = 'rest_framework_filters.backends.RestFrameworkFilterBackend'
+}
+</code></pre>
+
+<p>Once configured, you can continue to use all of the features found in <a href="https://github.com/carltongibson/django-filter">django-filter</a> or <a href="https://github.com/philipn/django-rest-framework-filters">djangorestframework-filters</a> as usual. The purpose of Django RESTQL on filtering is only to generate filter parameters form query arguments, for example if you have a query like</p>
+<pre><code>query = (age: 18){
+    name,
+    age,
+    location(country: Canada, city: Toronto){
+        country,
+        city
+    }
+}
+</code></pre>
+
+<p>Django RESTQL would generate three filter parameters from this as shown below and send them to <code>DEFAULT_BASE_FILTER_BACKEND</code> set for it to do the filtering.</p>
+<pre><code class="py">filter_params = {&quot;age&quot;: 18, &quot;location__country&quot;: &quot;Canada&quot;, &quot;location__city&quot;: &quot;Toronto&quot;}
+</code></pre>
+
+<p>If those two libraries doesn't satisfy your needs on filtering, you can write your own filter backend or extend one of those provided by these two libraries and set it on <code>DEFAULT_BASE_FILTER_BACKEND</code>.</p>
 <h2 id="setting-up-eager-loading">Setting up eager loading<a class="headerlink" href="#setting-up-eager-loading" title="Permanent link">&para;</a></h2>
 <p>Often times, using <code>prefetch_related</code> or <code>select_related</code> on a view queryset can help speed up the serialization. For example, if you had a many-to-many relation like Books to a Course, it's usually more efficient to call <code>prefetch_related</code> on the books so that serializing a list of courses only triggers one additional query, instead of a number of queries equal to the number of courses.</p>
 <p><code>EagerLoadingMixin</code> gives access to <code>prefetch_related</code> and <code>select_related</code> properties, these two are dictionaries that match serializer field names to respective values that would be passed into <code>prefetch_related</code> or <code>select_related</code>. Take the following serializers as examples.</p>
@@ -712,8 +808,7 @@ prefetch_related = {
 <h2 id="settings">Settings<a class="headerlink" href="#settings" title="Permanent link">&para;</a></h2>
 <p>Configuration for <strong>Django RESTQL</strong> is all namespaced inside a single Django setting named <code>RESTQL</code>, below is a list of what you can configure under <code>RESTQL</code> setting.</p>
 <h3 id="query_param_name">QUERY_PARAM_NAME<a class="headerlink" href="#query_param_name" title="Permanent link">&para;</a></h3>
-<p>The default value for this is <code>query</code>. 
-If you don't want to use the name <code>query</code> as your parameter, you can change it with<code>QUERY_PARAM_NAME</code> on settings file e.g </p>
+<p>The default value for this is <code>query</code>. If you don't want to use the name <code>query</code> as your parameter, you can change it with<code>QUERY_PARAM_NAME</code> on settings file e.g </p>
 <pre><code class="py">RESTQL = {
     'QUERY_PARAM_NAME' = &quot;your_favourite_name&quot;
 }
@@ -721,9 +816,11 @@ If you don't want to use the name <code>query</code> as your parameter, you can 
 
 <p>Now you can use the name <code>your_favourite_name</code> as your query parameter. E.g</p>
 <p><code>GET /users/?your_favourite_name={id, username}</code></p>
+<h3 id="default_base_filter_backend">DEFAULT_BASE_FILTER_BACKEND<a class="headerlink" href="#default_base_filter_backend" title="Permanent link">&para;</a></h3>
+<p>The default value for this is <code>object</code>.
+This is used if you want to use query arguments to do filtering, this is discussed in detail on <a href="#filtering-with-query-arguments">Filtering with query arguments</a></p>
 <h3 id="auto_apply_eager_loading">AUTO_APPLY_EAGER_LOADING<a class="headerlink" href="#auto_apply_eager_loading" title="Permanent link">&para;</a></h3>
-<p>The default value for this is <code>True</code>.
-When using the <code>EagerLoadingMixin</code>, this setting controls if the mappings for <code>select_related</code> and <code>prefetch_related</code> are applied automatically when calling <code>get_queryset</code>. To turn it off, set the <code>AUTO_APPLY_EAGER_LOADING</code> setting or <code>auto_apply_eager_loading</code> attribute on the view to <code>False</code>. </p>
+<p>The default value for this is <code>True</code>. When using the <code>EagerLoadingMixin</code>, this setting controls if the mappings for <code>select_related</code> and <code>prefetch_related</code> are applied automatically when calling <code>get_queryset</code>. To turn it off, set the <code>AUTO_APPLY_EAGER_LOADING</code> setting or <code>auto_apply_eager_loading</code> attribute on the view to <code>False</code>. </p>
 <pre><code class="py"># settings.py file
 # This will turn off auto apply eager loading globally
 RESTQL = {
@@ -1076,5 +1173,5 @@ class PropertySerializer(DynamicFieldsMixin, NestedModelSerializer):
 
 <!--
 MkDocs version : 1.0.4
-Build Date UTC : 2019-12-05 19:49:17
+Build Date UTC : 2019-12-15 14:48:35
 -->
