@@ -1104,7 +1104,7 @@ class DataMutationTests(APITestCase):
     def test_post_on_pk_nested_foreignkey_related_field_with_alias(self):
         url = reverse_lazy("rstudent_with_alias-list")
         data = {
-            "name": "yezy",
+            "full_name": "yezy",
             "age": 33,
             "program": 2
         }
@@ -1113,7 +1113,7 @@ class DataMutationTests(APITestCase):
         self.assertEqual(
             response.data,
             {
-                'name': 'yezy', 
+                'full_name': 'yezy', 
                 'age': 33, 
                 'program': {
                     'name': 'Programming', 
@@ -1368,7 +1368,7 @@ class DataMutationTests(APITestCase):
     def test_put_on_pk_nested_foreignkey_related_field_with_alias(self):
         url = reverse_lazy("rstudent_with_alias-detail", args=[self.student.id])
         data = {
-            "name": "yezy",
+            "full_name": "yezy",
             "age": 33,
             "program": 2
         }
@@ -1377,7 +1377,8 @@ class DataMutationTests(APITestCase):
         self.assertEqual(
             response.data,
             {
-                'name': 'yezy', 'age': 33, 
+                'full_name': 'yezy', 
+                'age': 33, 
                 'program': {
                     'name': 'Programming', 'code': 'CS150', 
                     'books': [
