@@ -1,4 +1,4 @@
-# [django-restql](https://yezyilomo.github.io/django-restql/)
+# [django-restql](https://django-restql.yezyilomo.com)
 
 [![Build Status](https://api.travis-ci.com/yezyilomo/django-restql.svg?branch=master)](https://api.travis-ci.com/yezyilomo/django-restql) 
 [![Latest Version](https://img.shields.io/pypi/v/django-restql.svg)](https://pypi.org/project/django-restql/) 
@@ -28,7 +28,7 @@ Isn't it cool?.
 
 Want to see how this library is making all that possible? 
 
-Check out the full documentation at https://yezyilomo.github.io/django-restql/
+Check out the full documentation at https://django-restql.yezyilomo.com
 
 
 ## Requirements
@@ -110,8 +110,8 @@ If you want only `country` and `city` fields on a `location` field when retrievi
 ]
 ```
 
-## [Documentation :pencil:](https://yezyilomo.github.io/django-restql/)
-You can do a lot with **Django RESTQL** apart from just querying data, full documentation for this project is available at https://yezyilomo.github.io/django-restql/, you are encouraged to read it inorder to utilize this library to the fullest.
+## [Documentation :pencil:](https://django-restql.yezyilomo.com)
+You can do a lot with **Django RESTQL** apart from just querying data, full documentation for this project is available at https://django-restql.yezyilomo.com, you are encouraged to read it inorder to utilize this library to the fullest.
 
 
 ## Running Tests

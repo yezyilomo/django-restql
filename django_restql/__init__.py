@@ -5,7 +5,7 @@ __version__ = '0.8.0'
 __author__ = 'Yezy Ilomo'
 __author_email__ = 'yezileliilomo@hotmail.com'
 __license__ = 'MIT'
-__copyright__ = 'Copyright 2019 Yezy Ilomo'
+__copyright__ = 'Copyright 2020 Yezy Ilomo'
 
 # Version synonym
 VERSION = __version__
