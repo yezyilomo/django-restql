@@ -123,12 +123,13 @@ class ReplaceableStudentSerializer(NestedModelSerializer):
 
 
 class ReplaceableStudentWithAliasSerializer(NestedModelSerializer):
+    full_name = serializers.CharField(source="name")
     program = NestedField(WritableCourseSerializer, source="course", accept_pk=True, allow_null=True, required=False)
     contacts = NestedField(PhoneSerializer, source="phone_numbers", accept_pk=True,  many=True, required=False)
 
     class Meta:
         model = Student
-        fields = ['name', 'age', 'program', 'contacts']
+        fields = ['full_name', 'age', 'program', 'contacts']
 
 
 class WritableStudentSerializer(NestedModelSerializer):

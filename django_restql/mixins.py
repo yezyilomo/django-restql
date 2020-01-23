@@ -560,7 +560,12 @@ class NestedCreateMixin(BaseNestedMixin):
         data = copy.copy(validated_data)
         all_fields = self._get_all_fields()
         for field in data:
-            field_serializer = all_fields[field]
+            if field not in all_fields:
+                # Not a nested field
+                continue
+            else:
+                field_serializer = all_fields[field]
+
             if isinstance(field_serializer, Serializer):
                 if isinstance(field_serializer, BaseReplaceableNestedField):
                     value = validated_data.pop(field)
@@ -839,7 +844,12 @@ class NestedUpdateMixin(BaseNestedMixin):
         data = copy.copy(validated_data)
         all_fields = self._get_all_fields()
         for field in data:
-            field_serializer = all_fields[field]
+            # Not a nested field
+            if field not in all_fields:
+                continue
+            else:
+                field_serializer = all_fields[field]
+            
             if isinstance(field_serializer, Serializer):
                 if isinstance(field_serializer, BaseReplaceableNestedField):
                     value = validated_data.pop(field)
