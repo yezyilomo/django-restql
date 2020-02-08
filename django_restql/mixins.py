@@ -652,7 +652,12 @@ class NestedUpdateMixin(BaseNestedMixin):
                 objs.update({field: None})
             else:
                 obj = serializer.save()
-                objs.update({field: nested_obj})
+                if nested_obj is None:
+                    # Patch back newly created object to instance
+                    setattr(instance, field, obj)
+                    objs.update({field: obj})
+                else:
+                    objs.update({field: nested_obj})
         return objs
 
     def bulk_create_many_to_many_related(self, field, nested_obj, data):
