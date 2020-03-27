@@ -647,12 +647,12 @@ class CourseSerializer(DynamicFieldsMixin, serializers.ModelSerializer):
 <pre><code class="py"># settings.py
 REST_FRAMEWORK = {
     # This is needed to be able to get filter parameters from query arguments
-    DEFAULT_FILTER_BACKEND = 'django_restql.filters.RESTQLFilterBackend'
+    'DEFAULT_FILTER_BACKEND': 'django_restql.filters.RESTQLFilterBackend'
 }
 
 RESTQL = {
     # This tells django-restql which filter backend to use(send generated filter parameters to)
-    DEFAULT_BASE_FILTER_BACKEND = 'django_filters.rest_framework.DjangoFilterBackend'
+    'DEFAULT_BASE_FILTER_BACKEND': 'django_filters.rest_framework.DjangoFilterBackend'
 }
 </code></pre>
 
@@ -660,12 +660,12 @@ RESTQL = {
 <pre><code class="py"># settings.py
 REST_FRAMEWORK = {
     # This is needed to be able to get filter parameters from query arguments
-    DEFAULT_FILTER_BACKEND = 'django_restql.filters.RESTQLFilterBackend'
+    'DEFAULT_FILTER_BACKEND': 'django_restql.filters.RESTQLFilterBackend'
 }
 
 RESTQL = {
     # This tells django-restql which filter backend to use(send generated filter parameters to)
-    DEFAULT_BASE_FILTER_BACKEND = 'rest_framework_filters.backends.RestFrameworkFilterBackend'
+    'DEFAULT_BASE_FILTER_BACKEND': 'rest_framework_filters.backends.RestFrameworkFilterBackend'
 }
 </code></pre>
 
@@ -810,7 +810,7 @@ prefetch_related = {
 <h3 id="query_param_name">QUERY_PARAM_NAME<a class="headerlink" href="#query_param_name" title="Permanent link">&para;</a></h3>
 <p>The default value for this is <code>query</code>. If you don't want to use the name <code>query</code> as your parameter, you can change it with<code>QUERY_PARAM_NAME</code> on settings file e.g </p>
 <pre><code class="py">RESTQL = {
-    'QUERY_PARAM_NAME' = &quot;your_favourite_name&quot;
+    'QUERY_PARAM_NAME': 'your_favourite_name'
 }
 </code></pre>
 
@@ -824,7 +824,7 @@ This is used if you want to use query arguments to do filtering, this is discuss
 <pre><code class="py"># settings.py file
 # This will turn off auto apply eager loading globally
 RESTQL = {
-    'AUTO_APPLY_EAGER_LOADING' = False
+    'AUTO_APPLY_EAGER_LOADING': False
 }
 </code></pre>
 
@@ -1173,5 +1173,5 @@ class PropertySerializer(DynamicFieldsMixin, NestedModelSerializer):
 
 <!--
 MkDocs version : 1.0.4
-Build Date UTC : 2020-01-23 05:48:15
+Build Date UTC : 2020-03-27 10:07:18
 -->
