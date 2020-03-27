@@ -559,12 +559,12 @@ To integrate with [django-filter](https://github.com/carltongibson/django-filter
 # settings.py
 REST_FRAMEWORK = {
     # This is needed to be able to get filter parameters from query arguments
-    DEFAULT_FILTER_BACKEND = 'django_restql.filters.RESTQLFilterBackend'
+    'DEFAULT_FILTER_BACKEND': 'django_restql.filters.RESTQLFilterBackend'
 }
 
 RESTQL = {
     # This tells django-restql which filter backend to use(send generated filter parameters to)
-    DEFAULT_BASE_FILTER_BACKEND = 'django_filters.rest_framework.DjangoFilterBackend'
+    'DEFAULT_BASE_FILTER_BACKEND': 'django_filters.rest_framework.DjangoFilterBackend'
 }
 ```
 
@@ -573,12 +573,12 @@ And for [djangorestframework-filters](https://github.com/philipn/django-rest-fra
 # settings.py
 REST_FRAMEWORK = {
     # This is needed to be able to get filter parameters from query arguments
-    DEFAULT_FILTER_BACKEND = 'django_restql.filters.RESTQLFilterBackend'
+    'DEFAULT_FILTER_BACKEND': 'django_restql.filters.RESTQLFilterBackend'
 }
 
 RESTQL = {
     # This tells django-restql which filter backend to use(send generated filter parameters to)
-    DEFAULT_BASE_FILTER_BACKEND = 'rest_framework_filters.backends.RestFrameworkFilterBackend'
+    'DEFAULT_BASE_FILTER_BACKEND': 'rest_framework_filters.backends.RestFrameworkFilterBackend'
 }
 ```
 
@@ -740,7 +740,7 @@ Configuration for **Django RESTQL** is all namespaced inside a single Django set
 The default value for this is `query`. If you don't want to use the name `query` as your parameter, you can change it with`QUERY_PARAM_NAME` on settings file e.g 
 ```py
 RESTQL = {
-    'QUERY_PARAM_NAME' = "your_favourite_name"
+    'QUERY_PARAM_NAME': 'your_favourite_name'
 }
 ```
 Now you can use the name `your_favourite_name` as your query parameter. E.g
@@ -757,7 +757,7 @@ The default value for this is `True`. When using the `EagerLoadingMixin`, this s
 # settings.py file
 # This will turn off auto apply eager loading globally
 RESTQL = {
-    'AUTO_APPLY_EAGER_LOADING' = False
+    'AUTO_APPLY_EAGER_LOADING': False
 }
 ```
 
