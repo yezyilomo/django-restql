@@ -1,4 +1,6 @@
-from pypeg2 import name, csl, List, parse, optional, contiguous, word
+import re
+
+from pypeg2 import name, csl, List, parse, optional, contiguous
 
 from .exceptions import QueryFormatError
 
@@ -16,7 +18,7 @@ class AllFields(str):
 
 
 class Argument(List):
-    grammar = name(), ':', word
+    grammar = name(), ':', re.compile(r'[^,:\)]+')
 
     @property
     def value(self):
