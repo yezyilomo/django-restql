@@ -5,13 +5,13 @@ from rest_framework.serializers import (
     Serializer, ListSerializer,
     ValidationError
 )
-from .settings import restql_settings
 from django.db.models import Prefetch
 from django.db.models.fields.related import(
     ManyToOneRel, ManyToManyRel
 )
 
 from .parser import Parser
+from .settings import restql_settings
 from .exceptions import FieldNotFound, QueryFormatError
 from .operations import ADD, CREATE, REMOVE, UPDATE
 from .fields import (
