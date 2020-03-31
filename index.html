@@ -858,7 +858,7 @@ class StudentViewSet(EagerLoadingMixin, viewsets.ModelViewSet):
 <h1 id="mutating-data">Mutating Data<a class="headerlink" href="#mutating-data" title="Permanent link">&para;</a></h1>
 <p><strong>Django RESTQL</strong> got your back on creating and updating nested data too, it has two components for mutating nested data, <code>NestedModelSerializer</code> and <code>NestedField</code>. A serializer <code>NestedModelSerializer</code> has <code>update</code> and <code>create</code> logics for nested fields on the other hand <code>NestedField</code> is used to validate data before calling <code>update</code> or <code>create</code> method.</p>
 <h2 id="using-nestedfield-and-nestedmodelserializer">Using NestedField and NestedModelSerializer<a class="headerlink" href="#using-nestedfield-and-nestedmodelserializer" title="Permanent link">&para;</a></h2>
-<p>Just like in querying data, mutating nested data with <strong>Django RESTQL</strong> is very simple, you just have to inherit <code>NestedModelSerializer</code> on a serializer with nested fields and use <code>NestedField</code> to define those nested fields. Below is an example which shows how to use <code>NestedModelSerializer</code> and <code>NestedField</code>.</p>
+<p>Just like in querying data, mutating nested data with <strong>Django RESTQL</strong> is very simple, you just have to inherit <code>NestedModelSerializer</code> on a serializer with nested fields and use <code>NestedField</code> to define those nested fields which you want to be able to mutate. Below is an example which shows how to use <code>NestedModelSerializer</code> and <code>NestedField</code>.</p>
 <pre><code class="py">from rest_framework import serializers
 from django_restql.serializers import NestedModelSerializer
 from django_restql.fields import NestedField
@@ -912,7 +912,7 @@ class PropertySerializer(NestedModelSerializer):
 }
 </code></pre>
 
-<p>What's done here is pretty clear, location will be created and associated with the property created, also create operation on amenities will create amenities with values specified in a list and associate with the property, add operation will add amenity with id 4 to a list of amenities of the property.</p>
+<p>What's done here is pretty clear, location will be created and associated with the property created, also create operation on amenities will create amenities with values specified in a list and associate with the property, add operation will add amenity with id 3 to a list of amenities of the property.</p>
 <p><strong>Note:</strong> POST for many related field supports two operations which are <code>create</code> and <code>add</code>.</p>
 <p>Response</p>
 <pre><code class="js">{
@@ -1173,5 +1173,5 @@ class PropertySerializer(DynamicFieldsMixin, NestedModelSerializer):
 
 <!--
 MkDocs version : 1.0.4
-Build Date UTC : 2020-03-27 10:07:18
+Build Date UTC : 2020-03-31 20:15:26
 -->
