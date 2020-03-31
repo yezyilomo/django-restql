@@ -795,7 +795,7 @@ class StudentViewSet(EagerLoadingMixin, viewsets.ModelViewSet):
 
 
 ## Using NestedField and NestedModelSerializer
-Just like in querying data, mutating nested data with **Django RESTQL** is very simple, you just have to inherit `NestedModelSerializer` on a serializer with nested fields and use `NestedField` to define those nested fields. Below is an example which shows how to use `NestedModelSerializer` and `NestedField`.
+Just like in querying data, mutating nested data with **Django RESTQL** is very simple, you just have to inherit `NestedModelSerializer` on a serializer with nested fields and use `NestedField` to define those nested fields which you want to be able to mutate. Below is an example which shows how to use `NestedModelSerializer` and `NestedField`.
 ```py
 from rest_framework import serializers
 from django_restql.serializers import NestedModelSerializer
@@ -852,7 +852,7 @@ Request Body
     }
 }
 ```
-What's done here is pretty clear, location will be created and associated with the property created, also create operation on amenities will create amenities with values specified in a list and associate with the property, add operation will add amenity with id 4 to a list of amenities of the property.
+What's done here is pretty clear, location will be created and associated with the property created, also create operation on amenities will create amenities with values specified in a list and associate with the property, add operation will add amenity with id 3 to a list of amenities of the property.
 
 **Note:** POST for many related field supports two operations which are `create` and `add`.
 
