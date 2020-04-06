@@ -56,42 +56,4 @@ class UserSerializer(DynamicFieldsMixin, serializer.ModelSerializer):
 ]
 ```
 
-**Django RESTQL** support querying both flat and nested resources, so you can expand or query nested fields at any level as defined on a serializer. In an example below we have `location` as a nested field on User model.
-
-```py
-from rest_framework import serializers
-from django.contrib.auth.models import User
-from django_restql.mixins import DynamicFieldsMixin
-
-from app.models import GroupSerializer, LocationSerializer
-
-
-class LocationSerializer(DynamicFieldsMixin, serializer.ModelSerializer):
-    class Meta:
-        model = Location
-        fields = ['id', 'country',  'city', 'street']
-
-
-class UserSerializer(DynamicFieldsMixin, serializer.ModelSerializer):
-    location = LocationSerializer(many=False, read_only=True) 
-    class Meta:
-        model = User
-        fields = ['id', 'username', 'email', 'location']
-```
-
-If you want only `country` and `city` fields on a `location` field when retrieving users here is how you can do it
-
-`GET /users/?query={id, username, location{country, city}}`
-```js
-[
-    {
-        "id": 1,
-        "username": "yezyilomo",
-        "location": {
-            "contry": "Tanzania",
-            "city": "Dar es salaam"
-        }
-    },
-    ...
-]
-```
+**Django RESTQL** support querying both flat and nested resources, you can expand or query nested fields at any level as defined on a serializer.
