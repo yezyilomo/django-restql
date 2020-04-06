@@ -1,4 +1,19 @@
 .md-header{
-    height: 55px;
-    padding-top: 3px;
+    height: 53px;
+    padding-top: 2px;
+}
+
+.md-search__form input{
+    border-radius: 3px;
+}
+
+.md-source__icon svg{
+    display: none;
+}
+
+.md-source__icon{
+    background-image: url("img/github.svg");
+    background-repeat: no-repeat;
+    background-position: 50% center;
+    background-size: 22px;
 }

@@ -450,42 +450,7 @@
 </pre></div>
 
 
-<p><strong>Django RESTQL</strong> support querying both flat and nested resources, so you can expand or query nested fields at any level as defined on a serializer. In an example below we have <code>location</code> as a nested field on User model.</p>
-<div class="codehilite"><pre><span></span><span class="kn">from</span> <span class="nn">rest_framework</span> <span class="kn">import</span> <span class="n">serializers</span>
-<span class="kn">from</span> <span class="nn">django.contrib.auth.models</span> <span class="kn">import</span> <span class="n">User</span>
-<span class="kn">from</span> <span class="nn">django_restql.mixins</span> <span class="kn">import</span> <span class="n">DynamicFieldsMixin</span>
-
-<span class="kn">from</span> <span class="nn">app.models</span> <span class="kn">import</span> <span class="n">GroupSerializer</span><span class="p">,</span> <span class="n">LocationSerializer</span>
-
-
-<span class="k">class</span> <span class="nc">LocationSerializer</span><span class="p">(</span><span class="n">DynamicFieldsMixin</span><span class="p">,</span> <span class="n">serializer</span><span class="o">.</span><span class="n">ModelSerializer</span><span class="p">):</span>
-    <span class="k">class</span> <span class="nc">Meta</span><span class="p">:</span>
-        <span class="n">model</span> <span class="o">=</span> <span class="n">Location</span>
-        <span class="n">fields</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;id&#39;</span><span class="p">,</span> <span class="s1">&#39;country&#39;</span><span class="p">,</span>  <span class="s1">&#39;city&#39;</span><span class="p">,</span> <span class="s1">&#39;street&#39;</span><span class="p">]</span>
-
-
-<span class="k">class</span> <span class="nc">UserSerializer</span><span class="p">(</span><span class="n">DynamicFieldsMixin</span><span class="p">,</span> <span class="n">serializer</span><span class="o">.</span><span class="n">ModelSerializer</span><span class="p">):</span>
-    <span class="n">location</span> <span class="o">=</span> <span class="n">LocationSerializer</span><span class="p">(</span><span class="n">many</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> <span class="n">read_only</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span> 
-    <span class="k">class</span> <span class="nc">Meta</span><span class="p">:</span>
-        <span class="n">model</span> <span class="o">=</span> <span class="n">User</span>
-        <span class="n">fields</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;id&#39;</span><span class="p">,</span> <span class="s1">&#39;username&#39;</span><span class="p">,</span> <span class="s1">&#39;email&#39;</span><span class="p">,</span> <span class="s1">&#39;location&#39;</span><span class="p">]</span>
-</pre></div>
-
-
-<p>If you want only <code>country</code> and <code>city</code> fields on a <code>location</code> field when retrieving users here is how you can do it</p>
-<p><code>GET /users/?query={id, username, location{country, city}}</code></p>
-<div class="codehilite"><pre><span></span><span class="p">[</span>
-    <span class="p">{</span>
-        <span class="s2">&quot;id&quot;</span><span class="o">:</span> <span class="mi">1</span><span class="p">,</span>
-        <span class="s2">&quot;username&quot;</span><span class="o">:</span> <span class="s2">&quot;yezyilomo&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;location&quot;</span><span class="o">:</span> <span class="p">{</span>
-            <span class="s2">&quot;contry&quot;</span><span class="o">:</span> <span class="s2">&quot;Tanzania&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;city&quot;</span><span class="o">:</span> <span class="s2">&quot;Dar es salaam&quot;</span>
-        <span class="p">}</span>
-    <span class="p">},</span>
-    <span class="p">...</span>
-<span class="p">]</span>
-</pre></div>
+<p><strong>Django RESTQL</strong> support querying both flat and nested resources, you can expand or query nested fields at any level as defined on a serializer.</p>
                 
                   
                 
