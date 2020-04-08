@@ -840,7 +840,7 @@
 <p>Let's say you want to get all user fields but under <code>contact</code> field you want to get only <code>phone</code>, you could use the whitelisting approach as </p>
 <p><code>query={username, birthdate, contact{phone}}</code> </p>
 <p>but if you have many fields on user model you might endup writing a very long query, so with <code>*</code> operator you can simply do <code>query={*, contact{phone}}</code> which means get me all fields on user model but under <code>contact</code> field I want only <code>phone</code> field, as you see the query is very short compared to the first one and it won't grow if more fields are added to the user model.</p>
-<h3>More examples to get you comfortable with the wildcard(\*) operator syntax</h3>
+<h3>More examples to get you comfortable with the wildcard(*) operator syntax</h3>
 
 <div class="codehilite"><pre><span></span><span class="p">{</span><span class="o">*</span><span class="p">,</span> <span class="o">-</span><span class="n">username</span><span class="p">,</span> <span class="n">contact</span><span class="p">{</span><span class="n">phone</span><span class="p">}}</span>   <span class="err">≡</span>   <span class="p">{</span><span class="n">birthdate</span><span class="p">,</span> <span class="n">contact</span><span class="p">{</span><span class="n">phone</span><span class="p">}}</span>
 
