@@ -239,7 +239,7 @@ Let's say you want to get all user fields but under `contact` field you want to 
 
 but if you have many fields on user model you might endup writing a very long query, so with `*` operator you can simply do `query={*, contact{phone}}` which means get me all fields on user model but under `contact` field I want only `phone` field, as you see the query is very short compared to the first one and it won't grow if more fields are added to the user model.
 
-<h3>More examples to get you comfortable with the wildcard(\*) operator syntax</h3>
+<h3>More examples to get you comfortable with the wildcard(*) operator syntax</h3>
 ```py
 {*, -username, contact{phone}}   ≡   {birthdate, contact{phone}}
 
