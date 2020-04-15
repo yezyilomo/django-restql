@@ -268,7 +268,7 @@ def BaseNestedFieldSerializerFactory(
                 )
             elif data == empty and required:
                 data = default
-            elif data == empty and default == empty:
+            elif data == empty and default == empty and not self.is_partial:
                 data = ""
                 
             if data == "":
