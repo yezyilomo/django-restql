@@ -1,6 +1,7 @@
 import copy
 import collections
 
+from rest_framework.fields import empty
 from rest_framework.serializers import (
     Serializer, ListSerializer,
     ValidationError
@@ -15,7 +16,7 @@ from .settings import restql_settings
 from .exceptions import FieldNotFound, QueryFormatError
 from .operations import ADD, CREATE, REMOVE, UPDATE
 from .fields import (
-    BaseReplaceableNestedField, BaseWritableNestedField,
+    BaseRESTQLNestedField, BaseReplaceableNestedField, BaseWritableNestedField,
     DynamicSerializerMethodField
 )
 
@@ -439,17 +440,40 @@ class EagerLoadingMixin(RequestQueryParserMixin):
 class BaseNestedMixin(object):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self._unaliased_fields = self.get_fields()
-        self._aliased_nested_fields = {}
 
-    def _get_all_fields(self):
-        return collections.ChainMap(
-            self._unaliased_fields,
-            self._aliased_nested_fields
-        )
+        # The order in which these two methods are run is important
+        self.build_restql_nested_fields()
+        self.build_restql_source_field_map()
+
+    def build_restql_nested_fields(self):
+        # Make field_name -> field_value map for restql nested fields
+        self.restql_nested_fields = {}
+        for name, field in self.fields.items():
+            if isinstance(field, BaseRESTQLNestedField):
+                self.restql_nested_fields.update({name: field})
+
+    def build_restql_source_field_map(self):
+        # Make field_source -> field_value map for restql nested fields
+        # You shoul run this after `build_restql_nested_fields`
+        self.restql_source_field_map = {}
+        for field in self.restql_nested_fields.values():
+            # Get the actual source of the field
+            self.restql_source_field_map.update({field.source: field})
 
     def to_internal_value(self, data):
-        return super().to_internal_value(data)
+        validated_data = super().to_internal_value(data)
+
+        if self.partial:
+            empty_fields = []
+            for field, value in validated_data.items():
+                if field in self.restql_source_field_map.keys() and value == empty:
+                    empty_fields.append(field)
+    
+            for field in empty_fields:
+                # Ignore empty fields from validated data
+                validated_data.pop(field)
+
+        return validated_data
 
 
 class NestedCreateMixin(BaseNestedMixin):
@@ -457,10 +481,10 @@ class NestedCreateMixin(BaseNestedMixin):
     def create_writable_foreignkey_related(self, data):
         # data format {field: {sub_field: value}}
         objs = {}
-        all_fields = self._get_all_fields()
+        nested_fields = self.restql_source_field_map
         for field, value in data.items():
             # Get nested field serializer
-            serializer = all_fields[field]
+            serializer = nested_fields[field]
             serializer_class = type(serializer)
             kwargs = serializer.validation_kwargs
             serializer = serializer_class(
@@ -478,11 +502,11 @@ class NestedCreateMixin(BaseNestedMixin):
         return objs
 
     def bulk_create_objs(self, field, data):
-        all_fields = self._get_all_fields()
-        model = all_fields[field].child.Meta.model
+        nested_fields = self.restql_source_field_map
+        model = nested_fields[field].child.Meta.model
 
         # Get nested field serializer
-        serializer = all_fields[field].child
+        serializer = nested_fields[field].child
         serializer_class = type(serializer)
         kwargs = serializer.validation_kwargs
         pks = []
@@ -509,11 +533,11 @@ class NestedCreateMixin(BaseNestedMixin):
         for field, values in data.items():
             model = self.Meta.model
             foreignkey = getattr(model, field).field.name
-            all_fields = self._get_all_fields()
+            nested_fields = self.restql_source_field_map
             for operation in values:
                 if operation == ADD:
                     pks = values[operation]
-                    model = all_fields[field].child.Meta.model
+                    model = nested_fields[field].child.Meta.model
                     qs = model.objects.filter(pk__in=pks)
                     qs.update(**{foreignkey: instance.pk})
                     field_pks.update({field: pks})
@@ -558,13 +582,13 @@ class NestedCreateMixin(BaseNestedMixin):
         # Make a partal copy of validated_data so that we can
         # iterate and alter it
         data = copy.copy(validated_data)
-        all_fields = self._get_all_fields()
+        nested_fields = self.restql_source_field_map
         for field in data:
-            if field not in all_fields:
+            if field not in nested_fields:
                 # Not a nested field
                 continue
             else:
-                field_serializer = all_fields[field]
+                field_serializer = nested_fields[field]
 
             if isinstance(field_serializer, Serializer):
                 if isinstance(field_serializer, BaseReplaceableNestedField):
@@ -632,10 +656,10 @@ class NestedUpdateMixin(BaseNestedMixin):
     def update_writable_foreignkey_related(self, instance, data):
         # data format {field: {sub_field: value}}
         objs = {}
-        all_fields = self._get_all_fields()
+        nested_fields = self.restql_source_field_map
         for field, values in data.items():
             # Get nested field serializer
-            serializer = all_fields[field]
+            serializer = nested_fields[field]
             serializer_class = type(serializer)
             kwargs = serializer.validation_kwargs
             nested_obj = getattr(instance, field)
@@ -662,7 +686,7 @@ class NestedUpdateMixin(BaseNestedMixin):
 
     def bulk_create_many_to_many_related(self, field, nested_obj, data):
         # Get nested field serializer
-        serializer = self._get_all_fields()[field].child
+        serializer = self.restql_source_field_map[field].child
         serializer_class = type(serializer)
         kwargs = serializer.validation_kwargs
         pks = []
@@ -681,7 +705,7 @@ class NestedUpdateMixin(BaseNestedMixin):
 
     def bulk_create_many_to_one_related(self, field, nested_obj, data):
         # Get nested field serializer
-        serializer = self._get_all_fields()[field].child
+        serializer = self.restql_source_field_map[field].child
         serializer_class = type(serializer)
         kwargs = serializer.validation_kwargs
         pks = []
@@ -702,7 +726,7 @@ class NestedUpdateMixin(BaseNestedMixin):
         objs = []
 
         # Get nested field serializer
-        serializer = self._get_all_fields()[field].child
+        serializer = self.restql_source_field_map[field].child
         serializer_class = type(serializer)
         kwargs = serializer.validation_kwargs
         for pk, values in data.items():
@@ -724,7 +748,7 @@ class NestedUpdateMixin(BaseNestedMixin):
         objs = []
 
         # Get nested field serializer
-        serializer = self._get_all_fields()[field].child
+        serializer = self.restql_source_field_map[field].child
         serializer_class = type(serializer)
         kwargs = serializer.validation_kwargs
         model = self.Meta.model
@@ -758,11 +782,11 @@ class NestedUpdateMixin(BaseNestedMixin):
             nested_obj = getattr(instance, field)
             model = self.Meta.model
             foreignkey = getattr(model, field).field.name
-            all_fields = self._get_all_fields()
+            nested_fields = self.restql_source_field_map
             for operation in values:
                 if operation == ADD:
                     pks = values[operation]
-                    model = all_fields[field].child.Meta.model
+                    model = nested_fields[field].child.Meta.model
                     qs = model.objects.filter(pk__in=pks)
                     qs.update(**{foreignkey: instance.pk})
                 elif operation == CREATE:
@@ -847,13 +871,13 @@ class NestedUpdateMixin(BaseNestedMixin):
         # Make a partal copy of validated_data so that we can
         # iterate and alter it
         data = copy.copy(validated_data)
-        all_fields = self._get_all_fields()
+        nested_fields = self.restql_source_field_map
         for field in data:
             # Not a nested field
-            if field not in all_fields:
+            if field not in nested_fields:
                 continue
             else:
-                field_serializer = all_fields[field]
+                field_serializer = nested_fields[field]
             
             if isinstance(field_serializer, Serializer):
                 if isinstance(field_serializer, BaseReplaceableNestedField):

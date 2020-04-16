@@ -33,6 +33,10 @@ class DynamicSerializerMethodField(SerializerMethodField):
         return method(value, query)
 
 
+class BaseRESTQLNestedField(object):
+    pass
+
+
 class BaseReplaceableNestedField(object):
     def to_internal_value(self, data):
         raise NotImplementedError('`to_internal_value()` must be implemented.')
@@ -68,7 +72,7 @@ def BaseNestedFieldSerializerFactory(
     BaseClass = BaseReplaceableNestedField if accept_pk \
         else BaseWritableNestedField
 
-    class BaseNestedField(BaseClass):
+    class BaseNestedField(BaseClass, BaseRESTQLNestedField):
         @property
         def is_partial(self):
             if partial is None and self.parent is not None:
@@ -192,11 +196,6 @@ def BaseNestedFieldSerializerFactory(
             return data
 
         def to_internal_value(self, data):
-            source = kwargs.get('source', None)
-            if source is not None and self.parent is not None:
-                alias = self.field_name
-                self.parent._aliased_nested_fields.update({source: self})
-                self.parent._unaliased_fields.pop(alias)
             required = kwargs.get('required', True)
             request = self.context.get('request')
             if request.method in ["PUT", "PATCH"]:
@@ -253,14 +252,12 @@ def BaseNestedFieldSerializerFactory(
             return parent_serializer.validated_data
 
         def to_internal_value(self, data):
-            source = kwargs.get('source', None)
-            if source is not None and self.parent is not None:
-                alias = self.field_name
-                self.parent._aliased_nested_fields.update({source: self})
-                self.parent._unaliased_fields.pop(alias)
             required = kwargs.get('required', True)
             default = kwargs.get('default', empty)
 
+            if data == empty and self.is_partial:
+                return empty
+                
             if data == empty and required and default == empty:
                 raise ValidationError(
                     "This field is required.",
