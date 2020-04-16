@@ -34,17 +34,16 @@ class DynamicSerializerMethodField(SerializerMethodField):
 
 
 class BaseRESTQLNestedField(object):
+    def to_internal_value(self, data):
+        raise NotImplementedError('`to_internal_value()` must be implemented.')
+
+
+class BaseReplaceableNestedField(BaseRESTQLNestedField):
     pass
 
 
-class BaseReplaceableNestedField(object):
-    def to_internal_value(self, data):
-        raise NotImplementedError('`to_internal_value()` must be implemented.')
-
-
-class BaseWritableNestedField(object):
-    def to_internal_value(self, data):
-        raise NotImplementedError('`to_internal_value()` must be implemented.')
+class BaseWritableNestedField(BaseRESTQLNestedField):
+    pass
 
 
 def BaseNestedFieldSerializerFactory(
@@ -72,7 +71,7 @@ def BaseNestedFieldSerializerFactory(
     BaseClass = BaseReplaceableNestedField if accept_pk \
         else BaseWritableNestedField
 
-    class BaseNestedField(BaseClass, BaseRESTQLNestedField):
+    class BaseNestedField(BaseClass):
         @property
         def is_partial(self):
             if partial is None and self.parent is not None:
