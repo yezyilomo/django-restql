@@ -1672,3 +1672,374 @@ class DataMutationTests(APITestCase):
                 ]
             }
         )
+
+    # **************** PATCH Tests ********************* #
+
+    def test_patch_on_pk_nested_foreignkey_related_field(self):
+        url = reverse_lazy("rstudent-detail", args=[self.student.id])
+        data = {
+            "course": 2
+        }
+        response = self.client.patch(url, data, format="json")
+
+        self.assertEqual(
+            response.data,
+            {
+                'name': 'Yezy', 'age': 24, 
+                'course': {
+                    'name': 'Programming', 'code': 'CS150', 
+                    'books': [
+                        {"title": "Advanced Data Structures", "author": "S.Mobit"}
+                    ]
+                }, 
+                'phone_numbers': [
+                    {'number': '076711110', 'type': 'Office', 'student': 1}, 
+                    {'number': '073008880', 'type': 'Home', 'student': 1} 
+                ]
+            }
+        )
+
+    def test_patch_without_pk_nested_foreignkey_related_field(self):
+        url = reverse_lazy("rstudent-detail", args=[self.student.id])
+        data = {
+            "age": 35,
+        }
+        response = self.client.patch(url, data, format="json")
+
+        self.assertEqual(
+            response.data,
+            {
+                'name': 'Yezy', 'age': 35, 
+                "course": {
+                    "name": "Data Structures",
+                    "code": "CS210",
+                    "books": [
+                        {"title": "Advanced Data Structures", "author": "S.Mobit"},
+                        {"title": "Basic Data Structures", "author": "S.Mobit"}
+                    ]
+                }, 
+                'phone_numbers': [
+                    {'number': '076711110', 'type': 'Office', 'student': 1}, 
+                    {'number': '073008880', 'type': 'Home', 'student': 1} 
+                ]
+            }
+        )
+
+    def test_patch_on_pk_nested_foreignkey_related_field_with_alias(self):
+        url = reverse_lazy("rstudent_with_alias-detail", args=[self.student.id])
+        data = {
+            "age": 33,
+            "program": 2
+        }
+        response = self.client.patch(url, data, format="json")
+
+        self.assertEqual(
+            response.data,
+            {
+                'full_name': 'Yezy', 
+                'age': 33, 
+                'program': {
+                    'name': 'Programming', 'code': 'CS150', 
+                    'books': [
+                        {"title": "Advanced Data Structures", "author": "S.Mobit"}
+                    ]
+                }, 
+                'contacts': [
+                    {'number': '076711110', 'type': 'Office', 'student': 1}, 
+                    {'number': '073008880', 'type': 'Home', 'student': 1} 
+                ]
+            }
+        )
+
+    def test_patch_on_pk_nested_nullable_foreignkey_related_field(self):
+        url = reverse_lazy("rstudent-detail", args=[self.student.id])
+        data = {
+            "age": 30
+        }
+        response = self.client.patch(url, data, format="json")
+
+        self.assertEqual(
+            response.data,
+            {
+                'name': 'Yezy', 'age': 30, 
+                "course": {
+                    "name": "Data Structures",
+                    "code": "CS210",
+                    "books": [
+                        {"title": "Advanced Data Structures", "author": "S.Mobit"},
+                        {"title": "Basic Data Structures", "author": "S.Mobit"}
+                    ]
+                }, 
+                'phone_numbers': [
+                    {'number': '076711110', 'type': 'Office', 'student': 1}, 
+                    {'number': '073008880', 'type': 'Home', 'student': 1} 
+                ]
+            }
+        )
+
+
+    def test_patch_on_writable_nested_foreignkey_related_field(self):
+        url = reverse_lazy("wstudent-detail", args=[self.student.id])
+        data = {
+            "name": "Yezy Ilomo",
+            "course": {"name": "Programming", "code": "CS50"}
+        }
+        response = self.client.patch(url, data, format="json")
+
+        self.assertEqual(
+            response.data,
+            {
+                'name': 'Yezy Ilomo', 'age': 24, 
+                'course': {
+                    'name': 'Programming', 'code': 'CS50', 
+                    'books': [
+                        {'title': 'Advanced Data Structures', 'author': 'S.Mobit'},
+                        {'title': 'Basic Data Structures', 'author': 'S.Mobit'}
+                    ]
+                }, 
+                'phone_numbers': [
+                    {'number': '076711110', 'type': 'Office', 'student': 1}, 
+                    {'number': '073008880', 'type': 'Home', 'student': 1}
+                    
+                ]
+            }
+        )
+
+    def test_patch_on_writable_nested_foreignkey_related_field_with_aliased_fields(self):
+        url = reverse_lazy("wstudent_with_alias-detail", args=[self.student.id])
+        data = {
+            "age": 28,
+            "program": {"name": "Programming & Data Analysis", "code": "CS55"},
+            "contacts": {}
+        }
+        response = self.client.patch(url, data, format="json")
+
+        self.assertEqual(
+            response.data,
+            {
+                'name': 'Yezy', 
+                'age': 28, 
+                'program': {
+                    'name': 'Programming & Data Analysis', 
+                    'code': 'CS55', 
+                    'books': [
+                        {'title': 'Advanced Data Structures', 'author': 'S.Mobit'},
+                        {'title': 'Basic Data Structures', 'author': 'S.Mobit'}
+                    ]
+                }, 
+                'contacts': [
+                    {'number': '076711110', 'type': 'Office', 'student': 1}, 
+                    {'number': '073008880', 'type': 'Home', 'student': 1},
+                ]
+            }
+        )
+
+    def test_patch_on_writable_nested_nullable_foreignkey_related_field(self):
+        url = reverse_lazy("wstudent-detail", args=[self.student.id])
+        data = {
+            "name": "yezy",
+            "age": 26
+        }
+        response = self.client.patch(url, data, format="json")
+
+        self.assertEqual(
+            response.data,
+            {
+                'name': 'yezy', 'age': 26, 
+                "course": {
+                    "name": "Data Structures",
+                    "code": "CS210",
+                    "books": [
+                        {"title": "Advanced Data Structures", "author": "S.Mobit"},
+                        {"title": "Basic Data Structures", "author": "S.Mobit"}
+                    ]
+                }, 
+                'phone_numbers': [
+                    {'number': '076711110', 'type': 'Office', 'student': 1}, 
+                    {'number': '073008880', 'type': 'Home', 'student': 1} 
+                ]
+            }
+        )
+
+    def test_patch_on_writable_nested_nullable_foreignkey_related_field_with_empty_string(self):
+        url = reverse_lazy("wstudent-detail", args=[self.student.id])
+        data = {
+            "name": "yezy",
+            "age": 33,
+            "course": ''
+        }
+        response = self.client.patch(url, data, format="json")
+
+        self.assertEqual(
+            response.data,
+            {
+                'name': 'yezy', 'age': 33, 
+                'course': None,
+                'phone_numbers': [
+                    {'number': '076711110', 'type': 'Office', 'student': 1}, 
+                    {'number': '073008880', 'type': 'Home', 'student': 1}
+                ]
+            }
+        )
+
+    def test_patch_with_add_operation(self):
+        url = reverse_lazy("rcourse-detail", args=[self.course2.id])
+        data = {
+                "name": "Data Structures",
+                "code": "CS410",
+                "books": {
+                    "add": [2]
+                }
+        }
+        response = self.client.patch(url, data, format="json")
+
+        self.assertEqual(
+            response.data,
+            {
+                "name": "Data Structures",
+                "code": "CS410",
+                "books": [
+                    {'title': 'Advanced Data Structures', 'author': 'S.Mobit'},
+                    {'title': 'Basic Data Structures', 'author': 'S.Mobit'}
+                ]
+            }
+        )
+
+    def test_patch_with_remove_operation(self):
+        url = reverse_lazy("rcourse-detail", args=[self.course2.id])
+        data = {
+                "name": "Data Structures",
+                "code": "CS410",
+                "books": {
+                    "remove": [1]
+                }
+        }
+        response = self.client.patch(url, data, format="json")
+
+        self.assertEqual(
+            response.data,
+            {
+                "name": "Data Structures",
+                "code": "CS410",
+                "books": []
+            }
+        )
+
+    def test_patch_with_create_operation(self):
+        url = reverse_lazy("wcourse-detail", args=[self.course2.id])
+        data = {
+                "name": "Data Structures",
+                "code": "CS310",
+                "books": {
+                    "create": [
+                        {"title": "Primitive Data Types", "author": "S.Mobit"}
+                    ]
+                }
+        }
+        response = self.client.patch(url, data, format="json")
+
+        self.assertEqual(
+            response.data,
+            {
+                "name": "Data Structures",
+                "code": "CS310",
+                "books": [
+                    {'title': 'Advanced Data Structures', 'author': 'S.Mobit'},
+                    {"title": "Primitive Data Types", "author": "S.Mobit"}
+                ]
+            }
+        )
+
+    def test_patch_with_update_operation(self):
+        url = reverse_lazy("wcourse-detail", args=[self.course2.id])
+        data = {
+                "name": "Data Structures",
+                "code": "CS310",
+                "books": {
+                    "update": {
+                        1: {"title": "React Programming", "author": "M.Json"}
+                    }
+                }
+        }
+        response = self.client.patch(url, data, format="json")
+
+        self.assertEqual(
+            response.data,
+            {
+                "name": "Data Structures",
+                "code": "CS310",
+                "books": [
+                    {"title": "React Programming", "author": "M.Json"}
+                ]
+            }
+        )
+
+    def test_patch_on_deep_nested_fields(self):
+        url = reverse_lazy("wstudent-detail", args=[self.student.id])
+        data = {
+            "name": "yezy",
+            "age": 33,
+            "course": {
+                "name": "Programming", 
+                "code": "CS50", 
+                "books": {
+                    "remove": [1]
+                }
+            }
+        }
+        response = self.client.patch(url, data, format="json")
+
+        self.assertEqual(
+            response.data,
+            {
+                'name': 'yezy', 'age': 33, 
+                'course': {
+                    'name': 'Programming', 'code': 'CS50', 
+                    'books': [
+                        {'title': 'Basic Data Structures', 'author': 'S.Mobit'}
+                    ]
+                }, 
+                'phone_numbers': [
+                    {'number': '076711110', 'type': 'Office', 'student': 1}, 
+                    {'number': '073008880', 'type': 'Home', 'student': 1}
+                ]
+            }
+        )
+
+    def test_patch_on_many_2_one_relation(self):
+        url = reverse_lazy("wstudent-detail", args=[self.student.id])
+        data = {
+            "name": "yezy",
+            "age": 33,
+            "course": {"name": "Programming", "code": "CS50"},
+            "phone_numbers": {
+                'update': {
+                    1: {'number': '073008811', 'type': 'office'}
+                },
+                'create': [
+                    {'number': '076750000', 'type': 'office'}
+                ]
+            }
+        }
+        response = self.client.patch(url, data, format="json")
+
+        self.assertEqual(
+            response.data,
+            {
+                'name': 'yezy', 'age': 33, 
+                'course': {
+                    'name': 'Programming', 'code': 'CS50', 
+                    'books': [
+                        {'title': 'Advanced Data Structures', 'author': 'S.Mobit'},
+                        {'title': 'Basic Data Structures', 'author': 'S.Mobit'}
+                    ]
+                }, 
+                'phone_numbers': [
+                    {'number': '073008811', 'type': 'office', 'student': 1}, 
+                    {'number': '073008880', 'type': 'Home', 'student': 1},
+                    {'number': '076750000', 'type': 'office', 'student': 1}
+                    
+                ]
+            }
+        )
+
