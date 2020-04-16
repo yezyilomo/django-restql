@@ -441,7 +441,7 @@ class BaseNestedMixin(object):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        # The order in which these two methods are run is important
+        # The order in which these two methods are called is important
         self.build_restql_nested_fields()
         self.build_restql_source_field_map()
 
@@ -465,12 +465,14 @@ class BaseNestedMixin(object):
 
         if self.partial:
             empty_fields = []
-            for field, value in validated_data.items():
-                if field in self.restql_source_field_map.keys() and value == empty:
+            restql_nested_fields = self.restql_source_field_map.keys()
+
+            for field in restql_nested_fields:
+                if field in validated_data and validated_data[field] == empty:
                     empty_fields.append(field)
     
             for field in empty_fields:
-                # Ignore empty fields from validated data
+                # Ignore empty fields for partial update
                 validated_data.pop(field)
 
         return validated_data
