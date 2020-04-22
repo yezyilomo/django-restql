@@ -7,9 +7,8 @@ from rest_framework.serializers import (
     ValidationError
 )
 from django.db.models import Prefetch
-from django.db.models.fields.related import(
-    ManyToOneRel, ManyToManyRel
-)
+from django.utils.functional import cached_property
+from django.db.models.fields.related import ManyToOneRel, ManyToManyRel
 
 from .parser import Parser
 from .settings import restql_settings
@@ -71,13 +70,16 @@ class DynamicFieldsMixin(RequestQueryParserMixin):
         msg = "May not set both `fields` and `exclude`"
         assert not(is_field_kwarg_set and is_exclude_kwarg_set), msg
 
+        # flag to toggle using restql fields
+        self.use_restql_fields = False
+
         # Instantiate the superclass normally
         super().__init__(*args, **kwargs)
 
     def to_representation(self, instance):
-        # use requested fields
-        self.fields = self.restql_fields
-
+        # Activate to use restql fields 
+        self.use_restql_fields = True
+        
         if self.return_pk:
             return instance.pk
         return super().to_representation(instance)
@@ -222,7 +224,7 @@ class DynamicFieldsMixin(RequestQueryParserMixin):
         self.nested_fields = allowed_nested_fields
         return all_fields
 
-    @property
+    @cached_property
     def restql_fields(self):
         request = self.context.get('request')
         
@@ -299,6 +301,13 @@ class DynamicFieldsMixin(RequestQueryParserMixin):
             # The query is empty i.e query={}
             # return nothing
             return {}
+
+    @property
+    def fields(self):
+        if not self.use_restql_fields:
+            # Don't use restql fields yet
+            return super().fields
+        return self.restql_fields
 
 
 class EagerLoadingMixin(RequestQueryParserMixin):
