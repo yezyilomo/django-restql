@@ -75,6 +75,9 @@ class DynamicFieldsMixin(RequestQueryParserMixin):
         super().__init__(*args, **kwargs)
 
     def to_representation(self, instance):
+        # use requested fields
+        self.fields = self.restql_fields
+
         if self.return_pk:
             return instance.pk
         return super().to_representation(instance)
@@ -220,12 +223,11 @@ class DynamicFieldsMixin(RequestQueryParserMixin):
         return all_fields
 
     @property
-    def fields(self):
+    def restql_fields(self):
         request = self.context.get('request')
         
         is_not_a_request_to_process = (
             request is None or 
-            request.method != "GET" or 
             self.disable_dynamic_fields or
             not self.has_restql_query_param(request)
         )
