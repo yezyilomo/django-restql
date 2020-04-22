@@ -71,21 +71,24 @@ class DynamicFieldsMixin(RequestQueryParserMixin):
         assert not(is_field_kwarg_set and is_exclude_kwarg_set), msg
 
         # flag to toggle using restql fields
-        self.use_restql_fields = False
+        self._use_restql_fields = False
+
+        self._all_fields = super().fields
 
         # Instantiate the superclass normally
         super().__init__(*args, **kwargs)
+        
 
     def to_representation(self, instance):
         # Activate to use restql fields 
-        self.use_restql_fields = True
+        self._use_restql_fields = True
         
         if self.return_pk:
             return instance.pk
         return super().to_representation(instance)
 
     def get_allowed_fields(self):
-        fields = super().fields
+        fields = self._all_fields
         if self.allowed_fields is not None:
             # Drop all fields which are not specified on the `fields` kwarg.
             allowed = set(self.allowed_fields)
@@ -274,10 +277,6 @@ class DynamicFieldsMixin(RequestQueryParserMixin):
                 parent_nested_fields = parent.nested_fields
                 self.parsed_restql_query = \
                     parent_nested_fields.get(field_name, None)
-        else:
-            # Unkown scenario
-            # No filtering of fields
-            return self.get_allowed_fields()
 
         if self.parsed_restql_query is None:
             # No filtering on nested fields
@@ -304,10 +303,10 @@ class DynamicFieldsMixin(RequestQueryParserMixin):
 
     @property
     def fields(self):
-        if not self.use_restql_fields:
-            # Don't use restql fields yet
-            return super().fields
-        return self.restql_fields
+        if self._use_restql_fields:
+            # Use restql fields
+            return self.restql_fields
+        return self._all_fields
 
 
 class EagerLoadingMixin(RequestQueryParserMixin):
