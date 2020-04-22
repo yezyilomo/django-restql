@@ -2043,3 +2043,260 @@ class DataMutationTests(APITestCase):
             }
         )
 
+
+class DataQueryingAndMutationTests(APITestCase):
+    def setUp(self):
+        self.book1 = Book.objects.create(title="Advanced Data Structures", author="S.Mobit")
+        self.book2 = Book.objects.create(title="Basic Data Structures", author="S.Mobit")
+
+        self.course1 = Course.objects.create(
+            name="Data Structures", code="CS210"
+        )
+        self.course2 = Course.objects.create(
+            name="Programming", code="CS150"
+        )
+
+        self.course1.books.set([self.book1, self.book2])
+        self.course2.books.set([self.book1])
+
+        self.student = Student.objects.create(
+            name="Yezy", age=24, course=self.course1
+        )
+
+        self.phone1 = Phone.objects.create(number="076711110", type="Office", student=self.student)
+        self.phone2 = Phone.objects.create(number="073008880", type="Home", student=self.student)
+
+    def tearDown(self):
+        Book.objects.all().delete()
+        Course.objects.all().delete()
+        Student.objects.all().delete()
+
+
+    # **************** POST Tests ********************* #
+
+    def test_post_on_pk_nested_foreignkey_related_field_mix_with_query_param(self):
+        url = reverse_lazy("rstudent-list")
+        data = {
+            "name": "yezy",
+            "age": 33,
+            "course": 2
+        }
+        response = self.client.post(url + '?query={course}', data, format="json")
+        
+        self.assertEqual(
+            response.data,
+            {
+                'course': {
+                    'name': 'Programming', 
+                    'code': 'CS150', 
+                    'books': [
+                        {"title": "Advanced Data Structures", "author": "S.Mobit"}
+                    ]
+                }
+            }
+        )
+
+    def test_post_on_pk_nested_foreignkey_related_field_with_alias_mix_with_query_param(self):
+        url = reverse_lazy("rstudent_with_alias-list")
+        data = {
+            "full_name": "yezy",
+            "age": 33,
+            "program": 2
+        }
+        response = self.client.post(url + '?query={full_name, program}', data, format="json")
+        
+        self.assertEqual(
+            response.data,
+            {
+                'full_name': 'yezy',  
+                'program': {
+                    'name': 'Programming', 
+                    'code': 'CS150', 
+                    'books': [
+                        {"title": "Advanced Data Structures", "author": "S.Mobit"}
+                    ]
+                }
+            }
+        )
+
+    def test_post_on_writable_nested_foreignkey_related_field_mix_with_query_param(self):
+        url = reverse_lazy("wstudent-list")
+        data = {
+            "name": "yezy",
+            "age": 33,
+            "course": {"name": "Programming", "code": "CS50"},
+        }
+        response = self.client.post(url + '?query={course{name, books{}}}', data, format="json")
+
+        self.assertEqual(
+            response.data,
+            {
+                'course': {
+                    'name': 'Programming',  
+                    'books': []
+                }
+            }
+        )
+
+    def test_post_with_add_operation_mix_with_query_param(self):
+        url = reverse_lazy("rcourse-list")
+        data = {
+                "name": "Data Structures",
+                "code": "CS310",
+                "books": {"add":[1,2]}
+        }
+        response = self.client.post(url + '?query={books{title}}', data, format="json")
+
+        self.assertEqual(
+            response.data,
+            {
+                "books": [
+                    {'title': 'Advanced Data Structures'},
+                    {'title': 'Basic Data Structures'}
+                ]
+            }
+        )
+
+
+    # **************** PUT Tests ********************* #
+
+    def test_put_on_pk_nested_foreignkey_related_field_mix_with_query_param(self):
+        url = reverse_lazy("rstudent-detail", args=[self.student.id])
+        data = {
+            "name": "Yezy",
+            "age": 25,
+            "course": 2
+        }
+        response = self.client.put(url + '?query={course}', data, format="json")
+
+        self.assertEqual(
+            response.data,
+            {
+                'course': {
+                    'name': 'Programming', 'code': 'CS150', 
+                    'books': [
+                        {"title": "Advanced Data Structures", "author": "S.Mobit"}
+                    ]
+                }
+            }
+        )
+
+    def test_put_on_writable_nested_foreignkey_related_field_mix_with_query_param(self):
+        url = reverse_lazy("wstudent-detail", args=[self.student.id])
+        data = {
+            "name": "Yezy",
+            "age": 25,
+            "course": {"name": "Programming", "code": "CS50"}
+        }
+        response = self.client.put(url + '?query={name, course}', data, format="json")
+
+        self.assertEqual(
+            response.data,
+            {
+                'name': 'Yezy',
+                'course': {
+                    'name': 'Programming', 'code': 'CS50', 
+                    'books': [
+                        {'title': 'Advanced Data Structures', 'author': 'S.Mobit'},
+                        {'title': 'Basic Data Structures', 'author': 'S.Mobit'}
+                    ]
+                }
+            }
+        )
+
+
+    def test_put_on_deep_nested_fields_mix_with_query_param(self):
+        url = reverse_lazy("wstudent-detail", args=[self.student.id])
+        data = {
+            "name": "yezy",
+            "age": 33,
+            "course": {
+                "name": "Programming", 
+                "code": "CS50", 
+                "books": {
+                    "remove": [1]
+                }
+            }
+        }
+        response = self.client.put(url + '?query={course{books{title}}}', data, format="json")
+
+        self.assertEqual(
+            response.data,
+            {
+                'course': {
+                    'books': [
+                        {'title': 'Basic Data Structures'}
+                    ]
+                }
+            }
+        )
+
+    # **************** PATCH Tests ********************* #
+
+    def test_patch_on_pk_nested_foreignkey_related_field_mix_with_query_param(self):
+        url = reverse_lazy("rstudent-detail", args=[self.student.id])
+        data = {
+            "course": 2
+        }
+        response = self.client.patch(url + '?query={name, course}', data, format="json")
+
+        self.assertEqual(
+            response.data,
+            {
+                'name': 'Yezy',
+                'course': {
+                    'name': 'Programming', 'code': 'CS150', 
+                    'books': [
+                        {"title": "Advanced Data Structures", "author": "S.Mobit"}
+                    ]
+                }
+            }
+        )
+
+    def test_patch_on_writable_nested_foreignkey_related_field_mix_with_query_param(self):
+        url = reverse_lazy("wstudent-detail", args=[self.student.id])
+        data = {
+            "name": "Yezy Ilomo",
+            "course": {"name": "Programming", "code": "CS50"}
+        }
+        response = self.client.patch(url + '?query={name, course}', data, format="json")
+
+        self.assertEqual(
+            response.data,
+            {
+                'name': 'Yezy Ilomo',
+                'course': {
+                    'name': 'Programming', 'code': 'CS50', 
+                    'books': [
+                        {'title': 'Advanced Data Structures', 'author': 'S.Mobit'},
+                        {'title': 'Basic Data Structures', 'author': 'S.Mobit'}
+                    ]
+                }
+            }
+        )
+
+    def test_patch_on_deep_nested_fields_mix_with_query_param(self):
+        url = reverse_lazy("wstudent-detail", args=[self.student.id])
+        data = {
+            "name": "yezy",
+            "age": 33,
+            "course": {
+                "name": "Programming", 
+                "code": "CS50", 
+                "books": {
+                    "remove": [1]
+                }
+            }
+        }
+        response = self.client.patch(url + '?query={course{books{title}}}', data, format="json")
+
+        self.assertEqual(
+            response.data,
+            { 
+                'course': { 
+                    'books': [
+                        {'title': 'Basic Data Structures'}
+                    ]
+                }
+            }
+        )
