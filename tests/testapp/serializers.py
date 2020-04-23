@@ -97,7 +97,7 @@ class StudentWithAliasSerializer(DynamicFieldsMixin, serializers.ModelSerializer
 
 
 ############### Serializers for Nested Data Mutation Testing ##############
-class WritableCourseSerializer(NestedModelSerializer):
+class WritableCourseSerializer(DynamicFieldsMixin, NestedModelSerializer):
     books = NestedField(BookSerializer, many=True, required=False)
         
     class Meta:
@@ -105,7 +105,7 @@ class WritableCourseSerializer(NestedModelSerializer):
         fields = ['name', 'code', 'books']
 
 
-class ReplaceableCourseSerializer(NestedModelSerializer):
+class ReplaceableCourseSerializer(DynamicFieldsMixin, NestedModelSerializer):
     books = NestedField(BookSerializer, accept_pk=True, many=True, required=False)
         
     class Meta:
@@ -113,7 +113,7 @@ class ReplaceableCourseSerializer(NestedModelSerializer):
         fields = ['name', 'code', 'books']
 
 
-class ReplaceableStudentSerializer(NestedModelSerializer):
+class ReplaceableStudentSerializer(DynamicFieldsMixin, NestedModelSerializer):
     course = NestedField(WritableCourseSerializer, accept_pk=True, allow_null=True, required=False)
     phone_numbers = PhoneSerializer(many=True, read_only=True)
 
@@ -122,7 +122,7 @@ class ReplaceableStudentSerializer(NestedModelSerializer):
         fields = ['name', 'age', 'course', 'phone_numbers']
 
 
-class ReplaceableStudentWithAliasSerializer(NestedModelSerializer):
+class ReplaceableStudentWithAliasSerializer(DynamicFieldsMixin, NestedModelSerializer):
     full_name = serializers.CharField(source="name")
     program = NestedField(WritableCourseSerializer, source="course", accept_pk=True, allow_null=True, required=False)
     contacts = NestedField(PhoneSerializer, source="phone_numbers", accept_pk=True,  many=True, required=False)
@@ -132,7 +132,7 @@ class ReplaceableStudentWithAliasSerializer(NestedModelSerializer):
         fields = ['full_name', 'age', 'program', 'contacts']
 
 
-class WritableStudentSerializer(NestedModelSerializer):
+class WritableStudentSerializer(DynamicFieldsMixin, NestedModelSerializer):
     course = NestedField(WritableCourseSerializer, allow_null=True, required=False)
     phone_numbers = NestedField(PhoneSerializer, many=True, required=False)
 
@@ -141,7 +141,7 @@ class WritableStudentSerializer(NestedModelSerializer):
         fields = ['name', 'age', 'course', 'phone_numbers']
 
 
-class WritableStudentWithAliasSerializer(NestedModelSerializer):
+class WritableStudentWithAliasSerializer(DynamicFieldsMixin, NestedModelSerializer):
     program = NestedField(WritableCourseSerializer, source="course", allow_null=True, required=False)
     contacts = NestedField(PhoneSerializer, source="phone_numbers", many=True, required=False)
 

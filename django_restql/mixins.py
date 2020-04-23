@@ -7,9 +7,8 @@ from rest_framework.serializers import (
     ValidationError
 )
 from django.db.models import Prefetch
-from django.db.models.fields.related import(
-    ManyToOneRel, ManyToManyRel
-)
+from django.utils.functional import cached_property
+from django.db.models.fields.related import ManyToOneRel, ManyToManyRel
 
 from .parser import Parser
 from .settings import restql_settings
@@ -71,16 +70,23 @@ class DynamicFieldsMixin(RequestQueryParserMixin):
         msg = "May not set both `fields` and `exclude`"
         assert not(is_field_kwarg_set and is_exclude_kwarg_set), msg
 
+        # flag to toggle using restql fields
+        self._use_restql_fields = False
+
         # Instantiate the superclass normally
         super().__init__(*args, **kwargs)
+        
 
     def to_representation(self, instance):
+        # Activate to use restql fields 
+        self._use_restql_fields = True
+        
         if self.return_pk:
             return instance.pk
         return super().to_representation(instance)
 
     def get_allowed_fields(self):
-        fields = super().fields
+        fields = self._all_fields
         if self.allowed_fields is not None:
             # Drop all fields which are not specified on the `fields` kwarg.
             allowed = set(self.allowed_fields)
@@ -219,13 +225,12 @@ class DynamicFieldsMixin(RequestQueryParserMixin):
         self.nested_fields = allowed_nested_fields
         return all_fields
 
-    @property
-    def fields(self):
+    @cached_property
+    def restql_fields(self):
         request = self.context.get('request')
         
         is_not_a_request_to_process = (
             request is None or 
-            request.method != "GET" or 
             self.disable_dynamic_fields or
             not self.has_restql_query_param(request)
         )
@@ -270,10 +275,6 @@ class DynamicFieldsMixin(RequestQueryParserMixin):
                 parent_nested_fields = parent.nested_fields
                 self.parsed_restql_query = \
                     parent_nested_fields.get(field_name, None)
-        else:
-            # Unkown scenario
-            # No filtering of fields
-            return self.get_allowed_fields()
 
         if self.parsed_restql_query is None:
             # No filtering on nested fields
@@ -297,6 +298,17 @@ class DynamicFieldsMixin(RequestQueryParserMixin):
             # The query is empty i.e query={}
             # return nothing
             return {}
+
+    @cached_property
+    def _all_fields(self):
+        return super().fields
+
+    @property
+    def fields(self):
+        if self._use_restql_fields:
+            # Use restql fields
+            return self.restql_fields
+        return self._all_fields
 
 
 class EagerLoadingMixin(RequestQueryParserMixin):
