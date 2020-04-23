@@ -73,8 +73,6 @@ class DynamicFieldsMixin(RequestQueryParserMixin):
         # flag to toggle using restql fields
         self._use_restql_fields = False
 
-        self._all_fields = super().fields
-
         # Instantiate the superclass normally
         super().__init__(*args, **kwargs)
         
@@ -300,6 +298,10 @@ class DynamicFieldsMixin(RequestQueryParserMixin):
             # The query is empty i.e query={}
             # return nothing
             return {}
+
+    @cached_property
+    def _all_fields(self):
+        return super().fields
 
     @property
     def fields(self):
