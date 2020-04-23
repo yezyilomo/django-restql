@@ -438,7 +438,7 @@
 </pre></div>
 
 
-<p><strong>Django RESTQL</strong> handle all GET requests with a <code>query</code> parameter, this parameter is the one used to pass all fields to be included/excluded in a response. For example to select <code>id</code> and <code>username</code> fields from User model, send a request with a <code>query</code> parameter as shown below.</p>
+<p><strong>Django RESTQL</strong> handle all requests with a <code>query</code> parameter, this parameter is the one used to pass all fields to be included/excluded in a response. For example to select <code>id</code> and <code>username</code> fields from User model, send a request with a <code>query</code> parameter as shown below.</p>
 <p><code>GET /users/?query={id, username}</code></p>
 <div class="codehilite"><pre><span></span><span class="p">[</span>
     <span class="p">{</span>
@@ -450,7 +450,7 @@
 </pre></div>
 
 
-<p><strong>Django RESTQL</strong> support querying both flat and nested resources, you can expand or query nested fields at any level as defined on a serializer.</p>
+<p><strong>Django RESTQL</strong> support querying both flat and nested resources, you can expand or query nested fields at any level as defined on a serializer. It also supports querying with all HTTP methods i.e (GET, POST, PUT &amp; PATCH)</p>
                 
                   
                 
