@@ -1232,7 +1232,7 @@ class DataMutationTests(APITestCase):
         )
 
     def test_post_with_add_operation(self):
-        url = reverse_lazy("rcourse-list")
+        url = reverse_lazy("wcourse-list")
         data = {
                 "name": "Data Structures",
                 "code": "CS310",
@@ -1271,6 +1271,30 @@ class DataMutationTests(APITestCase):
                 "code": "CS310",
                 "books": [
                     {"title": "Linear Math", "author": "Me"},
+                    {"title": "Algebra Three", "author": "Me"}
+                ]
+            }
+        )
+
+    def test_post_with_add_and_create_operations(self):
+        data = {
+                "name": "Data Structures",
+                "code": "CS310",
+                "books": {
+                    "add":[1],
+                    "create": [{"title": "Algebra Three", "author": "Me"}]
+                }
+        }
+        url = reverse_lazy("wcourse-list")
+        response = self.client.post(url, data, format="json")
+
+        self.assertEqual(
+            response.data,
+            {
+                "name": "Data Structures",
+                "code": "CS310",
+                "books": [
+                    {'title': 'Advanced Data Structures', 'author': 'S.Mobit'},
                     {"title": "Algebra Three", "author": "Me"}
                 ]
             }
@@ -1513,7 +1537,7 @@ class DataMutationTests(APITestCase):
         )
 
     def test_put_with_add_operation(self):
-        url = reverse_lazy("rcourse-detail", args=[self.course2.id])
+        url = reverse_lazy("wcourse-detail", args=[self.course2.id])
         data = {
                 "name": "Data Structures",
                 "code": "CS410",
@@ -1536,7 +1560,7 @@ class DataMutationTests(APITestCase):
         )
 
     def test_put_with_remove_operation(self):
-        url = reverse_lazy("rcourse-detail", args=[self.course2.id])
+        url = reverse_lazy("wcourse-detail", args=[self.course2.id])
         data = {
                 "name": "Data Structures",
                 "code": "CS410",
@@ -1883,7 +1907,7 @@ class DataMutationTests(APITestCase):
         )
 
     def test_patch_with_add_operation(self):
-        url = reverse_lazy("rcourse-detail", args=[self.course2.id])
+        url = reverse_lazy("wcourse-detail", args=[self.course2.id])
         data = {
                 "name": "Data Structures",
                 "code": "CS410",
@@ -1906,7 +1930,7 @@ class DataMutationTests(APITestCase):
         )
 
     def test_patch_with_remove_operation(self):
-        url = reverse_lazy("rcourse-detail", args=[self.course2.id])
+        url = reverse_lazy("wcourse-detail", args=[self.course2.id])
         data = {
                 "name": "Data Structures",
                 "code": "CS410",
@@ -2139,7 +2163,7 @@ class DataQueryingAndMutationTests(APITestCase):
         )
 
     def test_post_with_add_operation_mix_with_query_param(self):
-        url = reverse_lazy("rcourse-list")
+        url = reverse_lazy("wcourse-list")
         data = {
                 "name": "Data Structures",
                 "code": "CS310",
