@@ -36,7 +36,6 @@ router.register('students-eager-loading-prefetch', views.StudentEagerLoadingPref
 router.register('students-auto-apply-eager-loading', views.StudentAutoApplyEagerLoadingViewSet, 'student_auto_apply_eager_loading')
 
 router.register('writable-courses', views.WritableCourseViewSet, 'wcourse')
-router.register('replaceable-courses', views.ReplaceableCourseViewSet, 'rcourse')
 router.register('replaceable-students', views.ReplaceableStudentViewSet, 'rstudent')
 router.register('replaceable-students-with-alias', views.ReplaceableStudentWithAliasViewSet, 'rstudent_with_alias')
 router.register('writable-students', views.WritableStudentViewSet, 'wstudent')

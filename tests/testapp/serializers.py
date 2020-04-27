@@ -105,14 +105,6 @@ class WritableCourseSerializer(DynamicFieldsMixin, NestedModelSerializer):
         fields = ['name', 'code', 'books']
 
 
-class ReplaceableCourseSerializer(DynamicFieldsMixin, NestedModelSerializer):
-    books = NestedField(BookSerializer, accept_pk=True, many=True, required=False)
-        
-    class Meta:
-        model = Course
-        fields = ['name', 'code', 'books']
-
-
 class ReplaceableStudentSerializer(DynamicFieldsMixin, NestedModelSerializer):
     course = NestedField(WritableCourseSerializer, accept_pk=True, allow_null=True, required=False)
     phone_numbers = PhoneSerializer(many=True, read_only=True)
@@ -125,7 +117,7 @@ class ReplaceableStudentSerializer(DynamicFieldsMixin, NestedModelSerializer):
 class ReplaceableStudentWithAliasSerializer(DynamicFieldsMixin, NestedModelSerializer):
     full_name = serializers.CharField(source="name")
     program = NestedField(WritableCourseSerializer, source="course", accept_pk=True, allow_null=True, required=False)
-    contacts = NestedField(PhoneSerializer, source="phone_numbers", accept_pk=True,  many=True, required=False)
+    contacts = NestedField(PhoneSerializer, source="phone_numbers", many=True, required=False)
 
     class Meta:
         model = Student

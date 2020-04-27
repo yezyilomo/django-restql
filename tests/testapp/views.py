@@ -7,10 +7,9 @@ from tests.testapp.serializers import (
 	CourseWithFieldsKwargSerializer, CourseWithExcludeKwargSerializer,
 	CourseWithReturnPkkwargSerializer, ReplaceableStudentSerializer,
 	WritableStudentSerializer, WritableCourseSerializer,
-	ReplaceableCourseSerializer, CourseWithAliasedBooksSerializer,
-	CourseWithDynamicSerializerMethodField, StudentWithAliasSerializer,
-	WritableStudentWithAliasSerializer, ReplaceableStudentWithAliasSerializer,
-	CourseWithDisableDynamicFieldsKwargSerializer
+	CourseWithAliasedBooksSerializer, CourseWithDynamicSerializerMethodField, 
+	StudentWithAliasSerializer, WritableStudentWithAliasSerializer,
+	ReplaceableStudentWithAliasSerializer, CourseWithDisableDynamicFieldsKwargSerializer
 )
 from django_restql.mixins import EagerLoadingMixin
 
@@ -102,11 +101,6 @@ class StudentAutoApplyEagerLoadingViewSet(EagerLoadingMixin, viewsets.ModelViewS
 ######### ViewSets For Data Mutations Testing ##########
 class WritableCourseViewSet(viewsets.ModelViewSet):
 	serializer_class = WritableCourseSerializer
-	queryset = Course.objects.all()
-
-
-class ReplaceableCourseViewSet(viewsets.ModelViewSet):
-	serializer_class = ReplaceableCourseSerializer
 	queryset = Course.objects.all()
 
 
