@@ -573,11 +573,11 @@ class NestedCreateMixin(BaseNestedMixin):
             for operation in values:
                 if operation == ADD:
                     pks = values[operation]
-                    obj.set(pks)
+                    obj.add(*pks)
                     field_pks.update({field: pks})
                 elif operation == CREATE:
                     pks = self.bulk_create_objs(field, values[operation])
-                    obj.set(pks)
+                    obj.add(*pks)
                     field_pks.update({field: pks})
         return field_pks
 
@@ -613,9 +613,8 @@ class NestedCreateMixin(BaseNestedMixin):
                     value = validated_data.pop(field)
                     fields["foreignkey_related"]["writable"]\
                         .update({field: value})
-            elif (isinstance(field_serializer, ListSerializer) and 
-                    (isinstance(field_serializer, BaseWritableNestedField) or 
-                    isinstance(field_serializer, BaseReplaceableNestedField))):
+            elif isinstance(field_serializer, ListSerializer) and \
+                    isinstance(field_serializer, BaseWritableNestedField):
 
                 model = self.Meta.model
                 rel = getattr(model, field).rel

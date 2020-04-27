@@ -54,6 +54,13 @@ def BaseNestedFieldSerializerFactory(
         update_ops=[ADD, CREATE, REMOVE, UPDATE],
         serializer_class=None,
         **kwargs):
+    many = kwargs.get("many", False)
+    msg = (
+        "May not set both `many=True` and `accept_pk=True`"
+        "(accept_pk applies to foreign key related fields only)."
+    )
+    assert not(many and accept_pk), msg
+
     if not set(create_ops).issubset(set(CREATE_SUPPORTED_OPERATIONS)):
         msg = (
             "Invalid create operation, Supported operations are " +
