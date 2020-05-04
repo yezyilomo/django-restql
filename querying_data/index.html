@@ -1105,7 +1105,19 @@
 </pre></div>
 
 
-<p>Here we have three arguments, <code>age</code>, <code>country</code> and <code>city</code> and their corresponding values.</p>
+<p>Here we have three arguments, <code>age</code>, <code>country</code> and <code>city</code> and their corresponding values.
+<em>Note:</em> To escape any special character(including <code>, : " ' {} ()</code>) use single quote <code>'</code> or double quote <code>"</code>, also if you want to escape double quote use single quote and vice versa. Escaping is very useful if you are dealing with data containing special characters e.g time, dates, texts etc. below is an example which contains argument with date type.</p>
+<div class="codehilite"><pre><span></span>query = (age: 18, join_date__lt: &#39;2020-04-27T23:02:32Z&#39;){
+    name,
+    age,
+    location(country: Canada, city: Toronto){
+        country,
+        city
+    }
+}
+</pre></div>
+
+
 <h3 id="filtering-with-query-arguments">Filtering with query arguments<a class="headerlink" href="#filtering-with-query-arguments" title="Permanent link">&para;</a></h3>
 <p>As mentioned before you can use query arguments to do filtering, Django RESTQL itself doesn't do filtering but you can intergrate it with <a href="https://github.com/carltongibson/django-filter">django-filter</a> or <a href="https://github.com/philipn/django-rest-framework-filters">djangorestframework-filters</a> to do the actual filtering, in this case Django RESTQL will be providing query arguments as filter parameters to these libraries.</p>
 <p>To integrate with <a href="https://github.com/carltongibson/django-filter">django-filter</a> edit your <code>settings.py</code> file as shown below</p>
