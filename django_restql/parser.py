@@ -17,16 +17,33 @@ class AllFields(str):
     grammar = '*'
 
 
-class Argument(List):
-    grammar = name(), ':', re.compile(r'[^,:\)]+')
-
+class BaseArgument(List):
     @property
     def value(self):
         return self[0]
 
 
+class ArgumentWithoutQuotes(BaseArgument):
+    grammar = name(), ':', re.compile(r'[^,:"\'\)]+')
+
+
+class ArgumentWithSingleQuotes(BaseArgument):
+    grammar = name(), ':', "'", re.compile(r'[^\']+'), "'"
+
+
+class ArgumentWithDoubleQuotes(BaseArgument):
+    grammar = name(), ':', '"', re.compile(r'[^"]+'), '"'
+
+
 class Arguments(List):
-    grammar = optional(csl([Argument],separator=','))
+    grammar = optional(csl(
+        [
+            ArgumentWithoutQuotes, 
+            ArgumentWithSingleQuotes, 
+            ArgumentWithDoubleQuotes
+        ],
+        separator=','
+    ))
 
 
 class ArgumentsBlock(List):

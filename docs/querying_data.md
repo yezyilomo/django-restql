@@ -519,6 +519,18 @@ query = (age: 18){
 }
 ```
 Here we have three arguments, `age`, `country` and `city` and their corresponding values.
+*Note:* To escape any special character(including `, : " ' {} ()`) use single quote `'` or double quote `"`, also if you want to escape double quote use single quote and vice versa. Escaping is very useful if you are dealing with data containing special characters e.g time, dates, texts etc. below is an example which contains argument with date type.
+
+```
+query = (age: 18, join_date__lt: '2020-04-27T23:02:32Z'){
+    name,
+    age,
+    location(country: Canada, city: Toronto){
+        country,
+        city
+    }
+}
+```
 
 
 ### Filtering with query arguments
