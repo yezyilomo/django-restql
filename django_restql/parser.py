@@ -26,10 +26,6 @@ class BaseArgument(List):
 class ArgumentWithoutQuotes(BaseArgument):
     grammar = name(), ':', re.compile(r'[^,:"\'\)]+')
 
-    @property
-    def value(self):
-        return self[0]
-
 
 class ArgumentWithSingleQuotes(BaseArgument):
     grammar = name(), ':', "'", re.compile(r'[^\']+'), "'"
