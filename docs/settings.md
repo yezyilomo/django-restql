@@ -14,7 +14,7 @@ Now you can use the name `your_favourite_name` as your query parameter. E.g
 
 ## DEFAULT_BASE_FILTER_BACKEND
 The default value for this is `object`.
-This is used if you want to use query arguments to do filtering, this is discussed in detail on [Filtering with query arguments](querying_data.md/#filtering-with-query-arguments)
+This is used if you want to use query arguments to do filtering, this is discussed in detail on [Filtering with query arguments](/querying_data/#filtering-with-query-arguments)
 
 ## AUTO_APPLY_EAGER_LOADING
 The default value for this is `True`. When using the `EagerLoadingMixin`, this setting controls if the mappings for `select_related` and `prefetch_related` are applied automatically when calling `get_queryset`. To turn it off, set the `AUTO_APPLY_EAGER_LOADING` setting or `auto_apply_eager_loading` attribute on the view to `False`.
