@@ -393,7 +393,7 @@
                 <h1 id="settings">Settings<a class="headerlink" href="#settings" title="Permanent link">&para;</a></h1>
 <p>Configuration for <strong>Django RESTQL</strong> is all namespaced inside a single Django setting named <code>RESTQL</code>, below is a list of what you can configure under <code>RESTQL</code> setting.</p>
 <h2 id="query_param_name">QUERY_PARAM_NAME<a class="headerlink" href="#query_param_name" title="Permanent link">&para;</a></h2>
-<p>The default value for this is <code>query</code>. If you don't want to use the name <code>query</code> as your parameter, you can change it with<code>QUERY_PARAM_NAME</code> on settings file e.g </p>
+<p>The default value for this is <code>query</code>. If you don't want to use the name <code>query</code> as your parameter, you can change it with<code>QUERY_PARAM_NAME</code> on settings file e.g</p>
 <div class="codehilite"><pre><span></span><span class="n">RESTQL</span> <span class="o">=</span> <span class="p">{</span>
     <span class="s1">&#39;QUERY_PARAM_NAME&#39;</span><span class="p">:</span> <span class="s1">&#39;your_favourite_name&#39;</span>
 <span class="p">}</span>
@@ -404,9 +404,9 @@
 <p><code>GET /users/?your_favourite_name={id, username}</code></p>
 <h2 id="default_base_filter_backend">DEFAULT_BASE_FILTER_BACKEND<a class="headerlink" href="#default_base_filter_backend" title="Permanent link">&para;</a></h2>
 <p>The default value for this is <code>object</code>.
-This is used if you want to use query arguments to do filtering, this is discussed in detail on <a href="#filtering-with-query-arguments">Filtering with query arguments</a></p>
+This is used if you want to use query arguments to do filtering, this is discussed in detail on <a href="/querying_data/#filtering-with-query-arguments">Filtering with query arguments</a></p>
 <h2 id="auto_apply_eager_loading">AUTO_APPLY_EAGER_LOADING<a class="headerlink" href="#auto_apply_eager_loading" title="Permanent link">&para;</a></h2>
-<p>The default value for this is <code>True</code>. When using the <code>EagerLoadingMixin</code>, this setting controls if the mappings for <code>select_related</code> and <code>prefetch_related</code> are applied automatically when calling <code>get_queryset</code>. To turn it off, set the <code>AUTO_APPLY_EAGER_LOADING</code> setting or <code>auto_apply_eager_loading</code> attribute on the view to <code>False</code>. </p>
+<p>The default value for this is <code>True</code>. When using the <code>EagerLoadingMixin</code>, this setting controls if the mappings for <code>select_related</code> and <code>prefetch_related</code> are applied automatically when calling <code>get_queryset</code>. To turn it off, set the <code>AUTO_APPLY_EAGER_LOADING</code> setting or <code>auto_apply_eager_loading</code> attribute on the view to <code>False</code>.</p>
 <div class="codehilite"><pre><span></span><span class="c1"># settings.py file</span>
 <span class="c1"># This will turn off auto apply eager loading globally</span>
 <span class="n">RESTQL</span> <span class="o">=</span> <span class="p">{</span>
