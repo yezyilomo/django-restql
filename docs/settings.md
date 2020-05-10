@@ -2,22 +2,22 @@
 Configuration for **Django RESTQL** is all namespaced inside a single Django setting named `RESTQL`, below is a list of what you can configure under `RESTQL` setting.
 
 ## QUERY_PARAM_NAME
-The default value for this is `query`. If you don't want to use the name `query` as your parameter, you can change it with`QUERY_PARAM_NAME` on settings file e.g 
+The default value for this is `query`. If you don't want to use the name `query` as your parameter, you can change it with`QUERY_PARAM_NAME` on settings file e.g
 ```py
 RESTQL = {
     'QUERY_PARAM_NAME': 'your_favourite_name'
 }
 ```
 Now you can use the name `your_favourite_name` as your query parameter. E.g
- 
+
 `GET /users/?your_favourite_name={id, username}`
 
 ## DEFAULT_BASE_FILTER_BACKEND
 The default value for this is `object`.
-This is used if you want to use query arguments to do filtering, this is discussed in detail on [Filtering with query arguments](#filtering-with-query-arguments)
+This is used if you want to use query arguments to do filtering, this is discussed in detail on [Filtering with query arguments](querying_data.md/#filtering-with-query-arguments)
 
 ## AUTO_APPLY_EAGER_LOADING
-The default value for this is `True`. When using the `EagerLoadingMixin`, this setting controls if the mappings for `select_related` and `prefetch_related` are applied automatically when calling `get_queryset`. To turn it off, set the `AUTO_APPLY_EAGER_LOADING` setting or `auto_apply_eager_loading` attribute on the view to `False`. 
+The default value for this is `True`. When using the `EagerLoadingMixin`, this setting controls if the mappings for `select_related` and `prefetch_related` are applied automatically when calling `get_queryset`. To turn it off, set the `AUTO_APPLY_EAGER_LOADING` setting or `auto_apply_eager_loading` attribute on the view to `False`.
 ```py
 # settings.py file
 # This will turn off auto apply eager loading globally
@@ -46,7 +46,7 @@ class StudentViewSet(EagerLoadingMixin, viewsets.ModelViewSet):
 	prefetch_related = {
 		"program.books": "course__books"
 	}
-	
+
 	def get_queryset(self):
 	    queryset = super().get_queryset()
 	    if self.has_restql_query_param:
