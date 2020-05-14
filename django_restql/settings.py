@@ -16,13 +16,12 @@ from django.utils.module_loading import import_string
 DEFAULTS = {
     'QUERY_PARAM_NAME': 'query',
     'AUTO_APPLY_EAGER_LOADING': True,
-    'DEFAULT_BASE_FILTER_BACKEND': object,
 }
 
 
 # List of settings that may be in string import notation.
 IMPORT_STRINGS = [
-    'DEFAULT_BASE_FILTER_BACKEND'
+
 ]
 
 

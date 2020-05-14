@@ -506,7 +506,7 @@ So you can see that even though the query asked for only `title` field under `bo
 
 
 ## Query arguments
-Just like GraphQL, Django RESTQL allows you to pass arguments on nested fields. These arguments can be used to do filtering, sorting and other stuffs that you like them to do. Below is a syntax for passing arguments
+Just like GraphQL, Django RESTQL allows you to pass arguments on nested fields. These arguments can be used to do filtering, pagination, sorting and other stuffs that you like them to do. Below is a syntax for passing arguments
 
 ```
 query = (age: 18){
@@ -534,38 +534,28 @@ query = (age: 18, join_date__lt: '2020-04-27T23:02:32Z'){
 ```
 
 
-### Filtering with query arguments
-As mentioned before you can use query arguments to do filtering, Django RESTQL itself doesn't do filtering but you can intergrate it with [django-filter](https://github.com/carltongibson/django-filter) or [djangorestframework-filters](https://github.com/philipn/django-rest-framework-filters) to do the actual filtering, in this case Django RESTQL will be providing query arguments as filter parameters to these libraries.
+### Filtering & pagination with query arguments
+As mentioned before you can use query arguments to do filtering and pagination, Django RESTQL itself doesn't do filtering or pagination but it can help you to convert query arguments into query parameters from there you can use any library which you want to do the actual filtering or any pagination class to do pagination as long as they work with query parameters. To convert query arguments into query parameters all you need to do is inherit `QueryArgumentsMixin` in your viewset, that's it. For example
 
-To integrate with [django-filter](https://github.com/carltongibson/django-filter) edit your `settings.py` file as shown below
 ```py
-# settings.py
-REST_FRAMEWORK = {
-    # This is needed to be able to get filter parameters from query arguments
-    'DEFAULT_FILTER_BACKEND': 'django_restql.filters.RESTQLFilterBackend'
-}
+# views.py
 
-RESTQL = {
-    # This tells django-restql which filter backend to use(send generated filter parameters to)
-    'DEFAULT_BASE_FILTER_BACKEND': 'django_filters.rest_framework.DjangoFilterBackend'
-}
+from rest_framework import viewsets
+from django_restql.mixins import QueryArgumentsMixin
+
+class StudentViewSet(QueryArgumentsMixin, viewsets.ModelViewSet):
+	serializer_class = StudentSerializer
+	queryset = Student.objects.all()
+	filter_fields = {
+		'name': ['exact'],
+		'age': ['exact'],
+		'location__country': ['exact'],
+        'location__city': ['exact'],
+	}
 ```
 
-And for [djangorestframework-filters](https://github.com/philipn/django-rest-framework-filters)
-```py
-# settings.py
-REST_FRAMEWORK = {
-    # This is needed to be able to get filter parameters from query arguments
-    'DEFAULT_FILTER_BACKEND': 'django_restql.filters.RESTQLFilterBackend'
-}
+Whether you are using [django-filter](https://github.com/carltongibson/django-filter) or [djangorestframework-filters](https://github.com/philipn/django-rest-framework-filters) or any filter backend to do the actual filtering, Once you've configured it, you can continue to use all of the features found in filter backend of your choise as usual. The purpose of Django RESTQL on filtering is only to generate query parameters form query arguments. For example if you have a query like
 
-RESTQL = {
-    # This tells django-restql which filter backend to use(send generated filter parameters to)
-    'DEFAULT_BASE_FILTER_BACKEND': 'rest_framework_filters.backends.RestFrameworkFilterBackend'
-}
-```
-
-Once configured, you can continue to use all of the features found in [django-filter](https://github.com/carltongibson/django-filter) or [djangorestframework-filters](https://github.com/philipn/django-rest-framework-filters) as usual. The purpose of Django RESTQL on filtering is only to generate filter parameters form query arguments, for example if you have a query like
 ```
 query = (age: 18){
     name,
@@ -577,12 +567,31 @@ query = (age: 18){
 }
 ```
 
-Django RESTQL would generate three filter parameters from this as shown below and send them to `DEFAULT_BASE_FILTER_BACKEND` set for it to do the filtering.
+Django RESTQL would generate three query parameters from this as shown below
 ```py
-filter_params = {"age": 18, "location__country": "Canada", "location__city": "Toronto"}
+query_params = {"age": 18, "location__country": "Canada", "location__city": "Toronto"}
 ```
+These will be used by the filter backend you have set to do the actual filtering.
 
-If those two libraries doesn't satisfy your needs on filtering, you can write your own filter backend or extend one of those provided by these two libraries and set it on `DEFAULT_BASE_FILTER_BACKEND`.
+The same applies to pagination, sorting etc, once you have configured your pagination class whether it's `PageNumberPagination`, `LimitOffsetPagination`, `CursorPagination` or custom, you will be able do it with query arguments. For example if you have a query like 
+
+```
+query = (limit: 20, offset: 50){
+    name,
+    age,
+    location{
+        country,
+        city
+    }
+}
+
+Django RESTQL would generate two query parameters from this as shown below
+```py
+query_params = {"limit": 20, "offset": 50}
+```
+These will be used by pagination class you have set to do the actual pagination.
+
+So to use query arguments as query parameters all you need to do is inherit `QueryArgumentsMixin` to your viewset to convert query arguments into query parameters, from there you can use whatever you want to use to accomplish whatever with those generated query parameters.
 
 
 ## Setting up eager loading
