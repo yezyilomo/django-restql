@@ -34,12 +34,12 @@ class RequestQueryParserMixin(object):
     @classmethod
     def has_restql_query_param(cls, request):
         query_param_name = cls.get_restql_query_param_name()
-        return query_param_name in request.query_params
+        return query_param_name in request.GET
 
     @classmethod
     def get_raw_restql_query(cls, request):
         query_param_name = cls.get_restql_query_param_name()
-        return request.query_params[query_param_name]
+        return request.GET[query_param_name]
 
     @classmethod
     def get_parsed_restql_query_from_req(cls, request):
@@ -53,6 +53,56 @@ class RequestQueryParserMixin(object):
         # we won't need to parse it again if needed
         request.parsed_restql_query = parsed_restql_query
         return parsed_restql_query
+
+
+class QueryArgumentsMixin(RequestQueryParserMixin):
+    def get_parsed_restql_query(self, request):
+        if self.has_restql_query_param(request):
+            try:
+                return self.get_parsed_restql_query_from_req(request)
+            except (SyntaxError, QueryFormatError):
+                pass
+
+        query = {
+            "include": ["*"],
+            "exclude": [],
+            "arguments": {}
+        }
+        return query
+
+    def build_filter_params(self, parsed_query, parent=None):
+        filter_params = {}
+        prefix = ''
+        if parent is None:
+            filter_params.update(parsed_query['arguments'])
+        else:
+            prefix = parent + '__'
+            for argument, value in parsed_query['arguments'].items():
+                name = prefix + argument
+                filter_params.update({
+                    name: value
+                })
+        for field in parsed_query['include']:
+            if isinstance(field, dict):
+                for sub_field, sub_parsed_query in field.items():
+                    nested_filter_params = self.build_filter_params(
+                        sub_parsed_query,
+                        parent=prefix + sub_field
+                    )
+                    filter_params.update(nested_filter_params)
+        return filter_params
+
+    def get_filter_params(self, request):
+        parsed = self.get_parsed_restql_query(request)
+        filter_params = self.build_filter_params(parsed)
+        return filter_params
+
+    def dispatch(self, request, *args, **kwargs):
+        filter_params = self.get_filter_params(request)
+        params = request.GET.copy()  # TODO Make it immutable after updating
+        params.update(filter_params)
+        request.GET = params
+        return super().dispatch(request, *args, **kwargs)
 
 
 class DynamicFieldsMixin(RequestQueryParserMixin):
