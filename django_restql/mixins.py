@@ -6,6 +6,7 @@ from rest_framework.serializers import (
     Serializer, ListSerializer,
     ValidationError
 )
+from django.http import QueryDict
 from django.db.models import Prefetch
 from django.utils.functional import cached_property
 from django.db.models.fields.related import ManyToOneRel, ManyToManyRel
@@ -99,9 +100,10 @@ class QueryArgumentsMixin(RequestQueryParserMixin):
 
     def dispatch(self, request, *args, **kwargs):
         filter_params = self.get_filter_params(request)
-        params = request.GET.copy()  # TODO Make it immutable after updating
+        params = request.GET.copy()
         params.update(filter_params)
-        request.GET = params
+        # Make QueryDict immutable after updating
+        request.GET = QueryDict(params.urlencode(), mutable=False)
         return super().dispatch(request, *args, **kwargs)
 
 
