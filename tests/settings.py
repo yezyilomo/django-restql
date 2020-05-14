@@ -84,15 +84,7 @@ DATABASES = {
 
 # REST Framework Settings
 REST_FRAMEWORK = {
-    'DEFAULT_FILTER_BACKENDS': (
-        'django_restql.filters.RESTQLFilterBackend',
-    ),
-}
-
-
-# RESTQL Settings
-RESTQL = {
-    'DEFAULT_BASE_FILTER_BACKEND': 'rest_framework_filters.backends.RestFrameworkFilterBackend',
+    'DEFAULT_FILTER_BACKENDS': ('rest_framework_filters.backends.RestFrameworkFilterBackend',)
 }
 
 

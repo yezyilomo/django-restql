@@ -11,7 +11,7 @@ from tests.testapp.serializers import (
 	StudentWithAliasSerializer, WritableStudentWithAliasSerializer,
 	ReplaceableStudentWithAliasSerializer, CourseWithDisableDynamicFieldsKwargSerializer
 )
-from django_restql.mixins import EagerLoadingMixin
+from django_restql.mixins import EagerLoadingMixin, QueryArgumentsMixin
 
 
 #### ViewSets for Data Querying And Mutations Testing ####
@@ -56,7 +56,7 @@ class CourseWithDynamicSerializerMethodFieldViewSet(viewsets.ModelViewSet):
 	queryset = Course.objects.all()
 
 
-class StudentViewSet(viewsets.ModelViewSet):
+class StudentViewSet(QueryArgumentsMixin, viewsets.ModelViewSet):
 	serializer_class = StudentSerializer
 	queryset = Student.objects.all()
 	filter_fields = {
