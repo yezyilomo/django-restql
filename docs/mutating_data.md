@@ -312,3 +312,55 @@ location = NestedField(LocationSerializer, exclude=[...])
 ```py
 location = NestedField(LocationSerializer, return_pk=True)
 ``` 
+
+**Note:** If you want to use `required=False` kwarg on `NestedField` you might want to include `allow_null=True` too if you want your nested field to be set to `null` if you haven't supplied it. For example 
+
+```py
+from rest_framework import serializers 
+from django_restql.fields import NestedField
+from django_restql.mixins import DynamicFieldsMixin
+from django_restql.serializers import NestedModelSerializer 
+
+from app.models import Location, Property
+
+
+class LocationSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Location
+        fields = ["id", "city", "country"]
+
+
+class PropertySerializer(NestedModelSerializer):
+    # Passing both `required=False` and `allow_null=True`
+    location = NestedField(LocationSerializer, required=False, allow_null=True)
+    class Meta:
+        model = Property
+        fields = [
+            'id', 'price', 'location'
+        ]
+```
+
+The `required=False` kwarg allows you to create Property without including `location` field and the `allow_null=True` kwarg allows `location` field to be set to null if you haven't supplied it e.g
+
+```POST /api/property/```
+
+Request Body
+```js
+{
+    "price": 40000
+    // You can see that the location is not included here
+}
+```
+
+<br>
+
+Response
+```js
+{
+    "id": 2,
+    "price": 50000,
+    "location": null  // This is the result of not including location
+}
+```
+
+If you use `required=False` only without `allow_null=True`, The serializer will allow you to create Property without including `location` field but it will throw error because by default `allow_null=False` which means `null`/`None`(which is what's passed when you don't supply `location` value) is not considered a valid value.
