@@ -22,6 +22,15 @@ from .fields import (
 
 
 class RequestQueryParserMixin(object):
+    """
+    Mixin for parsing restql query from request.
+
+    NOTE: We are using `request.GET` instead of 
+    `request.query_params` because this might be 
+    called before DRF request is created(i.e from dispatch).
+    This means `request.query_params` might not available
+    when this mixin is used.
+    """
     @staticmethod
     def get_restql_query_param_name():
         DEFAULT_QUERY_PARAM_NAME = 'query'
@@ -57,11 +66,14 @@ class RequestQueryParserMixin(object):
 
 
 class QueryArgumentsMixin(RequestQueryParserMixin):
+    """Mixin for converting query arguments into query parameters"""
     def get_parsed_restql_query(self, request):
         if self.has_restql_query_param(request):
             try:
                 return self.get_parsed_restql_query_from_req(request)
             except (SyntaxError, QueryFormatError):
+                # Let `DynamicFieldsMixin` handle this for a user
+                # to get helpful error message
                 pass
 
         query = {
@@ -71,37 +83,42 @@ class QueryArgumentsMixin(RequestQueryParserMixin):
         }
         return query
 
-    def build_filter_params(self, parsed_query, parent=None):
-        filter_params = {}
+    def build_query_params(self, parsed_query, parent=None):
+        query_params = {}
         prefix = ''
         if parent is None:
-            filter_params.update(parsed_query['arguments'])
+            query_params.update(parsed_query['arguments'])
         else:
             prefix = parent + '__'
             for argument, value in parsed_query['arguments'].items():
                 name = prefix + argument
-                filter_params.update({
+                query_params.update({
                     name: value
                 })
         for field in parsed_query['include']:
             if isinstance(field, dict):
                 for sub_field, sub_parsed_query in field.items():
-                    nested_filter_params = self.build_filter_params(
+                    nested_query_params = self.build_query_params(
                         sub_parsed_query,
                         parent=prefix + sub_field
                     )
-                    filter_params.update(nested_filter_params)
-        return filter_params
+                    query_params.update(nested_query_params)
+        return query_params
 
-    def get_filter_params(self, request):
+    def get_query_params(self, request):
         parsed = self.get_parsed_restql_query(request)
-        filter_params = self.build_filter_params(parsed)
-        return filter_params
+        query_params = self.build_query_params(parsed)
+        return query_params
 
     def dispatch(self, request, *args, **kwargs):
-        filter_params = self.get_filter_params(request)
+        query_params = self.get_query_params(request)
+
+        # We are using `request.GET` instead of `request.query_params`
+        # because at this point DRF request is not yet created so 
+        # `request.query_params` is not yet available
         params = request.GET.copy()
-        params.update(filter_params)
+        params.update(query_params)
+
         # Make QueryDict immutable after updating
         request.GET = QueryDict(params.urlencode(), mutable=False)
         return super().dispatch(request, *args, **kwargs)
@@ -375,6 +392,8 @@ class EagerLoadingMixin(RequestQueryParserMixin):
             try:
                 return self.get_parsed_restql_query_from_req(self.request)
             except (SyntaxError, QueryFormatError):
+                # Let `DynamicFieldsMixin` handle this for a user
+                # to get helpful error message
                 pass
 
         # Else include all fields
