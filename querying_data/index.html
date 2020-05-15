@@ -1093,7 +1093,7 @@
 <p>So you can see that even though the query asked for only <code>title</code> field under <code>books</code>, all fields have been returned, so this means fields filtering has applied on <code>CourseSerializer</code> but not on <code>BookSerializer</code> because we used <code>disable_dynamic_fields=True</code> on it.
 <br/></p>
 <h2 id="query-arguments">Query arguments<a class="headerlink" href="#query-arguments" title="Permanent link">&para;</a></h2>
-<p>Just like GraphQL, Django RESTQL allows you to pass arguments on nested fields. These arguments can be used to do filtering, pagination, sorting and other stuffs that you like them to do. Below is a syntax for passing arguments</p>
+<p>Just like GraphQL, Django RESTQL allows you to pass arguments. These arguments can be used to do filtering, pagination, sorting and other stuffs that you would like them to do. Below is a syntax for passing arguments</p>
 <div class="codehilite"><pre><span></span>query = (age: 18){
     name,
     age,
@@ -1106,7 +1106,7 @@
 
 
 <p>Here we have three arguments, <code>age</code>, <code>country</code> and <code>city</code> and their corresponding values.</p>
-<p><strong>Note:</strong> To escape any special character(including <code>, : " ' {} ()</code>) use single quote <code>'</code> or double quote <code>"</code>, also if you want to escape double quote use single quote and vice versa. Escaping is very useful if you are dealing with data containing special characters e.g time, dates, texts etc. below is an example which contains argument with date type.</p>
+<p><strong>Note:</strong> To escape any special character(including <code>, : " ' {} ()</code>) use single quote <code>'</code> or double quote <code>"</code>, also if you want to escape double quote use single quote and vice versa. Escaping is very useful if you are dealing with data containing special characters e.g time, dates, lists, texts etc. Below is an example which contain an argument with a date type.</p>
 <div class="codehilite"><pre><span></span>query = (age: 18, join_date__lt: &#39;2020-04-27T23:02:32Z&#39;){
     name,
     age,
