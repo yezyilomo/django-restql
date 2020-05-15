@@ -506,7 +506,7 @@ So you can see that even though the query asked for only `title` field under `bo
 
 
 ## Query arguments
-Just like GraphQL, Django RESTQL allows you to pass arguments on nested fields. These arguments can be used to do filtering, pagination, sorting and other stuffs that you like them to do. Below is a syntax for passing arguments
+Just like GraphQL, Django RESTQL allows you to pass arguments. These arguments can be used to do filtering, pagination, sorting and other stuffs that you would like them to do. Below is a syntax for passing arguments
 
 ```
 query = (age: 18){
@@ -520,7 +520,7 @@ query = (age: 18){
 ```
 Here we have three arguments, `age`, `country` and `city` and their corresponding values.
 
-**Note:** To escape any special character(including `, : " ' {} ()`) use single quote `'` or double quote `"`, also if you want to escape double quote use single quote and vice versa. Escaping is very useful if you are dealing with data containing special characters e.g time, dates, texts etc. below is an example which contains argument with date type.
+**Note:** To escape any special character(including `, : " ' {} ()`) use single quote `'` or double quote `"`, also if you want to escape double quote use single quote and vice versa. Escaping is very useful if you are dealing with data containing special characters e.g time, dates, lists, texts etc. Below is an example which contain an argument with a date type.
 
 ```
 query = (age: 18, join_date__lt: '2020-04-27T23:02:32Z'){
@@ -573,7 +573,7 @@ query_params = {"age": 18, "location__country": "Canada", "location__city": "Tor
 ```
 These will be used by the filter backend you have set to do the actual filtering.
 
-The same applies to pagination, sorting etc, once you have configured your pagination class whether it's `PageNumberPagination`, `LimitOffsetPagination`, `CursorPagination` or custom, you will be able do it with query arguments. For example if you have a query like 
+The same applies to pagination, sorting etc, once you have configured your pagination class whether it's `PageNumberPagination`, `LimitOffsetPagination`, `CursorPagination` or a custom, you will be able do it with query arguments. For example if you're using `LimitOffsetPagination` and you have a query like 
 
 ```
 query = (limit: 20, offset: 50){
@@ -584,6 +584,7 @@ query = (limit: 20, offset: 50){
         city
     }
 }
+```
 
 Django RESTQL would generate two query parameters from this as shown below
 ```py
@@ -591,7 +592,7 @@ query_params = {"limit": 20, "offset": 50}
 ```
 These will be used by pagination class you have set to do the actual pagination.
 
-So to use query arguments as query parameters all you need to do is inherit `QueryArgumentsMixin` to your viewset to convert query arguments into query parameters, from there you can use whatever you want to use to accomplish whatever with those generated query parameters.
+So to use query arguments as query parameters all you need to do is inherit `QueryArgumentsMixin` to your viewset to convert query arguments into query parameters, from there you can use whatever you want to accomplish whatever with those generated query parameters.
 
 
 ## Setting up eager loading
