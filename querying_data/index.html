@@ -1155,7 +1155,7 @@
 
 
 <p>These will be used by the filter backend you have set to do the actual filtering.</p>
-<p>The same applies to pagination, sorting etc, once you have configured your pagination class whether it's <code>PageNumberPagination</code>, <code>LimitOffsetPagination</code>, <code>CursorPagination</code> or custom, you will be able do it with query arguments. For example if you have a query like </p>
+<p>The same applies to pagination, sorting etc, once you have configured your pagination class whether it's <code>PageNumberPagination</code>, <code>LimitOffsetPagination</code>, <code>CursorPagination</code> or a custom, you will be able do it with query arguments. For example if you have a query like </p>
 <div class="codehilite"><pre><span></span>query = (limit: 20, offset: 50){
     name,
     age,
@@ -1164,10 +1164,11 @@
         city
     }
 }
+</pre></div>
 
-Django RESTQL would generate two query parameters from this as shown below
-```py
-query_params = {&quot;limit&quot;: 20, &quot;offset&quot;: 50}
+
+<p>Django RESTQL would generate two query parameters from this as shown below</p>
+<div class="codehilite"><pre><span></span><span class="n">query_params</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;limit&quot;</span><span class="p">:</span> <span class="mi">20</span><span class="p">,</span> <span class="s2">&quot;offset&quot;</span><span class="p">:</span> <span class="mi">50</span><span class="p">}</span>
 </pre></div>
 
 
