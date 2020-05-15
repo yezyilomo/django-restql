@@ -294,13 +294,6 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#default_base_filter_backend" class="md-nav__link">
-    DEFAULT_BASE_FILTER_BACKEND
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
   <a href="#auto_apply_eager_loading" class="md-nav__link">
     AUTO_APPLY_EAGER_LOADING
   </a>
@@ -358,13 +351,6 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#default_base_filter_backend" class="md-nav__link">
-    DEFAULT_BASE_FILTER_BACKEND
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
   <a href="#auto_apply_eager_loading" class="md-nav__link">
     AUTO_APPLY_EAGER_LOADING
   </a>
@@ -402,9 +388,6 @@
 
 <p>Now you can use the name <code>your_favourite_name</code> as your query parameter. E.g</p>
 <p><code>GET /users/?your_favourite_name={id, username}</code></p>
-<h2 id="default_base_filter_backend">DEFAULT_BASE_FILTER_BACKEND<a class="headerlink" href="#default_base_filter_backend" title="Permanent link">&para;</a></h2>
-<p>The default value for this is <code>object</code>.
-This is used if you want to use query arguments to do filtering, this is discussed in detail on <a href="/querying_data/#filtering-with-query-arguments">Filtering with query arguments</a></p>
 <h2 id="auto_apply_eager_loading">AUTO_APPLY_EAGER_LOADING<a class="headerlink" href="#auto_apply_eager_loading" title="Permanent link">&para;</a></h2>
 <p>The default value for this is <code>True</code>. When using the <code>EagerLoadingMixin</code>, this setting controls if the mappings for <code>select_related</code> and <code>prefetch_related</code> are applied automatically when calling <code>get_queryset</code>. To turn it off, set the <code>AUTO_APPLY_EAGER_LOADING</code> setting or <code>auto_apply_eager_loading</code> attribute on the view to <code>False</code>.</p>
 <div class="codehilite"><pre><span></span><span class="c1"># settings.py file</span>

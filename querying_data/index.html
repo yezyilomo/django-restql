@@ -347,8 +347,8 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#filtering-with-query-arguments" class="md-nav__link">
-    Filtering with query arguments
+  <a href="#filtering-pagination-with-query-arguments" class="md-nav__link">
+    Filtering &amp; pagination with query arguments
   </a>
   
 </li>
@@ -544,8 +544,8 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#filtering-with-query-arguments" class="md-nav__link">
-    Filtering with query arguments
+  <a href="#filtering-pagination-with-query-arguments" class="md-nav__link">
+    Filtering &amp; pagination with query arguments
   </a>
   
 </li>
@@ -1093,7 +1093,7 @@
 <p>So you can see that even though the query asked for only <code>title</code> field under <code>books</code>, all fields have been returned, so this means fields filtering has applied on <code>CourseSerializer</code> but not on <code>BookSerializer</code> because we used <code>disable_dynamic_fields=True</code> on it.
 <br/></p>
 <h2 id="query-arguments">Query arguments<a class="headerlink" href="#query-arguments" title="Permanent link">&para;</a></h2>
-<p>Just like GraphQL, Django RESTQL allows you to pass arguments on nested fields. These arguments can be used to do filtering, sorting and other stuffs that you like them to do. Below is a syntax for passing arguments</p>
+<p>Just like GraphQL, Django RESTQL allows you to pass arguments on nested fields. These arguments can be used to do filtering, pagination, sorting and other stuffs that you like them to do. Below is a syntax for passing arguments</p>
 <div class="codehilite"><pre><span></span>query = (age: 18){
     name,
     age,
@@ -1118,37 +1118,26 @@
 </pre></div>
 
 
-<h3 id="filtering-with-query-arguments">Filtering with query arguments<a class="headerlink" href="#filtering-with-query-arguments" title="Permanent link">&para;</a></h3>
-<p>As mentioned before you can use query arguments to do filtering, Django RESTQL itself doesn't do filtering but you can intergrate it with <a href="https://github.com/carltongibson/django-filter">django-filter</a> or <a href="https://github.com/philipn/django-rest-framework-filters">djangorestframework-filters</a> to do the actual filtering, in this case Django RESTQL will be providing query arguments as filter parameters to these libraries.</p>
-<p>To integrate with <a href="https://github.com/carltongibson/django-filter">django-filter</a> edit your <code>settings.py</code> file as shown below</p>
-<div class="codehilite"><pre><span></span><span class="c1"># settings.py</span>
-<span class="n">REST_FRAMEWORK</span> <span class="o">=</span> <span class="p">{</span>
-    <span class="c1"># This is needed to be able to get filter parameters from query arguments</span>
-    <span class="s1">&#39;DEFAULT_FILTER_BACKEND&#39;</span><span class="p">:</span> <span class="s1">&#39;django_restql.filters.RESTQLFilterBackend&#39;</span>
-<span class="p">}</span>
+<h3 id="filtering-pagination-with-query-arguments">Filtering &amp; pagination with query arguments<a class="headerlink" href="#filtering-pagination-with-query-arguments" title="Permanent link">&para;</a></h3>
+<p>As mentioned before you can use query arguments to do filtering and pagination, Django RESTQL itself doesn't do filtering or pagination but it can help you to convert query arguments into query parameters from there you can use any library which you want to do the actual filtering or any pagination class to do pagination as long as they work with query parameters. To convert query arguments into query parameters all you need to do is inherit <code>QueryArgumentsMixin</code> in your viewset, that's it. For example</p>
+<div class="codehilite"><pre><span></span><span class="c1"># views.py</span>
 
-<span class="n">RESTQL</span> <span class="o">=</span> <span class="p">{</span>
-    <span class="c1"># This tells django-restql which filter backend to use(send generated filter parameters to)</span>
-    <span class="s1">&#39;DEFAULT_BASE_FILTER_BACKEND&#39;</span><span class="p">:</span> <span class="s1">&#39;django_filters.rest_framework.DjangoFilterBackend&#39;</span>
-<span class="p">}</span>
+<span class="kn">from</span> <span class="nn">rest_framework</span> <span class="kn">import</span> <span class="n">viewsets</span>
+<span class="kn">from</span> <span class="nn">django_restql.mixins</span> <span class="kn">import</span> <span class="n">QueryArgumentsMixin</span>
+
+<span class="k">class</span> <span class="nc">StudentViewSet</span><span class="p">(</span><span class="n">QueryArgumentsMixin</span><span class="p">,</span> <span class="n">viewsets</span><span class="o">.</span><span class="n">ModelViewSet</span><span class="p">):</span>
+    <span class="n">serializer_class</span> <span class="o">=</span> <span class="n">StudentSerializer</span>
+    <span class="n">queryset</span> <span class="o">=</span> <span class="n">Student</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">all</span><span class="p">()</span>
+    <span class="n">filter_fields</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s1">&#39;name&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;exact&#39;</span><span class="p">],</span>
+        <span class="s1">&#39;age&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;exact&#39;</span><span class="p">],</span>
+        <span class="s1">&#39;location__country&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;exact&#39;</span><span class="p">],</span>
+        <span class="s1">&#39;location__city&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;exact&#39;</span><span class="p">],</span>
+    <span class="p">}</span>
 </pre></div>
 
 
-<p>And for <a href="https://github.com/philipn/django-rest-framework-filters">djangorestframework-filters</a></p>
-<div class="codehilite"><pre><span></span><span class="c1"># settings.py</span>
-<span class="n">REST_FRAMEWORK</span> <span class="o">=</span> <span class="p">{</span>
-    <span class="c1"># This is needed to be able to get filter parameters from query arguments</span>
-    <span class="s1">&#39;DEFAULT_FILTER_BACKEND&#39;</span><span class="p">:</span> <span class="s1">&#39;django_restql.filters.RESTQLFilterBackend&#39;</span>
-<span class="p">}</span>
-
-<span class="n">RESTQL</span> <span class="o">=</span> <span class="p">{</span>
-    <span class="c1"># This tells django-restql which filter backend to use(send generated filter parameters to)</span>
-    <span class="s1">&#39;DEFAULT_BASE_FILTER_BACKEND&#39;</span><span class="p">:</span> <span class="s1">&#39;rest_framework_filters.backends.RestFrameworkFilterBackend&#39;</span>
-<span class="p">}</span>
-</pre></div>
-
-
-<p>Once configured, you can continue to use all of the features found in <a href="https://github.com/carltongibson/django-filter">django-filter</a> or <a href="https://github.com/philipn/django-rest-framework-filters">djangorestframework-filters</a> as usual. The purpose of Django RESTQL on filtering is only to generate filter parameters form query arguments, for example if you have a query like</p>
+<p>Whether you are using <a href="https://github.com/carltongibson/django-filter">django-filter</a> or <a href="https://github.com/philipn/django-rest-framework-filters">djangorestframework-filters</a> or any filter backend to do the actual filtering, Once you've configured it, you can continue to use all of the features found in filter backend of your choise as usual. The purpose of Django RESTQL on filtering is only to generate query parameters form query arguments. For example if you have a query like</p>
 <div class="codehilite"><pre><span></span>query = (age: 18){
     name,
     age,
@@ -1160,12 +1149,30 @@
 </pre></div>
 
 
-<p>Django RESTQL would generate three filter parameters from this as shown below and send them to <code>DEFAULT_BASE_FILTER_BACKEND</code> set for it to do the filtering.</p>
-<div class="codehilite"><pre><span></span><span class="n">filter_params</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;age&quot;</span><span class="p">:</span> <span class="mi">18</span><span class="p">,</span> <span class="s2">&quot;location__country&quot;</span><span class="p">:</span> <span class="s2">&quot;Canada&quot;</span><span class="p">,</span> <span class="s2">&quot;location__city&quot;</span><span class="p">:</span> <span class="s2">&quot;Toronto&quot;</span><span class="p">}</span>
+<p>Django RESTQL would generate three query parameters from this as shown below</p>
+<div class="codehilite"><pre><span></span><span class="n">query_params</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;age&quot;</span><span class="p">:</span> <span class="mi">18</span><span class="p">,</span> <span class="s2">&quot;location__country&quot;</span><span class="p">:</span> <span class="s2">&quot;Canada&quot;</span><span class="p">,</span> <span class="s2">&quot;location__city&quot;</span><span class="p">:</span> <span class="s2">&quot;Toronto&quot;</span><span class="p">}</span>
 </pre></div>
 
 
-<p>If those two libraries doesn't satisfy your needs on filtering, you can write your own filter backend or extend one of those provided by these two libraries and set it on <code>DEFAULT_BASE_FILTER_BACKEND</code>.</p>
+<p>These will be used by the filter backend you have set to do the actual filtering.</p>
+<p>The same applies to pagination, sorting etc, once you have configured your pagination class whether it's <code>PageNumberPagination</code>, <code>LimitOffsetPagination</code>, <code>CursorPagination</code> or custom, you will be able do it with query arguments. For example if you have a query like </p>
+<div class="codehilite"><pre><span></span>query = (limit: 20, offset: 50){
+    name,
+    age,
+    location{
+        country,
+        city
+    }
+}
+
+Django RESTQL would generate two query parameters from this as shown below
+```py
+query_params = {&quot;limit&quot;: 20, &quot;offset&quot;: 50}
+</pre></div>
+
+
+<p>These will be used by pagination class you have set to do the actual pagination.</p>
+<p>So to use query arguments as query parameters all you need to do is inherit <code>QueryArgumentsMixin</code> to your viewset to convert query arguments into query parameters, from there you can use whatever you want to use to accomplish whatever with those generated query parameters.</p>
 <h2 id="setting-up-eager-loading">Setting up eager loading<a class="headerlink" href="#setting-up-eager-loading" title="Permanent link">&para;</a></h2>
 <p>Often times, using <code>prefetch_related</code> or <code>select_related</code> on a view queryset can help speed up the serialization. For example, if you had a many-to-many relation like Books to a Course, it's usually more efficient to call <code>prefetch_related</code> on the books so that serializing a list of courses only triggers one additional query, instead of a number of queries equal to the number of courses.</p>
 <p><code>EagerLoadingMixin</code> gives access to <code>prefetch_related</code> and <code>select_related</code> properties, these two are dictionaries that match serializer field names to respective values that would be passed into <code>prefetch_related</code> or <code>select_related</code>. Take the following serializers as examples.</p>
