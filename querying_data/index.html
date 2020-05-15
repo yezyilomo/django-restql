@@ -1173,7 +1173,7 @@
 
 
 <p>These will be used by pagination class you have set to do the actual pagination.</p>
-<p>So to use query arguments as query parameters all you need to do is inherit <code>QueryArgumentsMixin</code> to your viewset to convert query arguments into query parameters, from there you can use whatever you want to use to accomplish whatever with those generated query parameters.</p>
+<p>So to use query arguments as query parameters all you need to do is inherit <code>QueryArgumentsMixin</code> to your viewset to convert query arguments into query parameters, from there you can use whatever you want to accomplish whatever with those generated query parameters.</p>
 <h2 id="setting-up-eager-loading">Setting up eager loading<a class="headerlink" href="#setting-up-eager-loading" title="Permanent link">&para;</a></h2>
 <p>Often times, using <code>prefetch_related</code> or <code>select_related</code> on a view queryset can help speed up the serialization. For example, if you had a many-to-many relation like Books to a Course, it's usually more efficient to call <code>prefetch_related</code> on the books so that serializing a list of courses only triggers one additional query, instead of a number of queries equal to the number of courses.</p>
 <p><code>EagerLoadingMixin</code> gives access to <code>prefetch_related</code> and <code>select_related</code> properties, these two are dictionaries that match serializer field names to respective values that would be passed into <code>prefetch_related</code> or <code>select_related</code>. Take the following serializers as examples.</p>
