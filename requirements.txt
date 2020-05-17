@@ -1,4 +1,14 @@
-# Must
-pypeg2
-django
-djangorestframework
+# Required
+pypeg2>=2.15.2
+
+# Don't include these two below as they are already included in tox.ini
+# Django>=1.11
+# djangorestframework>=3.5
+
+# Optional
+djangorestframework-filters>=1.0.0.dev0
+
+# Code style
+flake8>=3.7.9
+flake8-tidy-imports>=4.1.0
+pycodestyle>=2.5.0
