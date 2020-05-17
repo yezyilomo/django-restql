@@ -308,6 +308,7 @@ def NestedFieldWraper(*args, **kwargs):
     non_validation_kwargs = [
         'many', 'data', 'instance', 'context', 'fields',
         'exclude', 'return_pk', 'disable_dynamic_fields',
+        'query',
     ]
     for kwarg in non_validation_kwargs:
         if kwarg in serializer_validation_kwargs:
