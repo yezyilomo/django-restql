@@ -1,6 +1,7 @@
 from django.urls import reverse_lazy
 from rest_framework.test import APITestCase
-from tests.testapp.models import Book, Course, Student, Phone
+
+from tests.testapp.models import Book, Course, Phone, Student
 
 
 class DataQueryingTests(APITestCase):
@@ -49,7 +50,6 @@ class DataQueryingTests(APITestCase):
         Book.objects.all().delete()
         Course.objects.all().delete()
         Student.objects.all().delete()
-
 
     # *************** retrieve tests **************
 
@@ -139,7 +139,6 @@ class DataQueryingTests(APITestCase):
                 "code": "CS210",
             }
         )
-
 
     def test_retrieve_with_exclude_operator_applied_on_a_nested_field(self):
         url = reverse_lazy("student-detail", args=[self.student.id])
@@ -567,7 +566,7 @@ class DataQueryingTests(APITestCase):
                 {
                     "name": "Data Structures",
                     "code": "CS210",
-                    "books": [1,2]
+                    "books": [1, 2]
                 }
             ]
         )
@@ -605,7 +604,7 @@ class DataQueryingTests(APITestCase):
                 }
             ]
         )
-        
+
     def test_list_with_expanded_dynamic_serializer_method_field(self):
         url = reverse_lazy("course_with_dynamic_serializer_method_field-list")
         response = self.client.get(url + '?query={name, tomes{title}}', format="json")
@@ -872,7 +871,7 @@ class DataQueryingTests(APITestCase):
         self.add_second_student()
 
         with self.assertNumQueries(2):
-            response = self.client.get(url + '?query={-phone_numbers}' , format="json")
+            response = self.client.get(url + '?query={-phone_numbers}', format="json")
             self.assertEqual(
                 response.data,
                 [
@@ -908,7 +907,7 @@ class DataQueryingTests(APITestCase):
         self.add_second_student()
 
         with self.assertNumQueries(1):
-            response = self.client.get(url + '?query={}' , format="json")
+            response = self.client.get(url + '?query={}', format="json")
 
             self.assertEqual(
                 response.data,
@@ -926,7 +925,7 @@ class DataQueryingTests(APITestCase):
         self.add_second_student()
 
         with self.assertNumQueries(2):
-            response = self.client.get(url + '?query={program}' , format="json")
+            response = self.client.get(url + '?query={program}', format="json")
             self.assertEqual(
                 response.data,
                 [
@@ -961,7 +960,7 @@ class DataQueryingTests(APITestCase):
         self.add_second_student()
 
         with self.assertNumQueries(2):
-            response = self.client.get(url + '?query={phone_numbers}' , format="json")
+            response = self.client.get(url + '?query={phone_numbers}', format="json")
             self.assertEqual(
                 response.data,
                 [
@@ -1091,7 +1090,6 @@ class DataMutationTests(APITestCase):
         Course.objects.all().delete()
         Student.objects.all().delete()
 
-
     # **************** POST Tests ********************* #
 
     def test_post_on_pk_nested_foreignkey_related_field(self):
@@ -1102,19 +1100,19 @@ class DataMutationTests(APITestCase):
             "course": 2
         }
         response = self.client.post(url, data, format="json")
-        
+
         self.assertEqual(
             response.data,
             {
-                'name': 'yezy', 
-                'age': 33, 
+                'name': 'yezy',
+                'age': 33,
                 'course': {
-                    'name': 'Programming', 
-                    'code': 'CS150', 
+                    'name': 'Programming',
+                    'code': 'CS150',
                     'books': [
                         {"title": "Advanced Data Structures", "author": "S.Mobit"}
                     ]
-                }, 
+                },
                 'phone_numbers': []
             }
         )
@@ -1127,15 +1125,15 @@ class DataMutationTests(APITestCase):
             "program": 2
         }
         response = self.client.post(url, data, format="json")
-        
+
         self.assertEqual(
             response.data,
             {
-                'full_name': 'yezy', 
-                'age': 33, 
+                'full_name': 'yezy',
+                'age': 33,
                 'program': {
-                    'name': 'Programming', 
-                    'code': 'CS150', 
+                    'name': 'Programming',
+                    'code': 'CS150',
                     'books': [
                         {"title": "Advanced Data Structures", "author": "S.Mobit"}
                     ]
@@ -1151,13 +1149,13 @@ class DataMutationTests(APITestCase):
             "age": 33
         }
         response = self.client.post(url, data, format="json")
-        
+
         self.assertEqual(
             response.data,
             {
-                'name': 'yezy', 
-                'age': 33, 
-                'course': None, 
+                'name': 'yezy',
+                'age': 33,
+                'course': None,
                 'phone_numbers': []
             }
         )
@@ -1170,13 +1168,13 @@ class DataMutationTests(APITestCase):
             "course": ""
         }
         response = self.client.post(url, data, format="json")
-        
+
         self.assertEqual(
             response.data,
             {
-                'name': 'yezy', 
-                'age': 33, 
-                'course': None, 
+                'name': 'yezy',
+                'age': 33,
+                'course': None,
                 'phone_numbers': []
             }
         )
@@ -1193,13 +1191,13 @@ class DataMutationTests(APITestCase):
         self.assertEqual(
             response.data,
             {
-                'name': 'yezy', 
-                'age': 33, 
+                'name': 'yezy',
+                'age': 33,
                 'course': {
-                    'name': 'Programming', 
-                    'code': 'CS50', 
+                    'name': 'Programming',
+                    'code': 'CS50',
                     'books': []
-                }, 
+                },
                 'phone_numbers': []
             }
         )
@@ -1210,20 +1208,20 @@ class DataMutationTests(APITestCase):
             "name": "yezy",
             "age": 27,
             "program": {"name": "Programming", "code": "CS50"},
-            "contacts": { 'add': [1]}
+            "contacts": {'add': [1]}
         }
         response = self.client.post(url, data, format="json")
 
         self.assertEqual(
             response.data,
             {
-                'name': 'yezy', 
-                'age': 27, 
+                'name': 'yezy',
+                'age': 27,
                 'program': {
-                    'name': 'Programming', 
-                    'code': 'CS50', 
+                    'name': 'Programming',
+                    'code': 'CS50',
                     'books': []
-                }, 
+                },
                 'contacts': [
                     {'number': '076711110', 'type': 'Office', 'student': 2}
                 ]
@@ -1252,9 +1250,9 @@ class DataMutationTests(APITestCase):
     def test_post_with_add_operation(self):
         url = reverse_lazy("wcourse-list")
         data = {
-                "name": "Data Structures",
-                "code": "CS310",
-                "books": {"add":[1,2]}
+            "name": "Data Structures",
+            "code": "CS310",
+            "books": {"add": [1, 2]}
         }
         response = self.client.post(url, data, format="json")
 
@@ -1272,12 +1270,12 @@ class DataMutationTests(APITestCase):
 
     def test_post_with_create_operation(self):
         data = {
-                "name": "Data Structures",
-                "code": "CS310",
-                "books": {"create": [
+            "name": "Data Structures",
+            "code": "CS310",
+            "books": {"create": [
                     {"title": "Linear Math", "author": "Me"},
                     {"title": "Algebra Three", "author": "Me"}
-                ]}
+            ]}
         }
         url = reverse_lazy("wcourse-list")
         response = self.client.post(url, data, format="json")
@@ -1296,12 +1294,12 @@ class DataMutationTests(APITestCase):
 
     def test_post_with_add_and_create_operations(self):
         data = {
-                "name": "Data Structures",
-                "code": "CS310",
-                "books": {
-                    "add":[1],
+            "name": "Data Structures",
+            "code": "CS310",
+            "books": {
+                    "add": [1],
                     "create": [{"title": "Algebra Three", "author": "Me"}]
-                }
+            }
         }
         url = reverse_lazy("wcourse-list")
         response = self.client.post(url, data, format="json")
@@ -1324,7 +1322,7 @@ class DataMutationTests(APITestCase):
             "name": "yezy",
             "age": 33,
             "course": {
-                "name": "Programming", 
+                "name": "Programming",
                 "code": "CS50",
                 "books": {"create": [
                     {"title": "Python Tricks", "author": "Dan Bader"}
@@ -1336,15 +1334,15 @@ class DataMutationTests(APITestCase):
         self.assertEqual(
             response.data,
             {
-                'name': 'yezy', 
-                'age': 33, 
+                'name': 'yezy',
+                'age': 33,
                 'course': {
-                    'name': 'Programming', 
-                    'code': 'CS50', 
+                    'name': 'Programming',
+                    'code': 'CS50',
                     'books': [
                         {"title": "Python Tricks", "author": "Dan Bader"}
                     ]
-                }, 
+                },
                 'phone_numbers': []
             }
         )
@@ -1366,13 +1364,13 @@ class DataMutationTests(APITestCase):
         self.assertEqual(
             response.data,
             {
-                'name': 'yezy', 
-                'age': 33, 
+                'name': 'yezy',
+                'age': 33,
                 'course': {
-                    'name': 'Programming', 
-                    'code': 'CS50', 
+                    'name': 'Programming',
+                    'code': 'CS50',
                     'books': []
-                }, 
+                },
                 'phone_numbers': [
                     {'number': '076750000', 'type': 'office', 'student': 2}
                 ]
@@ -1393,16 +1391,16 @@ class DataMutationTests(APITestCase):
         self.assertEqual(
             response.data,
             {
-                'name': 'yezy', 'age': 33, 
+                'name': 'yezy', 'age': 33,
                 'course': {
-                    'name': 'Programming', 'code': 'CS150', 
+                    'name': 'Programming', 'code': 'CS150',
                     'books': [
                         {"title": "Advanced Data Structures", "author": "S.Mobit"}
                     ]
-                }, 
+                },
                 'phone_numbers': [
-                    {'number': '076711110', 'type': 'Office', 'student': 1}, 
-                    {'number': '073008880', 'type': 'Home', 'student': 1} 
+                    {'number': '076711110', 'type': 'Office', 'student': 1},
+                    {'number': '073008880', 'type': 'Home', 'student': 1}
                 ]
             }
         )
@@ -1419,17 +1417,17 @@ class DataMutationTests(APITestCase):
         self.assertEqual(
             response.data,
             {
-                'full_name': 'yezy', 
-                'age': 33, 
+                'full_name': 'yezy',
+                'age': 33,
                 'program': {
-                    'name': 'Programming', 'code': 'CS150', 
+                    'name': 'Programming', 'code': 'CS150',
                     'books': [
                         {"title": "Advanced Data Structures", "author": "S.Mobit"}
                     ]
-                }, 
+                },
                 'contacts': [
-                    {'number': '076711110', 'type': 'Office', 'student': 1}, 
-                    {'number': '073008880', 'type': 'Home', 'student': 1} 
+                    {'number': '076711110', 'type': 'Office', 'student': 1},
+                    {'number': '073008880', 'type': 'Home', 'student': 1}
                 ]
             }
         )
@@ -1448,12 +1446,11 @@ class DataMutationTests(APITestCase):
                 'name': 'yezy', 'age': 33,
                 'course': None,
                 'phone_numbers': [
-                    {'number': '076711110', 'type': 'Office', 'student': 1}, 
-                    {'number': '073008880', 'type': 'Home', 'student': 1} 
+                    {'number': '076711110', 'type': 'Office', 'student': 1},
+                    {'number': '073008880', 'type': 'Home', 'student': 1}
                 ]
             }
         )
-
 
     def test_put_on_writable_nested_foreignkey_related_field(self):
         url = reverse_lazy("wstudent-detail", args=[self.student.id])
@@ -1467,18 +1464,18 @@ class DataMutationTests(APITestCase):
         self.assertEqual(
             response.data,
             {
-                'name': 'yezy', 'age': 33, 
+                'name': 'yezy', 'age': 33,
                 'course': {
-                    'name': 'Programming', 'code': 'CS50', 
+                    'name': 'Programming', 'code': 'CS50',
                     'books': [
                         {'title': 'Advanced Data Structures', 'author': 'S.Mobit'},
                         {'title': 'Basic Data Structures', 'author': 'S.Mobit'}
                     ]
-                }, 
+                },
                 'phone_numbers': [
-                    {'number': '076711110', 'type': 'Office', 'student': 1}, 
+                    {'number': '076711110', 'type': 'Office', 'student': 1},
                     {'number': '073008880', 'type': 'Home', 'student': 1}
-                    
+
                 ]
             }
         )
@@ -1496,18 +1493,18 @@ class DataMutationTests(APITestCase):
         self.assertEqual(
             response.data,
             {
-                'name': 'yezy', 
-                'age': 27, 
+                'name': 'yezy',
+                'age': 27,
                 'program': {
-                    'name': 'Programming & Data Analysis', 
-                    'code': 'CS55', 
+                    'name': 'Programming & Data Analysis',
+                    'code': 'CS55',
                     'books': [
                         {'title': 'Advanced Data Structures', 'author': 'S.Mobit'},
                         {'title': 'Basic Data Structures', 'author': 'S.Mobit'}
                     ]
-                }, 
+                },
                 'contacts': [
-                    {'number': '076711110', 'type': 'Office', 'student': 1}, 
+                    {'number': '076711110', 'type': 'Office', 'student': 1},
                     {'number': '073008880', 'type': 'Home', 'student': 1},
                 ]
             }
@@ -1524,10 +1521,10 @@ class DataMutationTests(APITestCase):
         self.assertEqual(
             response.data,
             {
-                'name': 'yezy', 'age': 33, 
+                'name': 'yezy', 'age': 33,
                 'course': None,
                 'phone_numbers': [
-                    {'number': '076711110', 'type': 'Office', 'student': 1}, 
+                    {'number': '076711110', 'type': 'Office', 'student': 1},
                     {'number': '073008880', 'type': 'Home', 'student': 1}
                 ]
             }
@@ -1545,10 +1542,10 @@ class DataMutationTests(APITestCase):
         self.assertEqual(
             response.data,
             {
-                'name': 'yezy', 'age': 33, 
+                'name': 'yezy', 'age': 33,
                 'course': None,
                 'phone_numbers': [
-                    {'number': '076711110', 'type': 'Office', 'student': 1}, 
+                    {'number': '076711110', 'type': 'Office', 'student': 1},
                     {'number': '073008880', 'type': 'Home', 'student': 1}
                 ]
             }
@@ -1557,11 +1554,11 @@ class DataMutationTests(APITestCase):
     def test_put_with_add_operation(self):
         url = reverse_lazy("wcourse-detail", args=[self.course2.id])
         data = {
-                "name": "Data Structures",
-                "code": "CS410",
-                "books": {
+            "name": "Data Structures",
+            "code": "CS410",
+            "books": {
                     "add": [2]
-                }
+            }
         }
         response = self.client.put(url, data, format="json")
 
@@ -1580,11 +1577,11 @@ class DataMutationTests(APITestCase):
     def test_put_with_remove_operation(self):
         url = reverse_lazy("wcourse-detail", args=[self.course2.id])
         data = {
-                "name": "Data Structures",
-                "code": "CS410",
-                "books": {
+            "name": "Data Structures",
+            "code": "CS410",
+            "books": {
                     "remove": [1]
-                }
+            }
         }
         response = self.client.put(url, data, format="json")
 
@@ -1600,13 +1597,13 @@ class DataMutationTests(APITestCase):
     def test_put_with_create_operation(self):
         url = reverse_lazy("wcourse-detail", args=[self.course2.id])
         data = {
-                "name": "Data Structures",
-                "code": "CS310",
-                "books": {
+            "name": "Data Structures",
+            "code": "CS310",
+            "books": {
                     "create": [
                         {"title": "Primitive Data Types", "author": "S.Mobit"}
                     ]
-                }
+            }
         }
         response = self.client.put(url, data, format="json")
 
@@ -1625,13 +1622,13 @@ class DataMutationTests(APITestCase):
     def test_put_with_update_operation(self):
         url = reverse_lazy("wcourse-detail", args=[self.course2.id])
         data = {
-                "name": "Data Structures",
-                "code": "CS310",
-                "books": {
+            "name": "Data Structures",
+            "code": "CS310",
+            "books": {
                     "update": {
                         1: {"title": "React Programming", "author": "M.Json"}
                     }
-                }
+            }
         }
         response = self.client.put(url, data, format="json")
 
@@ -1652,8 +1649,8 @@ class DataMutationTests(APITestCase):
             "name": "yezy",
             "age": 33,
             "course": {
-                "name": "Programming", 
-                "code": "CS50", 
+                "name": "Programming",
+                "code": "CS50",
                 "books": {
                     "remove": [1]
                 }
@@ -1664,15 +1661,15 @@ class DataMutationTests(APITestCase):
         self.assertEqual(
             response.data,
             {
-                'name': 'yezy', 'age': 33, 
+                'name': 'yezy', 'age': 33,
                 'course': {
-                    'name': 'Programming', 'code': 'CS50', 
+                    'name': 'Programming', 'code': 'CS50',
                     'books': [
                         {'title': 'Basic Data Structures', 'author': 'S.Mobit'}
                     ]
-                }, 
+                },
                 'phone_numbers': [
-                    {'number': '076711110', 'type': 'Office', 'student': 1}, 
+                    {'number': '076711110', 'type': 'Office', 'student': 1},
                     {'number': '073008880', 'type': 'Home', 'student': 1}
                 ]
             }
@@ -1698,19 +1695,19 @@ class DataMutationTests(APITestCase):
         self.assertEqual(
             response.data,
             {
-                'name': 'yezy', 'age': 33, 
+                'name': 'yezy', 'age': 33,
                 'course': {
-                    'name': 'Programming', 'code': 'CS50', 
+                    'name': 'Programming', 'code': 'CS50',
                     'books': [
                         {'title': 'Advanced Data Structures', 'author': 'S.Mobit'},
                         {'title': 'Basic Data Structures', 'author': 'S.Mobit'}
                     ]
-                }, 
+                },
                 'phone_numbers': [
-                    {'number': '073008811', 'type': 'office', 'student': 1}, 
+                    {'number': '073008811', 'type': 'office', 'student': 1},
                     {'number': '073008880', 'type': 'Home', 'student': 1},
                     {'number': '076750000', 'type': 'office', 'student': 1}
-                    
+
                 ]
             }
         )
@@ -1727,16 +1724,16 @@ class DataMutationTests(APITestCase):
         self.assertEqual(
             response.data,
             {
-                'name': 'Yezy', 'age': 24, 
+                'name': 'Yezy', 'age': 24,
                 'course': {
-                    'name': 'Programming', 'code': 'CS150', 
+                    'name': 'Programming', 'code': 'CS150',
                     'books': [
                         {"title": "Advanced Data Structures", "author": "S.Mobit"}
                     ]
-                }, 
+                },
                 'phone_numbers': [
-                    {'number': '076711110', 'type': 'Office', 'student': 1}, 
-                    {'number': '073008880', 'type': 'Home', 'student': 1} 
+                    {'number': '076711110', 'type': 'Office', 'student': 1},
+                    {'number': '073008880', 'type': 'Home', 'student': 1}
                 ]
             }
         )
@@ -1751,7 +1748,7 @@ class DataMutationTests(APITestCase):
         self.assertEqual(
             response.data,
             {
-                'name': 'Yezy', 'age': 35, 
+                'name': 'Yezy', 'age': 35,
                 "course": {
                     "name": "Data Structures",
                     "code": "CS210",
@@ -1759,10 +1756,10 @@ class DataMutationTests(APITestCase):
                         {"title": "Advanced Data Structures", "author": "S.Mobit"},
                         {"title": "Basic Data Structures", "author": "S.Mobit"}
                     ]
-                }, 
+                },
                 'phone_numbers': [
-                    {'number': '076711110', 'type': 'Office', 'student': 1}, 
-                    {'number': '073008880', 'type': 'Home', 'student': 1} 
+                    {'number': '076711110', 'type': 'Office', 'student': 1},
+                    {'number': '073008880', 'type': 'Home', 'student': 1}
                 ]
             }
         )
@@ -1778,17 +1775,17 @@ class DataMutationTests(APITestCase):
         self.assertEqual(
             response.data,
             {
-                'full_name': 'Yezy', 
-                'age': 33, 
+                'full_name': 'Yezy',
+                'age': 33,
                 'program': {
-                    'name': 'Programming', 'code': 'CS150', 
+                    'name': 'Programming', 'code': 'CS150',
                     'books': [
                         {"title": "Advanced Data Structures", "author": "S.Mobit"}
                     ]
-                }, 
+                },
                 'contacts': [
-                    {'number': '076711110', 'type': 'Office', 'student': 1}, 
-                    {'number': '073008880', 'type': 'Home', 'student': 1} 
+                    {'number': '076711110', 'type': 'Office', 'student': 1},
+                    {'number': '073008880', 'type': 'Home', 'student': 1}
                 ]
             }
         )
@@ -1803,7 +1800,7 @@ class DataMutationTests(APITestCase):
         self.assertEqual(
             response.data,
             {
-                'name': 'Yezy', 'age': 30, 
+                'name': 'Yezy', 'age': 30,
                 "course": {
                     "name": "Data Structures",
                     "code": "CS210",
@@ -1811,14 +1808,13 @@ class DataMutationTests(APITestCase):
                         {"title": "Advanced Data Structures", "author": "S.Mobit"},
                         {"title": "Basic Data Structures", "author": "S.Mobit"}
                     ]
-                }, 
+                },
                 'phone_numbers': [
-                    {'number': '076711110', 'type': 'Office', 'student': 1}, 
-                    {'number': '073008880', 'type': 'Home', 'student': 1} 
+                    {'number': '076711110', 'type': 'Office', 'student': 1},
+                    {'number': '073008880', 'type': 'Home', 'student': 1}
                 ]
             }
         )
-
 
     def test_patch_on_writable_nested_foreignkey_related_field(self):
         url = reverse_lazy("wstudent-detail", args=[self.student.id])
@@ -1831,18 +1827,18 @@ class DataMutationTests(APITestCase):
         self.assertEqual(
             response.data,
             {
-                'name': 'Yezy Ilomo', 'age': 24, 
+                'name': 'Yezy Ilomo', 'age': 24,
                 'course': {
-                    'name': 'Programming', 'code': 'CS50', 
+                    'name': 'Programming', 'code': 'CS50',
                     'books': [
                         {'title': 'Advanced Data Structures', 'author': 'S.Mobit'},
                         {'title': 'Basic Data Structures', 'author': 'S.Mobit'}
                     ]
-                }, 
+                },
                 'phone_numbers': [
-                    {'number': '076711110', 'type': 'Office', 'student': 1}, 
+                    {'number': '076711110', 'type': 'Office', 'student': 1},
                     {'number': '073008880', 'type': 'Home', 'student': 1}
-                    
+
                 ]
             }
         )
@@ -1859,18 +1855,18 @@ class DataMutationTests(APITestCase):
         self.assertEqual(
             response.data,
             {
-                'name': 'Yezy', 
-                'age': 28, 
+                'name': 'Yezy',
+                'age': 28,
                 'program': {
-                    'name': 'Programming & Data Analysis', 
-                    'code': 'CS55', 
+                    'name': 'Programming & Data Analysis',
+                    'code': 'CS55',
                     'books': [
                         {'title': 'Advanced Data Structures', 'author': 'S.Mobit'},
                         {'title': 'Basic Data Structures', 'author': 'S.Mobit'}
                     ]
-                }, 
+                },
                 'contacts': [
-                    {'number': '076711110', 'type': 'Office', 'student': 1}, 
+                    {'number': '076711110', 'type': 'Office', 'student': 1},
                     {'number': '073008880', 'type': 'Home', 'student': 1},
                 ]
             }
@@ -1887,7 +1883,7 @@ class DataMutationTests(APITestCase):
         self.assertEqual(
             response.data,
             {
-                'name': 'yezy', 'age': 26, 
+                'name': 'yezy', 'age': 26,
                 "course": {
                     "name": "Data Structures",
                     "code": "CS210",
@@ -1895,10 +1891,10 @@ class DataMutationTests(APITestCase):
                         {"title": "Advanced Data Structures", "author": "S.Mobit"},
                         {"title": "Basic Data Structures", "author": "S.Mobit"}
                     ]
-                }, 
+                },
                 'phone_numbers': [
-                    {'number': '076711110', 'type': 'Office', 'student': 1}, 
-                    {'number': '073008880', 'type': 'Home', 'student': 1} 
+                    {'number': '076711110', 'type': 'Office', 'student': 1},
+                    {'number': '073008880', 'type': 'Home', 'student': 1}
                 ]
             }
         )
@@ -1915,10 +1911,10 @@ class DataMutationTests(APITestCase):
         self.assertEqual(
             response.data,
             {
-                'name': 'yezy', 'age': 33, 
+                'name': 'yezy', 'age': 33,
                 'course': None,
                 'phone_numbers': [
-                    {'number': '076711110', 'type': 'Office', 'student': 1}, 
+                    {'number': '076711110', 'type': 'Office', 'student': 1},
                     {'number': '073008880', 'type': 'Home', 'student': 1}
                 ]
             }
@@ -1927,11 +1923,11 @@ class DataMutationTests(APITestCase):
     def test_patch_with_add_operation(self):
         url = reverse_lazy("wcourse-detail", args=[self.course2.id])
         data = {
-                "name": "Data Structures",
-                "code": "CS410",
-                "books": {
+            "name": "Data Structures",
+            "code": "CS410",
+            "books": {
                     "add": [2]
-                }
+            }
         }
         response = self.client.patch(url, data, format="json")
 
@@ -1950,11 +1946,11 @@ class DataMutationTests(APITestCase):
     def test_patch_with_remove_operation(self):
         url = reverse_lazy("wcourse-detail", args=[self.course2.id])
         data = {
-                "name": "Data Structures",
-                "code": "CS410",
-                "books": {
+            "name": "Data Structures",
+            "code": "CS410",
+            "books": {
                     "remove": [1]
-                }
+            }
         }
         response = self.client.patch(url, data, format="json")
 
@@ -1970,13 +1966,13 @@ class DataMutationTests(APITestCase):
     def test_patch_with_create_operation(self):
         url = reverse_lazy("wcourse-detail", args=[self.course2.id])
         data = {
-                "name": "Data Structures",
-                "code": "CS310",
-                "books": {
+            "name": "Data Structures",
+            "code": "CS310",
+            "books": {
                     "create": [
                         {"title": "Primitive Data Types", "author": "S.Mobit"}
                     ]
-                }
+            }
         }
         response = self.client.patch(url, data, format="json")
 
@@ -1995,13 +1991,13 @@ class DataMutationTests(APITestCase):
     def test_patch_with_update_operation(self):
         url = reverse_lazy("wcourse-detail", args=[self.course2.id])
         data = {
-                "name": "Data Structures",
-                "code": "CS310",
-                "books": {
+            "name": "Data Structures",
+            "code": "CS310",
+            "books": {
                     "update": {
                         1: {"title": "React Programming", "author": "M.Json"}
                     }
-                }
+            }
         }
         response = self.client.patch(url, data, format="json")
 
@@ -2022,8 +2018,8 @@ class DataMutationTests(APITestCase):
             "name": "yezy",
             "age": 33,
             "course": {
-                "name": "Programming", 
-                "code": "CS50", 
+                "name": "Programming",
+                "code": "CS50",
                 "books": {
                     "remove": [1]
                 }
@@ -2034,15 +2030,15 @@ class DataMutationTests(APITestCase):
         self.assertEqual(
             response.data,
             {
-                'name': 'yezy', 'age': 33, 
+                'name': 'yezy', 'age': 33,
                 'course': {
-                    'name': 'Programming', 'code': 'CS50', 
+                    'name': 'Programming', 'code': 'CS50',
                     'books': [
                         {'title': 'Basic Data Structures', 'author': 'S.Mobit'}
                     ]
-                }, 
+                },
                 'phone_numbers': [
-                    {'number': '076711110', 'type': 'Office', 'student': 1}, 
+                    {'number': '076711110', 'type': 'Office', 'student': 1},
                     {'number': '073008880', 'type': 'Home', 'student': 1}
                 ]
             }
@@ -2068,19 +2064,19 @@ class DataMutationTests(APITestCase):
         self.assertEqual(
             response.data,
             {
-                'name': 'yezy', 'age': 33, 
+                'name': 'yezy', 'age': 33,
                 'course': {
-                    'name': 'Programming', 'code': 'CS50', 
+                    'name': 'Programming', 'code': 'CS50',
                     'books': [
                         {'title': 'Advanced Data Structures', 'author': 'S.Mobit'},
                         {'title': 'Basic Data Structures', 'author': 'S.Mobit'}
                     ]
-                }, 
+                },
                 'phone_numbers': [
-                    {'number': '073008811', 'type': 'office', 'student': 1}, 
+                    {'number': '073008811', 'type': 'office', 'student': 1},
                     {'number': '073008880', 'type': 'Home', 'student': 1},
                     {'number': '076750000', 'type': 'office', 'student': 1}
-                    
+
                 ]
             }
         )
@@ -2113,7 +2109,6 @@ class DataQueryingAndMutationTests(APITestCase):
         Course.objects.all().delete()
         Student.objects.all().delete()
 
-
     # **************** POST Tests ********************* #
 
     def test_post_on_pk_nested_foreignkey_related_field_mix_with_query_param(self):
@@ -2124,13 +2119,13 @@ class DataQueryingAndMutationTests(APITestCase):
             "course": 2
         }
         response = self.client.post(url + '?query={course}', data, format="json")
-        
+
         self.assertEqual(
             response.data,
             {
                 'course': {
-                    'name': 'Programming', 
-                    'code': 'CS150', 
+                    'name': 'Programming',
+                    'code': 'CS150',
                     'books': [
                         {"title": "Advanced Data Structures", "author": "S.Mobit"}
                     ]
@@ -2146,14 +2141,14 @@ class DataQueryingAndMutationTests(APITestCase):
             "program": 2
         }
         response = self.client.post(url + '?query={full_name, program}', data, format="json")
-        
+
         self.assertEqual(
             response.data,
             {
-                'full_name': 'yezy',  
+                'full_name': 'yezy',
                 'program': {
-                    'name': 'Programming', 
-                    'code': 'CS150', 
+                    'name': 'Programming',
+                    'code': 'CS150',
                     'books': [
                         {"title": "Advanced Data Structures", "author": "S.Mobit"}
                     ]
@@ -2174,7 +2169,7 @@ class DataQueryingAndMutationTests(APITestCase):
             response.data,
             {
                 'course': {
-                    'name': 'Programming',  
+                    'name': 'Programming',
                     'books': []
                 }
             }
@@ -2183,9 +2178,9 @@ class DataQueryingAndMutationTests(APITestCase):
     def test_post_with_add_operation_mix_with_query_param(self):
         url = reverse_lazy("wcourse-list")
         data = {
-                "name": "Data Structures",
-                "code": "CS310",
-                "books": {"add":[1,2]}
+            "name": "Data Structures",
+            "code": "CS310",
+            "books": {"add": [1, 2]}
         }
         response = self.client.post(url + '?query={books{title}}', data, format="json")
 
@@ -2198,7 +2193,6 @@ class DataQueryingAndMutationTests(APITestCase):
                 ]
             }
         )
-
 
     # **************** PUT Tests ********************* #
 
@@ -2215,7 +2209,7 @@ class DataQueryingAndMutationTests(APITestCase):
             response.data,
             {
                 'course': {
-                    'name': 'Programming', 'code': 'CS150', 
+                    'name': 'Programming', 'code': 'CS150',
                     'books': [
                         {"title": "Advanced Data Structures", "author": "S.Mobit"}
                     ]
@@ -2237,7 +2231,7 @@ class DataQueryingAndMutationTests(APITestCase):
             {
                 'name': 'Yezy',
                 'course': {
-                    'name': 'Programming', 'code': 'CS50', 
+                    'name': 'Programming', 'code': 'CS50',
                     'books': [
                         {'title': 'Advanced Data Structures', 'author': 'S.Mobit'},
                         {'title': 'Basic Data Structures', 'author': 'S.Mobit'}
@@ -2246,15 +2240,14 @@ class DataQueryingAndMutationTests(APITestCase):
             }
         )
 
-
     def test_put_on_deep_nested_fields_mix_with_query_param(self):
         url = reverse_lazy("wstudent-detail", args=[self.student.id])
         data = {
             "name": "yezy",
             "age": 33,
             "course": {
-                "name": "Programming", 
-                "code": "CS50", 
+                "name": "Programming",
+                "code": "CS50",
                 "books": {
                     "remove": [1]
                 }
@@ -2287,7 +2280,7 @@ class DataQueryingAndMutationTests(APITestCase):
             {
                 'name': 'Yezy',
                 'course': {
-                    'name': 'Programming', 'code': 'CS150', 
+                    'name': 'Programming', 'code': 'CS150',
                     'books': [
                         {"title": "Advanced Data Structures", "author": "S.Mobit"}
                     ]
@@ -2308,7 +2301,7 @@ class DataQueryingAndMutationTests(APITestCase):
             {
                 'name': 'Yezy Ilomo',
                 'course': {
-                    'name': 'Programming', 'code': 'CS50', 
+                    'name': 'Programming', 'code': 'CS50',
                     'books': [
                         {'title': 'Advanced Data Structures', 'author': 'S.Mobit'},
                         {'title': 'Basic Data Structures', 'author': 'S.Mobit'}
@@ -2323,8 +2316,8 @@ class DataQueryingAndMutationTests(APITestCase):
             "name": "yezy",
             "age": 33,
             "course": {
-                "name": "Programming", 
-                "code": "CS50", 
+                "name": "Programming",
+                "code": "CS50",
                 "books": {
                     "remove": [1]
                 }
@@ -2334,8 +2327,8 @@ class DataQueryingAndMutationTests(APITestCase):
 
         self.assertEqual(
             response.data,
-            { 
-                'course': { 
+            {
+                'course': {
                     'books': [
                         {'title': 'Basic Data Structures'}
                     ]
