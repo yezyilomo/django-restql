@@ -1,6 +1,6 @@
 import re
 
-from pypeg2 import name, csl, List, parse, optional, contiguous
+from pypeg2 import List, contiguous, csl, name, optional, parse
 
 from .exceptions import QueryFormatError
 
@@ -38,8 +38,8 @@ class ArgumentWithDoubleQuotes(BaseArgument):
 class Arguments(List):
     grammar = optional(csl(
         [
-            ArgumentWithoutQuotes, 
-            ArgumentWithSingleQuotes, 
+            ArgumentWithoutQuotes,
+            ArgumentWithSingleQuotes,
             ArgumentWithDoubleQuotes
         ],
         separator=','
@@ -92,7 +92,7 @@ class Block(List):
 
 # ParentField grammar,
 # We don't include `ExcludedField` here because
-# exclude operator(-) on a parent field should 
+# exclude operator(-) on a parent field should
 # raise syntax error, e.g {name, -location{city}}
 # `IncludedField` is a parent field and `Block`
 # contains its sub fields
@@ -106,7 +106,7 @@ class Parser(object):
     def get_parsed(self):
         parse_tree = parse(self._query, Block)
         return self._transform_block(parse_tree)
-    
+
     def _transform_block(self, block):
         fields = {
             "include": [],
@@ -121,7 +121,7 @@ class Parser(object):
         for field in block.body:
             # A field may be a parent or included field or excluded field
             field = self._transform_field(field)
-            
+
             if isinstance(field, dict):
                 # A field is a parent
                 fields["include"].append(field)
@@ -151,19 +151,19 @@ class Parser(object):
                         "field level"
                     )
                     raise QueryFormatError(msg)
-                    
+
             if add_include_all_operator:
                 # Make sure we include * operator
                 fields["include"].append("*")
         return fields
-    
+
     def _transform_field(self, field):
         # A field may be a parent or included field or excluded field
         if isinstance(field, ParentField):
             return self._transform_parent_field(field)
         elif isinstance(field, (IncludedField, ExcludedField, AllFields)):
             return field
-    
+
     def _transform_parent_field(self, parent_field):
         parent_field_name = str(parent_field.name)
         parent_field_value = self._transform_block(parent_field.block)

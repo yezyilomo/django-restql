@@ -15,10 +15,9 @@ Including another URLconf
 """
 
 from django.conf.urls import include, url
-
 from tests.testapp import views
-from rest_framework import routers
 
+from rest_framework import routers
 
 router = routers.DefaultRouter()
 

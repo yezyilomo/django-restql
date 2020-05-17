@@ -1,5 +1,6 @@
 from rest_framework import serializers
 from tests.testapp.models import Book, Course, Student, Phone
+
 from django_restql.fields import NestedField, DynamicSerializerMethodField
 from django_restql.mixins import DynamicFieldsMixin
 from django_restql.serializers import NestedModelSerializer
@@ -99,7 +100,7 @@ class StudentWithAliasSerializer(DynamicFieldsMixin, serializers.ModelSerializer
 ############### Serializers for Nested Data Mutation Testing ##############
 class WritableCourseSerializer(DynamicFieldsMixin, NestedModelSerializer):
     books = NestedField(BookSerializer, many=True, required=False)
-        
+
     class Meta:
         model = Course
         fields = ['name', 'code', 'books']

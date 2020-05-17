@@ -12,7 +12,6 @@ from django.conf import settings
 from django.test.signals import setting_changed
 from django.utils.module_loading import import_string
 
-
 DEFAULTS = {
     'QUERY_PARAM_NAME': 'query',
     'AUTO_APPLY_EAGER_LOADING': True,
@@ -61,6 +60,7 @@ class RESTQLSettings:
     Any setting with string import paths will be automatically resolved
     and return the class, rather than the string literal.
     """
+
     def __init__(self, user_settings=None, defaults=None, import_strings=None):
         self.defaults = defaults or DEFAULTS
         self.import_strings = import_strings or IMPORT_STRINGS

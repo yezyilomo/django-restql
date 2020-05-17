@@ -4,7 +4,7 @@ from .mixins import NestedCreateMixin, NestedUpdateMixin
 
 
 class NestedModelSerializer(
-        NestedCreateMixin, 
-        NestedUpdateMixin, 
+        NestedCreateMixin,
+        NestedUpdateMixin,
         ModelSerializer):
     pass

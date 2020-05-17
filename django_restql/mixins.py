@@ -1,32 +1,31 @@
 import copy
-import collections
+
+from django.db.models import Prefetch
+from django.db.models.fields.related import ManyToManyRel, ManyToOneRel
+from django.http import QueryDict
+from django.utils.functional import cached_property
 
 from rest_framework.fields import empty
 from rest_framework.serializers import (
-    Serializer, ListSerializer,
-    ValidationError
+    ListSerializer, Serializer, ValidationError
 )
-from django.http import QueryDict
-from django.db.models import Prefetch
-from django.utils.functional import cached_property
-from django.db.models.fields.related import ManyToOneRel, ManyToManyRel
 
+from .exceptions import FieldNotFound, QueryFormatError
+from .fields import (
+    BaseReplaceableNestedField, BaseRESTQLNestedField,
+    BaseWritableNestedField, DynamicSerializerMethodField
+)
+from .operations import ADD, CREATE, REMOVE, UPDATE
 from .parser import Parser
 from .settings import restql_settings
-from .exceptions import FieldNotFound, QueryFormatError
-from .operations import ADD, CREATE, REMOVE, UPDATE
-from .fields import (
-    BaseRESTQLNestedField, BaseReplaceableNestedField, BaseWritableNestedField,
-    DynamicSerializerMethodField
-)
 
 
 class RequestQueryParserMixin(object):
     """
     Mixin for parsing restql query from request.
 
-    NOTE: We are using `request.GET` instead of 
-    `request.query_params` because this might be 
+    NOTE: We are using `request.GET` instead of
+    `request.query_params` because this might be
     called before DRF request is created(i.e from dispatch).
     This means `request.query_params` might not available
     when this mixin is used.
@@ -67,6 +66,7 @@ class RequestQueryParserMixin(object):
 
 class QueryArgumentsMixin(RequestQueryParserMixin):
     """Mixin for converting query arguments into query parameters"""
+
     def get_parsed_restql_query(self, request):
         if self.has_restql_query_param(request):
             try:
@@ -114,7 +114,7 @@ class QueryArgumentsMixin(RequestQueryParserMixin):
         query_params = self.get_query_params(request)
 
         # We are using `request.GET` instead of `request.query_params`
-        # because at this point DRF request is not yet created so 
+        # because at this point DRF request is not yet created so
         # `request.query_params` is not yet available
         params = request.GET.copy()
         params.update(query_params)
@@ -126,7 +126,7 @@ class QueryArgumentsMixin(RequestQueryParserMixin):
 
 class DynamicFieldsMixin(RequestQueryParserMixin):
     def __init__(self, *args, **kwargs):
-        # Don't pass 'query', 'fields', 'exclude', 'return_pk' 
+        # Don't pass 'query', 'fields', 'exclude', 'return_pk'
         # and 'disable_dynamic_fields'  kwargs to the superclass
         self.parsed_restql_query = kwargs.pop('query', None)
         self.allowed_fields = kwargs.pop('fields', None)
@@ -144,12 +144,11 @@ class DynamicFieldsMixin(RequestQueryParserMixin):
 
         # Instantiate the superclass normally
         super().__init__(*args, **kwargs)
-        
 
     def to_representation(self, instance):
-        # Activate to use restql fields 
+        # Activate to use restql fields
         self._use_restql_fields = True
-        
+
         if self.return_pk:
             return instance.pk
         return super().to_representation(instance)
@@ -212,10 +211,10 @@ class DynamicFieldsMixin(RequestQueryParserMixin):
         # The format is  {nested_field: [sub_fields ...] ...}
         allowed_nested_fields = {}
 
-        # The self.parsed_restql_query["include"] 
+        # The self.parsed_restql_query["include"]
         # contains a list of allowed fields,
         # The format is [field, {nested_field: [sub_fields ...]} ...]
-        included_fields =  self.parsed_restql_query["include"]
+        included_fields = self.parsed_restql_query["include"]
         include_all_fields = False
         for field in included_fields:
             if field == "*":
@@ -248,7 +247,7 @@ class DynamicFieldsMixin(RequestQueryParserMixin):
             return all_fields
 
         all_allowed_fields = (
-            allowed_flat_fields + 
+            allowed_flat_fields +
             list(allowed_nested_fields.keys())
         )
         for field in all_field_names:
@@ -263,7 +262,7 @@ class DynamicFieldsMixin(RequestQueryParserMixin):
         # The format is  {nested_field: [sub_fields ...] ...}
         allowed_nested_fields = {}
 
-        # The self.parsed_restql_query["include"] 
+        # The self.parsed_restql_query["include"]
         # contains a list of expanded nested fields
         # The format is [{nested_field: [sub_field]} ...]
         nested_fields = self.parsed_restql_query["include"]
@@ -284,7 +283,7 @@ class DynamicFieldsMixin(RequestQueryParserMixin):
                 )
             allowed_nested_fields.update(field)
 
-        # self.parsed_restql_query["exclude"] 
+        # self.parsed_restql_query["exclude"]
         # is a list of names of excluded fields
         excluded_fields = self.parsed_restql_query["exclude"]
         for field in excluded_fields:
@@ -297,9 +296,9 @@ class DynamicFieldsMixin(RequestQueryParserMixin):
     @cached_property
     def restql_fields(self):
         request = self.context.get('request')
-        
+
         is_not_a_request_to_process = (
-            request is None or 
+            request is None or
             self.disable_dynamic_fields or
             not self.has_restql_query_param(request)
         )
@@ -308,11 +307,11 @@ class DynamicFieldsMixin(RequestQueryParserMixin):
             return self.get_allowed_fields()
 
         is_top_retrieve_request = (
-            self.field_name is None and 
+            self.field_name is None and
             self.parent is None
         )
         is_top_list_request = (
-            isinstance(self.parent, ListSerializer) and 
+            isinstance(self.parent, ListSerializer) and
             self.parent.parent is None and
             self.parent.field_name is None
         )
@@ -350,15 +349,15 @@ class DynamicFieldsMixin(RequestQueryParserMixin):
             # Retrieve all nested fields
             return self.get_allowed_fields()
 
-        # NOTE: self.parsed_restql_query["include"] not being empty 
-        # is not a guarantee that the exclude operator(-) has not been 
+        # NOTE: self.parsed_restql_query["include"] not being empty
+        # is not a guarantee that the exclude operator(-) has not been
         # used because the same self.parsed_restql_query["include"]
         # is used to store nested fields when the exclude operator(-) is used
         if self.parsed_restql_query["exclude"]:
             # Exclude fields from a query
             return self.exclude_fields()
         elif self.parsed_restql_query["include"]:
-            # Here we are sure that self.parsed_restql_query["exclude"] 
+            # Here we are sure that self.parsed_restql_query["exclude"]
             # is empty which means the exclude operator(-) is not used,
             # so self.parsed_restql_query["include"] contains only fields
             # to include
@@ -384,7 +383,7 @@ class EagerLoadingMixin(RequestQueryParserMixin):
     @property
     def parsed_restql_query(self):
         """
-        Gets parsed query for use in eager loading. 
+        Gets parsed query for use in eager loading.
         Defaults to the serializer parsed query assuming
         using django-restql DynamicsFieldMixin.
         """
@@ -508,9 +507,9 @@ class EagerLoadingMixin(RequestQueryParserMixin):
 
     def get_queryset(self):
         """
-        Override for DRF's get_queryset on the view. 
-        If get_queryset is not present, we don't try to run this. 
-        Instead, this can still be used by manually calling 
+        Override for DRF's get_queryset on the view.
+        If get_queryset is not present, we don't try to run this.
+        Instead, this can still be used by manually calling
         self.get_eager_queryset and passing in the queryset desired.
         """
         if hasattr(super(), "get_queryset"):
@@ -553,7 +552,7 @@ class BaseNestedMixin(object):
             for field in restql_nested_fields:
                 if field in validated_data and validated_data[field] == empty:
                     empty_fields.append(field)
-    
+
             for field in empty_fields:
                 # Ignore empty fields for partial update
                 validated_data.pop(field)
@@ -563,6 +562,7 @@ class BaseNestedMixin(object):
 
 class NestedCreateMixin(BaseNestedMixin):
     """ Create Mixin """
+
     def create_writable_foreignkey_related(self, data):
         # data format {field: {sub_field: value}}
         objs = {}
@@ -588,7 +588,6 @@ class NestedCreateMixin(BaseNestedMixin):
 
     def bulk_create_objs(self, field, data):
         nested_fields = self.restql_source_field_map
-        model = nested_fields[field].child.Meta.model
 
         # Get nested field serializer
         serializer = nested_fields[field].child
@@ -654,7 +653,7 @@ class NestedCreateMixin(BaseNestedMixin):
 
     def create(self, validated_data):
         fields = {
-            "foreignkey_related": { 
+            "foreignkey_related": {
                 "replaceable": {},
                 "writable": {}
             },
@@ -689,7 +688,7 @@ class NestedCreateMixin(BaseNestedMixin):
 
                 model = self.Meta.model
                 rel = getattr(model, field).rel
-    
+
                 if isinstance(rel, ManyToOneRel):
                     value = validated_data.pop(field)
                     fields["many_to"]["one_related"].update({field: value})
@@ -707,7 +706,7 @@ class NestedCreateMixin(BaseNestedMixin):
         }
 
         instance = super().create({**validated_data, **foreignkey_related})
-        
+
         self.create_many_to_many_related(
             instance,
             fields["many_to"]["many_related"]
@@ -717,7 +716,7 @@ class NestedCreateMixin(BaseNestedMixin):
             instance,
             fields["many_to"]["one_related"]
         )
-        
+
         return instance
 
 
@@ -860,7 +859,7 @@ class NestedUpdateMixin(BaseNestedMixin):
         # ADD: [{sub_field: value}],
         # CREATE: [{sub_field: value}],
         # REMOVE: [pk],
-        # UPDATE: {pk: {sub_field: value}} 
+        # UPDATE: {pk: {sub_field: value}}
         # }}}
         for field, values in data.items():
             nested_obj = getattr(instance, field)
@@ -902,7 +901,7 @@ class NestedUpdateMixin(BaseNestedMixin):
         # ADD: [{sub_field: value}],
         # CREATE: [{sub_field: value}],
         # REMOVE: [pk],
-        # UPDATE: {pk: {sub_field: value}} 
+        # UPDATE: {pk: {sub_field: value}}
         # }}
         for field, values in data.items():
             nested_obj = getattr(instance, field)
@@ -942,7 +941,7 @@ class NestedUpdateMixin(BaseNestedMixin):
 
     def update(self, instance, validated_data):
         fields = {
-            "foreignkey_related": { 
+            "foreignkey_related": {
                 "replaceable": {},
                 "writable": {}
             },
@@ -962,7 +961,7 @@ class NestedUpdateMixin(BaseNestedMixin):
                 continue
             else:
                 field_serializer = nested_fields[field]
-            
+
             if isinstance(field_serializer, Serializer):
                 if isinstance(field_serializer, BaseReplaceableNestedField):
                     value = validated_data.pop(field)
@@ -973,11 +972,11 @@ class NestedUpdateMixin(BaseNestedMixin):
                     fields["foreignkey_related"]["writable"] \
                         .update({field: value})
             elif (isinstance(field_serializer, ListSerializer) and
-                    (isinstance(field_serializer, BaseWritableNestedField) or 
-                    isinstance(field_serializer, BaseReplaceableNestedField))):
+                    (isinstance(field_serializer, BaseWritableNestedField) or
+                     isinstance(field_serializer, BaseReplaceableNestedField))):
                 model = self.Meta.model
                 rel = getattr(model, field).rel
-    
+
                 if isinstance(rel, ManyToOneRel):
                     value = validated_data.pop(field)
                     fields["many_to"]["one_related"].update({field: value})
