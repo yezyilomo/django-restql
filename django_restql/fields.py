@@ -160,12 +160,11 @@ def BaseNestedFieldSerializerFactory(
                     code = e.get_codes()
                     raise ValidationError(detail, code) from None
                 except KeyError:
-                    def wrap_quotes(op): return "`" + op + "`"
-                    op_list = list(map(wrap_quotes, create_ops))
+                    ops_list = ("`" + op + "`" for op in create_ops)
                     msg = (
                         "`%s` is not a valid operation, valid operations "
                         "for this request are %s"
-                        % (operation, ', '.join(op_list))
+                        % (operation, ', '.join(ops_list))
                     )
                     code = 'invalid_operation'
                     raise ValidationError(msg, code=code) from None
@@ -188,12 +187,11 @@ def BaseNestedFieldSerializerFactory(
                     code = e.get_codes()
                     raise ValidationError(detail, code) from None
                 except KeyError:
-                    def wrap_quotes(op): return "`" + op + "`"
-                    op_list = list(map(wrap_quotes, update_ops))
+                    ops_list = ("`" + op + "`" for op in update_ops)
                     msg = (
                         "`%s` is not a valid operation, valid operations "
                         "for this request are %s"
-                        % (operation, ', '.join(op_list))
+                        % (operation, ', '.join(ops_list))
                     )
                     code = 'invalid_operation'
                     raise ValidationError(msg, code=code) from None
