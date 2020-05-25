@@ -53,13 +53,14 @@ class RequestQueryParserMixin(object):
     @classmethod
     def get_parsed_restql_query_from_req(cls, request):
         if hasattr(request, 'parsed_restql_query'):
+            # Use cached parsed restql query
             return request.parsed_restql_query
         raw_query = cls.get_raw_restql_query(request)
         parser = Parser(raw_query)
         parsed_restql_query = parser.get_parsed()
 
         # Save parsed restql query to the request so that
-        # we won't need to parse it again if needed
+        # we won't need to parse it again if needed later
         request.parsed_restql_query = parsed_restql_query
         return parsed_restql_query
 
@@ -73,7 +74,7 @@ class QueryArgumentsMixin(RequestQueryParserMixin):
                 return self.get_parsed_restql_query_from_req(request)
             except (SyntaxError, QueryFormatError):
                 # Let `DynamicFieldsMixin` handle this for a user
-                # to get helpful error message
+                # to get a helpful error message
                 pass
 
         query = {
@@ -179,17 +180,17 @@ class DynamicFieldsMixin(RequestQueryParserMixin):
         return fields
 
     @staticmethod
-    def is_field_found(field_name, all_field_names, raise_error=False):
+    def is_field_found(field_name, all_field_names, raise_exception=False):
         if field_name in all_field_names:
             return True
         else:
-            if raise_error:
+            if raise_exception:
                 msg = "'%s' field is not found" % field_name
                 raise ValidationError(msg)
             return False
 
     @staticmethod
-    def is_nested_field(field_name, field, raise_error=False):
+    def is_nested_field(field_name, field, raise_exception=False):
         nested_classes = (
             Serializer, ListSerializer,
             DynamicSerializerMethodField
@@ -197,7 +198,7 @@ class DynamicFieldsMixin(RequestQueryParserMixin):
         if isinstance(field, nested_classes):
             return True
         else:
-            if raise_error:
+            if raise_exception:
                 msg = "'%s' is not a nested field" % field_name
                 raise ValidationError(msg)
             return False
@@ -227,17 +228,17 @@ class DynamicFieldsMixin(RequestQueryParserMixin):
                     self.is_field_found(
                         nested_field,
                         all_field_names,
-                        raise_error=True
+                        raise_exception=True
                     )
                     self.is_nested_field(
                         nested_field,
                         all_fields[nested_field],
-                        raise_error=True
+                        raise_exception=True
                     )
                 allowed_nested_fields.update(field)
             else:
                 # Flat field
-                self.is_field_found(field, all_field_names, raise_error=True)
+                self.is_field_found(field, all_field_names, raise_exception=True)
                 allowed_flat_fields.append(field)
 
         self.nested_fields = allowed_nested_fields
@@ -274,12 +275,12 @@ class DynamicFieldsMixin(RequestQueryParserMixin):
                 self.is_field_found(
                     nested_field,
                     all_field_names,
-                    raise_error=True
+                    raise_exception=True
                 )
                 self.is_nested_field(
                     nested_field,
                     all_fields[nested_field],
-                    raise_error=True
+                    raise_exception=True
                 )
             allowed_nested_fields.update(field)
 
@@ -287,7 +288,7 @@ class DynamicFieldsMixin(RequestQueryParserMixin):
         # is a list of names of excluded fields
         excluded_fields = self.parsed_restql_query["exclude"]
         for field in excluded_fields:
-            self.is_field_found(field, all_field_names, raise_error=True)
+            self.is_field_found(field, all_field_names, raise_exception=True)
             all_fields.pop(field)
 
         self.nested_fields = allowed_nested_fields
@@ -392,7 +393,7 @@ class EagerLoadingMixin(RequestQueryParserMixin):
                 return self.get_parsed_restql_query_from_req(self.request)
             except (SyntaxError, QueryFormatError):
                 # Let `DynamicFieldsMixin` handle this for a user
-                # to get helpful error message
+                # to get a helpful error message
                 pass
 
         # Else include all fields
@@ -951,7 +952,7 @@ class NestedUpdateMixin(BaseNestedMixin):
             }
         }
 
-        # Make a partal copy of validated_data so that we can
+        # Make a shallow copy of validated_data so that we can
         # iterate and alter it
         data = copy.copy(validated_data)
         nested_fields = self.restql_source_field_map
