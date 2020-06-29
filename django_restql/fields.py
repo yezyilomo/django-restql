@@ -11,8 +11,8 @@ from rest_framework.serializers import (
 from .exceptions import InvalidOperation
 from .operations import ADD, CREATE, REMOVE, UPDATE
 
-CREATE_SUPPORTED_OPERATIONS = (ADD, CREATE)
-UPDATE_SUPPORTED_OPERATIONS = (ADD, CREATE, REMOVE, UPDATE)
+CREATE_OPERATIONS = (ADD, CREATE)
+UPDATE_OPERATIONS = (ADD, CREATE, REMOVE, UPDATE)
 
 
 class DynamicSerializerMethodField(SerializerMethodField):
@@ -48,8 +48,8 @@ def BaseNestedFieldSerializerFactory(
         *args,
         partial=None,
         accept_pk=False,
-        create_ops=[ADD, CREATE],
-        update_ops=[ADD, CREATE, REMOVE, UPDATE],
+        create_ops=CREATE_OPERATIONS,
+        update_ops=UPDATE_OPERATIONS,
         serializer_class=None,
         **kwargs):
     many = kwargs.get("many", False)
@@ -59,17 +59,17 @@ def BaseNestedFieldSerializerFactory(
     )
     assert not(many and accept_pk), msg
 
-    if not set(create_ops).issubset(set(CREATE_SUPPORTED_OPERATIONS)):
+    if not set(create_ops).issubset(set(CREATE_OPERATIONS)):
         msg = (
             "Invalid create operation, Supported operations are " +
-            ", ".join(CREATE_SUPPORTED_OPERATIONS)
+            ", ".join(CREATE_OPERATIONS)
         )
         raise InvalidOperation(msg)
 
-    if not set(update_ops).issubset(set(UPDATE_SUPPORTED_OPERATIONS)):
+    if not set(update_ops).issubset(set(UPDATE_OPERATIONS)):
         msg = (
             "Invalid update operation, Supported operations are " +
-            ", ".join(UPDATE_SUPPORTED_OPERATIONS)
+            ", ".join(UPDATE_OPERATIONS)
         )
         raise InvalidOperation(msg)
 
