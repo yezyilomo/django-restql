@@ -145,16 +145,28 @@ def BaseNestedFieldSerializerFactory(
             values = list(data.values())
             self.validate_data_list(values)
 
-        def data_for_create(self, data):
-            validate = {
+        def get_operation_validation_methods(self, operations):
+            all_operation_validation_methods = {
                 ADD: self.validate_add_list,
                 CREATE: self.validate_create_list,
+                REMOVE: self.validate_remove_list,
+                UPDATE: self.validate_update_list,
             }
+
+            required_validation_methods = {
+                operation: all_operation_validation_methods[operation]
+                for operation in operations
+            }
+
+            return required_validation_methods
+
+        def data_for_create(self, data):
+            validation_methods = self.get_operation_validation_methods(create_ops)
 
             DictField().run_validation(data)
             for operation, values in data.items():
                 try:
-                    validate[operation](values)
+                    validation_methods[operation](values)
                 except ValidationError as e:
                     detail = {operation: e.detail}
                     code = e.get_codes()
@@ -171,17 +183,12 @@ def BaseNestedFieldSerializerFactory(
             return data
 
         def data_for_update(self, data):
-            validate = {
-                ADD: self.validate_add_list,
-                CREATE: self.validate_create_list,
-                REMOVE: self.validate_remove_list,
-                UPDATE: self.validate_update_list,
-            }
+            validation_methods = self.get_operation_validation_methods(update_ops)
 
             DictField().run_validation(data)
             for operation, values in data.items():
                 try:
-                    validate[operation](values)
+                    validation_methods[operation](values)
                 except ValidationError as e:
                     detail = {operation: e.detail}
                     code = e.get_codes()
