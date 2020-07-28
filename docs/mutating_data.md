@@ -62,7 +62,8 @@ Request Body
 ```
 What's done here is pretty clear, location will be created and associated with the property created, also create operation on amenities will create amenities with values specified in a list and associate with the property, add operation will add amenity with id 3 to a list of amenities of the property.
 
-**Note:** POST for many related field supports two operations which are `create` and `add`.
+!!! note
+    POST for many related field supports two operations which are `create` and `add`.
 
 Response
 ```js
@@ -102,9 +103,12 @@ Request Body
     }
 }
 ```
-**Note:** Here `add`, `create`, `remove` and `update` are operations, so `add` operation add amenitiy with id 4 to a list of amenities of the property, `create` operation create amenities with values specified in a list, `remove` operation dessociate amenities with id 3 from a property, `update` operation edit amenity with id 1 according to values specified.
 
-**Note:** PUT/PATCH for many related field supports four operations which are `create`, `add`, `remove` and `update`.
+Here `add`, `create`, `remove` and `update` are operations, so `add` operation add amenitiy with id 4 to a list of amenities of the property, `create` operation create amenities with values specified in a list, `remove` operation dessociate amenities with id 3 from a property, `update` operation edit amenity with id 1 according to values specified.
+
+
+!!! note
+    PUT/PATCH for many related field supports four operations which are `create`, `add`, `remove` and `update`.
 
 Response
 ```js
@@ -165,8 +169,8 @@ Request Body
     "location": 2
 }
 ```
-**Note:** Here location resource with id 2 is already existing, so what's done here is create new property resource and associate it with a location with id 2.
-<br>
+!!! note
+    Here location resource with id 2 is already existing, so what's done here is create new property resource and associate it with a location with id 2.
 
 Response
 ```js
@@ -227,8 +231,8 @@ Request Body
     }
 }
 ```
-**Note:** According to `create_ops=["add"]`, you can't use `create` operation in here!.
-<br>
+!!! note
+    Since `create_ops=["add"]`, you can't use `create` operation in here!.
 
 Response
 ```js
@@ -256,8 +260,8 @@ Request Body
     }
 }
 ```
-**Note:** According to `update_ops=["add", "remove"]`, you can't use `create` or `update` operation in here!.
-<br>
+!!! note
+    Since `update_ops=["add", "remove"]`, you can't use `create` or `update` operation in here!.
 
 Response
 ```js
@@ -313,7 +317,10 @@ location = NestedField(LocationSerializer, exclude=[...])
 location = NestedField(LocationSerializer, return_pk=True)
 ``` 
 
-**Note:** If you want to use `required=False` kwarg on `NestedField` you might want to include `allow_null=True` too if you want your nested field to be set to `null` if you haven't supplied it. For example 
+
+!!! note
+    If you want to use `required=False` kwarg on `NestedField` you might want to include `allow_null=True` too if you want your nested field to be set to `null` if you haven't supplied it. For example 
+
 
 ```py
 from rest_framework import serializers 

@@ -258,8 +258,8 @@ Below is a list of mistakes which leads to syntax error, these mistakes may happ
 # at the same field level
 ```
 
-**Note:** Any field level should either be whitelisting or blacklisting fields but not both.
-<br/>
+!!! note
+    Any field level should either be whitelisting or blacklisting fields but not both.
 
 
 ## DynamicSerializerMethodField
@@ -409,7 +409,8 @@ class CourseSerializer(DynamicFieldsMixin, serializers.ModelSerializer):
 ```
 From the response above you can see that `author` field has been excluded fom book nested resource as specified on  `exclude=["author"]` kwarg during instantiating BookSerializer.
 
-**Note:** `fields` and `exclude` kwargs have no effect when you access the resources directly, so when you access books you will still get all fields i.e
+!!! note
+    `fields` and `exclude` kwargs have no effect when you access the resources directly, so when you access books you will still get all fields i.e
 
 `GET /books/`
 ```js
@@ -520,7 +521,7 @@ query = (age: 18){
 ```
 Here we have three arguments, `age`, `country` and `city` and their corresponding values.
 
-**Note:** To escape any special character(including `, : " ' {} ()`) use single quote `'` or double quote `"`, also if you want to escape double quote use single quote and vice versa. Escaping is very useful if you are dealing with data containing special characters e.g time, dates, lists, texts etc. Below is an example which contain an argument with a date type.
+To escape any special character(including `, : " ' {} ()`) use single quote `'` or double quote `"`, also if you want to escape double quote use single quote and vice versa. Escaping is very useful if you are dealing with data containing special characters e.g time, dates, lists, texts etc. Below is an example which contain an argument with a date type.
 
 ```
 query = (age: 18, join_date__lt: '2020-04-27T23:02:32Z'){
