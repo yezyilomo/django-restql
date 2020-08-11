@@ -27,7 +27,7 @@ class RequestQueryParserMixin(object):
     NOTE: We are using `request.GET` instead of
     `request.query_params` because this might be
     called before DRF request is created(i.e from dispatch).
-    This means `request.query_params` might not available
+    This means `request.query_params` might not be available
     when this mixin is used.
     """
     @staticmethod
