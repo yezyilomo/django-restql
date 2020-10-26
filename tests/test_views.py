@@ -1117,6 +1117,32 @@ class DataMutationTests(APITestCase):
             }
         )
 
+    def test_post_on_pk_writable_nested_foreignkey_related_field(self):
+        url = reverse_lazy("rstudent-list")
+        data = {
+            "name": "yezy",
+            "age": 33,
+            "course": {
+                "name": "Electronics",
+                "code": "E320"
+            }
+        }
+        response = self.client.post(url, data, format="json")
+
+        self.assertEqual(
+            response.data,
+            {
+                'name': 'yezy',
+                'age': 33,
+                'course': {
+                    "name": "Electronics",
+                    "code": "E320",
+                    "books": []
+                },
+                'phone_numbers': []
+            }
+        )
+
     def test_post_on_pk_nested_foreignkey_related_field_with_alias(self):
         url = reverse_lazy("rstudent_with_alias-list")
         data = {
