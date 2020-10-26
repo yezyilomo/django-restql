@@ -36,10 +36,6 @@ class BaseRESTQLNestedField(object):
         raise NotImplementedError('`to_internal_value()` must be implemented.')
 
 
-class BaseReplaceableNestedField(BaseRESTQLNestedField):
-    pass
-
-
 class BaseWritableNestedField(BaseRESTQLNestedField):
     pass
 
@@ -48,6 +44,7 @@ def BaseNestedFieldSerializerFactory(
         *args,
         partial=None,
         accept_pk=False,
+        accept_pk_only=False,
         create_ops=CREATE_OPERATIONS,
         update_ops=UPDATE_OPERATIONS,
         serializer_class=None,
@@ -57,7 +54,7 @@ def BaseNestedFieldSerializerFactory(
         "May not set both `many=True` and `accept_pk=True`"
         "(accept_pk applies to foreign key related fields only)."
     )
-    assert not(many and accept_pk), msg
+    assert not(many and (accept_pk or accept_pk_only)), msg
 
     if not set(create_ops).issubset(set(CREATE_OPERATIONS)):
         msg = (
@@ -73,10 +70,7 @@ def BaseNestedFieldSerializerFactory(
         )
         raise InvalidOperation(msg)
 
-    BaseClass = BaseReplaceableNestedField if accept_pk \
-        else BaseWritableNestedField
-
-    class BaseNestedField(BaseClass):
+    class BaseNestedField(BaseWritableNestedField):
         @property
         def is_partial(self):
             if partial is None and self.parent is not None:
@@ -278,8 +272,21 @@ def BaseNestedFieldSerializerFactory(
 
             if data == "":
                 data = None
-            if accept_pk:
+
+            self.is_replaceable = False
+
+            if accept_pk_only:
+                self.is_replaceable = True
                 return self.validate_pk_based_nested(data)
+
+            if accept_pk:
+                if isinstance(data, dict):
+                    self.is_replaceable = False
+                    return self.validate_data_based_nested(data)
+                else:
+                    self.is_replaceable = True
+                    return self.validate_pk_based_nested(data)
+
             return self.validate_data_based_nested(data)
 
         def __repr__(self):
