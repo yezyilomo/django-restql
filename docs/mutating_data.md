@@ -193,7 +193,7 @@ Using `accept_pk` doesn't limit you from sending data(instead of pk to nested re
 Request Body
 ```js
 {
-    "price": 40000,
+    "price": 63000,
     "location": {
         "city": "Dodoma",
         "country": "Tanzania"
