@@ -36,10 +36,6 @@ class BaseRESTQLNestedField(object):
         raise NotImplementedError('`to_internal_value()` must be implemented.')
 
 
-class BaseWritableNestedField(BaseRESTQLNestedField):
-    pass
-
-
 def BaseNestedFieldSerializerFactory(
         *args,
         partial=None,
@@ -70,7 +66,7 @@ def BaseNestedFieldSerializerFactory(
         )
         raise InvalidOperation(msg)
 
-    class BaseNestedField(BaseWritableNestedField):
+    class BaseNestedField(BaseRESTQLNestedField):
         @property
         def is_partial(self):
             if partial is None and self.parent is not None:

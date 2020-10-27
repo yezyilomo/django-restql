@@ -12,8 +12,7 @@ from rest_framework.serializers import (
 
 from .exceptions import FieldNotFound, QueryFormatError
 from .fields import (
-    BaseRESTQLNestedField, BaseWritableNestedField,
-    DynamicSerializerMethodField
+    BaseRESTQLNestedField, DynamicSerializerMethodField
 )
 from .operations import ADD, CREATE, REMOVE, UPDATE
 from .parser import Parser
@@ -675,8 +674,7 @@ class NestedCreateMixin(BaseNestedMixin):
             else:
                 field_serializer = nested_fields[field]
 
-            if isinstance(field_serializer, Serializer) and \
-                    isinstance(field_serializer, BaseWritableNestedField):
+            if isinstance(field_serializer, Serializer):
                 if field_serializer.is_replaceable:
                     value = validated_data.pop(field)
                     fields["foreignkey_related"]["replaceable"] \
@@ -685,9 +683,7 @@ class NestedCreateMixin(BaseNestedMixin):
                     value = validated_data.pop(field)
                     fields["foreignkey_related"]["writable"]\
                         .update({field: value})
-            elif isinstance(field_serializer, ListSerializer) and \
-                    isinstance(field_serializer, BaseWritableNestedField):
-
+            elif isinstance(field_serializer, ListSerializer):
                 model = self.Meta.model
                 rel = getattr(model, field).rel
 
@@ -964,8 +960,7 @@ class NestedUpdateMixin(BaseNestedMixin):
             else:
                 field_serializer = nested_fields[field]
 
-            if isinstance(field_serializer, Serializer) and \
-                    isinstance(field_serializer, BaseWritableNestedField):
+            if isinstance(field_serializer, Serializer):
                 if field_serializer.is_replaceable:
                     value = validated_data.pop(field)
                     fields["foreignkey_related"]["replaceable"] \
@@ -974,8 +969,7 @@ class NestedUpdateMixin(BaseNestedMixin):
                     value = validated_data.pop(field)
                     fields["foreignkey_related"]["writable"] \
                         .update({field: value})
-            elif (isinstance(field_serializer, ListSerializer) and
-                    isinstance(field_serializer, BaseWritableNestedField)):
+            elif isinstance(field_serializer, ListSerializer):
                 model = self.Meta.model
                 rel = getattr(model, field).rel
 
