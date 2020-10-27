@@ -132,7 +132,7 @@ Response
 
 
 ## Using NestedField with accept_pk kwarg.
-`accept_pk=True` is used if you want to update nested field by using pk/id of existing data(basically associate and dessociate existing nested resources with the parent resource without actually mutating the nested resource). This applies to ForeignKey relation only.
+`accept_pk=True` is used if you want to be able to update nested field by using pk/id of existing data(basically associate existing nested resources with the parent resource). This applies to ForeignKey relation only.
 
 ```py
 from rest_framework import serializers 
@@ -184,6 +184,91 @@ Response
     }
 }
 ```
+<br>
+
+Using `accept_pk` doesn't limit you from sending data(instead of pk to nested resource), setting `accept_pk=True` means you can send both data and pks. For instance from the above example you could still do 
+
+```POST /api/property/```
+
+Request Body
+```js
+{
+    "price": 40000,
+    "location": {
+        "city": "Dodoma",
+        "country": "Tanzania"
+    }
+}
+```
+
+Response
+```js
+{
+    "id": 2,
+    "price": 63000,
+    "location": {
+        "id": 3,
+        "city": "Dodoma",
+        "country": "Tanzania"
+    }
+}
+```
+<br>
+
+## Using NestedField with accept_pk_only kwarg.
+`accept_pk_only=True` is used if you want to be able to update nested field by using pk/id only. This applies to ForeignKey relation only. If this is set you won't be able to send data to create a nested resource.
+
+```py
+from rest_framework import serializers 
+from django_restql.fields import NestedField
+from django_restql.serializers import NestedModelSerializer
+
+from app.models import Location, Property
+
+
+class LocationSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Location
+        fields = ["id", "city", "country"]
+
+
+class PropertySerializer(NestedModelSerializer):
+    # pk based nested field
+    location = NestedField(LocationSerializer, accept_pk_only=True)
+    class Meta:
+        model = Property
+        fields = [
+            'id', 'price', 'location'
+        ]
+```
+<br>
+
+
+```POST /api/property/```
+
+Request Body
+```js
+{
+    "price": 40000,
+    "location": 2  // You can't send data in here, you can only send pk/id
+}
+```
+
+Response
+```js
+{
+    "id": 1,
+    "price": 40000,
+    "location": {
+        "id": 2,
+        "city": "Tokyo",
+        "country": "China"
+    }
+}
+```
+
+!!! note
+    By default `accept_pk=False` and `accept_pk_only=False`, so nested field(foreign key related) accepts data only by default, if `accept_pk=True` is set, it accepts data and pk/id, and if `accept_pk_only=True` is set it accepts pk/id only. You can't set both `accept_pk=True` and `accept_pk_only=True` at the same time.
 <br>
 
 
