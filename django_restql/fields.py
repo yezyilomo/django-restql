@@ -48,9 +48,12 @@ def BaseNestedFieldSerializerFactory(
     many = kwargs.get("many", False)
     msg = (
         "May not set both `many=True` and `accept_pk=True`"
-        "(accept_pk applies to foreign key related fields only)."
+        "(accept_pk applies to foreign key relation only)."
     )
     assert not(many and (accept_pk or accept_pk_only)), msg
+
+    msg = "May not set both `accept_pk=True` and `accept_pk_only=True`"
+    assert not(accept_pk and accept_pk_only), msg
 
     if not set(create_ops).issubset(set(CREATE_OPERATIONS)):
         msg = (
