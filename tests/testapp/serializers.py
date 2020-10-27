@@ -117,7 +117,7 @@ class ReplaceableStudentSerializer(DynamicFieldsMixin, NestedModelSerializer):
 
 class ReplaceableStudentWithAliasSerializer(DynamicFieldsMixin, NestedModelSerializer):
     full_name = serializers.CharField(source="name")
-    program = NestedField(WritableCourseSerializer, source="course", accept_pk=True, allow_null=True, required=False)
+    program = NestedField(WritableCourseSerializer, source="course", accept_pk_only=True, allow_null=True, required=False)
     contacts = NestedField(PhoneSerializer, source="phone_numbers", many=True, required=False)
 
     class Meta:
