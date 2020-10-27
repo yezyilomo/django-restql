@@ -259,6 +259,13 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#using-nestedfield-with-accept_pk_only-kwarg" class="md-nav__link">
+    Using NestedField with accept_pk_only kwarg.
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#using-nestedfield-with-create_ops-and-update_ops-kwargs" class="md-nav__link">
     Using NestedField with create_ops and update_ops kwargs.
   </a>
@@ -338,6 +345,13 @@
         <li class="md-nav__item">
   <a href="#using-nestedfield-with-accept_pk-kwarg" class="md-nav__link">
     Using NestedField with accept_pk kwarg.
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#using-nestedfield-with-accept_pk_only-kwarg" class="md-nav__link">
+    Using NestedField with accept_pk_only kwarg.
   </a>
   
 </li>
@@ -503,7 +517,7 @@
 
 <p><br></p>
 <h2 id="using-nestedfield-with-accept_pk-kwarg">Using NestedField with accept_pk kwarg.<a class="headerlink" href="#using-nestedfield-with-accept_pk-kwarg" title="Permanent link">&para;</a></h2>
-<p><code>accept_pk=True</code> is used if you want to update nested field by using pk/id of existing data(basically associate and dessociate existing nested resources with the parent resource without actually mutating the nested resource). This applies to ForeignKey relation only.</p>
+<p><code>accept_pk=True</code> is used if you want to be able to update nested field by using pk/id of existing data(basically associate existing nested resources with the parent resource). This applies to ForeignKey relation only.</p>
 <div class="codehilite"><pre><span></span><code><span class="kn">from</span> <span class="nn">rest_framework</span> <span class="kn">import</span> <span class="n">serializers</span> 
 <span class="kn">from</span> <span class="nn">django_restql.fields</span> <span class="kn">import</span> <span class="n">NestedField</span>
 <span class="kn">from</span> <span class="nn">django_restql.serializers</span> <span class="kn">import</span> <span class="n">NestedModelSerializer</span>
@@ -555,6 +569,87 @@
 </code></pre></div>
 
 
+<p><br></p>
+<p>Using <code>accept_pk</code> doesn't limit you from sending data(instead of pk to nested resource), setting <code>accept_pk=True</code> means you can send both data and pks. For instance from the above example you could still do </p>
+<p><code>POST /api/property/</code></p>
+<p>Request Body</p>
+<div class="codehilite"><pre><span></span><code><span class="p">{</span>
+    <span class="s2">&quot;price&quot;</span><span class="o">:</span> <span class="mi">63000</span><span class="p">,</span>
+    <span class="s2">&quot;location&quot;</span><span class="o">:</span> <span class="p">{</span>
+        <span class="s2">&quot;city&quot;</span><span class="o">:</span> <span class="s2">&quot;Dodoma&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;country&quot;</span><span class="o">:</span> <span class="s2">&quot;Tanzania&quot;</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div>
+
+
+<p>Response</p>
+<div class="codehilite"><pre><span></span><code><span class="p">{</span>
+    <span class="s2">&quot;id&quot;</span><span class="o">:</span> <span class="mi">2</span><span class="p">,</span>
+    <span class="s2">&quot;price&quot;</span><span class="o">:</span> <span class="mi">63000</span><span class="p">,</span>
+    <span class="s2">&quot;location&quot;</span><span class="o">:</span> <span class="p">{</span>
+        <span class="s2">&quot;id&quot;</span><span class="o">:</span> <span class="mi">3</span><span class="p">,</span>
+        <span class="s2">&quot;city&quot;</span><span class="o">:</span> <span class="s2">&quot;Dodoma&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;country&quot;</span><span class="o">:</span> <span class="s2">&quot;Tanzania&quot;</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div>
+
+
+<p><br></p>
+<h2 id="using-nestedfield-with-accept_pk_only-kwarg">Using NestedField with accept_pk_only kwarg.<a class="headerlink" href="#using-nestedfield-with-accept_pk_only-kwarg" title="Permanent link">&para;</a></h2>
+<p><code>accept_pk_only=True</code> is used if you want to be able to update nested field by using pk/id only. This applies to ForeignKey relation only. If this is set you won't be able to send data to create a nested resource.</p>
+<div class="codehilite"><pre><span></span><code><span class="kn">from</span> <span class="nn">rest_framework</span> <span class="kn">import</span> <span class="n">serializers</span> 
+<span class="kn">from</span> <span class="nn">django_restql.fields</span> <span class="kn">import</span> <span class="n">NestedField</span>
+<span class="kn">from</span> <span class="nn">django_restql.serializers</span> <span class="kn">import</span> <span class="n">NestedModelSerializer</span>
+
+<span class="kn">from</span> <span class="nn">app.models</span> <span class="kn">import</span> <span class="n">Location</span><span class="p">,</span> <span class="n">Property</span>
+
+
+<span class="k">class</span> <span class="nc">LocationSerializer</span><span class="p">(</span><span class="n">serializers</span><span class="o">.</span><span class="n">ModelSerializer</span><span class="p">):</span>
+    <span class="k">class</span> <span class="nc">Meta</span><span class="p">:</span>
+        <span class="n">model</span> <span class="o">=</span> <span class="n">Location</span>
+        <span class="n">fields</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;id&quot;</span><span class="p">,</span> <span class="s2">&quot;city&quot;</span><span class="p">,</span> <span class="s2">&quot;country&quot;</span><span class="p">]</span>
+
+
+<span class="k">class</span> <span class="nc">PropertySerializer</span><span class="p">(</span><span class="n">NestedModelSerializer</span><span class="p">):</span>
+    <span class="c1"># pk based nested field</span>
+    <span class="n">location</span> <span class="o">=</span> <span class="n">NestedField</span><span class="p">(</span><span class="n">LocationSerializer</span><span class="p">,</span> <span class="n">accept_pk_only</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="k">class</span> <span class="nc">Meta</span><span class="p">:</span>
+        <span class="n">model</span> <span class="o">=</span> <span class="n">Property</span>
+        <span class="n">fields</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="s1">&#39;id&#39;</span><span class="p">,</span> <span class="s1">&#39;price&#39;</span><span class="p">,</span> <span class="s1">&#39;location&#39;</span>
+        <span class="p">]</span>
+</code></pre></div>
+
+
+<p><br></p>
+<p><code>POST /api/property/</code></p>
+<p>Request Body</p>
+<div class="codehilite"><pre><span></span><code><span class="p">{</span>
+    <span class="s2">&quot;price&quot;</span><span class="o">:</span> <span class="mi">40000</span><span class="p">,</span>
+    <span class="s2">&quot;location&quot;</span><span class="o">:</span> <span class="mi">2</span>  <span class="c1">// You can&#39;t send data in here, you can only send pk/id</span>
+<span class="p">}</span>
+</code></pre></div>
+
+
+<p>Response</p>
+<div class="codehilite"><pre><span></span><code><span class="p">{</span>
+    <span class="s2">&quot;id&quot;</span><span class="o">:</span> <span class="mi">1</span><span class="p">,</span>
+    <span class="s2">&quot;price&quot;</span><span class="o">:</span> <span class="mi">40000</span><span class="p">,</span>
+    <span class="s2">&quot;location&quot;</span><span class="o">:</span> <span class="p">{</span>
+        <span class="s2">&quot;id&quot;</span><span class="o">:</span> <span class="mi">2</span><span class="p">,</span>
+        <span class="s2">&quot;city&quot;</span><span class="o">:</span> <span class="s2">&quot;Tokyo&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;country&quot;</span><span class="o">:</span> <span class="s2">&quot;China&quot;</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div>
+
+
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>By default <code>accept_pk=False</code> and <code>accept_pk_only=False</code>, so nested field(foreign key related) accepts data only by default, if <code>accept_pk=True</code> is set, it accepts data and pk/id, and if <code>accept_pk_only=True</code> is set it accepts pk/id only. You can't set both <code>accept_pk=True</code> and <code>accept_pk_only=True</code> at the same time.</p>
+</div>
 <p><br></p>
 <h2 id="using-nestedfield-with-create_ops-and-update_ops-kwargs">Using NestedField with create_ops and update_ops kwargs.<a class="headerlink" href="#using-nestedfield-with-create_ops-and-update_ops-kwargs" title="Permanent link">&para;</a></h2>
 <p>You can restrict some operations by using <code>create_ops</code> and <code>update_ops</code> keyword arguments as follows</p>
