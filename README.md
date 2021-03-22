@@ -6,8 +6,8 @@
 [![License](https://img.shields.io/pypi/l/django-restql.svg)](https://pypi.org/project/django-restql/)
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 
 [![Downloads](https://pepy.tech/badge/django-restql)](https://pepy.tech/project/django-restql) 
-[![Downloads](https://pepy.tech/badge/django-restql/month)](https://pepy.tech/project/django-restql/month) 
-[![Downloads](https://pepy.tech/badge/django-restql/week)](https://pepy.tech/project/django-restql/week)
+[![Downloads](https://pepy.tech/badge/django-restql/month)](https://pepy.tech/project/django-restql) 
+[![Downloads](https://pepy.tech/badge/django-restql/week)](https://pepy.tech/project/django-restql)
 
 
 **Django RESTQL** is a python library which allows you to turn your API made with **Django REST Framework(DRF)** into a GraphQL like API. With **Django RESTQL** you will be able to
