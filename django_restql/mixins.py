@@ -570,13 +570,12 @@ class NestedCreateMixin(BaseNestedMixin):
         for field, value in data.items():
             # Get nested field serializer
             serializer = nested_fields[field]
-            serializer_class = type(serializer)
+            serializer_class = serializer.serializer_class
             kwargs = serializer.validation_kwargs
             serializer = serializer_class(
                 **kwargs,
                 data=value,
-                context=self.context,
-                partial=serializer.is_partial
+                context=self.context
             )
             serializer.is_valid()
             if value is None:
@@ -591,7 +590,7 @@ class NestedCreateMixin(BaseNestedMixin):
 
         # Get nested field serializer
         serializer = nested_fields[field].child
-        serializer_class = type(serializer)
+        serializer_class = serializer.serializer_class
         kwargs = serializer.validation_kwargs
         pks = []
         for values in data:
@@ -599,7 +598,6 @@ class NestedCreateMixin(BaseNestedMixin):
                 **kwargs,
                 data=values,
                 context=self.context,
-                partial=serializer.is_partial
             )
             serializer.is_valid()
             obj = serializer.save()
@@ -741,15 +739,14 @@ class NestedUpdateMixin(BaseNestedMixin):
         for field, values in data.items():
             # Get nested field serializer
             serializer = nested_fields[field]
-            serializer_class = type(serializer)
+            serializer_class = serializer.serializer_class
             kwargs = serializer.validation_kwargs
             nested_obj = getattr(instance, field)
             serializer = serializer_class(
                 nested_obj,
                 **kwargs,
                 data=values,
-                context=self.context,
-                partial=serializer.is_partial
+                context=self.context
             )
             serializer.is_valid()
             if values is None:
@@ -768,15 +765,14 @@ class NestedUpdateMixin(BaseNestedMixin):
     def bulk_create_many_to_many_related(self, field, nested_obj, data):
         # Get nested field serializer
         serializer = self.restql_source_field_map[field].child
-        serializer_class = type(serializer)
+        serializer_class = serializer.serializer_class
         kwargs = serializer.validation_kwargs
         pks = []
         for values in data:
             serializer = serializer_class(
                 **kwargs,
                 data=values,
-                context=self.context,
-                partial=serializer.is_partial
+                context=self.context
             )
             serializer.is_valid()
             obj = serializer.save()
@@ -787,15 +783,14 @@ class NestedUpdateMixin(BaseNestedMixin):
     def bulk_create_many_to_one_related(self, field, nested_obj, data):
         # Get nested field serializer
         serializer = self.restql_source_field_map[field].child
-        serializer_class = type(serializer)
+        serializer_class = serializer.serializer_class
         kwargs = serializer.validation_kwargs
         pks = []
         for values in data:
             serializer = serializer_class(
                 **kwargs,
                 data=values,
-                context=self.context,
-                partial=serializer.is_partial
+                context=self.context
             )
             serializer.is_valid()
             obj = serializer.save()
@@ -808,7 +803,7 @@ class NestedUpdateMixin(BaseNestedMixin):
 
         # Get nested field serializer
         serializer = self.restql_source_field_map[field].child
-        serializer_class = type(serializer)
+        serializer_class = serializer.serializer_class
         kwargs = serializer.validation_kwargs
         for pk, values in data.items():
             obj = nested_obj.get(pk=pk)
@@ -816,8 +811,7 @@ class NestedUpdateMixin(BaseNestedMixin):
                 obj,
                 **kwargs,
                 data=values,
-                context=self.context,
-                partial=serializer.is_partial
+                context=self.context
             )
             serializer.is_valid()
             obj = serializer.save()
@@ -830,7 +824,7 @@ class NestedUpdateMixin(BaseNestedMixin):
 
         # Get nested field serializer
         serializer = self.restql_source_field_map[field].child
-        serializer_class = type(serializer)
+        serializer_class = serializer.serializer_class
         kwargs = serializer.validation_kwargs
         model = self.Meta.model
         foreignkey = getattr(model, field).field.name
@@ -842,8 +836,7 @@ class NestedUpdateMixin(BaseNestedMixin):
                 obj,
                 **kwargs,
                 data=values,
-                context=self.context,
-                partial=serializer.is_partial
+                context=self.context
             )
             serializer.is_valid()
             obj = serializer.save()

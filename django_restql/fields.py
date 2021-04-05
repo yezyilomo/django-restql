@@ -1,5 +1,6 @@
 import copy
 
+from django.utils.decorators import classproperty
 from django.db.models.fields.related import ManyToOneRel
 
 from rest_framework.fields import DictField, ListField, empty
@@ -70,6 +71,11 @@ def BaseNestedFieldSerializerFactory(
         raise InvalidOperation(msg)
 
     class BaseNestedField(BaseRESTQLNestedField):
+        # Original nested serializer
+        @classproperty
+        def serializer_class(cls):
+            return serializer_class
+
         @property
         def is_partial(self):
             if partial is None and self.parent is not None:
@@ -222,6 +228,12 @@ def BaseNestedFieldSerializerFactory(
             )
 
     class BaseNestedFieldSerializer(serializer_class, BaseNestedField):
+
+        # might be used before `to_internal_value` method is called
+        # so we're creating this property to make sure it's available
+        # as long as the class is created
+        is_replaceable = accept_pk_only or accept_pk
+
         class Meta(serializer_class.Meta):
             list_serializer_class = BaseNestedFieldListSerializer
 
@@ -272,10 +284,7 @@ def BaseNestedFieldSerializerFactory(
             if data == "":
                 data = None
 
-            self.is_replaceable = False
-
             if accept_pk_only:
-                self.is_replaceable = True
                 return self.validate_pk_based_nested(data)
 
             if accept_pk:

@@ -1,9 +1,15 @@
 from django.db import models
 
 
+class Genre(models.Model):
+    title = models.CharField(max_length=50)
+    description = models.TextField()
+
+
 class Book(models.Model):
     title = models.CharField(max_length=50)
     author = models.CharField(max_length=50)
+    genre = models.ForeignKey(Genre, blank=True, null=True, on_delete=models.CASCADE, related_name="books")
 
 
 class Course(models.Model):
