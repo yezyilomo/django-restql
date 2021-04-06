@@ -1,6 +1,9 @@
 import copy
 
-from django.utils.decorators import classproperty
+try:
+    from django.utils.decorators import classproperty
+except ImportError:
+    from django.utils.functional import classproperty
 from django.db.models.fields.related import ManyToOneRel
 
 from rest_framework.fields import DictField, ListField, empty
