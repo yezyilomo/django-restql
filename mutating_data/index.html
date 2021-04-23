@@ -765,7 +765,7 @@
 </code></pre></div>
 
 
-<p><code>NestedField</code> is nothing but a serializer wrapper, it returns an instance of a modified version of a serializer passed, so you can pass all the args and kwargs accepted by a serializer on it, it will simply pass them to a serializer passed when instantiating an instance. So you can pass anything accepted by a serializer to a <code>NestedField</code> wrapper, and if a serializer passed inherits <code>DynamicFieldsMini</code> just like <code>LocationSerializer</code> on above example then you can pass any arg or kwarg accepted by <code>DynamicFieldsMixin</code> when defining location as a nested field, i.e</p>
+<p><code>NestedField</code> is nothing but a serializer wrapper, it returns an instance of a modified version of a serializer passed, so you can pass all the args and kwargs accepted by a serializer on it, it will simply pass them to a serializer passed when instantiating an instance. So you can pass anything accepted by a serializer to a <code>NestedField</code> wrapper, and if a serializer passed inherits <code>DynamicFieldsMixin</code> just like <code>LocationSerializer</code> on above example then you can pass any arg or kwarg accepted by <code>DynamicFieldsMixin</code> when defining location as a nested field, i.e</p>
 <div class="codehilite"><pre><span></span><code><span class="n">location</span> <span class="o">=</span> <span class="n">NestedField</span><span class="p">(</span><span class="n">LocationSerializer</span><span class="p">,</span> <span class="n">fields</span><span class="o">=</span><span class="p">[</span><span class="o">...</span><span class="p">])</span>
 </code></pre></div>
 
