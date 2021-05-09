@@ -5,12 +5,12 @@ from pypeg2 import List, contiguous, csl, name, optional, parse
 from .exceptions import QueryFormatError
 
 
-class AliasField(List):
+class Alias(List):
     grammar = name(), ':'
 
 
 class IncludedField(List):
-    grammar = optional(AliasField), name()
+    grammar = optional(Alias), name()
 
     @property
     def alias_or_name(self):
