@@ -204,6 +204,16 @@ class DynamicFieldsMixin(RequestQueryParserMixin):
 
     def include_fields(self):
         all_fields = self.get_allowed_fields()
+
+        aliases = self.parsed_restql_query["aliases"]
+        for field, alias in aliases.items():
+            self.is_field_found(
+                field,
+                all_fields.keys(),
+                raise_exception=True
+            )
+            all_fields[alias] = all_fields.pop(field)
+
         all_field_names = list(all_fields.keys())
 
         allowed_flat_fields = []
