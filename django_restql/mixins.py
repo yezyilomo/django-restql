@@ -29,24 +29,14 @@ class RequestQueryParserMixin(object):
     This means `request.query_params` might not be available
     when this mixin is used.
     """
-    @staticmethod
-    def get_restql_query_param_name():
-        DEFAULT_QUERY_PARAM_NAME = 'query'
-        query_param_name = getattr(
-            restql_settings,
-            "QUERY_PARAM_NAME",
-            DEFAULT_QUERY_PARAM_NAME
-        )
-        return query_param_name
-
     @classmethod
     def has_restql_query_param(cls, request):
-        query_param_name = cls.get_restql_query_param_name()
+        query_param_name = restql_settings.QUERY_PARAM_NAME
         return query_param_name in request.GET
 
     @classmethod
     def get_raw_restql_query(cls, request):
-        query_param_name = cls.get_restql_query_param_name()
+        query_param_name = restql_settings.QUERY_PARAM_NAME
         return request.GET[query_param_name]
 
     @classmethod
@@ -79,7 +69,8 @@ class QueryArgumentsMixin(RequestQueryParserMixin):
         query = {
             "include": ["*"],
             "exclude": [],
-            "arguments": {}
+            "arguments": {},
+            "aliases": {},
         }
         return query
 
@@ -202,6 +193,15 @@ class DynamicFieldsMixin(RequestQueryParserMixin):
                 raise ValidationError(msg)
             return False
 
+    @staticmethod
+    def is_valid_alias(alias):
+        if len(alias) > restql_settings.MAX_ALIAS_LEN:
+            msg = (
+                "The length of '%s' alias has exceeded "
+                "the limit specified, which is %s characters."
+            ) % (alias, restql_settings.MAX_ALIAS_LEN)
+            raise ValidationError(msg)
+
     def include_fields(self):
         all_fields = self.get_allowed_fields()
 
@@ -212,6 +212,7 @@ class DynamicFieldsMixin(RequestQueryParserMixin):
                 all_fields.keys(),
                 raise_exception=True
             )
+            self.is_valid_alias(alias)
             all_fields[alias] = all_fields.pop(field)
 
         all_field_names = list(all_fields.keys())
@@ -409,7 +410,8 @@ class EagerLoadingMixin(RequestQueryParserMixin):
         query = {
             "include": ["*"],
             "exclude": [],
-            "arguments": {}
+            "arguments": {},
+            "aliases": {},
         }
         return query
 
@@ -417,11 +419,7 @@ class EagerLoadingMixin(RequestQueryParserMixin):
     def should_auto_apply_eager_loading(self):
         if hasattr(self, 'auto_apply_eager_loading'):
             return self.auto_apply_eager_loading
-        return getattr(
-            restql_settings,
-            "AUTO_APPLY_EAGER_LOADING",
-            True
-        )
+        return restql_settings.AUTO_APPLY_EAGER_LOADING
 
     def get_select_related_mapping(self):
         if hasattr(self, "select_related"):
