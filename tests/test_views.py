@@ -96,6 +96,37 @@ class DataQueryingTests(APITestCase):
             }
         )
 
+    def test_retrieve_with_nested_flat_query_and_aliased_field(self):
+        url = reverse_lazy("student-detail", args=[self.student.id])
+        response = self.client.get(url + '?query={name, age, programme: course{name}}', format="json")
+
+        self.assertEqual(
+            response.data,
+            {
+                "name": "Yezy",
+                "age": 24,
+                "programme": {
+                    "name": "Data Structures"
+                }
+            }
+        )
+
+    def test_retrieve_with_nested_iterable_query_and_aliased_field(self):
+        url = reverse_lazy("course-detail", args=[self.course.id])
+        response = self.client.get(url + '?query={name, code, readings: books{bookTitle: title}}', format="json")
+
+        self.assertEqual(
+            response.data,
+            {
+                "name": "Data Structures",
+                "code": "CS210",
+                "readings": [
+                    {"bookTitle": "Advanced Data Structures"},
+                    {"bookTitle": "Basic Data Structures"}
+                ]
+            }
+        )
+
     def test_retrieve_with_disable_dynamic_fields_enabled(self):
         url = reverse_lazy("course_with_disable_dynamic_fields_kwarg-detail", args=[self.course.id])
         response = self.client.get(url + '?query={name, code, books{title}}', format="json")
@@ -617,6 +648,40 @@ class DataQueryingTests(APITestCase):
                     "tomes": [
                         {"title": "Advanced Data Structures"},
                         {"title": "Basic Data Structures"}
+                    ]
+                }
+            ]
+        )
+
+    def test_list_with_dynamic_serializer_method_field_and_aliased_fields(self):
+        url = reverse_lazy("course_with_dynamic_serializer_method_field-list")
+        response = self.client.get(url + '?query={courseName: name, tomes{*, bookTitle: title}}', format="json")
+
+        self.assertEqual(
+            response.data,
+            [
+                {
+                    "courseName": "Data Structures",
+                    "tomes": [
+                        {"bookTitle": "Advanced Data Structures", "author": "S.Mobit"},
+                        {"bookTitle": "Basic Data Structures", "author": "S.Mobit"}
+                    ]
+                }
+            ]
+        )
+
+    def test_list_with_expanded_dynamic_serializer_method_field_and_aliased_fields(self):
+        url = reverse_lazy("course_with_dynamic_serializer_method_field-list")
+        response = self.client.get(url + '?query={name, tomes{bookTitle: title}}', format="json")
+
+        self.assertEqual(
+            response.data,
+            [
+                {
+                    "name": "Data Structures",
+                    "tomes": [
+                        {"bookTitle": "Advanced Data Structures"},
+                        {"bookTitle": "Basic Data Structures"}
                     ]
                 }
             ]
@@ -2255,6 +2320,25 @@ class DataQueryingAndMutationTests(APITestCase):
             }
         )
 
+    def test_post_with_add_operation_mix_with_query_param_and_alias_fields(self):
+        url = reverse_lazy("wcourse-list")
+        data = {
+            "name": "Data Structures",
+            "code": "CS310",
+            "books": {"add": [1, 2]}
+        }
+        response = self.client.post(url + '?query={books{bookTitle: title}}', data, format="json")
+
+        self.assertEqual(
+            response.data,
+            {
+                "books": [
+                    {'bookTitle': 'Advanced Data Structures'},
+                    {'bookTitle': 'Basic Data Structures'}
+                ]
+            }
+        )
+
     # **************** PUT Tests ********************* #
 
     def test_put_on_pk_nested_foreignkey_related_field_mix_with_query_param(self):
@@ -2327,6 +2411,32 @@ class DataQueryingAndMutationTests(APITestCase):
             }
         )
 
+    def test_put_on_deep_nested_fields_mix_with_query_param_and_aliased_fields(self):
+        url = reverse_lazy("wstudent-detail", args=[self.student.id])
+        data = {
+            "name": "yezy",
+            "age": 33,
+            "course": {
+                "name": "Programming",
+                "code": "CS50",
+                "books": {
+                    "remove": [1]
+                }
+            }
+        }
+        response = self.client.put(url + '?query={programme: course{readings: books{bookTitle: title}}}', data, format="json")
+
+        self.assertEqual(
+            response.data,
+            {
+                'programme': {
+                    'readings': [
+                        {'bookTitle': 'Basic Data Structures'}
+                    ]
+                }
+            }
+        )
+
     # **************** PATCH Tests ********************* #
 
     def test_patch_on_pk_nested_foreignkey_related_field_mix_with_query_param(self):
@@ -2392,6 +2502,32 @@ class DataQueryingAndMutationTests(APITestCase):
                 'course': {
                     'books': [
                         {'title': 'Basic Data Structures'}
+                    ]
+                }
+            }
+        )
+
+    def test_patch_on_deep_nested_fields_mix_with_query_param_and_aliased_fields(self):
+        url = reverse_lazy("wstudent-detail", args=[self.student.id])
+        data = {
+            "name": "yezy",
+            "age": 33,
+            "course": {
+                "name": "Programming",
+                "code": "CS50",
+                "books": {
+                    "remove": [1]
+                }
+            }
+        }
+        response = self.client.patch(url + '?query={programme: course{books{name: title}}}', data, format="json")
+
+        self.assertEqual(
+            response.data,
+            {
+                'programme': {
+                    'books': [
+                        {'name': 'Basic Data Structures'}
                     ]
                 }
             }
