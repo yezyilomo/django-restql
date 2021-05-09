@@ -15,7 +15,7 @@ from django.utils.module_loading import import_string
 DEFAULTS = {
     'QUERY_PARAM_NAME': 'query',
     'AUTO_APPLY_EAGER_LOADING': True,
-    'MAX_ALIAS_LEN': 2
+    'MAX_ALIAS_LEN': 50
 }
 
 
