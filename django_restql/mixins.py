@@ -826,6 +826,7 @@ class NestedUpdateMixin(BaseNestedMixin):
                 obj,
                 **kwargs,
                 data=values,
+                partial=True,  # Allow partial update since this is nested update
                 context=self.context
             )
             serializer.is_valid()
@@ -851,6 +852,7 @@ class NestedUpdateMixin(BaseNestedMixin):
                 obj,
                 **kwargs,
                 data=values,
+                partial=True,  # Allow partial update since this is nested update
                 context=self.context
             )
             serializer.is_valid()
