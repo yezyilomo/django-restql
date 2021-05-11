@@ -5,8 +5,24 @@ from pypeg2 import List, contiguous, csl, name, optional, parse
 from .exceptions import QueryFormatError
 
 
+class Alias(List):
+    grammar = name(), ':'
+
+
 class IncludedField(List):
-    grammar = name()
+    grammar = optional(Alias), name()
+
+    @property
+    def alias_or_name(self):
+        if self.alias:
+            return self.alias
+        return self.name
+
+    @property
+    def alias(self):
+        if len(self) > 0:
+            return self[0].name
+        return None
 
 
 class ExcludedField(List):
@@ -67,6 +83,16 @@ class ParentField(List):
         return self[0].name
 
     @property
+    def alias(self):
+        return self[0].alias
+
+    @property
+    def alias_or_name(self):
+        if self.alias:
+            return self.alias
+        return self[0].name
+
+    @property
     def block(self):
         return self[1]
 
@@ -111,7 +137,8 @@ class Parser(object):
         fields = {
             "include": [],
             "exclude": [],
-            "arguments": {}
+            "arguments": {},
+            "aliases": {},
         }
 
         for argument in block.arguments:
@@ -120,13 +147,18 @@ class Parser(object):
 
         for field in block.body:
             # A field may be a parent or included field or excluded field
+            if isinstance(field, (ParentField, IncludedField)):
+                # Find all aliases
+                if field.alias:
+                    fields["aliases"].update({str(field.name): str(field.alias)})
+
             field = self._transform_field(field)
 
             if isinstance(field, dict):
                 # A field is a parent
                 fields["include"].append(field)
             elif isinstance(field, IncludedField):
-                fields["include"].append(str(field.name))
+                fields["include"].append(str(field.alias_or_name))
             elif isinstance(field, ExcludedField):
                 fields["exclude"].append(str(field.name))
             elif isinstance(field, AllFields):
@@ -165,6 +197,6 @@ class Parser(object):
             return field
 
     def _transform_parent_field(self, parent_field):
-        parent_field_name = str(parent_field.name)
+        parent_field_name = str(parent_field.alias_or_name)
         parent_field_value = self._transform_block(parent_field.block)
         return {parent_field_name: parent_field_value}

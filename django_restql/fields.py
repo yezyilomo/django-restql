@@ -30,7 +30,8 @@ class DynamicSerializerMethodField(SerializerMethodField):
             query = {
                 "include": ["*"],
                 "exclude": [],
-                "arguments": {}
+                "arguments": {},
+                "aliases": {},
             }
         return method(value, query)
 

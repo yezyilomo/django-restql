@@ -262,6 +262,75 @@ Below is a list of mistakes which leads to syntax error, these mistakes may happ
     Any field level should either be whitelisting or blacklisting fields but not both.
 
 
+## Aliases
+When working with API, you may want to rename a field to something other than what the API has to offer. Aliases exist as part of this library to solve this exact problem.
+
+Aliases allow you to rename a single field to whatever you want it to be. They are defined at the client side, so you don’t need to update your API to use them.
+
+Imagine requesting data using the following query from an API:
+
+`GET /users/?query={id, updated_at}`
+
+You will get the following JSON response:
+
+```js
+[
+    {
+        "id": 1,
+        "updated_at": "2021-05-05T21:05:23.034Z"
+    },
+    ...
+]
+```
+
+The id here is fine, but the `updated_at` doesn’t quite conform to the camel case convention in JavaScript. Let’s change it by using an alias.
+
+`GET /users/?query={id, updatedAt: updated_at}`
+
+Which yields the following:
+
+```js
+[
+    {
+        "id": 1,
+        "updatedAt": "2021-05-05T21:05:23.034Z"
+    },
+    ...
+]
+```
+
+Creating an alias is very easy just like in [GraphQL](https://graphql.org/learn/queries/#aliases). Simply add a new name and a colon before the field you want to rename.
+
+<h3>More examples</h3>
+
+Renaming `date_of_birth` to `date_of_birth`, `course` to `programme` and `books` to `readings`
+
+`GET /students/?query={name, dateOfBirth: date_of_birth, programme: course{id, name, readings: books}}`
+
+This yields
+
+```js
+[
+    {
+        "name": "Yezy Ilomo",
+        "dateOfBirth": "04-08-1995",
+        "programme": {
+            "id": 4,
+            "name": "Computer Science",
+            "readings": [
+                {"id": 1, "title": "Alogarithms"},
+                {"id": 2, "title": "Data Structures"},
+            ]
+        }
+    },
+    ...
+]
+```
+
+!!! note
+    The default maximum length of aliases is 50 characters, it's controlled by `MAX_ALIAS_LEN` setting. This is enforced to prevent DoS like attacks to API which might be caused by clients specifying a really really long alias which might increase network usage. For more information about `MAX_ALIAS_LEN` setting and how to change it go to [this section](/settings/#max_alias_len).
+
+
 ## DynamicSerializerMethodField
 `DynamicSerializerMethodField` is a wraper of the `SerializerMethodField`, it adds a query argument from a parent serializer to a method bound to a `SerializerMethodField`, this query argument can be passed to a serializer used within a method to allow further querying. For example in the scenario below we are using `DynamicSerializerMethodField` because we want to be able to query `tomes` field.
 

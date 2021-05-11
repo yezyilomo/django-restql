@@ -12,6 +12,17 @@ Now you can use the name `your_favourite_name` as your query parameter. E.g
 
 `GET /users/?your_favourite_name={id, username}`
 
+## MAX_ALIAS_LEN
+The default value for this is 50. When creating aliases this setting limit the number of characters allowed in aliases. This setting prevents DoS like attacks to API which might be caused by clients specifying a really really long alias which might increase network usage. If you want to change the default value, do as follows
+
+```py
+# settings.py file
+# This will turn off auto apply eager loading globally
+RESTQL = {
+    'MAX_ALIAS_LEN': 100  # Put the value that you want here
+}
+```
+
 ## AUTO_APPLY_EAGER_LOADING
 The default value for this is `True`. When using the `EagerLoadingMixin`, this setting controls if the mappings for `select_related` and `prefetch_related` are applied automatically when calling `get_queryset`. To turn it off, set the `AUTO_APPLY_EAGER_LOADING` setting or `auto_apply_eager_loading` attribute on the view to `False`.
 ```py
