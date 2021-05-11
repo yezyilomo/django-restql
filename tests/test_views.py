@@ -1769,6 +1769,30 @@ class DataMutationTests(APITestCase):
             }
         )
 
+    def test_put_with_update_operation_missing_one_required_nested_field(self):
+        url = reverse_lazy("wcourse-detail", args=[self.course2.id])
+        data = {
+            "name": "Data Structures",
+            "code": "CS310",
+            "books": {
+                    "update": {
+                        1: {"title": "React Programming"}  # We've removed author field
+                    }
+            }
+        }
+        response = self.client.put(url, data, format="json")
+
+        self.assertEqual(
+            response.data,
+            {
+                "name": "Data Structures",
+                "code": "CS310",
+                "books": [
+                    {"title": "React Programming", "author": "S.Mobit", "genre": None}
+                ]
+            }
+        )
+
     def test_put_on_deep_nested_fields(self):
         url = reverse_lazy("wstudent-detail", args=[self.student.id])
         data = {
@@ -2134,6 +2158,30 @@ class DataMutationTests(APITestCase):
                 "code": "CS310",
                 "books": [
                     {"title": "React Programming", "author": "M.Json", "genre": None}
+                ]
+            }
+        )
+
+    def test_patch_with_update_operation_missing_one_required_nested_field(self):
+        url = reverse_lazy("wcourse-detail", args=[self.course2.id])
+        data = {
+            "name": "Data Structures",
+            "code": "CS310",
+            "books": {
+                    "update": {
+                        1: {"title": "React Programming"}  # We've removed author field
+                    }
+            }
+        }
+        response = self.client.patch(url, data, format="json")
+
+        self.assertEqual(
+            response.data,
+            {
+                "name": "Data Structures",
+                "code": "CS310",
+                "books": [
+                    {"title": "React Programming", "author": "S.Mobit", "genre": None}
                 ]
             }
         )
