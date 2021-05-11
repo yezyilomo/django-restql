@@ -98,7 +98,7 @@ def BaseNestedFieldSerializerFactory(
             )
             return validator.run_validation(pks)
 
-        def validate_data_list(self, data):
+        def validate_data_list(self, data, partial=True):
             ListField().run_validation(data)
             model = self.parent.Meta.model
             rel = getattr(model, self.field_name).rel
@@ -115,7 +115,7 @@ def BaseNestedFieldSerializerFactory(
                     **self.child.validation_kwargs,
                     data=data,
                     many=True,
-                    partial=self.is_partial,
+                    partial=partial,
                     context=self.context
                 )
                 parent_serializer.is_valid(raise_exception=True)
@@ -126,7 +126,7 @@ def BaseNestedFieldSerializerFactory(
                     **self.child.validation_kwargs,
                     data=data,
                     many=True,
-                    partial=self.is_partial,
+                    partial=partial,
                     context=self.context
                 )
                 parent_serializer.is_valid(raise_exception=True)
@@ -136,7 +136,7 @@ def BaseNestedFieldSerializerFactory(
             return self.validate_pk_list(data)
 
         def validate_create_list(self, data):
-            return self.validate_data_list(data)
+            return self.validate_data_list(data, partial=False)
 
         def validate_remove_list(self, data):
             return self.validate_pk_list(data)
@@ -146,7 +146,7 @@ def BaseNestedFieldSerializerFactory(
             pks = list(data.keys())
             self.validate_pk_list(pks)
             values = list(data.values())
-            self.validate_data_list(values)
+            self.validate_data_list(values, partial=True)
 
         def get_operation_validation_methods(self, operations):
             all_operation_validation_methods = {
@@ -215,11 +215,11 @@ def BaseNestedFieldSerializerFactory(
             if request.method in ["POST"]:
                 return self.data_for_create(data)
 
+            # All statements below are never reached
             parent_serializer = serializer_class(
                 **self.child.validation_kwargs,
                 data=data,
                 many=True,
-                partial=self.is_partial,
                 context=self.context
             )
             parent_serializer.is_valid(raise_exception=True)
@@ -262,7 +262,6 @@ def BaseNestedFieldSerializerFactory(
             parent_serializer = serializer_class(
                 **self.validation_kwargs,
                 data=data,
-                partial=self.is_partial,
                 context=self.context
             )
             parent_serializer.is_valid(raise_exception=True)
