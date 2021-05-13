@@ -1,6 +1,5 @@
 from django.urls import reverse_lazy
 from rest_framework.test import APITestCase
-import json
 
 from tests.testapp.models import Book, Course, Phone, Student
 
