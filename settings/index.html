@@ -264,6 +264,13 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#max_alias_len" class="md-nav__link">
+    MAX_ALIAS_LEN
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#auto_apply_eager_loading" class="md-nav__link">
     AUTO_APPLY_EAGER_LOADING
   </a>
@@ -322,6 +329,13 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#max_alias_len" class="md-nav__link">
+    MAX_ALIAS_LEN
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#auto_apply_eager_loading" class="md-nav__link">
     AUTO_APPLY_EAGER_LOADING
   </a>
@@ -360,6 +374,16 @@
 
 <p>Now you can use the name <code>your_favourite_name</code> as your query parameter. E.g</p>
 <p><code>GET /users/?your_favourite_name={id, username}</code></p>
+<h2 id="max_alias_len">MAX_ALIAS_LEN<a class="headerlink" href="#max_alias_len" title="Permanent link">&para;</a></h2>
+<p>The default value for this is 50. When creating aliases this setting limit the number of characters allowed in aliases. This setting prevents DoS like attacks to API which might be caused by clients specifying a really really long alias which might increase network usage. If you want to change the default value, do as follows</p>
+<div class="codehilite"><pre><span></span><code><span class="c1"># settings.py file</span>
+<span class="c1"># This will turn off auto apply eager loading globally</span>
+<span class="n">RESTQL</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s1">&#39;MAX_ALIAS_LEN&#39;</span><span class="p">:</span> <span class="mi">100</span>  <span class="c1"># Put the value that you want here</span>
+<span class="p">}</span>
+</code></pre></div>
+
+
 <h2 id="auto_apply_eager_loading">AUTO_APPLY_EAGER_LOADING<a class="headerlink" href="#auto_apply_eager_loading" title="Permanent link">&para;</a></h2>
 <p>The default value for this is <code>True</code>. When using the <code>EagerLoadingMixin</code>, this setting controls if the mappings for <code>select_related</code> and <code>prefetch_related</code> are applied automatically when calling <code>get_queryset</code>. To turn it off, set the <code>AUTO_APPLY_EAGER_LOADING</code> setting or <code>auto_apply_eager_loading</code> attribute on the view to <code>False</code>.</p>
 <div class="codehilite"><pre><span></span><code><span class="c1"># settings.py file</span>
