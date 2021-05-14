@@ -904,7 +904,7 @@
 
 <div class="admonition note">
 <p class="admonition-title">Note</p>
-<p>The default maximum length of aliases is 50 characters, it's controlled by <code>MAX_ALIAS_LEN</code> setting. This is enforced to prevent DoS like attacks to API which might be caused by clients specifying a really really long alias which might increase network usage. For more information about <code>MAX_ALIAS_LEN</code> setting and how to change it go to <a href="/../settings/#max_alias_len">this section</a>.</p>
+<p>The default maximum length of aliases is 50 characters, it's controlled by <code>MAX_ALIAS_LEN</code> setting. This is enforced to prevent DoS like attacks to API which might be caused by clients specifying a really really long alias which might increase network usage. For more information about <code>MAX_ALIAS_LEN</code> setting and how to change it go to <a href="/django-restql/settings/#max_alias_len">this section</a>.</p>
 </div>
 <h2 id="dynamicserializermethodfield">DynamicSerializerMethodField<a class="headerlink" href="#dynamicserializermethodfield" title="Permanent link">&para;</a></h2>
 <p><code>DynamicSerializerMethodField</code> is a wraper of the <code>SerializerMethodField</code>, it adds a query argument from a parent serializer to a method bound to a <code>SerializerMethodField</code>, this query argument can be passed to a serializer used within a method to allow further querying. For example in the scenario below we are using <code>DynamicSerializerMethodField</code> because we want to be able to query <code>tomes</code> field.</p>
