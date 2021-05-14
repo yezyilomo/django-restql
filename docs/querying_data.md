@@ -328,7 +328,7 @@ This yields
 ```
 
 !!! note
-    The default maximum length of aliases is 50 characters, it's controlled by `MAX_ALIAS_LEN` setting. This is enforced to prevent DoS like attacks to API which might be caused by clients specifying a really really long alias which might increase network usage. For more information about `MAX_ALIAS_LEN` setting and how to change it go to [this section](/settings/#max_alias_len).
+    The default maximum length of aliases is 50 characters, it's controlled by `MAX_ALIAS_LEN` setting. This is enforced to prevent DoS like attacks to API which might be caused by clients specifying a really really long alias which might increase network usage. For more information about `MAX_ALIAS_LEN` setting and how to change it go to [this section](/django-restql/settings/#max_alias_len).
 
 
 ## DynamicSerializerMethodField
