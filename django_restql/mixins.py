@@ -35,16 +35,11 @@ class RequestQueryParserMixin(object):
         return query_param_name in request.GET
 
     @classmethod
-    def get_raw_restql_query(cls, request):
-        query_param_name = restql_settings.QUERY_PARAM_NAME
-        return request.GET[query_param_name]
-
-    @classmethod
     def get_parsed_restql_query_from_req(cls, request):
         if hasattr(request, 'parsed_restql_query'):
             # Use cached parsed restql query
             return request.parsed_restql_query
-        raw_query = cls.get_raw_restql_query(request)
+        raw_query = request.GET[restql_settings.QUERY_PARAM_NAME]
         parser = Parser(raw_query)
         parsed_restql_query = parser.get_parsed()
 
@@ -95,13 +90,11 @@ class QueryArgumentsMixin(RequestQueryParserMixin):
                     query_params.update(nested_query_params)
         return query_params
 
-    def get_query_params(self, request):
+    def inject_query_params_in_req(self, request):
         parsed = self.get_parsed_restql_query(request)
-        query_params = self.build_query_params(parsed)
-        return query_params
 
-    def dispatch(self, request, *args, **kwargs):
-        query_params = self.get_query_params(request)
+        # Generate query params from query arguments
+        query_params = self.build_query_params(parsed)
 
         # We are using `request.GET` instead of `request.query_params`
         # because at this point DRF request is not yet created so
@@ -111,6 +104,9 @@ class QueryArgumentsMixin(RequestQueryParserMixin):
 
         # Make QueryDict immutable after updating
         request.GET = QueryDict(params.urlencode(), mutable=False)
+
+    def dispatch(self, request, *args, **kwargs):
+        self.inject_query_params_in_req(request)
         return super().dispatch(request, *args, **kwargs)
 
 
@@ -175,7 +171,7 @@ class DynamicFieldsMixin(RequestQueryParserMixin):
             return True
         else:
             if raise_exception:
-                msg = "'%s' field is not found" % field_name
+                msg = "`%s` field is not found" % field_name
                 raise ValidationError(msg)
             return False
 
@@ -189,7 +185,7 @@ class DynamicFieldsMixin(RequestQueryParserMixin):
             return True
         else:
             if raise_exception:
-                msg = "'%s' is not a nested field" % field_name
+                msg = "`%s` is not a nested field" % field_name
                 raise ValidationError(msg)
             return False
 
@@ -197,14 +193,14 @@ class DynamicFieldsMixin(RequestQueryParserMixin):
     def is_valid_alias(alias, field):
         if alias == field:
             msg = (
-                "Invalid defenition of '%s' alias on '%s' field, "
+                "Invalid defenition of `%s` alias on `%s` field, "
                 "Alias can not be the same as the field name."
             ) % (alias, field)
             raise ValidationError(msg)
 
         if len(alias) > restql_settings.MAX_ALIAS_LEN:
             msg = (
-                "The length of '%s' alias has exceeded "
+                "The length of `%s` alias has exceeded "
                 "the limit specified, which is %s characters."
             ) % (alias, restql_settings.MAX_ALIAS_LEN)
             raise ValidationError(msg)
@@ -731,7 +727,7 @@ class NestedUpdateMixin(BaseNestedMixin):
     """ Update Mixin """
     @staticmethod
     def constrain_error_prefix(field):
-        return "Error on %s field: " % (field,)
+        return "Error on `%s` field: " % (field,)
 
     @staticmethod
     def update_replaceable_foreignkey_related(instance, data):
@@ -895,7 +891,7 @@ class NestedUpdateMixin(BaseNestedMixin):
                     )
                 else:
                     message = (
-                        "%s is an invalid operation, " % (operation,)
+                        "`%s` is an invalid operation" % (operation,)
                     )
                     raise ValidationError(message)
         return instance
@@ -938,7 +934,7 @@ class NestedUpdateMixin(BaseNestedMixin):
                     )
                 else:
                     message = (
-                        "%s is an invalid operation, " % (operation,)
+                        "`%s` is an invalid operation" % (operation,)
                     )
                     raise ValidationError(message)
         return instance

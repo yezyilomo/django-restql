@@ -60,18 +60,25 @@ def BaseNestedFieldSerializerFactory(
     msg = "May not set both `accept_pk=True` and `accept_pk_only=True`"
     assert not(accept_pk and accept_pk_only), msg
 
+    def join_words(words, many='are', single='is'):
+        word_list = ["`" + word + "`" for word in words]
+        sentence = " & ".join([", ".join(word_list[:-1]), word_list[-1]])
+        if len(words) < 2:
+            return "%s %s" % (single, word_list[0])
+        return "%s %s" % (many, sentence)
+
     if not set(create_ops).issubset(set(CREATE_OPERATIONS)):
         msg = (
-            "Invalid create operation, Supported operations are " +
-            ", ".join(CREATE_OPERATIONS)
-        )
+            "Invalid create operation(s) at `%s`, Supported operations " +
+            join_words(CREATE_OPERATIONS)
+        ) % "create_ops=%s" % create_ops
         raise InvalidOperation(msg)
 
     if not set(update_ops).issubset(set(UPDATE_OPERATIONS)):
         msg = (
-            "Invalid update operation, Supported operations are " +
-            ", ".join(UPDATE_OPERATIONS)
-        )
+            "Invalid update operation(s) at `%s`, Supported operations " +
+            join_words(UPDATE_OPERATIONS)
+        ) % "update_ops=%s" % update_ops
         raise InvalidOperation(msg)
 
     class BaseNestedField(BaseRESTQLNestedField):
@@ -175,11 +182,10 @@ def BaseNestedFieldSerializerFactory(
                     code = e.get_codes()
                     raise ValidationError(detail, code) from None
                 except KeyError:
-                    ops_list = ("`" + op + "`" for op in create_ops)
                     msg = (
-                        "`%s` is not a valid operation, valid operations "
-                        "for this request are %s"
-                        % (operation, ', '.join(ops_list))
+                        "`%s` is not a valid operation, valid operation(s) "
+                        "for this request %s"
+                        % (operation, join_words(create_ops))
                     )
                     code = 'invalid_operation'
                     raise ValidationError(msg, code=code) from None
@@ -197,11 +203,10 @@ def BaseNestedFieldSerializerFactory(
                     code = e.get_codes()
                     raise ValidationError(detail, code) from None
                 except KeyError:
-                    ops_list = ("`" + op + "`" for op in update_ops)
                     msg = (
-                        "`%s` is not a valid operation, valid operations "
-                        "for this request are %s"
-                        % (operation, ', '.join(ops_list))
+                        "`%s` is not a valid operation, valid operations(s) "
+                        "for this request %s"
+                        % (operation, join_words(update_ops))
                     )
                     code = 'invalid_operation'
                     raise ValidationError(msg, code=code) from None
