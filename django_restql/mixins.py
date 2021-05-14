@@ -56,7 +56,6 @@ class RequestQueryParserMixin(object):
 
 class QueryArgumentsMixin(RequestQueryParserMixin):
     """Mixin for converting query arguments into query parameters"""
-
     def get_parsed_restql_query(self, request):
         if self.has_restql_query_param(request):
             try:
@@ -120,12 +119,12 @@ class DynamicFieldsMixin(RequestQueryParserMixin):
         # Don't pass 'query', 'fields', 'exclude', 'return_pk'
         # and 'disable_dynamic_fields'  kwargs to the superclass
         self.parsed_restql_query = kwargs.pop('query', None)
-        self.allowed_fields = kwargs.pop('fields', None)
+        self.included_fields = kwargs.pop('fields', None)
         self.excluded_fields = kwargs.pop('exclude', None)
         self.return_pk = kwargs.pop('return_pk', False)
         self.disable_dynamic_fields = kwargs.pop('disable_dynamic_fields', False)
 
-        is_field_kwarg_set = self.allowed_fields is not None
+        is_field_kwarg_set = self.included_fields is not None
         is_exclude_kwarg_set = self.excluded_fields is not None
         msg = "May not set both `fields` and `exclude`"
         assert not(is_field_kwarg_set and is_exclude_kwarg_set), msg
@@ -144,11 +143,12 @@ class DynamicFieldsMixin(RequestQueryParserMixin):
             return instance.pk
         return super().to_representation(instance)
 
-    def get_allowed_fields(self):
-        fields = self._all_fields
-        if self.allowed_fields is not None:
+    @cached_property
+    def allowed_fields(self):
+        fields = super().fields
+        if self.included_fields is not None:
             # Drop all fields which are not specified on the `fields` kwarg.
-            allowed = set(self.allowed_fields)
+            allowed = set(self.included_fields)
             existing = set(fields)
             not_allowed = existing.symmetric_difference(allowed)
             for field_name in not_allowed:
@@ -210,7 +210,7 @@ class DynamicFieldsMixin(RequestQueryParserMixin):
             raise ValidationError(msg)
 
     def include_fields(self):
-        all_fields = self.get_allowed_fields()
+        all_fields = self.allowed_fields
 
         aliases = self.parsed_restql_query["aliases"]
         for field, alias in aliases.items():
@@ -274,7 +274,7 @@ class DynamicFieldsMixin(RequestQueryParserMixin):
         return all_fields
 
     def exclude_fields(self):
-        all_fields = self.get_allowed_fields()
+        all_fields = self.allowed_fields
         all_field_names = list(all_fields.keys())
 
         # The format is  {nested_field: [sub_fields ...] ...}
@@ -322,7 +322,7 @@ class DynamicFieldsMixin(RequestQueryParserMixin):
         )
 
         if is_not_a_request_to_process:
-            return self.get_allowed_fields()
+            return self.allowed_fields
 
         is_top_retrieve_request = (
             self.field_name is None and
@@ -365,7 +365,7 @@ class DynamicFieldsMixin(RequestQueryParserMixin):
         if self.parsed_restql_query is None:
             # No filtering on nested fields
             # Retrieve all nested fields
-            return self.get_allowed_fields()
+            return self.allowed_fields
 
         # NOTE: self.parsed_restql_query["include"] not being empty
         # is not a guarantee that the exclude operator(-) has not been
@@ -385,16 +385,12 @@ class DynamicFieldsMixin(RequestQueryParserMixin):
             # return nothing
             return {}
 
-    @cached_property
-    def _all_fields(self):
-        return super().fields
-
     @property
     def fields(self):
         if self._use_restql_fields:
             # Use restql fields
             return self.restql_fields
-        return self._all_fields
+        return self.allowed_fields
 
 
 class EagerLoadingMixin(RequestQueryParserMixin):

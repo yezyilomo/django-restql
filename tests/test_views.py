@@ -1127,6 +1127,80 @@ class DataQueryingTests(APITestCase):
             []
         )
 
+    def test_options_on_serializer_with_fields_kwarg(self):
+        url = reverse_lazy("course_with_field_kwarg-list")
+        response = self.client.options(url, format="json")
+
+        self.assertEqual(
+            response.data,
+            {
+                "name": "Course With Fields Kwarg List", "description": "",
+                "renders": ["application/json", "text/html"],
+                "parses": ["application/json", "application/x-www-form-urlencoded", "multipart/form-data"],
+                "actions": {
+                    "POST": {
+                        "name": {
+                            "type": "string", "required": True, "read_only": False,
+                            "label": "Name", "max_length": 50
+                        },
+                        "code": {
+                            "type": "string", "required": True, "read_only": False,
+                            "label": "Code", "max_length": 30
+                        },
+                        "books": {
+                            "type": "field", "required": False, "read_only": True, "label": "Books",
+                            "child": {
+                                "type": "nested object", "required": False, "read_only": True,
+                                "children": {
+                                    "title": {
+                                        "type": "string", "required": True, "read_only": False,
+                                        "label": "Title", "max_length": 50
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        )
+
+    def test_options_on_serializer_with_exclude_kwarg(self):
+        url = reverse_lazy("course_with_exclude_kwarg-list")
+        response = self.client.options(url, format="json")
+
+        self.assertEqual(
+            response.data,
+            {
+                "name": "Course With Exclude Kwarg List", "description": "",
+                "renders": ["application/json", "text/html"],
+                "parses": ["application/json", "application/x-www-form-urlencoded", "multipart/form-data"],
+                "actions": {
+                    "POST": {
+                        "name": {
+                            "type": "string", "required": True, "read_only": False,
+                            "label": "Name", "max_length": 50
+                        },
+                        "code": {
+                            "type": "string", "required": True, "read_only": False,
+                            "label": "Code", "max_length": 30
+                        },
+                        "books": {
+                            "type": "field", "required": False, "read_only": True, "label": "Books",
+                            "child": {
+                                "type": "nested object", "required": False, "read_only": True,
+                                "children": {
+                                    "title": {
+                                        "type": "string", "required": True, "read_only": False,
+                                        "label": "Title", "max_length": 50
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        )
+
 
 class DataMutationTests(APITestCase):
     def setUp(self):
