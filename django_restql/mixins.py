@@ -394,8 +394,7 @@ class EagerLoadingMixin(RequestQueryParserMixin):
     def parsed_restql_query(self):
         """
         Gets parsed query for use in eager loading.
-        Defaults to the serializer parsed query assuming
-        using django-restql DynamicsFieldMixin.
+        Defaults to the serializer parsed query.
         """
         if self.has_restql_query_param(self.request):
             try:
@@ -668,7 +667,7 @@ class NestedCreateMixin(BaseNestedMixin):
             }
         }
 
-        # Make a partal copy of validated_data so that we can
+        # Make a shallow copy of validated_data so that we can
         # iterate and alter it
         data = copy.copy(validated_data)
         nested_fields = self.restql_source_field_map

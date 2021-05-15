@@ -193,8 +193,7 @@ class Parser(object):
         # A field may be a parent or included field or excluded field
         if isinstance(field, ParentField):
             return self._transform_parent_field(field)
-        elif isinstance(field, (IncludedField, ExcludedField, AllFields)):
-            return field
+        return field
 
     def _transform_parent_field(self, parent_field):
         parent_field_name = str(parent_field.alias_or_name)
