@@ -63,9 +63,11 @@ def BaseNestedFieldSerializerFactory(
     def join_words(words, many='are', single='is'):
         word_list = ["`" + word + "`" for word in words]
         sentence = " & ".join([", ".join(word_list[:-1]), word_list[-1]])
-        if len(words) < 2:
+        if len(words) > 1:
+            return "%s %s" % (many, sentence)
+        elif len(words) == 1:
             return "%s %s" % (single, word_list[0])
-        return "%s %s" % (many, sentence)
+        return "%s %s" % (single, "[]")
 
     if not set(create_ops).issubset(set(CREATE_OPERATIONS)):
         msg = (
@@ -333,7 +335,7 @@ def NestedFieldWraper(*args, **kwargs):
     non_validation_kwargs = [
         'many', 'data', 'instance', 'context', 'fields',
         'exclude', 'return_pk', 'disable_dynamic_fields',
-        'query',
+        'query', 
     ]
     for kwarg in non_validation_kwargs:
         if kwarg in serializer_validation_kwargs:
