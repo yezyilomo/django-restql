@@ -182,7 +182,7 @@ def BaseNestedFieldSerializerFactory(
                 except ValidationError as e:
                     detail = {operation: e.detail}
                     code = e.get_codes()
-                    raise ValidationError(detail, code) from None
+                    raise ValidationError(detail, code=code) from None
                 except KeyError:
                     msg = (
                         "`%s` is not a valid operation, valid operation(s) "
@@ -203,7 +203,7 @@ def BaseNestedFieldSerializerFactory(
                 except ValidationError as e:
                     detail = {operation: e.detail}
                     code = e.get_codes()
-                    raise ValidationError(detail, code) from None
+                    raise ValidationError(detail, code=code) from None
                 except KeyError:
                     msg = (
                         "`%s` is not a valid operation, valid operations(s) "

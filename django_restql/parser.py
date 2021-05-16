@@ -2,8 +2,6 @@ import re
 
 from pypeg2 import List, contiguous, csl, name, optional, parse
 
-from .exceptions import QueryFormatError
-
 
 class Alias(List):
     grammar = name(), ':'
@@ -165,28 +163,8 @@ class Parser(object):
                 # include all fields
                 fields["include"].append("*")
 
-        if fields["exclude"]:
-            # fields['include'] should contain only nested fields
-
-            # We should add `*` operator in fields['include']
-            add_include_all_operator = True
-            for field in fields["include"]:
-                if field == "*":
-                    # `*` operator is alredy in fields['include']
-                    add_include_all_operator = False
-                    continue
-
-                if isinstance(field, str):
-                    # Including and excluding fields on the same field level
-                    msg = (
-                        "Can not include and exclude fields on the same "
-                        "field level"
-                    )
-                    raise QueryFormatError(msg)
-
-            if add_include_all_operator:
-                # Make sure we include * operator
-                fields["include"].append("*")
+        if fields["exclude"] and "*" not in fields["include"]:
+            fields["include"].append("*")
         return fields
 
     def _transform_field(self, field):

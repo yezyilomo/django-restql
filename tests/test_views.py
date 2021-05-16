@@ -187,6 +187,38 @@ class DataQueryingTests(APITestCase):
             }
         )
 
+    def test_retrieve_with_exclude_operator_applied_with_include_all_operator(self):
+        url = reverse_lazy("student-detail", args=[self.student.id])
+        response = self.client.get(url + '?query={*, -course, phone: phone_numbers{-number, -student}}', format="json")
+
+        self.assertEqual(
+            response.data,
+            {
+                "name": "Yezy",
+                "age": 24,
+                "phone": [
+                    {"type": "Office"},
+                    {"type": "Home"}
+                ]
+            }
+        )
+
+    def test_retrieve_with_exclude_operator_applied_on_including_and_excluding_query(self):
+        url = reverse_lazy("student-detail", args=[self.student.id])
+        response = self.client.get(url + '?query={-course, studentAge : age, phone: phone_numbers{type}}', format="json")
+
+        self.assertEqual(
+            response.data,
+            {
+                "name": "Yezy",
+                "studentAge": 24,
+                "phone": [
+                    {"type": "Office"},
+                    {"type": "Home"}
+                ]
+            }
+        )
+
     def test_retrieve_with_exclude_operator_applied_at_the_top_level_and_expand_a_nested_field(self):
         url = reverse_lazy("student-detail", args=[self.student.id])
         response = self.client.get(url + '?query={-age, -course, phone_numbers{number}}', format="json")

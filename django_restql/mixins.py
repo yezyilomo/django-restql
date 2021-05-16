@@ -172,7 +172,7 @@ class DynamicFieldsMixin(RequestQueryParserMixin):
         else:
             if raise_exception:
                 msg = "`%s` field is not found" % field_name
-                raise ValidationError(msg)
+                raise ValidationError(msg, code="not_found")
             return False
 
     @staticmethod
@@ -186,28 +186,26 @@ class DynamicFieldsMixin(RequestQueryParserMixin):
         else:
             if raise_exception:
                 msg = "`%s` is not a nested field" % field_name
-                raise ValidationError(msg)
+                raise ValidationError(msg, code="invalid")
             return False
 
     @staticmethod
     def is_valid_alias(alias, field):
         if alias == field:
             msg = (
-                "Invalid defenition of `%s` alias on `%s` field, "
+                "Invalid definition of `%s` alias on `%s` field, "
                 "Alias can not be the same as the field name."
             ) % (alias, field)
-            raise ValidationError(msg)
+            raise ValidationError(msg, code="invalid")
 
         if len(alias) > restql_settings.MAX_ALIAS_LEN:
             msg = (
                 "The length of `%s` alias has exceeded "
                 "the limit specified, which is %s characters."
             ) % (alias, restql_settings.MAX_ALIAS_LEN)
-            raise ValidationError(msg)
+            raise ValidationError(msg, code="invalid")
 
-    def include_fields(self):
-        all_fields = self.allowed_fields
-
+    def rename_aliased_fields(self, all_fields):
         aliases = self.parsed_restql_query["aliases"]
         for field, alias in aliases.items():
             self.is_field_found(
@@ -217,22 +215,39 @@ class DynamicFieldsMixin(RequestQueryParserMixin):
             )
             self.is_valid_alias(alias, field)
             all_fields[alias] = all_fields[field]
+        return all_fields
+
+    def get_selected_fields(self):
+        all_fields = self.allowed_fields
+        self.rename_aliased_fields(all_fields)
 
         all_field_names = list(all_fields.keys())
 
+        # The format is [field1, field2 ...]
         allowed_flat_fields = []
 
         # The format is  {nested_field: [sub_fields ...] ...}
         allowed_nested_fields = {}
 
+        # self.parsed_restql_query["exclude"]
+        # is a list of names of excluded fields
+        # The format is [field1, field2 ...]
+        excluded_fields = self.parsed_restql_query["exclude"]
+
         # The self.parsed_restql_query["include"]
         # contains a list of allowed fields,
         # The format is [field, {nested_field: [sub_fields ...]} ...]
         included_fields = self.parsed_restql_query["include"]
-        include_all_fields = False
+
+        include_all_fields = False  # Assume the * is not set initially
+
+        # Go through all included fields to check if
+        # They are all valid and to set `nested_fields`
+        # property on parent fields for future reference
         for field in included_fields:
             if field == "*":
-                # Include all fields
+                # Include all fields but ignore it since `*`
+                # is not an actual field(it's just a flag)
                 include_all_fields = True
                 continue
             if isinstance(field, dict):
@@ -254,58 +269,84 @@ class DynamicFieldsMixin(RequestQueryParserMixin):
                 self.is_field_found(field, all_field_names, raise_exception=True)
                 allowed_flat_fields.append(field)
 
+        # Keep track of nested fields for future reference from child
+        # serializers
         self.nested_fields = allowed_nested_fields
 
-        if include_all_fields:
-            # Return all fields
+        included_and_excluded_fields = (
+            allowed_flat_fields +
+            list(allowed_nested_fields.keys()) +
+            excluded_fields
+        )
+
+        including_or_excluding_field_more_than_once = \
+            len(included_and_excluded_fields) != \
+            len(set(included_and_excluded_fields))
+
+        if including_or_excluding_field_more_than_once:
+            unique_fields = []
+            repeated_fields = []
+            for field in included_and_excluded_fields:
+                if field not in unique_fields:
+                    unique_fields.append(field)
+                else:
+                    repeated_fields.append("`%s`" % field)
+            msg = (
+                "QueryFormatError on %s field(s), "
+                "Can not include/exclude a field more than once"
+            ) % ", ".join(repeated_fields)
+            raise ValidationError(msg, "invalid")
+
+        def intersection(lst1, lst2):
+            temp = set(lst2)
+            return [value for value in lst1 if value in temp]
+
+        repeated_aliased_fields = intersection(
+            included_and_excluded_fields,
+            self.parsed_restql_query["aliases"]
+        )
+
+        if repeated_aliased_fields:
+            msg = (
+                "QueryFormatError on %s field(s), "
+                "Can not include/exclude aliased field more than once"
+            ) % ", ".join(repeated_aliased_fields)
+            raise ValidationError(msg, code="invalid")
+
+        if excluded_fields:
+            # Here we are sure that self.parsed_restql_query["exclude"]
+            # is not empty which means the user specified fields to exclude,
+            # so we just check if provided fields exists then remove them from
+            # a list of all fields
+            for field in excluded_fields:
+                self.is_field_found(field, all_field_names, raise_exception=True)
+                all_fields.pop(field)
             return all_fields
 
-        all_allowed_fields = (
-            allowed_flat_fields +
-            list(allowed_nested_fields.keys())
-        )
-        for field in all_field_names:
-            if field not in all_allowed_fields:
-                all_fields.pop(field)
-        return all_fields
+        if included_fields and not include_all_fields:
+            # Here we are sure that self.parsed_restql_query["exclude"]
+            # is empty which means the exclude operator(-) has not been used,
+            # so self.parsed_restql_query["include"] contains only selected fields
+            all_allowed_fields = (
+                allowed_flat_fields +
+                list(allowed_nested_fields.keys())
+            )
+            for field in all_field_names:
+                if field not in all_allowed_fields:
+                    # Remove it because we're sure it's not been selected
+                    all_fields.pop(field)
+            return all_fields
 
-    def exclude_fields(self):
-        all_fields = self.allowed_fields
-        all_field_names = list(all_fields.keys())
+        if include_all_fields:
+            # Here we are sure both self.parsed_restql_query["exclude"] and
+            # self.parsed_restql_query["include"] are empty, but * has been
+            # used to select all fields, so we return all fields without
+            # removing any
+            return all_fields
 
-        # The format is  {nested_field: [sub_fields ...] ...}
-        allowed_nested_fields = {}
-
-        # The self.parsed_restql_query["include"]
-        # contains a list of expanded nested fields
-        # The format is [{nested_field: [sub_field]} ...]
-        nested_fields = self.parsed_restql_query["include"]
-        for field in nested_fields:
-            if field == "*":
-                # Ignore this since it's not an actual field(it's just a flag)
-                continue
-            for nested_field in field:
-                self.is_field_found(
-                    nested_field,
-                    all_field_names,
-                    raise_exception=True
-                )
-                self.is_nested_field(
-                    nested_field,
-                    all_fields[nested_field],
-                    raise_exception=True
-                )
-            allowed_nested_fields.update(field)
-
-        # self.parsed_restql_query["exclude"]
-        # is a list of names of excluded fields
-        excluded_fields = self.parsed_restql_query["exclude"]
-        for field in excluded_fields:
-            self.is_field_found(field, all_field_names, raise_exception=True)
-            all_fields.pop(field)
-
-        self.nested_fields = allowed_nested_fields
-        return all_fields
+        # Otherwise the user specified empty query i.e query={}
+        # So we return nothing
+        return {}
 
     @cached_property
     def restql_fields(self):
@@ -338,10 +379,10 @@ class DynamicFieldsMixin(RequestQueryParserMixin):
                         self.get_parsed_restql_query_from_req(request)
                 except SyntaxError as e:
                     msg = "QuerySyntaxError: " + e.msg + " on " + e.text
-                    raise ValidationError(msg) from None
+                    raise ValidationError(msg, code="invalid") from None
                 except QueryFormatError as e:
                     msg = "QueryFormatError: " + str(e)
-                    raise ValidationError(msg) from None
+                    raise ValidationError(msg, code="invalid") from None
 
         elif isinstance(self.parent, ListSerializer):
             field_name = self.parent.field_name
@@ -363,23 +404,8 @@ class DynamicFieldsMixin(RequestQueryParserMixin):
             # Retrieve all nested fields
             return self.allowed_fields
 
-        # NOTE: self.parsed_restql_query["include"] not being empty
-        # is not a guarantee that the exclude operator(-) has not been
-        # used because the same self.parsed_restql_query["include"]
-        # is used to store nested fields when the exclude operator(-) is used
-        if self.parsed_restql_query["exclude"]:
-            # Exclude fields from a query
-            return self.exclude_fields()
-        elif self.parsed_restql_query["include"]:
-            # Here we are sure that self.parsed_restql_query["exclude"]
-            # is empty which means the exclude operator(-) is not used,
-            # so self.parsed_restql_query["include"] contains only fields
-            # to include
-            return self.include_fields()
-        else:
-            # The query is empty i.e query={}
-            # return nothing
-            return {}
+        # Get fields selected by using `query` parameter
+        return self.get_selected_fields()
 
     @property
     def fields(self):
@@ -892,7 +918,7 @@ class NestedUpdateMixin(BaseNestedMixin):
                     message = (
                         "`%s` is an invalid operation" % (operation,)
                     )
-                    raise ValidationError(message)
+                    raise ValidationError(message, code="invalid_operation")
         return instance
 
     def update_many_to_many_related(self, instance, data):
@@ -911,7 +937,8 @@ class NestedUpdateMixin(BaseNestedMixin):
                         nested_obj.add(*pks)
                     except Exception as e:
                         msg = self.constrain_error_prefix(field) + str(e)
-                        raise ValidationError(msg) from None
+                        code = "constrain_error"
+                        raise ValidationError(msg, code=code) from None
                 elif operation == CREATE:
                     self.bulk_create_many_to_many_related(
                         field,
@@ -924,7 +951,8 @@ class NestedUpdateMixin(BaseNestedMixin):
                         nested_obj.remove(*pks)
                     except Exception as e:
                         msg = self.constrain_error_prefix(field) + str(e)
-                        raise ValidationError(msg) from None
+                        code = "constrain_error"
+                        raise ValidationError(msg, code=code) from None
                 elif operation == UPDATE:
                     self.bulk_update_many_to_many_related(
                         field,
@@ -935,7 +963,7 @@ class NestedUpdateMixin(BaseNestedMixin):
                     message = (
                         "`%s` is an invalid operation" % (operation,)
                     )
-                    raise ValidationError(message)
+                    raise ValidationError(message, code="invalid_operation")
         return instance
 
     def update(self, instance, validated_data):
