@@ -123,12 +123,9 @@ class Block(List):
 ParentField.grammar = IncludedField, Block
 
 
-class Parser(object):
-    def __init__(self, query):
-        self._query = query
-
-    def get_parsed(self):
-        parse_tree = parse(self._query, Block)
+class QueryParser(object):
+    def parse(self, query):
+        parse_tree = parse(query, Block)
         return self._transform_block(parse_tree)
 
     def _transform_block(self, block):
