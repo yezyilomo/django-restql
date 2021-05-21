@@ -15,7 +15,7 @@ from .fields import (
     BaseRESTQLNestedField, DynamicSerializerMethodField
 )
 from .operations import ADD, CREATE, REMOVE, UPDATE
-from .parser import Parser
+from .parser import QueryParser
 from .settings import restql_settings
 
 
@@ -40,8 +40,8 @@ class RequestQueryParserMixin(object):
             # Use cached parsed restql query
             return request.parsed_restql_query
         raw_query = request.GET[restql_settings.QUERY_PARAM_NAME]
-        parser = Parser(raw_query)
-        parsed_restql_query = parser.get_parsed()
+        parser = QueryParser()
+        parsed_restql_query = parser.parse(raw_query)
 
         # Save parsed restql query to the request so that
         # we won't need to parse it again if needed later
@@ -51,10 +51,11 @@ class RequestQueryParserMixin(object):
 
 class QueryArgumentsMixin(RequestQueryParserMixin):
     """Mixin for converting query arguments into query parameters"""
-    def get_parsed_restql_query(self, request):
-        if self.has_restql_query_param(request):
+    @property
+    def parsed_restql_query(self):
+        if self.has_restql_query_param(self.request):
             try:
-                return self.get_parsed_restql_query_from_req(request)
+                return self.get_parsed_restql_query_from_req(self.request)
             except (SyntaxError, QueryFormatError):
                 # Let `DynamicFieldsMixin` handle this for a user
                 # to get a helpful error message
@@ -91,7 +92,7 @@ class QueryArgumentsMixin(RequestQueryParserMixin):
         return query_params
 
     def inject_query_params_in_req(self, request):
-        parsed = self.get_parsed_restql_query(request)
+        parsed = self.parsed_restql_query
 
         # Generate query params from query arguments
         query_params = self.build_query_params(parsed)
@@ -112,21 +113,31 @@ class QueryArgumentsMixin(RequestQueryParserMixin):
 
 class DynamicFieldsMixin(RequestQueryParserMixin):
     def __init__(self, *args, **kwargs):
-        # Don't pass 'query', 'fields', 'exclude', 'return_pk'
-        # and 'disable_dynamic_fields'  kwargs to the superclass
-        self.parsed_restql_query = kwargs.pop('query', None)
-        self.included_fields = kwargs.pop('fields', None)
-        self.excluded_fields = kwargs.pop('exclude', None)
-        self.return_pk = kwargs.pop('return_pk', False)
-        self.disable_dynamic_fields = kwargs.pop('disable_dynamic_fields', False)
+        # Don't pass DynamicFieldsMixin's kwargs to the superclass
+        self.restql_kwargs = {
+            "query": kwargs.pop('query', None),
+            "parsed_query": kwargs.pop('parsed_query', None),
+            "fields": kwargs.pop('fields', None),
+            "exclude": kwargs.pop('exclude', None),
+            "return_pk": kwargs.pop('return_pk', False),
+            "disable_dynamic_fields": kwargs.pop('disable_dynamic_fields', False)
+        }
 
-        is_field_kwarg_set = self.included_fields is not None
-        is_exclude_kwarg_set = self.excluded_fields is not None
+        is_field_kwarg_set = self.restql_kwargs["fields"] is not None
+        is_exclude_kwarg_set = self.restql_kwargs["exclude"] is not None
         msg = "May not set both `fields` and `exclude`"
         assert not(is_field_kwarg_set and is_exclude_kwarg_set), msg
 
+        is_query_kwarg_set = self.restql_kwargs["query"] is not None
+        is_parsed_query_kwarg_set = self.restql_kwargs["parsed_query"] is not None
+        msg = "May not set both `query` and `parsed_query`"
+        assert not(is_query_kwarg_set and is_parsed_query_kwarg_set), msg
+
         # flag to toggle using restql fields
         self._use_restql_fields = False
+
+        # initialize parsed restql query
+        self.parsed_restql_query = None
 
         # Instantiate the superclass normally
         super().__init__(*args, **kwargs)
@@ -135,16 +146,16 @@ class DynamicFieldsMixin(RequestQueryParserMixin):
         # Activate to use restql fields
         self._use_restql_fields = True
 
-        if self.return_pk:
+        if self.restql_kwargs["return_pk"]:
             return instance.pk
         return super().to_representation(instance)
 
     @cached_property
     def allowed_fields(self):
         fields = super().fields
-        if self.included_fields is not None:
+        if self.restql_kwargs["fields"] is not None:
             # Drop all fields which are not specified on the `fields` kwarg.
-            allowed = set(self.included_fields)
+            allowed = set(self.restql_kwargs["fields"])
             existing = set(fields)
             not_allowed = existing.symmetric_difference(allowed)
             for field_name in not_allowed:
@@ -154,9 +165,9 @@ class DynamicFieldsMixin(RequestQueryParserMixin):
                     msg = "Field `%s` is not found" % field_name
                     raise FieldNotFound(msg) from None
 
-        if self.excluded_fields is not None:
+        if self.restql_kwargs["exclude"] is not None:
             # Drop all fields specified on the `exclude` kwarg.
-            not_allowed = set(self.excluded_fields)
+            not_allowed = set(self.restql_kwargs["exclude"])
             for field_name in not_allowed:
                 try:
                     fields.pop(field_name)
@@ -353,9 +364,8 @@ class DynamicFieldsMixin(RequestQueryParserMixin):
         request = self.context.get('request')
 
         is_not_a_request_to_process = (
-            request is None or
-            self.disable_dynamic_fields or
-            not self.has_restql_query_param(request)
+            self.restql_kwargs["disable_dynamic_fields"] or
+            not (request is None or self.has_restql_query_param(request))
         )
 
         if is_not_a_request_to_process:
@@ -365,6 +375,7 @@ class DynamicFieldsMixin(RequestQueryParserMixin):
             self.field_name is None and
             self.parent is None
         )
+
         is_top_list_request = (
             isinstance(self.parent, ListSerializer) and
             self.parent.parent is None and
@@ -372,17 +383,14 @@ class DynamicFieldsMixin(RequestQueryParserMixin):
         )
 
         if is_top_retrieve_request or is_top_list_request:
-            if self.parsed_restql_query is None:
-                # Use a parsed query from the request
-                try:
-                    self.parsed_restql_query = \
-                        self.get_parsed_restql_query_from_req(request)
-                except SyntaxError as e:
-                    msg = "QuerySyntaxError: " + e.msg + " on " + e.text
-                    raise ValidationError(msg, code="invalid") from None
-                except QueryFormatError as e:
-                    msg = "QueryFormatError: " + str(e)
-                    raise ValidationError(msg, code="invalid") from None
+            try:
+                self.parsed_restql_query = self.get_parsed_restql_query()
+            except SyntaxError as e:
+                msg = "QuerySyntaxError: " + e.msg + " on " + e.text
+                raise ValidationError(msg, code="invalid") from None
+            except QueryFormatError as e:
+                msg = "QueryFormatError: " + str(e)
+                raise ValidationError(msg, code="invalid") from None
 
         elif isinstance(self.parent, ListSerializer):
             field_name = self.parent.field_name
@@ -400,12 +408,27 @@ class DynamicFieldsMixin(RequestQueryParserMixin):
                     parent_nested_fields.get(field_name, None)
 
         if self.parsed_restql_query is None:
-            # No filtering on nested fields
+            # There's not query
             # Retrieve all nested fields
             return self.allowed_fields
 
         # Get fields selected by using `query` parameter
         return self.get_selected_fields()
+
+    def get_parsed_restql_query_from_query_kwarg(self):
+        parser = QueryParser()
+        return parser.parse(self.restql_kwargs["query"])
+
+    def get_parsed_restql_query(self):
+        if self.restql_kwargs["query"] is not None:
+            # Get from query kwarg
+            return self.get_parsed_restql_query_from_query_kwarg()
+        elif self.restql_kwargs["parsed_query"] is not None:
+            # Get from parsed_query kwarg
+            return self.restql_kwargs["parsed_query"]
+        # Get from request query parameter
+        request = self.context.get('request', None)
+        return self.get_parsed_restql_query_from_req(request)
 
     @property
     def fields(self):
