@@ -74,14 +74,25 @@ class CourseWithAliasedBooksSerializer(CourseSerializer):
 
 class CourseWithDynamicSerializerMethodField(CourseSerializer):
     tomes = DynamicSerializerMethodField()
+    related_books = DynamicSerializerMethodField()
 
     class Meta:
         model = Course
-        fields = ['name', 'code', 'tomes']
+        fields = ['name', 'code', 'tomes', 'related_books']
 
-    def get_tomes(self, obj, query):
+    def get_tomes(self, obj, parsed_query):
         books = obj.books.all()
-        serializer = BookSerializer(books, query=query, many=True, read_only=True, context=self.context)
+        serializer = BookSerializer(
+            books, parsed_query=parsed_query, many=True, read_only=True
+        )
+        return serializer.data
+
+    def get_related_books(self, obj, parsed_query):
+        books = obj.books.all()
+        query = "{title}"
+        serializer = BookSerializer(
+            books, query=query, many=True, read_only=True
+        )
         return serializer.data
 
 

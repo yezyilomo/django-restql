@@ -719,7 +719,7 @@ class DataQueryingTests(APITestCase):
             ]
         )
 
-    def test_list_with_expanded_dynamic_serializer_method_field_without_query(self):
+    def test_list_with_dynamic_serializer_method_field_without_query_this_tests_query_and_parsed_query_kwargs_too(self):
         """
         Test that the DynamicSerializerMethodField works without a query present.
         """
@@ -735,6 +735,10 @@ class DataQueryingTests(APITestCase):
                     "tomes": [
                         {"title": "Advanced Data Structures", "author": "S.Mobit"},
                         {"title": "Basic Data Structures", "author": "S.Mobit"}
+                    ],
+                    "related_books": [
+                        {"title": "Advanced Data Structures"},
+                        {"title": "Basic Data Structures"}
                     ]
                 }
             ]
