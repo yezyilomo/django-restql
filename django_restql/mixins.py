@@ -51,11 +51,10 @@ class RequestQueryParserMixin(object):
 
 class QueryArgumentsMixin(RequestQueryParserMixin):
     """Mixin for converting query arguments into query parameters"""
-    @property
-    def parsed_restql_query(self):
-        if self.has_restql_query_param(self.request):
+    def get_parsed_restql_query(self, request):
+        if self.has_restql_query_param(request):
             try:
-                return self.get_parsed_restql_query_from_req(self.request)
+                return self.get_parsed_restql_query_from_req(request)
             except (SyntaxError, QueryFormatError):
                 # Let `DynamicFieldsMixin` handle this for a user
                 # to get a helpful error message
@@ -92,7 +91,7 @@ class QueryArgumentsMixin(RequestQueryParserMixin):
         return query_params
 
     def inject_query_params_in_req(self, request):
-        parsed = self.parsed_restql_query
+        parsed = self.get_parsed_restql_query(request)
 
         # Generate query params from query arguments
         query_params = self.build_query_params(parsed)
