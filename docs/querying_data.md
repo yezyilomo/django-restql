@@ -491,7 +491,7 @@ So you can see that all fields have appeared as specified on `fields = ['id', 't
 
 
 ### query kwarg
-**Django RESTQL** allows you to query fields by using `query` kwarg too, this is used if you don't want to get your query string from a request parameter, in fact `DynamicFieldsMixin` can work independently without using request. So by using `query` kwarg if you have a serializers like 
+**Django RESTQL** allows you to query fields by using `query` kwarg too, this is used if you don't want to get your query string from a request parameter, in fact `DynamicFieldsMixin` can work independently without using request. So by using `query` kwarg if you have serializers like 
 
 ```py
 from rest_framework import serializers
@@ -535,11 +535,11 @@ print(serializer.data)
 ]
 ```
 
-As you see this doesn't need a request to work
+As you see this doesn't need a request or view to work, you can use it anywhere as long as you pass your query string to a `query` kwarg.
 
 
 ### parsed_query kwarg
-In addition to `query` kwarg, **Django RESTQL** allows you to query fields by using `parsed_query` kwarg. Here `parsed_query` is a query which has been parsed by a `QueryParser`. You probably won't need to use this directly as you are not adviced to write parsed query yourself, so the value of `parsed_query` kwarg should be something coming from `QueryParser`. So if you have a serializers like 
+In addition to `query` kwarg, **Django RESTQL** allows you to query fields by using `parsed_query` kwarg. Here `parsed_query` is a query which has been parsed by a `QueryParser`. You probably won't need to use this directly as you are not adviced to write parsed query yourself, so the value of `parsed_query` kwarg should be something coming from `QueryParser`. If you have serializers like 
 
 ```py
 from rest_framework import serializers
@@ -561,7 +561,7 @@ class CourseSerializer(DynamicFieldsMixin, serializers.ModelSerializer):
         fields = ['name', 'code', 'books']
 ```
 
-You can query fields by using `parsed_query` kwarg as  
+You can query fields by using `parsed_query` kwarg as follows
 
 ```py
 import QueryParser from django_restql.parser
