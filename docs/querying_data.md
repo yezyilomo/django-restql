@@ -254,12 +254,7 @@ Below is a list of mistakes which leads to syntax error, these mistakes may happ
 {username, -location{country}}  # Should not expand excluded field
 {*username}  # What are you even trying to accomplish
 {*location{country}}  # This is def wrong
-{-username, birthdate}  # Should not whitelist and blacklist fields 
-# at the same field level
 ```
-
-!!! note
-    Any field level should either be whitelisting or blacklisting fields but not both.
 
 
 ## Aliases
@@ -332,7 +327,7 @@ This yields
 
 
 ## DynamicSerializerMethodField
-`DynamicSerializerMethodField` is a wraper of the `SerializerMethodField`, it adds a query argument from a parent serializer to a method bound to a `SerializerMethodField`, this query argument can be passed to a serializer used within a method to allow further querying. For example in the scenario below we are using `DynamicSerializerMethodField` because we want to be able to query `tomes` field.
+`DynamicSerializerMethodField` is a wraper of the `SerializerMethodField`, it adds a parsed query argument from a parent serializer to a method bound to a `SerializerMethodField`, this parsed query argument can be passed to a serializer used within a method to allow further querying. For example in the scenario below we are using `DynamicSerializerMethodField` because we want to be able to query `related_books` field.
 
 ```py
 from django_restql.mixins import DynamicFieldsMixin
@@ -341,35 +336,34 @@ from django_restql.fields import DynamicSerializerMethodField
 
 class CourseSerializer(DynamicFieldsMixin, serializers.ModelSerializer):
     # Use `DynamicSerializerMethodField` instead of `SerializerMethodField`
-    # if you want to be able to query `tomes`
-    tomes = DynamicSerializerMethodField()
+    # if you want to be able to query `related_books`
+    related_books = DynamicSerializerMethodField()
     class Meta:
         model = Course
-        fields = ['name', 'code', 'tomes']
+        fields = ['name', 'code', 'related_books']
 
-    def get_tomes(self, obj, query):
+    def get_tomes(self, obj, parsed_query):
         # With `DynamicSerializerMethodField` you get this extra
-        # `query` argument in addition to `obj`
+        # `parsed_query` argument in addition to `obj`
         books = obj.books.all()
 
         # You can do what ever you want in here
 
-        # `query` param and context are passed to BookSerializer to allow querying it
+        # `parsed_query` param is passed to BookSerializer to allow further querying
         serializer = BookSerializer(
             books,
             many=True, 
-            query=query, 
-            context=self.context
+            parsed_query=parsed_query
         )
         return serializer.data
 ```
 
-`GET /course/?query={name, tomes}`
+`GET /course/?query={name, related_books}`
 ```js
 [
     {
         "name": "Data Structures",
-        "tomes": [
+        "related_books": [
             {"title": "Advanced Data Structures", "author": "S.Mobit"},
             {"title": "Basic Data Structures", "author": "S.Mobit"}
         ]
@@ -378,12 +372,12 @@ class CourseSerializer(DynamicFieldsMixin, serializers.ModelSerializer):
 ```
 <br/>
 
-`GET /course/?query={name, tomes{title}}`
+`GET /course/?query={name, related_books{title}}`
 ```js
 [
     {
         "name": "Data Structures",
-        "tomes": [
+        "related_books": [
             {"title": "Advanced Data Structures"},
             {"title": "Basic Data Structures"}
         ]
@@ -494,6 +488,109 @@ From the response above you can see that `author` field has been excluded fom bo
 ```
 So you can see that all fields have appeared as specified on `fields = ['id', 'title', 'author']` on BookSerializer class.
 <br/>
+
+
+### query kwarg
+**Django RESTQL** allows you to query fields by using `query` kwarg too, this is used if you don't want to get your query string from a request parameter, in fact `DynamicFieldsMixin` can work independently without using request. So by using `query` kwarg if you have a serializers like 
+
+```py
+from rest_framework import serializers
+from django_restql.mixins import DynamicFieldsMixin
+
+from app.models import Book, Course
+
+
+class BookSerializer(DynamicFieldsMixin, serializers.ModelSerializer):
+    class Meta:
+        model = Book
+        fields = ['id', 'title', 'author']
+
+
+class CourseSerializer(DynamicFieldsMixin, serializers.ModelSerializer):
+    books = BookSerializer(many=True, read_only=True, exclude=["author"])
+    class Meta:
+        model = Course
+        fields = ['name', 'code', 'books']
+```
+
+You can query fields as  
+
+```py
+objs = Course.objects.all()
+query = "{name, books{title}}"
+serializer = CourseSerializer(objs, many=True, query=query)
+print(serializer.data)
+
+# This will print
+[
+    {
+        "name": "Computer Programming",
+        "code": "CS50",
+        "books": [
+            {"title": "Computer Programming Basics"},
+            {"title": "Data structures"}
+        ]
+    },
+    ...
+]
+```
+
+As you see this doesn't need a request to work
+
+
+### parsed_query kwarg
+In addition to `query` kwarg, **Django RESTQL** allows you to query fields by using `parsed_query` kwarg. Here `parsed_query` is a query which has been parsed by a `QueryParser`. You probably won't need to use this directly as you are not adviced to write parsed query yourself, so the value of `parsed_query` kwarg should be something coming from `QueryParser`. So if you have a serializers like 
+
+```py
+from rest_framework import serializers
+from django_restql.mixins import DynamicFieldsMixin
+
+from app.models import Book, Course
+
+
+class BookSerializer(DynamicFieldsMixin, serializers.ModelSerializer):
+    class Meta:
+        model = Book
+        fields = ['id', 'title', 'author']
+
+
+class CourseSerializer(DynamicFieldsMixin, serializers.ModelSerializer):
+    books = BookSerializer(many=True, read_only=True, exclude=["author"])
+    class Meta:
+        model = Course
+        fields = ['name', 'code', 'books']
+```
+
+You can query fields by using `parsed_query` kwarg as  
+
+```py
+import QueryParser from django_restql.parser
+
+objs = Course.objects.all()
+query = "{name, books{title}}"
+
+# You have to parse your query string first
+parser = QueryParser()
+parsed_query = parser.parse(query)
+
+serializer = CourseSerializer(objs, many=True, parsed_query=parsed_query)
+print(serializer.data)
+
+# This will print
+[
+    {
+        "name": "Computer Programming",
+        "code": "CS50",
+        "books": [
+            {"title": "Computer Programming Basics"},
+            {"title": "Data structures"}
+        ]
+    },
+    ...
+]
+```
+
+`parsed_query` kwarg is often used with `DynamicMethodField` to pass part of parsed query to nested fields to allow further querying.
 
 
 ### return_pk kwarg
