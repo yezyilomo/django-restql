@@ -12,7 +12,7 @@
 
 * Avoid Over-fetching and Under-fetching of data.
 
-* Write(create & update) nested data of any level with flexibility.
+* Write(create & update) nested data of any level in a single request.
 
 Isn't it cool?.
 
@@ -57,3 +57,11 @@ class UserSerializer(DynamicFieldsMixin, serializer.ModelSerializer):
 ```
 
 **Django RESTQL** support querying both flat and nested resources, you can expand or query nested fields at any level as defined on a serializer. It also supports querying with all HTTP methods i.e (GET, POST, PUT & PATCH)
+
+You can do a lot with **Django RESTQL** apart from querying data, like
+
+- Rename fields
+- Restrict some fields on nested fields
+- Optimize data fetching on nested fields
+- Data filtering and pagination by using query arguments
+- Data mutation(Create and update nested data of any level in a single request)

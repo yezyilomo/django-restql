@@ -298,7 +298,7 @@ Creating an alias is very easy just like in [GraphQL](https://graphql.org/learn/
 
 <h3>More examples</h3>
 
-Renaming `date_of_birth` to `date_of_birth`, `course` to `programme` and `books` to `readings`
+Renaming `date_of_birth` to `dateOfBirth`, `course` to `programme` and `books` to `readings`
 
 `GET /students/?query={name, dateOfBirth: date_of_birth, programme: course{id, name, readings: books}}`
 
@@ -342,7 +342,7 @@ class CourseSerializer(DynamicFieldsMixin, serializers.ModelSerializer):
         model = Course
         fields = ['name', 'code', 'related_books']
 
-    def get_tomes(self, obj, parsed_query):
+    def get_related_books(self, obj, parsed_query):
         # With `DynamicSerializerMethodField` you get this extra
         # `parsed_query` argument in addition to `obj`
         books = obj.books.all()
@@ -525,7 +525,6 @@ print(serializer.data)
 [
     {
         "name": "Computer Programming",
-        "code": "CS50",
         "books": [
             {"title": "Computer Programming Basics"},
             {"title": "Data structures"}
@@ -580,7 +579,6 @@ print(serializer.data)
 [
     {
         "name": "Computer Programming",
-        "code": "CS50",
         "books": [
             {"title": "Computer Programming Basics"},
             {"title": "Data structures"}

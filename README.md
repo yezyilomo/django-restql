@@ -129,11 +129,11 @@ You can even rename your fields when querying data, In an example below the fiel
 
 
 ## [Documentation :pencil:](https://yezyilomo.github.io/django-restql)
-You can do a lot with **Django RESTQL** apart from just querying data like
+You can do a lot with **Django RESTQL** apart from querying data, like
 - Rename fields
 - Restrict some fields on nested fields
 - Optimize data fetching on nested fields
-- Filter data by using query arguments
+- Data filtering and pagination by using query arguments
 - Data mutation(Create and update nested data of any level in a single request)
 
 Full documentation for this project is available at https://yezyilomo.github.io/django-restql, you are encouraged to read it inorder to utilize this library to the fullest.
