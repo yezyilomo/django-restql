@@ -22,7 +22,7 @@
 
 * Avoid Over-fetching and Under-fetching of data.
 
-* Write(create & update) nested data of any level with flexibility.
+* Write(create & update) nested data of any level in a single request.
 
 Isn't it cool?.
 
@@ -110,8 +110,33 @@ If you want only `country` and `city` fields on a `location` field when retrievi
 ]
 ```
 
+You can even rename your fields when querying data, In an example below the field `location` is renamed to `address`
+
+`GET /users/?query={id, username, address: location{country, city}}`
+```js
+[
+    {
+        "id": 1,
+        "username": "yezyilomo",
+        "address": {
+            "contry": "Tanzania",
+            "city": "Dar es salaam"
+        }
+    },
+    ...
+]
+```
+
+
 ## [Documentation :pencil:](https://yezyilomo.github.io/django-restql)
-You can do a lot with **Django RESTQL** apart from just querying data, full documentation for this project is available at https://yezyilomo.github.io/django-restql, you are encouraged to read it inorder to utilize this library to the fullest.
+You can do a lot with **Django RESTQL** apart from just querying data like
+- Rename fields
+- Restrict some fields on nested fields
+- Optimize data fetching on nested fields
+- Filter data by using query arguments
+- Data mutation(Create and update nested data of any level in a single request)
+
+Full documentation for this project is available at https://yezyilomo.github.io/django-restql, you are encouraged to read it inorder to utilize this library to the fullest.
 
 
 ## Running Tests
