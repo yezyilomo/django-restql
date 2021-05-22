@@ -297,6 +297,20 @@
 </li>
         
           <li class="md-nav__item">
+  <a href="#query-kwarg" class="md-nav__link">
+    query kwarg
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#parsed_query-kwarg" class="md-nav__link">
+    parsed_query kwarg
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#return_pk-kwarg" class="md-nav__link">
     return_pk kwarg
   </a>
@@ -497,6 +511,20 @@
           <li class="md-nav__item">
   <a href="#exclude-kwarg" class="md-nav__link">
     exclude kwarg
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#query-kwarg" class="md-nav__link">
+    query kwarg
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#parsed_query-kwarg" class="md-nav__link">
+    parsed_query kwarg
   </a>
   
 </li>
@@ -840,15 +868,9 @@
 <div class="codehilite"><pre><span></span><code><span class="p">{</span><span class="n">username</span><span class="p">,</span> <span class="o">-</span><span class="n">location</span><span class="p">{</span><span class="n">country</span><span class="p">}}</span>  <span class="c1"># Should not expand excluded field</span>
 <span class="p">{</span><span class="o">*</span><span class="n">username</span><span class="p">}</span>  <span class="c1"># What are you even trying to accomplish</span>
 <span class="p">{</span><span class="o">*</span><span class="n">location</span><span class="p">{</span><span class="n">country</span><span class="p">}}</span>  <span class="c1"># This is def wrong</span>
-<span class="p">{</span><span class="o">-</span><span class="n">username</span><span class="p">,</span> <span class="n">birthdate</span><span class="p">}</span>  <span class="c1"># Should not whitelist and blacklist fields </span>
-<span class="c1"># at the same field level</span>
 </code></pre></div>
 
 
-<div class="admonition note">
-<p class="admonition-title">Note</p>
-<p>Any field level should either be whitelisting or blacklisting fields but not both.</p>
-</div>
 <h2 id="aliases">Aliases<a class="headerlink" href="#aliases" title="Permanent link">&para;</a></h2>
 <p>When working with API, you may want to rename a field to something other than what the API has to offer. Aliases exist as part of this library to solve this exact problem.</p>
 <p>Aliases allow you to rename a single field to whatever you want it to be. They are defined at the client side, so you don’t need to update your API to use them.</p>
@@ -881,7 +903,7 @@
 <p>Creating an alias is very easy just like in <a href="https://graphql.org/learn/queries/#aliases">GraphQL</a>. Simply add a new name and a colon before the field you want to rename.</p>
 <h3>More examples</h3>
 
-<p>Renaming <code>date_of_birth</code> to <code>date_of_birth</code>, <code>course</code> to <code>programme</code> and <code>books</code> to <code>readings</code></p>
+<p>Renaming <code>date_of_birth</code> to <code>dateOfBirth</code>, <code>course</code> to <code>programme</code> and <code>books</code> to <code>readings</code></p>
 <p><code>GET /students/?query={name, dateOfBirth: date_of_birth, programme: course{id, name, readings: books}}</code></p>
 <p>This yields</p>
 <div class="codehilite"><pre><span></span><code><span class="p">[</span>
@@ -907,42 +929,41 @@
 <p>The default maximum length of aliases is 50 characters, it's controlled by <code>MAX_ALIAS_LEN</code> setting. This is enforced to prevent DoS like attacks to API which might be caused by clients specifying a really really long alias which might increase network usage. For more information about <code>MAX_ALIAS_LEN</code> setting and how to change it go to <a href="/django-restql/settings/#max_alias_len">this section</a>.</p>
 </div>
 <h2 id="dynamicserializermethodfield">DynamicSerializerMethodField<a class="headerlink" href="#dynamicserializermethodfield" title="Permanent link">&para;</a></h2>
-<p><code>DynamicSerializerMethodField</code> is a wraper of the <code>SerializerMethodField</code>, it adds a query argument from a parent serializer to a method bound to a <code>SerializerMethodField</code>, this query argument can be passed to a serializer used within a method to allow further querying. For example in the scenario below we are using <code>DynamicSerializerMethodField</code> because we want to be able to query <code>tomes</code> field.</p>
+<p><code>DynamicSerializerMethodField</code> is a wraper of the <code>SerializerMethodField</code>, it adds a parsed query argument from a parent serializer to a method bound to a <code>SerializerMethodField</code>, this parsed query argument can be passed to a serializer used within a method to allow further querying. For example in the scenario below we are using <code>DynamicSerializerMethodField</code> because we want to be able to query <code>related_books</code> field.</p>
 <div class="codehilite"><pre><span></span><code><span class="kn">from</span> <span class="nn">django_restql.mixins</span> <span class="kn">import</span> <span class="n">DynamicFieldsMixin</span>
 <span class="kn">from</span> <span class="nn">django_restql.fields</span> <span class="kn">import</span> <span class="n">DynamicSerializerMethodField</span>
 
 
 <span class="k">class</span> <span class="nc">CourseSerializer</span><span class="p">(</span><span class="n">DynamicFieldsMixin</span><span class="p">,</span> <span class="n">serializers</span><span class="o">.</span><span class="n">ModelSerializer</span><span class="p">):</span>
     <span class="c1"># Use `DynamicSerializerMethodField` instead of `SerializerMethodField`</span>
-    <span class="c1"># if you want to be able to query `tomes`</span>
-    <span class="n">tomes</span> <span class="o">=</span> <span class="n">DynamicSerializerMethodField</span><span class="p">()</span>
+    <span class="c1"># if you want to be able to query `related_books`</span>
+    <span class="n">related_books</span> <span class="o">=</span> <span class="n">DynamicSerializerMethodField</span><span class="p">()</span>
     <span class="k">class</span> <span class="nc">Meta</span><span class="p">:</span>
         <span class="n">model</span> <span class="o">=</span> <span class="n">Course</span>
-        <span class="n">fields</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">,</span> <span class="s1">&#39;code&#39;</span><span class="p">,</span> <span class="s1">&#39;tomes&#39;</span><span class="p">]</span>
+        <span class="n">fields</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">,</span> <span class="s1">&#39;code&#39;</span><span class="p">,</span> <span class="s1">&#39;related_books&#39;</span><span class="p">]</span>
 
-    <span class="k">def</span> <span class="nf">get_tomes</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obj</span><span class="p">,</span> <span class="n">query</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">get_related_books</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obj</span><span class="p">,</span> <span class="n">parsed_query</span><span class="p">):</span>
         <span class="c1"># With `DynamicSerializerMethodField` you get this extra</span>
-        <span class="c1"># `query` argument in addition to `obj`</span>
+        <span class="c1"># `parsed_query` argument in addition to `obj`</span>
         <span class="n">books</span> <span class="o">=</span> <span class="n">obj</span><span class="o">.</span><span class="n">books</span><span class="o">.</span><span class="n">all</span><span class="p">()</span>
 
         <span class="c1"># You can do what ever you want in here</span>
 
-        <span class="c1"># `query` param and context are passed to BookSerializer to allow querying it</span>
+        <span class="c1"># `parsed_query` param is passed to BookSerializer to allow further querying</span>
         <span class="n">serializer</span> <span class="o">=</span> <span class="n">BookSerializer</span><span class="p">(</span>
             <span class="n">books</span><span class="p">,</span>
             <span class="n">many</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> 
-            <span class="n">query</span><span class="o">=</span><span class="n">query</span><span class="p">,</span> 
-            <span class="n">context</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">context</span>
+            <span class="n">parsed_query</span><span class="o">=</span><span class="n">parsed_query</span>
         <span class="p">)</span>
         <span class="k">return</span> <span class="n">serializer</span><span class="o">.</span><span class="n">data</span>
 </code></pre></div>
 
 
-<p><code>GET /course/?query={name, tomes}</code></p>
+<p><code>GET /course/?query={name, related_books}</code></p>
 <div class="codehilite"><pre><span></span><code><span class="p">[</span>
     <span class="p">{</span>
         <span class="s2">&quot;name&quot;</span><span class="o">:</span> <span class="s2">&quot;Data Structures&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;tomes&quot;</span><span class="o">:</span> <span class="p">[</span>
+        <span class="s2">&quot;related_books&quot;</span><span class="o">:</span> <span class="p">[</span>
             <span class="p">{</span><span class="s2">&quot;title&quot;</span><span class="o">:</span> <span class="s2">&quot;Advanced Data Structures&quot;</span><span class="p">,</span> <span class="s2">&quot;author&quot;</span><span class="o">:</span> <span class="s2">&quot;S.Mobit&quot;</span><span class="p">},</span>
             <span class="p">{</span><span class="s2">&quot;title&quot;</span><span class="o">:</span> <span class="s2">&quot;Basic Data Structures&quot;</span><span class="p">,</span> <span class="s2">&quot;author&quot;</span><span class="o">:</span> <span class="s2">&quot;S.Mobit&quot;</span><span class="p">}</span>
         <span class="p">]</span>
@@ -952,11 +973,11 @@
 
 
 <p><br/></p>
-<p><code>GET /course/?query={name, tomes{title}}</code></p>
+<p><code>GET /course/?query={name, related_books{title}}</code></p>
 <div class="codehilite"><pre><span></span><code><span class="p">[</span>
     <span class="p">{</span>
         <span class="s2">&quot;name&quot;</span><span class="o">:</span> <span class="s2">&quot;Data Structures&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;tomes&quot;</span><span class="o">:</span> <span class="p">[</span>
+        <span class="s2">&quot;related_books&quot;</span><span class="o">:</span> <span class="p">[</span>
             <span class="p">{</span><span class="s2">&quot;title&quot;</span><span class="o">:</span> <span class="s2">&quot;Advanced Data Structures&quot;</span><span class="p">},</span>
             <span class="p">{</span><span class="s2">&quot;title&quot;</span><span class="o">:</span> <span class="s2">&quot;Basic Data Structures&quot;</span><span class="p">}</span>
         <span class="p">]</span>
@@ -1065,6 +1086,99 @@
 
 <p>So you can see that all fields have appeared as specified on <code>fields = ['id', 'title', 'author']</code> on BookSerializer class.
 <br/></p>
+<h3 id="query-kwarg">query kwarg<a class="headerlink" href="#query-kwarg" title="Permanent link">&para;</a></h3>
+<p><strong>Django RESTQL</strong> allows you to query fields by using <code>query</code> kwarg too, this is used if you don't want to get your query string from a request parameter, in fact <code>DynamicFieldsMixin</code> can work independently without using request. So by using <code>query</code> kwarg if you have serializers like </p>
+<div class="codehilite"><pre><span></span><code><span class="kn">from</span> <span class="nn">rest_framework</span> <span class="kn">import</span> <span class="n">serializers</span>
+<span class="kn">from</span> <span class="nn">django_restql.mixins</span> <span class="kn">import</span> <span class="n">DynamicFieldsMixin</span>
+
+<span class="kn">from</span> <span class="nn">app.models</span> <span class="kn">import</span> <span class="n">Book</span><span class="p">,</span> <span class="n">Course</span>
+
+
+<span class="k">class</span> <span class="nc">BookSerializer</span><span class="p">(</span><span class="n">DynamicFieldsMixin</span><span class="p">,</span> <span class="n">serializers</span><span class="o">.</span><span class="n">ModelSerializer</span><span class="p">):</span>
+    <span class="k">class</span> <span class="nc">Meta</span><span class="p">:</span>
+        <span class="n">model</span> <span class="o">=</span> <span class="n">Book</span>
+        <span class="n">fields</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;id&#39;</span><span class="p">,</span> <span class="s1">&#39;title&#39;</span><span class="p">,</span> <span class="s1">&#39;author&#39;</span><span class="p">]</span>
+
+
+<span class="k">class</span> <span class="nc">CourseSerializer</span><span class="p">(</span><span class="n">DynamicFieldsMixin</span><span class="p">,</span> <span class="n">serializers</span><span class="o">.</span><span class="n">ModelSerializer</span><span class="p">):</span>
+    <span class="n">books</span> <span class="o">=</span> <span class="n">BookSerializer</span><span class="p">(</span><span class="n">many</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">read_only</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">exclude</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;author&quot;</span><span class="p">])</span>
+    <span class="k">class</span> <span class="nc">Meta</span><span class="p">:</span>
+        <span class="n">model</span> <span class="o">=</span> <span class="n">Course</span>
+        <span class="n">fields</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">,</span> <span class="s1">&#39;code&#39;</span><span class="p">,</span> <span class="s1">&#39;books&#39;</span><span class="p">]</span>
+</code></pre></div>
+
+
+<p>You can query fields as  </p>
+<div class="codehilite"><pre><span></span><code><span class="n">objs</span> <span class="o">=</span> <span class="n">Course</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">all</span><span class="p">()</span>
+<span class="n">query</span> <span class="o">=</span> <span class="s2">&quot;{name, books</span><span class="si">{title}</span><span class="s2">}&quot;</span>
+<span class="n">serializer</span> <span class="o">=</span> <span class="n">CourseSerializer</span><span class="p">(</span><span class="n">objs</span><span class="p">,</span> <span class="n">many</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">query</span><span class="o">=</span><span class="n">query</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">serializer</span><span class="o">.</span><span class="n">data</span><span class="p">)</span>
+
+<span class="c1"># This will print</span>
+<span class="p">[</span>
+    <span class="p">{</span>
+        <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;Computer Programming&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;books&quot;</span><span class="p">:</span> <span class="p">[</span>
+            <span class="p">{</span><span class="s2">&quot;title&quot;</span><span class="p">:</span> <span class="s2">&quot;Computer Programming Basics&quot;</span><span class="p">},</span>
+            <span class="p">{</span><span class="s2">&quot;title&quot;</span><span class="p">:</span> <span class="s2">&quot;Data structures&quot;</span><span class="p">}</span>
+        <span class="p">]</span>
+    <span class="p">},</span>
+    <span class="o">...</span>
+<span class="p">]</span>
+</code></pre></div>
+
+
+<p>As you see this doesn't need a request or view to work, you can use it anywhere as long as you pass your query string to a <code>query</code> kwarg.</p>
+<h3 id="parsed_query-kwarg">parsed_query kwarg<a class="headerlink" href="#parsed_query-kwarg" title="Permanent link">&para;</a></h3>
+<p>In addition to <code>query</code> kwarg, <strong>Django RESTQL</strong> allows you to query fields by using <code>parsed_query</code> kwarg. Here <code>parsed_query</code> is a query which has been parsed by a <code>QueryParser</code>. You probably won't need to use this directly as you are not adviced to write parsed query yourself, so the value of <code>parsed_query</code> kwarg should be something coming from <code>QueryParser</code>. If you have serializers like </p>
+<div class="codehilite"><pre><span></span><code><span class="kn">from</span> <span class="nn">rest_framework</span> <span class="kn">import</span> <span class="n">serializers</span>
+<span class="kn">from</span> <span class="nn">django_restql.mixins</span> <span class="kn">import</span> <span class="n">DynamicFieldsMixin</span>
+
+<span class="kn">from</span> <span class="nn">app.models</span> <span class="kn">import</span> <span class="n">Book</span><span class="p">,</span> <span class="n">Course</span>
+
+
+<span class="k">class</span> <span class="nc">BookSerializer</span><span class="p">(</span><span class="n">DynamicFieldsMixin</span><span class="p">,</span> <span class="n">serializers</span><span class="o">.</span><span class="n">ModelSerializer</span><span class="p">):</span>
+    <span class="k">class</span> <span class="nc">Meta</span><span class="p">:</span>
+        <span class="n">model</span> <span class="o">=</span> <span class="n">Book</span>
+        <span class="n">fields</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;id&#39;</span><span class="p">,</span> <span class="s1">&#39;title&#39;</span><span class="p">,</span> <span class="s1">&#39;author&#39;</span><span class="p">]</span>
+
+
+<span class="k">class</span> <span class="nc">CourseSerializer</span><span class="p">(</span><span class="n">DynamicFieldsMixin</span><span class="p">,</span> <span class="n">serializers</span><span class="o">.</span><span class="n">ModelSerializer</span><span class="p">):</span>
+    <span class="n">books</span> <span class="o">=</span> <span class="n">BookSerializer</span><span class="p">(</span><span class="n">many</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">read_only</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">exclude</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;author&quot;</span><span class="p">])</span>
+    <span class="k">class</span> <span class="nc">Meta</span><span class="p">:</span>
+        <span class="n">model</span> <span class="o">=</span> <span class="n">Course</span>
+        <span class="n">fields</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">,</span> <span class="s1">&#39;code&#39;</span><span class="p">,</span> <span class="s1">&#39;books&#39;</span><span class="p">]</span>
+</code></pre></div>
+
+
+<p>You can query fields by using <code>parsed_query</code> kwarg as follows</p>
+<div class="codehilite"><pre><span></span><code><span class="kn">import</span> <span class="nn">QueryParser</span> <span class="kn">from</span> <span class="nn">django_restql.parser</span>
+
+<span class="n">objs</span> <span class="o">=</span> <span class="n">Course</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">all</span><span class="p">()</span>
+<span class="n">query</span> <span class="o">=</span> <span class="s2">&quot;{name, books</span><span class="si">{title}</span><span class="s2">}&quot;</span>
+
+<span class="c1"># You have to parse your query string first</span>
+<span class="n">parser</span> <span class="o">=</span> <span class="n">QueryParser</span><span class="p">()</span>
+<span class="n">parsed_query</span> <span class="o">=</span> <span class="n">parser</span><span class="o">.</span><span class="n">parse</span><span class="p">(</span><span class="n">query</span><span class="p">)</span>
+
+<span class="n">serializer</span> <span class="o">=</span> <span class="n">CourseSerializer</span><span class="p">(</span><span class="n">objs</span><span class="p">,</span> <span class="n">many</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">parsed_query</span><span class="o">=</span><span class="n">parsed_query</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">serializer</span><span class="o">.</span><span class="n">data</span><span class="p">)</span>
+
+<span class="c1"># This will print</span>
+<span class="p">[</span>
+    <span class="p">{</span>
+        <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;Computer Programming&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;books&quot;</span><span class="p">:</span> <span class="p">[</span>
+            <span class="p">{</span><span class="s2">&quot;title&quot;</span><span class="p">:</span> <span class="s2">&quot;Computer Programming Basics&quot;</span><span class="p">},</span>
+            <span class="p">{</span><span class="s2">&quot;title&quot;</span><span class="p">:</span> <span class="s2">&quot;Data structures&quot;</span><span class="p">}</span>
+        <span class="p">]</span>
+    <span class="p">},</span>
+    <span class="o">...</span>
+<span class="p">]</span>
+</code></pre></div>
+
+
+<p><code>parsed_query</code> kwarg is often used with <code>DynamicMethodField</code> to pass part of parsed query to nested fields to allow further querying.</p>
 <h3 id="return_pk-kwarg">return_pk kwarg<a class="headerlink" href="#return_pk-kwarg" title="Permanent link">&para;</a></h3>
 <p>With <strong>Django RESTQL</strong> you can specify whether to return nested resource pk or data. Below is an example which shows how we can use <code>return_pk</code> kwarg.</p>
 <div class="codehilite"><pre><span></span><code><span class="kn">from</span> <span class="nn">rest_framework</span> <span class="kn">import</span> <span class="n">serializers</span>
