@@ -142,7 +142,7 @@ class DynamicFieldsMixin(RequestQueryParserMixin):
         super().__init__(*args, **kwargs)
 
     def to_representation(self, instance):
-        # Activate to use restql fields
+        # Activate using restql fields
         self._use_restql_fields = True
 
         if self.restql_kwargs["return_pk"]:
@@ -256,7 +256,7 @@ class DynamicFieldsMixin(RequestQueryParserMixin):
         # property on parent fields for future reference
         for field in included_fields:
             if field == "*":
-                # Include all fields but ignore it since `*`
+                # Include all fields but ignore `*` since
                 # is not an actual field(it's just a flag)
                 include_all_fields = True
                 continue
@@ -408,7 +408,7 @@ class DynamicFieldsMixin(RequestQueryParserMixin):
 
         if self.parsed_restql_query is None:
             # There's not query
-            # Retrieve all nested fields
+            # Retrieve all fields
             return self.allowed_fields
 
         # Get fields selected by using `query` parameter
