@@ -233,13 +233,6 @@
     <ul class="md-nav__list" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#querying-flat-fields" class="md-nav__link">
-    Querying flat fields
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
   <a href="#querying-nested-fields" class="md-nav__link">
     Querying nested fields
   </a>
@@ -452,13 +445,6 @@
     <ul class="md-nav__list" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#querying-flat-fields" class="md-nav__link">
-    Querying flat fields
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
   <a href="#querying-nested-fields" class="md-nav__link">
     Querying nested fields
   </a>
@@ -623,7 +609,7 @@
                 
                 
                 <h1 id="querying-data">Querying Data<a class="headerlink" href="#querying-data" title="Permanent link">&para;</a></h1>
-<p>Using <strong>Django RESTQL</strong> to query data is very simple, you just have to inherit the <code>DynamicFieldsMixin</code> class when defining a serializer that's all.</p>
+<p><strong>Django RESTQL</strong> makes data querying(selecting fields to include in a response) way easier, if you want to use it to query data you just have to inherit the <code>DynamicFieldsMixin</code> class when defining your serializer, that's all. Below is an example showing how to use <code>DynamicFieldsMixin</code>.</p>
 <div class="codehilite"><pre><span></span><code><span class="kn">from</span> <span class="nn">rest_framework</span> <span class="kn">import</span> <span class="n">serializers</span>
 <span class="kn">from</span> <span class="nn">django.contrib.auth.models</span> <span class="kn">import</span> <span class="n">User</span>
 <span class="kn">from</span> <span class="nn">django_restql.mixins</span> <span class="kn">import</span> <span class="n">DynamicFieldsMixin</span>
@@ -636,7 +622,7 @@
 </code></pre></div>
 
 
-<p>A regular request returns all fields as specified on a DRF serializer, in fact <strong>Django RESTQL</strong> doesn't handle this request at all. Below is an example of regular request, as you see all fields are returned as specified on <code>UserSerializer</code>.</p>
+<p>Here a regular request returns all fields as specified on a DRF serializer, in fact <strong>Django RESTQL</strong> doesn't handle this(regular) request at all. Below is an example of a regular request and its response </p>
 <p><code>GET /users</code></p>
 <div class="codehilite"><pre><span></span><code><span class="p">[</span>
     <span class="p">{</span>
@@ -649,8 +635,9 @@
 </code></pre></div>
 
 
-<h2 id="querying-flat-fields">Querying flat fields<a class="headerlink" href="#querying-flat-fields" title="Permanent link">&para;</a></h2>
-<p><strong>Django RESTQL</strong> handle all requests with a <code>query</code> parameter, this parameter is the one used to pass all fields to be included/excluded in a response. For example to select <code>id</code> and <code>username</code> fields from User model, send a request with a <code>query</code> parameter as shown below.</p>
+<p>As you can see all fields have been returned as specified on <code>UserSerializer</code>.</p>
+<p><strong>Django RESTQL</strong> handle all requests with a <code>query</code> parameter, this parameter is the one which is used to pass all fields to be included/excluded in a response.</p>
+<p>For example to select <code>id</code> and <code>username</code> fields from User model, send a request with a <code>query</code> parameter as shown below.</p>
 <p><code>GET /users/?query={id, username}</code></p>
 <div class="codehilite"><pre><span></span><code><span class="p">[</span>
     <span class="p">{</span>
@@ -662,8 +649,9 @@
 </code></pre></div>
 
 
+<p>You can see only <code>id</code> and <code>username</code> fields have been returned in a response as specified on a <code>query</code> parameter.</p>
 <h2 id="querying-nested-fields">Querying nested fields<a class="headerlink" href="#querying-nested-fields" title="Permanent link">&para;</a></h2>
-<p><strong>Django RESTQL</strong> support querying both flat and nested resources, so you can expand or query nested fields at any level as defined on a serializer. In an example below we have <code>location</code> and <code>groups</code> as nested fields on User model.</p>
+<p><strong>Django RESTQL</strong> support querying both flat and nested data, so you can expand or query nested fields at any level as defined on a serializer. In an example below we have <code>location</code> and <code>groups</code> as nested fields on User model.</p>
 <div class="codehilite"><pre><span></span><code><span class="kn">from</span> <span class="nn">rest_framework</span> <span class="kn">import</span> <span class="n">serializers</span>
 <span class="kn">from</span> <span class="nn">django.contrib.auth.models</span> <span class="kn">import</span> <span class="n">User</span>
 <span class="kn">from</span> <span class="nn">django_restql.mixins</span> <span class="kn">import</span> <span class="n">DynamicFieldsMixin</span>
@@ -692,7 +680,7 @@
 </code></pre></div>
 
 
-<p>If you want only <code>country</code> and <code>city</code> fields on a <code>location</code> field when retrieving users here is how you can do it</p>
+<p>If you want to retrieve user's <code>id</code>, <code>username</code> and <code>location</code> fields but under <code>location</code> field you want to get only <code>country</code> and <code>city</code> fields here is how you can do it</p>
 <p><code>GET /users/?query={id, username, location{country, city}}</code></p>
 <div class="codehilite"><pre><span></span><code><span class="p">[</span>
     <span class="p">{</span>
@@ -746,7 +734,8 @@
 
 
 <h2 id="exclude-operator">Exclude(-) operator<a class="headerlink" href="#exclude-operator" title="Permanent link">&para;</a></h2>
-<p>When using <strong>Django RESTQL</strong> filtering as-is is great if there are no many fields on a serializer, but sometimes you might have a case where you would like everything except a handful of fields on a larger serializer. These fields might be nested and trying the whitelist approach is difficult or possibly too long for the url. <strong>Django RESTQL</strong> comes with the exclude(-) operator which can be used to exclude some fields in scenarios where you want to get all fields except few. Using exclude syntax is very simple,you just need to prepend the field to exclude with the exclude(-) operator when writing your query that's all. Take an example below</p>
+<p>Using <strong>Django RESTQL</strong> filtering as it is when there are no many fields on a serializer is great, but sometimes you might have a case where you would like everything except a handful of fields on a larger serializer. These fields might be nested and trying the whitelist approach might possibly be too long for the url. </p>
+<p><strong>Django RESTQL</strong> comes with the exclude(-) operator which can be used to exclude some fields in scenarios where you want to get all fields except few ones. Using exclude operator is very simple, you just need to prepend the exclude(-) operator to the field which you want to exclude when writing your query that's all. Take an example below</p>
 <div class="codehilite"><pre><span></span><code><span class="kn">from</span> <span class="nn">rest_framework</span> <span class="kn">import</span> <span class="n">serializers</span> 
 <span class="kn">from</span> <span class="nn">django_restql.mixins</span> <span class="kn">import</span> <span class="n">DynamicFieldsMixin</span>
 
@@ -769,7 +758,7 @@
 </code></pre></div>
 
 
-<p>Get all location fields except <code>id</code> and <code>street</code></p>
+<p>If we want to get all fields under <code>LocationSerializer</code> except <code>id</code> and <code>street</code>, by using the exclude(-) operator we could do it as follows</p>
 <p><code>GET /location/?query={-id, -street}</code></p>
 <div class="codehilite"><pre><span></span><code><span class="p">[</span>
     <span class="p">{</span>
@@ -783,7 +772,7 @@
 
 
 <p>This is equivalent to <code>query={country, city, state}</code></p>
-<p>You can use exclude operator on nested fields too, for example if you want to get <code>price</code> and <code>location</code> fields but under <code>location</code> you want all fields except <code>id</code> here is how you can do it.</p>
+<p>You can use exclude operator on nested fields too, for example if you want to get <code>price</code> and <code>location</code> fields but under <code>location</code> you want all fields except <code>id</code> here is how you could do it.</p>
 <p><code>GET /property/?query={price, location{-id}}</code></p>
 <div class="codehilite"><pre><span></span><code><span class="p">[</span>
     <span class="p">{</span>
@@ -801,7 +790,7 @@
 
 
 <p>This is equivalent to <code>query={price, location{country, city, state, street}}</code></p>
-<h3>More examples to get you comfortable with the exclude(-) operator syntax</h3>
+<h3>More examples to get you comfortable with the exclude(-) operator</h3>
 
 <p>Assuming this is the structure of the model we are querying</p>
 <div class="codehilite"><pre><span></span><code><span class="n">data</span> <span class="o">=</span> <span class="p">{</span>
@@ -819,7 +808,7 @@
 </code></pre></div>
 
 
-<p>Here is how we can structure our query to exclude some fields using exclude(-) operator</p>
+<p>Here is how we can structure our queries to exclude some fields by using exclude(-) operator</p>
 <div class="codehilite"><pre><span></span><code><span class="p">{</span><span class="o">-</span><span class="n">username</span><span class="p">}</span>   <span class="err">≡</span>   <span class="p">{</span><span class="n">birthdate</span><span class="p">,</span> <span class="n">location</span><span class="p">{</span><span class="n">country</span><span class="p">,</span> <span class="n">city</span><span class="p">},</span> <span class="n">contact</span><span class="p">{</span><span class="n">phone</span><span class="p">,</span> <span class="n">email</span><span class="p">}}</span>
 
 <span class="p">{</span><span class="o">-</span><span class="n">username</span><span class="p">,</span> <span class="n">contact</span><span class="p">{</span><span class="n">phone</span><span class="p">},</span> <span class="n">location</span><span class="p">{</span><span class="n">country</span><span class="p">}}</span>   <span class="err">≡</span>    <span class="p">{</span><span class="n">birthdate</span> <span class="p">,</span><span class="n">contact</span><span class="p">{</span><span class="n">phone</span><span class="p">},</span> <span class="n">location</span><span class="p">{</span><span class="n">country</span><span class="p">}}</span>
@@ -835,7 +824,9 @@
 
 
 <h2 id="wildcard-operator">Wildcard(*) operator<a class="headerlink" href="#wildcard-operator" title="Permanent link">&para;</a></h2>
-<p>In addition to exclude(-) operator, <strong>Django RESTQL</strong> comes with a wildcard(*) operator for including all fields. Just like exclude(-) operator using a wildcard(*) operator is very simple, for example if you want to get all fields from a model you just need to do <code>query={*}</code>. This operator can be used to simplify some filtering which might endup being very long if done with other approaches. For example if you have a model with this format </p>
+<p>In addition to the exclude(-) operator, <strong>Django RESTQL</strong> comes with a wildcard(*) operator for including all fields. Using a wildcard(*) operator is very simple, for example if you want to get all fields from a model by using a wildcard(*) operator you could simply write your query as </p>
+<p><code>query={*}</code></p>
+<p>This operator can be used to simplify some filtering which might endup being very long if done with other approaches. For example if you have a model with this format </p>
 <div class="codehilite"><pre><span></span><code><span class="n">user</span> <span class="o">=</span> <span class="p">{</span>
     <span class="n">username</span><span class="p">,</span>
     <span class="n">birthdate</span><span class="p">,</span>
@@ -851,10 +842,12 @@
 </code></pre></div>
 
 
-<p>Let's say you want to get all user fields but under <code>contact</code> field you want to get only <code>phone</code>, you could use the whitelisting approach as </p>
+<p>Let's say you want to get all user fields but under <code>contact</code> field you want to get only <code>phone</code>, you could use the whitelisting approach and write your query as </p>
 <p><code>query={username, birthdate, contact{phone}}</code> </p>
-<p>but if you have many fields on user model you might endup writing a very long query, so with <code>*</code> operator you can simply do <code>query={*, contact{phone}}</code> which means get me all fields on user model but under <code>contact</code> field I want only <code>phone</code> field, as you see the query is very short compared to the first one and it won't grow if more fields are added to the user model.</p>
-<h3>More examples to get you comfortable with the wildcard(*) operator syntax</h3>
+<p>but if you have many fields on user model you might endup writing a very long query, such problem can be avoided by using a wildcard(*) operator which in our case we could simply write the query as</p>
+<p><code>query={*, contact{phone}}</code></p>
+<p>The above query means "get me all fields on user model but under <code>contact</code> field get only <code>phone</code> field". As you can see the query became very short compared to the first one after using wildcard(*) operator and it won't grow if more fields are added to a user model.</p>
+<h3>More examples to get you comfortable with the wildcard(*) operator</h3>
 
 <div class="codehilite"><pre><span></span><code><span class="p">{</span><span class="o">*</span><span class="p">,</span> <span class="o">-</span><span class="n">username</span><span class="p">,</span> <span class="n">contact</span><span class="p">{</span><span class="n">phone</span><span class="p">}}</span>   <span class="err">≡</span>   <span class="p">{</span><span class="n">birthdate</span><span class="p">,</span> <span class="n">contact</span><span class="p">{</span><span class="n">phone</span><span class="p">}}</span>
 
@@ -864,10 +857,10 @@
 </code></pre></div>
 
 
-<p>Below is a list of mistakes which leads to syntax error, these mistakes may happen accidentally as it's very easy/tempting to make them with the exclude(-) operator and wildcard(*) operator syntax.</p>
+<p>Below is a list of mistakes which leads to query syntax/format error, these mistakes may happen accidentally as it's very easy/tempting to make them with the exclude(-) operator and wildcard(*) operator syntax.</p>
 <div class="codehilite"><pre><span></span><code><span class="p">{</span><span class="n">username</span><span class="p">,</span> <span class="o">-</span><span class="n">location</span><span class="p">{</span><span class="n">country</span><span class="p">}}</span>  <span class="c1"># Should not expand excluded field</span>
 <span class="p">{</span><span class="o">*</span><span class="n">username</span><span class="p">}</span>  <span class="c1"># What are you even trying to accomplish</span>
-<span class="p">{</span><span class="o">*</span><span class="n">location</span><span class="p">{</span><span class="n">country</span><span class="p">}}</span>  <span class="c1"># This is def wrong</span>
+<span class="p">{</span><span class="o">*</span><span class="n">location</span><span class="p">{</span><span class="n">country</span><span class="p">}}</span>  <span class="c1"># This is definitely wrong</span>
 </code></pre></div>
 
 
@@ -887,7 +880,7 @@
 </code></pre></div>
 
 
-<p>The id here is fine, but the <code>updated_at</code> doesn’t quite conform to the camel case convention in JavaScript. Let’s change it by using an alias.</p>
+<p>The id here is fine, but the <code>updated_at</code> doesn’t quite conform to the camel case convention in JavaScript(Which is where APIs are used mostly). Let’s change it by using an alias.</p>
 <p><code>GET /users/?query={id, updatedAt: updated_at}</code></p>
 <p>Which yields the following:</p>
 <div class="codehilite"><pre><span></span><code><span class="p">[</span>
@@ -900,7 +893,7 @@
 </code></pre></div>
 
 
-<p>Creating an alias is very easy just like in <a href="https://graphql.org/learn/queries/#aliases">GraphQL</a>. Simply add a new name and a colon before the field you want to rename.</p>
+<p>Creating an alias is very easy just like in <a href="https://graphql.org/learn/queries/#aliases">GraphQL</a>. Simply add a new name and a colon(:) before the field you want to rename.</p>
 <h3>More examples</h3>
 
 <p>Renaming <code>date_of_birth</code> to <code>dateOfBirth</code>, <code>course</code> to <code>programme</code> and <code>books</code> to <code>readings</code></p>
@@ -926,7 +919,7 @@
 
 <div class="admonition note">
 <p class="admonition-title">Note</p>
-<p>The default maximum length of aliases is 50 characters, it's controlled by <code>MAX_ALIAS_LEN</code> setting. This is enforced to prevent DoS like attacks to API which might be caused by clients specifying a really really long alias which might increase network usage. For more information about <code>MAX_ALIAS_LEN</code> setting and how to change it go to <a href="/django-restql/settings/#max_alias_len">this section</a>.</p>
+<p>The default maximum length of alias is 50 characters, it's controlled by <code>MAX_ALIAS_LEN</code> setting. This is enforced to prevent DoS like attacks to API which might be caused by clients specifying a really really long alias which may increase network usage. For more information about <code>MAX_ALIAS_LEN</code> setting and how to change it go to <a href="/django-restql/settings/#max_alias_len">this section</a>.</p>
 </div>
 <h2 id="dynamicserializermethodfield">DynamicSerializerMethodField<a class="headerlink" href="#dynamicserializermethodfield" title="Permanent link">&para;</a></h2>
 <p><code>DynamicSerializerMethodField</code> is a wraper of the <code>SerializerMethodField</code>, it adds a parsed query argument from a parent serializer to a method bound to a <code>SerializerMethodField</code>, this parsed query argument can be passed to a serializer used within a method to allow further querying. For example in the scenario below we are using <code>DynamicSerializerMethodField</code> because we want to be able to query <code>related_books</code> field.</p>
@@ -1029,7 +1022,7 @@
 
 <p>As you see from the response above, the nested resource(book) has only one field(title) as specified on  <code>fields=["title"]</code> kwarg during instantiating BookSerializer, so if you send a request like </p>
 <p><code>GET /course?query={name, code, books{title, author}}</code> </p>
-<p>you will get an error that <code>author</code> field is not found because it was not included on <code>fields=["title"]</code> kwarg.</p>
+<p>you will get an error that <code>author</code> field is not found because it was not included here <code>fields=["title"]</code>.</p>
 <h3 id="exclude-kwarg">exclude kwarg<a class="headerlink" href="#exclude-kwarg" title="Permanent link">&para;</a></h3>
 <p>You can also specify fields to be excluded when instantiating a serializer by using <code>exclude</code> kwarg, below is an example which shows how to use <code>exclude</code> kwarg.</p>
 <div class="codehilite"><pre><span></span><code><span class="kn">from</span> <span class="nn">rest_framework</span> <span class="kn">import</span> <span class="n">serializers</span>
