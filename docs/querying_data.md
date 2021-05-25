@@ -1,5 +1,5 @@
 # Querying Data
-Using **Django RESTQL** to query data is very simple, you just have to inherit the `DynamicFieldsMixin` class when defining a serializer that's all.
+**Django RESTQL** makes data querying(selecting fields to include in a response) way easier, if you want to use it to query data you just have to inherit the `DynamicFieldsMixin` class when defining your serializer, that's all. Below is an example showing how to use `DynamicFieldsMixin`.
 ```py
 from rest_framework import serializers
 from django.contrib.auth.models import User
@@ -12,7 +12,7 @@ class UserSerializer(DynamicFieldsMixin, serializer.ModelSerializer):
         fields = ['id', 'username', 'email']
 ```
 
-A regular request returns all fields as specified on a DRF serializer, in fact **Django RESTQL** doesn't handle this request at all. Below is an example of regular request, as you see all fields are returned as specified on `UserSerializer`.
+Here a regular request returns all fields as specified on a DRF serializer, in fact **Django RESTQL** doesn't handle this(regular) request at all. Below is an example of a regular request and its response 
 
 `GET /users`
 
@@ -27,8 +27,11 @@ A regular request returns all fields as specified on a DRF serializer, in fact *
 ]
 ```
 
-## Querying flat fields
-**Django RESTQL** handle all requests with a `query` parameter, this parameter is the one used to pass all fields to be included/excluded in a response. For example to select `id` and `username` fields from User model, send a request with a ` query` parameter as shown below.
+As you can see all fields have been returned as specified on `UserSerializer`.
+
+**Django RESTQL** handle all requests with a `query` parameter, this parameter is the one which is used to pass all fields to be included/excluded in a response.
+
+For example to select `id` and `username` fields from User model, send a request with a ` query` parameter as shown below.
 
 `GET /users/?query={id, username}`
 ```js
@@ -40,9 +43,11 @@ A regular request returns all fields as specified on a DRF serializer, in fact *
     ...
 ]
 ```
+You can see only `id` and `username` fields have been returned in a response as specified on a `query` parameter.
+
 
 ## Querying nested fields
-**Django RESTQL** support querying both flat and nested resources, so you can expand or query nested fields at any level as defined on a serializer. In an example below we have `location` and `groups` as nested fields on User model.
+**Django RESTQL** support querying both flat and nested data, so you can expand or query nested fields at any level as defined on a serializer. In an example below we have `location` and `groups` as nested fields on User model.
 
 ```py
 from rest_framework import serializers
@@ -72,7 +77,7 @@ class UserSerializer(DynamicFieldsMixin, serializer.ModelSerializer):
         fields = ['id', 'username', 'email', 'location', 'groups']
 ```
 
-If you want only `country` and `city` fields on a `location` field when retrieving users here is how you can do it
+If you want to retrieve user's `id`, `username` and `location` fields but under `location` field you want to get only `country` and `city` fields here is how you can do it
 
 `GET /users/?query={id, username, location{country, city}}`
 ```js
@@ -126,7 +131,9 @@ If you want only `country` and `city` fields on a `location` field when retrievi
 ```
 
 ## Exclude(-) operator
-When using **Django RESTQL** filtering as-is is great if there are no many fields on a serializer, but sometimes you might have a case where you would like everything except a handful of fields on a larger serializer. These fields might be nested and trying the whitelist approach is difficult or possibly too long for the url. **Django RESTQL** comes with the exclude(-) operator which can be used to exclude some fields in scenarios where you want to get all fields except few. Using exclude syntax is very simple,you just need to prepend the field to exclude with the exclude(-) operator when writing your query that's all. Take an example below
+Using **Django RESTQL** filtering as it is when there are no many fields on a serializer is great, but sometimes you might have a case where you would like everything except a handful of fields on a larger serializer. These fields might be nested and trying the whitelist approach might possibly be too long for the url. 
+
+**Django RESTQL** comes with the exclude(-) operator which can be used to exclude some fields in scenarios where you want to get all fields except few ones. Using exclude operator is very simple, you just need to prepend the exclude(-) operator to the field which you want to exclude when writing your query that's all. Take an example below
 
 ```py
 from rest_framework import serializers 
@@ -150,7 +157,7 @@ class PropertySerializer(DynamicFieldsMixin, serializer.ModelSerializer):
         ]
 ```
 
-Get all location fields except `id` and `street`
+If we want to get all fields under `LocationSerializer` except `id` and `street`, by using the exclude(-) operator we could do it as follows
 
 `GET /location/?query={-id, -street}`
 ```js
@@ -165,7 +172,7 @@ Get all location fields except `id` and `street`
 ```
 This is equivalent to `query={country, city, state}`
 
-You can use exclude operator on nested fields too, for example if you want to get `price` and `location` fields but under `location` you want all fields except `id` here is how you can do it.
+You can use exclude operator on nested fields too, for example if you want to get `price` and `location` fields but under `location` you want all fields except `id` here is how you could do it.
 
 `GET /property/?query={price, location{-id}}`
 ```js
@@ -184,7 +191,7 @@ You can use exclude operator on nested fields too, for example if you want to ge
 ```
 This is equivalent to `query={price, location{country, city, state, street}}`
 
-<h3>More examples to get you comfortable with the exclude(-) operator syntax</h3>
+<h3>More examples to get you comfortable with the exclude(-) operator</h3>
 Assuming this is the structure of the model we are querying
 ```py
 data = {
@@ -201,7 +208,7 @@ data = {
 }
 ```
 
-Here is how we can structure our query to exclude some fields using exclude(-) operator
+Here is how we can structure our queries to exclude some fields by using exclude(-) operator
 ```py
 {-username}   ≡   {birthdate, location{country, city}, contact{phone, email}}
 
@@ -217,7 +224,11 @@ Here is how we can structure our query to exclude some fields using exclude(-) o
 ```
 
 ## Wildcard(*) operator
-In addition to exclude(-) operator, **Django RESTQL** comes with a wildcard(\*) operator for including all fields. Just like exclude(-) operator using a wildcard(\*) operator is very simple, for example if you want to get all fields from a model you just need to do `query={*}`. This operator can be used to simplify some filtering which might endup being very long if done with other approaches. For example if you have a model with this format 
+In addition to the exclude(-) operator, **Django RESTQL** comes with a wildcard(\*) operator for including all fields. Using a wildcard(\*) operator is very simple, for example if you want to get all fields from a model by using a wildcard(\*) operator you could simply write your query as 
+
+`query={*}`
+
+This operator can be used to simplify some filtering which might endup being very long if done with other approaches. For example if you have a model with this format 
 
 ```py
 user = {
@@ -233,13 +244,17 @@ user = {
     }
 }
 ```
-Let's say you want to get all user fields but under `contact` field you want to get only `phone`, you could use the whitelisting approach as 
+Let's say you want to get all user fields but under `contact` field you want to get only `phone`, you could use the whitelisting approach and write your query as 
 
 `query={username, birthdate, contact{phone}}` 
 
-but if you have many fields on user model you might endup writing a very long query, so with `*` operator you can simply do `query={*, contact{phone}}` which means get me all fields on user model but under `contact` field I want only `phone` field, as you see the query is very short compared to the first one and it won't grow if more fields are added to the user model.
+but if you have many fields on user model you might endup writing a very long query, such problem can be avoided by using a wildcard(\*) operator which in our case we could simply write the query as
 
-<h3>More examples to get you comfortable with the wildcard(*) operator syntax</h3>
+`query={*, contact{phone}}`
+
+The above query means "get me all fields on user model but under `contact` field get only `phone` field". As you can see the query became very short compared to the first one after using wildcard(\*) operator and it won't grow if more fields are added to a user model.
+
+<h3>More examples to get you comfortable with the wildcard(*) operator</h3>
 ```py
 {*, -username, contact{phone}}   ≡   {birthdate, contact{phone}}
 
@@ -249,11 +264,11 @@ but if you have many fields on user model you might endup writing a very long qu
 ```
 
 
-Below is a list of mistakes which leads to syntax error, these mistakes may happen accidentally as it's very easy/tempting to make them with the exclude(-) operator and wildcard(*) operator syntax.
+Below is a list of mistakes which leads to query syntax/format error, these mistakes may happen accidentally as it's very easy/tempting to make them with the exclude(-) operator and wildcard(*) operator syntax.
 ```py
 {username, -location{country}}  # Should not expand excluded field
 {*username}  # What are you even trying to accomplish
-{*location{country}}  # This is def wrong
+{*location{country}}  # This is definitely wrong
 ```
 
 
@@ -278,7 +293,7 @@ You will get the following JSON response:
 ]
 ```
 
-The id here is fine, but the `updated_at` doesn’t quite conform to the camel case convention in JavaScript. Let’s change it by using an alias.
+The id here is fine, but the `updated_at` doesn’t quite conform to the camel case convention in JavaScript(Which is where APIs are used mostly). Let’s change it by using an alias.
 
 `GET /users/?query={id, updatedAt: updated_at}`
 
@@ -294,7 +309,7 @@ Which yields the following:
 ]
 ```
 
-Creating an alias is very easy just like in [GraphQL](https://graphql.org/learn/queries/#aliases). Simply add a new name and a colon before the field you want to rename.
+Creating an alias is very easy just like in [GraphQL](https://graphql.org/learn/queries/#aliases). Simply add a new name and a colon(:) before the field you want to rename.
 
 <h3>More examples</h3>
 
@@ -323,7 +338,7 @@ This yields
 ```
 
 !!! note
-    The default maximum length of aliases is 50 characters, it's controlled by `MAX_ALIAS_LEN` setting. This is enforced to prevent DoS like attacks to API which might be caused by clients specifying a really really long alias which might increase network usage. For more information about `MAX_ALIAS_LEN` setting and how to change it go to [this section](/django-restql/settings/#max_alias_len).
+    The default maximum length of alias is 50 characters, it's controlled by `MAX_ALIAS_LEN` setting. This is enforced to prevent DoS like attacks to API which might be caused by clients specifying a really really long alias which may increase network usage. For more information about `MAX_ALIAS_LEN` setting and how to change it go to [this section](/django-restql/settings/#max_alias_len).
 
 
 ## DynamicSerializerMethodField
@@ -431,7 +446,7 @@ As you see from the response above, the nested resource(book) has only one field
 
 `GET /course?query={name, code, books{title, author}}` 
 
-you will get an error that `author` field is not found because it was not included on `fields=["title"]` kwarg.
+you will get an error that `author` field is not found because it was not included here `fields=["title"]`.
 
 
 ### exclude kwarg
