@@ -141,8 +141,8 @@ You can do a lot with **Django RESTQL** apart from querying data, like
 Full documentation for this project is available at https://yezyilomo.github.io/django-restql, you are encouraged to read it inorder to utilize this library to the fullest.
 
 
-## [Django RESTQL Play Ground(Live Demo)](https://django-restql-playground.yezyilomo.me)
-[**Django RESTQL Play Ground**](https://django-restql-playground.yezyilomo.me) is a graphical, interactive, in-browser tool which you can use to test **Django RESTQL** features like data querying, mutations etc to get the idea of how the library works before installing it. It's more like a live demo of **Django RESTQL**, it's available at https://django-restql-playground.yezyilomo.me
+## [Django RESTQL Playground(Live Demo)](https://django-restql-playground.yezyilomo.me)
+[**Django RESTQL Playground**](https://django-restql-playground.yezyilomo.me) is a graphical, interactive, in-browser tool which you can use to test **Django RESTQL** features like data querying, mutations etc to get the idea of how the library works before installing it. It's more like a live demo for **Django RESTQL**, it's available at https://django-restql-playground.yezyilomo.me
 
 
 ## Running Tests

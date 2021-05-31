@@ -67,5 +67,5 @@ You can do a lot with **Django RESTQL** apart from querying data, like
 - Data mutation(Create and update nested data of any level in a single request)
 
 
-## [Django RESTQL Play Ground(Live Demo)](https://django-restql-playground.yezyilomo.me)
-[**Django RESTQL Play Ground**](https://django-restql-playground.yezyilomo.me) is a graphical, interactive, in-browser tool which you can use to test **Django RESTQL** features like data querying, mutations etc to get the idea of how the library works before installing it. It's more like a live demo for **Django RESTQL**, it's available at https://django-restql-playground.yezyilomo.me
+## [Django RESTQL Playground(Live Demo)](https://django-restql-playground.yezyilomo.me)
+[**Django RESTQL Playground**](https://django-restql-playground.yezyilomo.me) is a graphical, interactive, in-browser tool which you can use to test **Django RESTQL** features like data querying, mutations etc to get the idea of how the library works before installing it. It's more like a live demo for **Django RESTQL**, it's available at https://django-restql-playground.yezyilomo.me
