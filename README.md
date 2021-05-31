@@ -30,6 +30,8 @@ Want to see how this library is making all that possible?
 
 Check out the full documentation at https://yezyilomo.github.io/django-restql
 
+Or try a live demo on [Django RESTQL Playground](https://django-restql-playground.yezyilomo.me)
+
 
 ## Requirements
 * Python >= 3.5
@@ -137,6 +139,10 @@ You can do a lot with **Django RESTQL** apart from querying data, like
 - Data mutation(Create and update nested data of any level in a single request)
 
 Full documentation for this project is available at https://yezyilomo.github.io/django-restql, you are encouraged to read it inorder to utilize this library to the fullest.
+
+
+## [Django RESTQL Playground(Live Demo)](https://django-restql-playground.yezyilomo.me)
+[**Django RESTQL Playground**](https://django-restql-playground.yezyilomo.me) is a graphical, interactive, in-browser tool which you can use to test **Django RESTQL** features like data querying, mutations etc to get the idea of how the library works before installing it. It's more like a live demo for **Django RESTQL**, it's available at https://django-restql-playground.yezyilomo.me
 
 
 ## Running Tests
