@@ -133,7 +133,7 @@ class DynamicFieldsMixin(RequestQueryParserMixin):
         assert not(is_query_kwarg_set and is_parsed_query_kwarg_set), msg
 
         # flag to toggle using restql fields
-        self._use_restql_fields = False
+        self._ready_to_use_dynamic_fields = False
 
         # initialize parsed restql query
         self.parsed_restql_query = None
@@ -143,7 +143,7 @@ class DynamicFieldsMixin(RequestQueryParserMixin):
 
     def to_representation(self, instance):
         # Activate using restql fields
-        self._use_restql_fields = True
+        self._ready_to_use_dynamic_fields = True
 
         if self.restql_kwargs["return_pk"]:
             return instance.pk
@@ -360,16 +360,6 @@ class DynamicFieldsMixin(RequestQueryParserMixin):
 
     @cached_property
     def restql_fields(self):
-        request = self.context.get('request')
-
-        is_not_a_request_to_process = (
-            self.restql_kwargs["disable_dynamic_fields"] or
-            not (request is None or self.has_restql_query_param(request))
-        )
-
-        if is_not_a_request_to_process:
-            return self.allowed_fields
-
         is_top_retrieve_request = (
             self.field_name is None and
             self.parent is None
@@ -419,20 +409,24 @@ class DynamicFieldsMixin(RequestQueryParserMixin):
         return parser.parse(self.restql_kwargs["query"])
 
     def get_parsed_restql_query(self):
+        request = self.context.get('request')
+
         if self.restql_kwargs["query"] is not None:
             # Get from query kwarg
             return self.get_parsed_restql_query_from_query_kwarg()
         elif self.restql_kwargs["parsed_query"] is not None:
             # Get from parsed_query kwarg
             return self.restql_kwargs["parsed_query"]
-        # Get from request query parameter
-        request = self.context.get('request', None)
-        return self.get_parsed_restql_query_from_req(request)
+        elif request is not None and self.has_restql_query_param(request):
+            # Get from request query parameter
+            return self.get_parsed_restql_query_from_req(request)
+        return None  # There is no query so we return None as a parsed query
 
     @property
     def fields(self):
-        if self._use_restql_fields:
-            # Use restql fields
+        dynamic_fields_disabled = self.restql_kwargs["disable_dynamic_fields"]
+        if self._ready_to_use_dynamic_fields and not dynamic_fields_disabled:
+            # Return restql fields
             return self.restql_fields
         return self.allowed_fields
 
