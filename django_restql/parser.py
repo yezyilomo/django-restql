@@ -34,7 +34,10 @@ class AllFields(str):
 class BaseArgument(List):
     @property
     def value(self):
-        return self[0]
+        try:
+            return self[0]
+        except IndexError:
+            return ""
 
 
 class ArgumentWithoutQuotes(BaseArgument):
@@ -42,11 +45,11 @@ class ArgumentWithoutQuotes(BaseArgument):
 
 
 class ArgumentWithSingleQuotes(BaseArgument):
-    grammar = name(), ':', "'", re.compile(r'[^\']+'), "'"
+    grammar = name(), ':', "'", optional(re.compile(r'[^\']+')), "'"
 
 
 class ArgumentWithDoubleQuotes(BaseArgument):
-    grammar = name(), ':', '"', re.compile(r'[^"]+'), '"'
+    grammar = name(), ':', '"', optional(re.compile(r'[^"]+')), '"'
 
 
 class Arguments(List):
