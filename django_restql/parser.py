@@ -11,12 +11,6 @@ class IncludedField(List):
     grammar = optional(Alias), name()
 
     @property
-    def alias_or_name(self):
-        if self.alias:
-            return self.alias
-        return self.name
-
-    @property
     def alias(self):
         if len(self) > 0:
             return self[0].name
@@ -88,12 +82,6 @@ class ParentField(List):
         return self[0].alias
 
     @property
-    def alias_or_name(self):
-        if self.alias:
-            return self.alias
-        return self[0].name
-
-    @property
     def block(self):
         return self[1]
 
@@ -156,7 +144,7 @@ class QueryParser(object):
                 # A field is a parent
                 fields["include"].append(field)
             elif isinstance(field, IncludedField):
-                fields["include"].append(str(field.alias_or_name))
+                fields["include"].append(str(field.name))
             elif isinstance(field, ExcludedField):
                 fields["exclude"].append(str(field.name))
             elif isinstance(field, AllFields):
@@ -174,6 +162,6 @@ class QueryParser(object):
         return field
 
     def _transform_parent_field(self, parent_field):
-        parent_field_name = str(parent_field.alias_or_name)
+        parent_field_name = str(parent_field.name)
         parent_field_value = self._transform_block(parent_field.block)
         return {parent_field_name: parent_field_value}

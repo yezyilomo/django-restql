@@ -63,7 +63,10 @@ class StudentViewSet(QueryArgumentsMixin, viewsets.ModelViewSet):
     filter_fields = {
         'name': ['exact'],
         'age': ['exact'],
+        'course__name': ['exact'],
         'course__code': ['exact'],
+        'course__books__title': ['exact'],
+        'course__books__author': ['exact'],
     }
 
 

@@ -814,7 +814,46 @@ class DataQueryingTests(APITestCase):
                         }
                     },
                 ]
+            )
 
+    def test_list_eager_loading_view_mixin_with_aliased_fields(self):
+        """
+        Ensure that we apply our prefetching or joins when we explicitly ask for fields in the
+        mapping.
+        """
+        url = reverse_lazy("student_eager_loading-list")
+
+        self.add_second_student()
+
+        # This fetches the course information with the student and prefetches once for the books.
+        with self.assertNumQueries(2):
+            response = self.client.get(url + '?query={name, age, prog: program{name, readings: books}}', format="json")
+            self.assertEqual(
+                response.data,
+                [
+                    {
+                        "name": "Yezy",
+                        "age": 24,
+                        "prog": {
+                            "name": "Data Structures",
+                            "readings": [
+                                {"title": "Advanced Data Structures", "author": "S.Mobit"},
+                                {"title": "Basic Data Structures", "author": "S.Mobit"}
+                            ]
+                        }
+                    },
+                    {
+                        "name": "Tyler",
+                        "age": 25,
+                        "prog": {
+                            "name": "Algorithms",
+                            "readings": [
+                                {"title": "Algorithm Design", "author": "S.Mobit"},
+                                {"title": "Proving Algorithms", "author": "S.Mobit"}
+                            ]
+                        }
+                    },
+                ]
             )
 
     def test_list_eager_loading_view_mixin_ignored(self):
@@ -1157,6 +1196,24 @@ class DataQueryingTests(APITestCase):
     def test_list_with_nested_arguments(self):
         url = reverse_lazy("student-list")
         response = self.client.get(url + '?query={name, age, course(code: "CS50"){name}}', format="json")
+
+        self.assertEqual(
+            response.data,
+            []
+        )
+
+    def test_list_with_applied_filter_on_nested_aliased_field(self):
+        url = reverse_lazy("student-list")
+        response = self.client.get(url + '?query={name, age, programme: course(code: CS015){code}}', format="json")
+
+        self.assertEqual(
+            response.data,
+            []
+        )
+
+    def test_list_with_applied_filter_on_very_deeply_nested_aliased_field(self):
+        url = reverse_lazy("student-list")
+        response = self.client.get(url + '?query={name, age, program: course{readings: books(author: Y.Mobit){author}}}', format="json")
 
         self.assertEqual(
             response.data,

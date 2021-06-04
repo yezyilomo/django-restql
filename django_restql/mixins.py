@@ -1,4 +1,5 @@
 import copy
+from collections import namedtuple
 
 from django.db.models import Prefetch
 from django.db.models.fields.related import ManyToManyRel, ManyToOneRel
@@ -48,6 +49,13 @@ class RequestQueryParserMixin(object):
         request.parsed_restql_query = parsed_restql_query
         return parsed_restql_query
 
+    @classmethod
+    def get_nested_field_from_dict(cls, nested_field):
+        field_name = [name for name in nested_field][0]
+        field = {"name": field_name, "fields": nested_field[field_name]}
+        NestedField = namedtuple("NestedField", field.keys())
+        return NestedField(**field)
+
 
 class QueryArgumentsMixin(RequestQueryParserMixin):
     """Mixin for converting query arguments into query parameters"""
@@ -80,14 +88,15 @@ class QueryArgumentsMixin(RequestQueryParserMixin):
                 query_params.update({
                     name: value
                 })
+
         for field in parsed_query['include']:
             if isinstance(field, dict):
-                for sub_field, sub_parsed_query in field.items():
-                    nested_query_params = self.build_query_params(
-                        sub_parsed_query,
-                        parent=prefix + sub_field
-                    )
-                    query_params.update(nested_query_params)
+                nested_field = self.get_nested_field_from_dict(field)
+                nested_query_params = self.build_query_params(
+                    nested_field.fields,
+                    parent=prefix + nested_field.name
+                )
+                query_params.update(nested_query_params)
         return query_params
 
     def inject_query_params_in_req(self, request):
@@ -262,22 +271,29 @@ class DynamicFieldsMixin(RequestQueryParserMixin):
                 continue
             if isinstance(field, dict):
                 # Nested field
-                for nested_field in field:
-                    self.is_field_found(
-                        nested_field,
-                        all_field_names,
-                        raise_exception=True
-                    )
-                    self.is_nested_field(
-                        nested_field,
-                        all_fields[nested_field],
-                        raise_exception=True
-                    )
-                allowed_nested_fields.update(field)
+                nested_field = self.get_nested_field_from_dict(field)
+
+                alias = self.parsed_restql_query["aliases"].get(
+                    nested_field.name,
+                    nested_field.name
+                )
+
+                self.is_field_found(
+                    nested_field.name,
+                    all_field_names,
+                    raise_exception=True
+                )
+                self.is_nested_field(
+                    nested_field.name,
+                    all_fields[nested_field.name],
+                    raise_exception=True
+                )
+                allowed_nested_fields.update({alias: nested_field.fields})
             else:
                 # Flat field
+                alias = self.parsed_restql_query["aliases"].get(field, field)
                 self.is_field_found(field, all_field_names, raise_exception=True)
-                allowed_flat_fields.append(field)
+                allowed_flat_fields.append(alias)
 
         # Keep track of nested fields for future reference from child
         # serializers
@@ -486,19 +502,17 @@ class EagerLoadingMixin(RequestQueryParserMixin):
             if isinstance(item, str):
                 keys[item] = True
             elif isinstance(item, dict):
-                for key, nested_items in item.items():
-                    key_base = key
-                    nested_keys = cls.get_dict_parsed_restql_query(nested_items)
-                    keys[key_base] = nested_keys
+                nested_field = cls.get_nested_field_from_dict(item)
+                nested_keys = cls.get_dict_parsed_restql_query(nested_field.fields)
+                keys[nested_field.name] = nested_keys
 
         for item in exclude:
             if isinstance(item, str):
                 keys[item] = False
             elif isinstance(item, dict):
-                for key, nested_items in item.items():
-                    key_base = key
-                    nested_keys = cls.get_dict_parsed_restql_query(nested_items)
-                    keys[key_base] = nested_keys
+                nested_field = cls.get_nested_field_from_dict(item)
+                nested_keys = cls.get_dict_parsed_restql_query(nested_field.fields)
+                keys[nested_field.name] = nested_keys
         return keys
 
     @staticmethod
