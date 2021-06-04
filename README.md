@@ -1,4 +1,4 @@
-# [![Icon](https://raw.githubusercontent.com/yezyilomo/django-restql/master/docs/img/icon.svg)Django RESTQL](https://yezyilomo.github.io/django-restql)
+# <img height="24" src="https://raw.githubusercontent.com/yezyilomo/django-restql/master/docs/img/icon.svg" /> [  Django RESTQL](https://yezyilomo.github.io/django-restql)
 
 [![Build Status](https://api.travis-ci.com/yezyilomo/django-restql.svg?branch=master)](https://api.travis-ci.com/yezyilomo/django-restql) 
 [![Latest Version](https://img.shields.io/pypi/v/django-restql.svg)](https://pypi.org/project/django-restql/) 
