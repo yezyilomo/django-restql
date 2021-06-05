@@ -299,6 +299,16 @@ class DynamicFieldsMixin(RequestQueryParserMixin):
         # serializers
         self.nested_fields = allowed_nested_fields
 
+        def get_duplicates(items):
+            unique = []
+            repeated = []
+            for item in items:
+                if item not in unique:
+                    unique.append(item)
+                else:
+                    repeated.append(item)
+            return repeated
+
         included_and_excluded_fields = (
             allowed_flat_fields +
             list(allowed_nested_fields.keys()) +
@@ -310,34 +320,16 @@ class DynamicFieldsMixin(RequestQueryParserMixin):
             len(set(included_and_excluded_fields))
 
         if including_or_excluding_field_more_than_once:
-            unique_fields = []
-            repeated_fields = []
-            for field in included_and_excluded_fields:
-                if field not in unique_fields:
-                    unique_fields.append(field)
-                else:
-                    repeated_fields.append("`%s`" % field)
+            repeated_fields = get_duplicates(included_and_excluded_fields)
             msg = (
-                "QueryFormatError on %s field(s), "
-                "Can not include/exclude a field more than once"
-            ) % ", ".join(repeated_fields)
+                "QueryFormatError: You are either "
+                "including/excluding a field more than once, "  # e.g {id, id}
+                "using the same alias more than once, "  # e.g {x: name, x: age}
+                "using a field name as an alias to another field or "  # e.g {id, id: age}
+                "renaming a field and include/exclude it again, "  # e.g {ID: id, id}
+                "The list of fields which led to this error is %s."
+            ) % str(repeated_fields)
             raise ValidationError(msg, "invalid")
-
-        def intersection(lst1, lst2):
-            temp = set(lst2)
-            return [value for value in lst1 if value in temp]
-
-        repeated_aliased_fields = intersection(
-            included_and_excluded_fields,
-            self.parsed_restql_query["aliases"]
-        )
-
-        if repeated_aliased_fields:
-            msg = (
-                "QueryFormatError on %s field(s), "
-                "Can not include/exclude aliased field more than once"
-            ) % ", ".join(repeated_aliased_fields)
-            raise ValidationError(msg, code="invalid")
 
         if excluded_fields:
             # Here we are sure that self.parsed_restql_query["exclude"]
