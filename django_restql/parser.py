@@ -2,6 +2,8 @@ import re
 
 from pypeg2 import List, contiguous, csl, name, optional, parse
 
+from .exceptions import QueryFormatError
+
 
 class Alias(List):
     grammar = name(), ':'
@@ -153,6 +155,20 @@ class QueryParser(object):
 
         if fields["exclude"] and "*" not in fields["include"]:
             fields["include"].append("*")
+
+        field_names = set(fields["aliases"].values())
+        field_aliases = set(fields["aliases"].keys())
+        faulty_fields = field_names.intersection(field_aliases)
+        if faulty_fields:
+            # We check this here because if we let it pass during
+            # parsing it's going to raise inappropriate error message
+            # when checking fields availability
+            msg = (
+                "Can not use a field name as an alias to another field, "  # eg {id, id: age}
+                "The list of field names which have been used as aliases "
+                "to other fields is %s."
+            ) % str(list(faulty_fields))
+            raise QueryFormatError(msg)
         return fields
 
     def _transform_field(self, field):
