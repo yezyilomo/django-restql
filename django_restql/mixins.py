@@ -209,7 +209,7 @@ class DynamicFieldsMixin(RequestQueryParserMixin):
             return False
 
     @staticmethod
-    def is_valid_alias(alias, field):
+    def is_valid_alias(alias):
         if len(alias) > restql_settings.MAX_ALIAS_LEN:
             msg = (
                 "The length of `%s` alias has exceeded "
@@ -225,7 +225,7 @@ class DynamicFieldsMixin(RequestQueryParserMixin):
                 all_fields.keys(),
                 raise_exception=True
             )
-            self.is_valid_alias(alias, field)
+            self.is_valid_alias(alias)
             all_fields[alias] = all_fields[field]
         return all_fields
 
