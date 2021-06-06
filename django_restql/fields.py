@@ -330,16 +330,16 @@ def NestedFieldWraper(*args, **kwargs):
 
     serializer_validation_kwargs = {**factory['kwargs']}
 
-    # TODO: Find all non validation related kwargs to remove(below are just few)
-    # Remove non validation related kwargs from `valdation_kwargs`
-    non_validation_kwargs = [
+    # Remove all non validation related kwargs and
+    # DynamicFieldsMixin kwargs from `valdation_kwargs`
+    non_validation_related_kwargs = [
         'many', 'data', 'instance', 'context', 'fields',
         'exclude', 'return_pk', 'disable_dynamic_fields',
-        'query',
+        'query', 'parsed_query'
     ]
-    for kwarg in non_validation_kwargs:
-        if kwarg in serializer_validation_kwargs:
-            serializer_validation_kwargs.pop(kwarg)
+
+    for kwarg in non_validation_related_kwargs:
+        serializer_validation_kwargs.pop(kwarg, None)
 
     class NestedListSerializer(factory["list_serializer_class"]):
         def __repr__(self):
