@@ -210,13 +210,6 @@ class DynamicFieldsMixin(RequestQueryParserMixin):
 
     @staticmethod
     def is_valid_alias(alias, field):
-        if alias == field:
-            msg = (
-                "Invalid definition of `%s` alias on `%s` field, "
-                "Alias can not be the same as the field name."
-            ) % (alias, field)
-            raise ValidationError(msg, code="invalid")
-
         if len(alias) > restql_settings.MAX_ALIAS_LEN:
             msg = (
                 "The length of `%s` alias has exceeded "
@@ -322,11 +315,11 @@ class DynamicFieldsMixin(RequestQueryParserMixin):
         if including_or_excluding_field_more_than_once:
             repeated_fields = get_duplicates(included_and_excluded_fields)
             msg = (
-                "QueryFormatError: You are either "
-                "including/excluding a field more than once, "  # e.g {id, id}
-                "using the same alias more than once, "  # e.g {x: name, x: age}
-                "using a field name as an alias to another field or "  # e.g {id, id: age}
-                "renaming a field and include/exclude it again, "  # e.g {ID: id, id}
+                "QueryFormatError: You have either "
+                "included/excluded a field more than once, "  # e.g {id, id}
+                "used the same alias more than once, "  # e.g {x: name, x: age}
+                "used a field name as an alias to another field or "  # e.g {id, id: age} Here age's not a parent
+                "renamed a field and included/excluded it again, "  # e.g {ID: id, id}
                 "The list of fields which led to this error is %s."
             ) % str(repeated_fields)
             raise ValidationError(msg, "invalid")

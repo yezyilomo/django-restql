@@ -162,11 +162,12 @@ class QueryParser(object):
         if faulty_fields:
             # We check this here because if we let it pass during
             # parsing it's going to raise inappropriate error message
-            # when checking fields availability
+            # when checking fields availability(for the case of renamed parents)
             msg = (
-                "Can not use a field name as an alias to another field, "  # eg {id, id: age}
-                "The list of field names which have been used as aliases "
-                "to other fields is %s."
+                "You have either "
+                "used an existing field name as an alias to another field or "  # e.g {id, id: course{}}
+                "you have defined an alias with the same name as a field name."  # e.g {id: id}
+                "The list of fields which led to this error is %s."
             ) % str(list(faulty_fields))
             raise QueryFormatError(msg)
         return fields
