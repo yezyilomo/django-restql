@@ -46,7 +46,6 @@ setup(
     package_data={'': ['LICENSE']},
     install_requires=[
         'pypeg2>=2.15.2',
-        'django>=1.11',
         'djangorestframework>=3.5'
     ],
     python_requires='>=3.5',
