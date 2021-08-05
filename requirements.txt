@@ -6,7 +6,7 @@ pypeg2>=2.15.2
 # djangorestframework>=3.5
 
 # Optional
-django-filter>=2.4
+django-filter
 
 # Code style
 flake8>=3.7.9
