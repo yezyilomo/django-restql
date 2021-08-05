@@ -1,4 +1,3 @@
-import tests
 from django.apps import AppConfig
 
 
