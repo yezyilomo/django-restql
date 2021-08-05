@@ -1,5 +1,3 @@
-import copy
-
 try:
     from django.utils.decorators import classproperty
 except ImportError:
@@ -115,11 +113,6 @@ def BaseNestedFieldSerializerFactory(
             if isinstance(rel, ManyToOneRel):
                 # ManyToOne Relation
                 field_name = getattr(model, self.field_name).field.name
-                # remove field_name to validated fields
-                def contain_field(a): return a != field_name
-                fields = filter(contain_field, serializer_class.Meta.fields)
-                original_fields = copy.copy(serializer_class.Meta.fields)
-                serializer_class.Meta.fields = list(fields)
                 parent_serializer = serializer_class(
                     **self.child.validation_kwargs,
                     data=data,
@@ -127,8 +120,12 @@ def BaseNestedFieldSerializerFactory(
                     partial=partial,
                     context=self.context
                 )
+
+                # Remove parent field(field_name) for validation purpose
+                parent_serializer.child.fields.pop(field_name, None)
+
+                # Check if a serializer is valid
                 parent_serializer.is_valid(raise_exception=True)
-                serializer_class.Meta.fields = original_fields
             else:
                 # ManyToMany Relation
                 parent_serializer = serializer_class(
