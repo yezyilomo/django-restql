@@ -1725,26 +1725,6 @@ class DataMutationTests(APITestCase):
             }
         )
 
-    def test_put_on_pk_nested_nullable_foreignkey_related_field(self):
-        url = reverse_lazy("rstudent-detail", args=[self.student.id])
-        data = {
-            "name": "yezy",
-            "age": 33
-        }
-        response = self.client.put(url, data, format="json")
-
-        self.assertEqual(
-            response.data,
-            {
-                'name': 'yezy', 'age': 33,
-                'course': None,
-                'phone_numbers': [
-                    {'number': '076711110', 'type': 'Office', 'student': 1},
-                    {'number': '073008880', 'type': 'Home', 'student': 1}
-                ]
-            }
-        )
-
     def test_put_on_writable_nested_foreignkey_related_field(self):
         url = reverse_lazy("wstudent-detail", args=[self.student.id])
         data = {
@@ -1815,7 +1795,14 @@ class DataMutationTests(APITestCase):
             response.data,
             {
                 'name': 'yezy', 'age': 33,
-                'course': None,
+                'course': {
+                    'name': 'Data Structures',
+                    'code': 'CS210',
+                    'books': [
+                        {'title': 'Advanced Data Structures', 'author': 'S.Mobit', "genre": None},
+                        {'title': 'Basic Data Structures', 'author': 'S.Mobit', "genre": None}
+                    ]
+                },
                 'phone_numbers': [
                     {'number': '076711110', 'type': 'Office', 'student': 1},
                     {'number': '073008880', 'type': 'Home', 'student': 1}
