@@ -41,7 +41,6 @@ class BaseRESTQLNestedField(object):
 
 def BaseNestedFieldSerializerFactory(
         *args,
-        partial=None,
         accept_pk=False,
         accept_pk_only=False,
         create_ops=CREATE_OPERATIONS,
@@ -49,9 +48,12 @@ def BaseNestedFieldSerializerFactory(
         serializer_class=None,
         **kwargs):
     many = kwargs.get("many", False)
+    partial = kwargs.get("partial", None)
+
     msg = (
-        "May not set both `many=True` and `accept_pk=True`"
-        "(accept_pk applies to foreign key relation only)."
+        "May not set both `many=True` and `accept_pk=True` "
+        "or `accept_pk_only=True`"
+        "(accept_pk and accept_pk_only applies to foreign key relation only)."
     )
     assert not(many and (accept_pk or accept_pk_only)), msg
 
@@ -87,12 +89,11 @@ def BaseNestedFieldSerializerFactory(
         def serializer_class(cls):
             return serializer_class
 
-        @property
-        def is_partial(self):
-            if partial is None and self.parent is not None:
-                return self.parent.partial
-            else:
+        def is_partial(self, default):
+            # Check if partial kwarg is passed if not return the default
+            if partial is not None:
                 return partial
+            return default
 
     class BaseNestedFieldListSerializer(ListSerializer, BaseNestedField):
 
@@ -100,16 +101,16 @@ def BaseNestedFieldSerializerFactory(
             ListField().run_validation(pks)
             queryset = self.child.Meta.model.objects.all()
             validator = PrimaryKeyRelatedField(
+                **self.child.validation_kwargs,
                 queryset=queryset,
                 many=True
             )
             return validator.run_validation(pks)
 
-        def validate_data_list(self, data, partial=True):
+        def validate_data_list(self, data, partial=None):
             ListField().run_validation(data)
             model = self.parent.Meta.model
             rel = getattr(model, self.field_name).rel
-
             if isinstance(rel, ManyToOneRel):
                 # ManyToOne Relation
                 field_name = getattr(model, self.field_name).field.name
@@ -142,7 +143,10 @@ def BaseNestedFieldSerializerFactory(
             return self.validate_pk_list(data)
 
         def validate_create_list(self, data):
-            return self.validate_data_list(data, partial=False)
+            return self.validate_data_list(
+                data,
+                partial=self.is_partial(False)
+            )
 
         def validate_remove_list(self, data):
             return self.validate_pk_list(data)
@@ -152,7 +156,10 @@ def BaseNestedFieldSerializerFactory(
             pks = list(data.keys())
             self.validate_pk_list(pks)
             values = list(data.values())
-            self.validate_data_list(values, partial=True)
+            self.validate_data_list(
+                values,
+                partial=self.is_partial(True)
+            )
 
         def get_operation_validation_methods(self, operations):
             all_operation_validation_methods = {
@@ -169,29 +176,8 @@ def BaseNestedFieldSerializerFactory(
 
             return required_validation_methods
 
-        def data_for_create(self, data):
-            validation_methods = self.get_operation_validation_methods(create_ops)
-
-            DictField().run_validation(data)
-            for operation, values in data.items():
-                try:
-                    validation_methods[operation](values)
-                except ValidationError as e:
-                    detail = {operation: e.detail}
-                    code = e.get_codes()
-                    raise ValidationError(detail, code=code) from None
-                except KeyError:
-                    msg = (
-                        "`%s` is not a valid operation, valid operation(s) "
-                        "for this request %s"
-                        % (operation, join_words(create_ops))
-                    )
-                    code = 'invalid_operation'
-                    raise ValidationError(msg, code=code) from None
-            return data
-
-        def data_for_update(self, data):
-            validation_methods = self.get_operation_validation_methods(update_ops)
+        def validated_data(self, data, request_ops):
+            validation_methods = self.get_operation_validation_methods(request_ops)
 
             DictField().run_validation(data)
             for operation, values in data.items():
@@ -205,7 +191,7 @@ def BaseNestedFieldSerializerFactory(
                     msg = (
                         "`%s` is not a valid operation, valid operations(s) "
                         "for this request %s"
-                        % (operation, join_words(update_ops))
+                        % (operation, join_words(request_ops))
                     )
                     code = 'invalid_operation'
                     raise ValidationError(msg, code=code) from None
@@ -214,20 +200,13 @@ def BaseNestedFieldSerializerFactory(
         def to_internal_value(self, data):
             request = self.context.get('request')
             if request.method in ["PUT", "PATCH"]:
-                return self.data_for_update(data)
+                return self.validated_data(data, update_ops)
 
             if request.method in ["POST"]:
-                return self.data_for_create(data)
+                return self.validated_data(data, create_ops)
 
-            # All statements below are never reached
-            parent_serializer = serializer_class(
-                **self.child.validation_kwargs,
-                data=data,
-                many=True,
-                context=self.context
-            )
-            parent_serializer.is_valid(raise_exception=True)
-            return parent_serializer.validated_data
+            # Unreachable return
+            return data
 
         def __repr__(self):
             return (
@@ -248,8 +227,8 @@ def BaseNestedFieldSerializerFactory(
         def run_validation(self, data):
             # Run `to_internal_value` only nothing more
             # This is needed only on DRF 3.8.x due to a bug on it
-            # This function can be removed on other supported DRF verions
-            # i.e v3.7 v3.9 v3.10 doesn't need this function
+            # This function can be removed on other supported DRF versions
+            # i.e v3.7 v3.9 v3.10 etc doesn't need this function
             return self.to_internal_value(data)
 
         def validate_pk_based_nested(self, data):
@@ -263,33 +242,44 @@ def BaseNestedFieldSerializerFactory(
             return obj
 
         def validate_data_based_nested(self, data):
+            if data == empty:
+                # No value is provided pass an empty value as it is
+                return empty
             parent_serializer = serializer_class(
                 **self.validation_kwargs,
                 data=data,
+                partial=self.is_partial(self.get_partial_value()),
                 context=self.context
             )
             parent_serializer.is_valid(raise_exception=True)
             return parent_serializer.validated_data
 
+        def get_partial_value(self):
+            request = self.context.get('request')
+            if request.method in ["PUT", "PATCH"]:
+                return True
+            return False
+
         def to_internal_value(self, data):
             required = kwargs.get('required', True)
             default = kwargs.get('default', empty)
 
-            if data == empty and self.is_partial:
-                return empty
-
-            if data == empty and required and default == empty:
-                raise ValidationError(
-                    "This field is required.",
-                    code='required'
-                )
-            elif data == empty and required:
-                data = default
-            elif data == empty and default == empty:
-                data = ""
-
-            if data == "":
-                data = None
+            if data == empty:
+                if self.partial:
+                    return empty  # Ignore validation
+                elif required:
+                    if default == empty:
+                        raise ValidationError(
+                            "This field is required.",
+                            code='required'
+                        )
+                    else:
+                        data = default
+                else:
+                    data = empty
+            else:
+                if data == "":
+                    data = None
 
             if accept_pk_only:
                 return self.validate_pk_based_nested(data)
@@ -332,7 +322,7 @@ def NestedFieldWraper(*args, **kwargs):
     non_validation_related_kwargs = [
         'many', 'data', 'instance', 'context', 'fields',
         'exclude', 'return_pk', 'disable_dynamic_fields',
-        'query', 'parsed_query'
+        'query', 'parsed_query', 'partial'
     ]
 
     for kwarg in non_validation_related_kwargs:
