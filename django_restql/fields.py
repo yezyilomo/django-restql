@@ -276,7 +276,7 @@ def BaseNestedFieldSerializerFactory(
             request = self.context.get('request')
             if request is None:
                 self.set_top_parent()
-                
+
             required = kwargs.get('required', True)
             default = kwargs.get('default', empty)
 
