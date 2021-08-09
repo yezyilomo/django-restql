@@ -16,6 +16,8 @@ from .operations import ADD, CREATE, REMOVE, UPDATE
 CREATE_OPERATIONS = (ADD, CREATE)
 UPDATE_OPERATIONS = (ADD, CREATE, REMOVE, UPDATE)
 
+ALL_RELATED_OBJS = '__all__'
+
 
 class DynamicSerializerMethodField(SerializerMethodField):
     def to_representation(self, value):
@@ -43,6 +45,7 @@ def BaseNestedFieldSerializerFactory(
         *args,
         accept_pk=False,
         accept_pk_only=False,
+        allow_remove_all=False,
         create_ops=CREATE_OPERATIONS,
         update_ops=UPDATE_OPERATIONS,
         serializer_class=None,
@@ -155,6 +158,15 @@ def BaseNestedFieldSerializerFactory(
             )
 
         def validate_remove_list(self, data):
+            if data == ALL_RELATED_OBJS:
+                if allow_remove_all:
+                    return data
+                else:
+                    msg = (
+                        "Usingi `%s` value on `%s` operation is disabled"
+                        % (ALL_RELATED_OBJS, REMOVE)
+                    )
+                    raise ValidationError(msg, code="not_allowed")
             return self.validate_pk_list(data)
 
         def validate_update_list(self, data):
