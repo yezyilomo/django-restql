@@ -95,6 +95,12 @@ def BaseNestedFieldSerializerFactory(
                 return partial
             return default
 
+        def set_top_parent(self):
+            if self.parent.parent is None:
+                self._top_parent = self.parent
+            else:
+                self._top_parent = self.parent._top_parent
+
     class BaseNestedFieldListSerializer(ListSerializer, BaseNestedField):
 
         def validate_pk_list(self, pks):
@@ -199,6 +205,12 @@ def BaseNestedFieldSerializerFactory(
 
         def to_internal_value(self, data):
             request = self.context.get('request')
+            if request is None:
+                self.set_top_parent()
+                if self._top_parent is None:
+                    return self.validated_data(data, create_ops)
+                return self.validated_data(data, update_ops)
+
             if request.method in ["PUT", "PATCH"]:
                 return self.validated_data(data, update_ops)
 
@@ -256,16 +268,20 @@ def BaseNestedFieldSerializerFactory(
 
         def get_partial_value(self):
             request = self.context.get('request')
-            if request.method in ["PUT", "PATCH"]:
+            if request is not None and request.method in ["PATCH"]:
                 return True
             return False
 
         def to_internal_value(self, data):
+            request = self.context.get('request')
+            if request is None:
+                self.set_top_parent()
+                
             required = kwargs.get('required', True)
             default = kwargs.get('default', empty)
 
             if data == empty:
-                if self.partial:
+                if self.is_partial(self.get_partial_value()):
                     return empty  # Ignore validation
                 elif required:
                     if default == empty:
