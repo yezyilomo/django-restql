@@ -124,7 +124,7 @@ class WritableBookSerializer(DynamicFieldsMixin, NestedModelSerializer):
 
 
 class WritableCourseSerializer(DynamicFieldsMixin, NestedModelSerializer):
-    books = NestedField(WritableBookSerializer, many=True, required=False)
+    books = NestedField(WritableBookSerializer, many=True, required=False, allow_remove_all=True)
 
     class Meta:
         model = Course
@@ -152,7 +152,7 @@ class ReplaceableStudentWithAliasSerializer(DynamicFieldsMixin, NestedModelSeria
 
 class WritableStudentSerializer(DynamicFieldsMixin, NestedModelSerializer):
     course = NestedField(WritableCourseSerializer, allow_null=True, required=False)
-    phone_numbers = NestedField(PhoneSerializer, many=True, required=False)
+    phone_numbers = NestedField(PhoneSerializer, many=True, required=False, allow_remove_all=True)
 
     class Meta:
         model = Student
