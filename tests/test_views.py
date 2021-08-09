@@ -2,6 +2,7 @@ from django.urls import reverse_lazy
 from rest_framework.test import APITestCase
 
 from tests.testapp.models import Book, Course, Phone, Student
+from tests.testapp.serializers import WritableCourseSerializer, WritableStudentSerializer
 
 
 class DataQueryingTests(APITestCase):
@@ -50,6 +51,23 @@ class DataQueryingTests(APITestCase):
         Book.objects.all().delete()
         Course.objects.all().delete()
         Student.objects.all().delete()
+
+    # *************** requestless tests **************
+
+    def test_querying_data_without_request(self):
+        serializer = WritableCourseSerializer(self.course, query='{name, code, books{title}}')
+
+        self.assertEqual(
+            serializer.data,
+            {
+                "name": "Data Structures",
+                "code": "CS210",
+                "books": [
+                    {"title": "Advanced Data Structures"},
+                    {"title": "Basic Data Structures"}
+                ]
+            }
+        )
 
     # *************** retrieve tests **************
 
@@ -1321,6 +1339,70 @@ class DataMutationTests(APITestCase):
         Book.objects.all().delete()
         Course.objects.all().delete()
         Student.objects.all().delete()
+
+    # **************** Requestless Tests ********************* #
+
+    def test_creating_data_without_request(self):
+        serializer = WritableCourseSerializer(
+            data={
+                "name": "Data Structures",
+                "code": "CS110",
+                "books": {"add": [1, 2]}
+            },
+            query='{name, code, books{title}}'
+        )
+
+        serializer.is_valid()
+        serializer.save()
+
+        self.assertEqual(
+            serializer.data,
+            {
+                "name": "Data Structures",
+                "code": "CS110",
+                "books": [
+                    {'title': 'Advanced Data Structures'},
+                    {'title': 'Basic Data Structures'}
+                ]
+            }
+        )
+
+    def test_updating_data_without_request(self):
+        serializer = WritableStudentSerializer(
+            self.student,
+            data={
+                "name": "yezy",
+                "age": 33,
+                "course": {
+                    "name": "Programming",
+                    "code": "CS50",
+                    "books": {
+                        "remove": [1]
+                    }
+                }
+            },
+            query='{name, age, course{name, books}, phone_numbers}'
+        )
+
+        serializer.is_valid()
+        serializer.save()
+
+        self.assertEqual(
+            serializer.data,
+            {
+                'name': 'yezy', 'age': 33,
+                'course': {
+                    'name': 'Programming',
+                    'books': [
+                        {'title': 'Basic Data Structures', 'author': 'S.Mobit', "genre": None}
+                    ]
+                },
+                'phone_numbers': [
+                    {'number': '076711110', 'type': 'Office', 'student': 1},
+                    {'number': '073008880', 'type': 'Home', 'student': 1}
+                ]
+            }
+        )
 
     # **************** POST Tests ********************* #
 
