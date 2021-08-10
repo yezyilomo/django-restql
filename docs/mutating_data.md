@@ -38,8 +38,6 @@ class PropertySerializer(NestedModelSerializer):
             'id', 'price', 'location', 'amenities'
         ]
 ```
-<br>
-
 
 With serializers defined as shown above, you will be able to send data mutation request like
 
@@ -63,7 +61,7 @@ With a request body like
 }
 ```
 
-And get a response of created resources like
+And get a response as
 ```js
 {
     "id": 2,
@@ -82,9 +80,10 @@ And get a response of created resources like
 ```
 
 Just to clarify what happed here:
+
 - location has been created and associated with the property created
-- `create` operation on amenities has created amenities with values specified in a list and associate them with the property
-- And `add` operation has added amenity whose id is 3 to a list of amenities of the property.
+- `create` operation has created amenities with values specified in a list and associate them with the property
+- `add` operation has added amenity with id=3 to a list of amenities of the property.
 
 !!! note
     POST for many related fields supports two operations which are `create` and `add`.
@@ -134,15 +133,15 @@ After sending the requst above we'll get a response which looks like
 From the request body `add`, `create`, `remove` and `update` are operations
 
 What you see in the response above are details of our property, what really happened after sending the update request is
+
 - `add` operation added amenitiy with id=4 to a list of amenities of the property
 - `create` operation created amenities with values specified in a list
 - `remove` operation removed amenities with id=3 from a property
-- And `update` operation updated amenity with id=1 according to values specified.
+- `update` operation updated amenity with id=1 according to values specified.
 
 
 !!! note
     PUT/PATCH for many related fields supports four operations which are `create`, `add`, `remove` and `update`.
-<br>
 
 
 ## NestedField kwargs
@@ -177,7 +176,8 @@ class PropertySerializer(NestedModelSerializer):
             'id', 'price', 'location'
         ]
 ```
-<br>
+
+Now sending mutation request as
 
 
 ```POST /api/property/```
@@ -190,7 +190,7 @@ Request Body
 }
 ```
 !!! note
-    Here location resource with id=2 exists already, so what's done here is create new property resource and associate it with this location whose id is 2.
+    Here location resource with id=2 exists already, so what's done here is create a new property resource and associate it with this location whose id is 2.
 
 Response
 ```js
@@ -204,7 +204,6 @@ Response
     }
 }
 ```
-<br>
 
 Using `accept_pk` doesn't limit you from sending data(instead of pk to nested resource), setting `accept_pk=True` means you can send both data and pks. For instance from the above example you could still do 
 
@@ -233,11 +232,10 @@ Response
     }
 }
 ```
-<br>
 
 
 ### accept_pk_only kwarg
-`accept_pk_only=True` is used if you want to be able to update nested field by using pk/id only. This too applies to foreign key relations only. The default value for `accept_pk_only` kwarg is `False`, if `accept_pk_only=True` is set you won't be able to send data to create a nested resource.
+`accept_pk_only=True` is used if you want to be able to update nested field by using pk/id only. This applies to foreign key relations only as well. The default value for `accept_pk_only` kwarg is `False`, if `accept_pk_only=True` is set you won't be able to send data to create a nested resource.
 
 Below is an example showing how to use `accept_pk_only` kwarg.
 ```py
@@ -263,8 +261,8 @@ class PropertySerializer(NestedModelSerializer):
             'id', 'price', 'location'
         ]
 ```
-<br>
 
+Sending mutation request
 
 ```POST /api/property/```
 
@@ -291,7 +289,6 @@ Response
 
 !!! note
     By default `accept_pk=False` and `accept_pk_only=False`, so nested field(foreign key related) accepts data only by default, if `accept_pk=True` is set, it accepts data and pk/id, and if `accept_pk_only=True` is set it accepts pk/id only. You can't set both `accept_pk=True` and `accept_pk_only=True`.
-<br>
 
 
 ### create_ops and update_ops kwargs.
@@ -324,8 +321,8 @@ class PropertySerializer(NestedModelSerializer):
             'id', 'price', 'amenities'
         ]
 ```
-<br>
 
+Sending create mutation request
 
 ```POST /api/property/```
 
@@ -352,10 +349,10 @@ Response
     ]
 }
 ```
-<br>
 
+Sending update mutation request
 
-```PUT /api/property/2/```
+```PUT/PATCH /api/property/2/```
 
 Request Body
 ```js
@@ -381,7 +378,6 @@ Response
     ]
 }
 ```
-<br>
 
 
 ### allow_remove_all kwarg
@@ -484,7 +480,9 @@ class PropertySerializer(NestedModelSerializer):
         ]
 ```
 
-The `required=False` kwarg allows you to create Property without including `location` field and the `allow_null=True` kwarg allows `location` field to be set to null if you haven't supplied it e.g
+The `required=False` kwarg allows you to create Property without including `location` field and the `allow_null=True` kwarg allows `location` field to be set to null if you haven't supplied it. For example
+
+Sending mutation request
 
 ```POST /api/property/```
 
@@ -495,8 +493,6 @@ Request Body
     // You can see that the location is not included here
 }
 ```
-
-<br>
 
 Response
 ```js
@@ -510,7 +506,7 @@ Response
 If you use `required=False` only without `allow_null=True`, The serializer will allow you to create Property without including `location` field but it will throw error because by default `allow_null=False` which means `null`/`None`(which is what's passed when you don't supply `location` value) is not considered a valid value.
 
 
-## Working with `NestedModelSerializer` and `NestedFied` without request
+## Working data mutation without request
 **Django RESTQL** allows you to do data mutation without having request object, this is used if you don't want to get your mutation data input(serializer data) from a request, in fact `NestedModelSerializer` and `NestedFied` can work independently without using request. Below is an example showing how you can work with data mutation without request object.
 
 ```py
@@ -544,7 +540,7 @@ data = {
     "books": {
         "add": [1, 2],
         "create": [
-            {'title': 'Basic Data Structures', 'author': 'J. Davis'}
+            {'title': 'Basic Data Structures', 'author': 'J. Davis'},
             {'title': 'Advanced Data Structures', 'author': 'S. Mobit'}
         ]
     }
@@ -560,7 +556,7 @@ print(serializer.data)
 {
     "id": 2,
     "name": "Computer Programming",
-    "code": "CS50"
+    "code": "CS50",
     "books": [
         {'id': 1, 'title': 'Programming Intro', 'author': 'K. Moses'},
         {'id': 2, 'title': 'Understanding Computers', 'author': 'B. Gibson'},
@@ -592,7 +588,7 @@ print(serializer.data)
 {
     "id": 2,
     "name": "Computer Programming",
-    "code": "CS100"
+    "code": "CS100",
     "books": [
         {'id': 1, 'title': 'Programming Intro', 'author': 'K. Moses'},
         {'id': 2, 'title': 'Understanding Computers', 'author': 'B. Gibson'}
