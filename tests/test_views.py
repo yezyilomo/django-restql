@@ -2098,6 +2098,32 @@ class DataMutationTests(APITestCase):
             }
         )
 
+    def test_put_with__all__as_remove_operation_value(self):
+        url = reverse_lazy("wstudent-detail", args=[self.student.id])
+        data = {
+            "name": "Davinci",
+            "age": 23,
+            "course": {
+                "name": "Programming",
+                "code": "CS50",
+                "books": {"remove": "__all__"}
+            },
+            "phone_numbers": {"remove": "__all__"}
+        }
+        response = self.client.put(url, data, format="json")
+
+        self.assertEqual(
+            response.data,
+            {
+                'name': 'Davinci', 'age': 23,
+                'course': {
+                    'name': 'Programming', 'code': 'CS50',
+                    'books': []
+                },
+                'phone_numbers': []
+            }
+        )
+
     # **************** PATCH Tests ********************* #
 
     def test_patch_on_pk_nested_foreignkey_related_field(self):
@@ -2488,6 +2514,32 @@ class DataMutationTests(APITestCase):
                     {'number': '076750000', 'type': 'office', 'student': 1}
 
                 ]
+            }
+        )
+
+    def test_patch_with__all__as_remove_operation_value(self):
+        url = reverse_lazy("wstudent-detail", args=[self.student.id])
+        data = {
+            "name": "Davinci",
+            "age": 33,
+            "course": {
+                "name": "Programming",
+                "code": "CS50",
+                "books": {"remove": "__all__"}
+            },
+            "phone_numbers": {"remove": "__all__"}
+        }
+        response = self.client.patch(url, data, format="json")
+
+        self.assertEqual(
+            response.data,
+            {
+                'name': 'Davinci', 'age': 33,
+                'course': {
+                    'name': 'Programming', 'code': 'CS50',
+                    'books': []
+                },
+                'phone_numbers': []
             }
         )
 

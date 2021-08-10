@@ -13,7 +13,7 @@ from rest_framework.serializers import (
 
 from .exceptions import FieldNotFound, QueryFormatError
 from .fields import (
-    BaseRESTQLNestedField, DynamicSerializerMethodField
+    ALL_RELATED_OBJS, BaseRESTQLNestedField, DynamicSerializerMethodField
 )
 from .operations import ADD, CREATE, REMOVE, UPDATE
 from .parser import QueryParser
@@ -932,7 +932,10 @@ class NestedUpdateMixin(BaseNestedMixin):
                     )
                 elif operation == REMOVE:
                     qs = nested_obj.all()
-                    qs.filter(pk__in=values[operation]).delete()
+                    if values[operation] == ALL_RELATED_OBJS:
+                        qs.delete()
+                    else:
+                        qs.filter(pk__in=values[operation]).delete()
                 elif operation == UPDATE:
                     self.bulk_update_many_to_one_related(
                         field,
@@ -972,6 +975,8 @@ class NestedUpdateMixin(BaseNestedMixin):
                     )
                 elif operation == REMOVE:
                     pks = values[operation]
+                    if pks == ALL_RELATED_OBJS:
+                        pks = nested_obj.all()
                     try:
                         nested_obj.remove(*pks)
                     except Exception as e:

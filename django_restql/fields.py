@@ -16,6 +16,8 @@ from .operations import ADD, CREATE, REMOVE, UPDATE
 CREATE_OPERATIONS = (ADD, CREATE)
 UPDATE_OPERATIONS = (ADD, CREATE, REMOVE, UPDATE)
 
+ALL_RELATED_OBJS = '__all__'
+
 
 class DynamicSerializerMethodField(SerializerMethodField):
     def to_representation(self, value):
@@ -43,6 +45,7 @@ def BaseNestedFieldSerializerFactory(
         *args,
         accept_pk=False,
         accept_pk_only=False,
+        allow_remove_all=False,
         create_ops=CREATE_OPERATIONS,
         update_ops=UPDATE_OPERATIONS,
         serializer_class=None,
@@ -50,15 +53,24 @@ def BaseNestedFieldSerializerFactory(
     many = kwargs.get("many", False)
     partial = kwargs.get("partial", None)
 
-    msg = (
+    assert not(
+        many and (accept_pk or accept_pk_only)
+    ), (
         "May not set both `many=True` and `accept_pk=True` "
         "or `accept_pk_only=True`"
         "(accept_pk and accept_pk_only applies to foreign key relation only)."
     )
-    assert not(many and (accept_pk or accept_pk_only)), msg
 
-    msg = "May not set both `accept_pk=True` and `accept_pk_only=True`"
-    assert not(accept_pk and accept_pk_only), msg
+    assert not(
+        accept_pk and accept_pk_only
+    ), "May not set both `accept_pk=True` and `accept_pk_only=True`"
+
+    assert not(
+        allow_remove_all and not many
+    ), (
+        "`allow_remove_all=True` can only be applied to many related "
+        "nested fields, ensure the kwarg `many=True` is set."
+    )
 
     def join_words(words, many='are', single='is'):
         word_list = ["`" + word + "`" for word in words]
@@ -155,6 +167,15 @@ def BaseNestedFieldSerializerFactory(
             )
 
         def validate_remove_list(self, data):
+            if data == ALL_RELATED_OBJS:
+                if allow_remove_all:
+                    return data
+                else:
+                    msg = (
+                        "Using `%s` value on `%s` operation is disabled"
+                        % (ALL_RELATED_OBJS, REMOVE)
+                    )
+                    raise ValidationError(msg, code="not_allowed")
             return self.validate_pk_list(data)
 
         def validate_update_list(self, data):
