@@ -38,12 +38,12 @@ class PropertySerializer(NestedModelSerializer):
             'id', 'price', 'location', 'amenities'
         ]
 ```
-<br>
 
+With serializers defined as shown above, you will be able to send data mutation request like
 
 ```POST /api/property/```
 
-Request Body
+With a request body like
 ```js
 {
     "price": 60000,
@@ -60,12 +60,8 @@ Request Body
     }
 }
 ```
-What's done here is pretty clear, location will be created and associated with the property created, also create operation on amenities will create amenities with values specified in a list and associate with the property, add operation will add amenity with id 3 to a list of amenities of the property.
 
-!!! note
-    POST for many related field supports two operations which are `create` and `add`.
-
-Response
+And get a response as
 ```js
 {
     "id": 2,
@@ -82,10 +78,20 @@ Response
     ]
 }
 ```
+
+Just to clarify what happed here:
+
+- location has been created and associated with the property created
+- `create` operation has created amenities with values specified in a list and associate them with the property
+- `add` operation has added amenity with id=3 to a list of amenities of the property.
+
+!!! note
+    POST for many related fields supports two operations which are `create` and `add`.
 <br>
 
+Below we have an example where we are trying to update the property we have created in the previous example.
 
-```PUT /api/property/2/```
+```PUT/PATCH /api/property/2/```
 
 Request Body
 ```js
@@ -104,13 +110,8 @@ Request Body
 }
 ```
 
-Here `add`, `create`, `remove` and `update` are operations, so `add` operation add amenitiy with id 4 to a list of amenities of the property, `create` operation create amenities with values specified in a list, `remove` operation dessociate amenities with id 3 from a property, `update` operation edit amenity with id 1 according to values specified.
+After sending the requst above we'll get a response which looks like
 
-
-!!! note
-    PUT/PATCH for many related field supports four operations which are `create`, `add`, `remove` and `update`.
-
-Response
 ```js
 {
     "id": 2,
@@ -128,11 +129,29 @@ Response
     ]
 }
 ```
-<br>
+
+From the request body `add`, `create`, `remove` and `update` are operations
+
+What you see in the response above are details of our property, what really happened after sending the update request is
+
+- `add` operation added amenitiy with id=4 to a list of amenities of the property
+- `create` operation created amenities with values specified in a list
+- `remove` operation removed amenities with id=3 from a property
+- `update` operation updated amenity with id=1 according to values specified.
 
 
-## Using NestedField with accept_pk kwarg.
-`accept_pk=True` is used if you want to be able to update nested field by using pk/id of existing data(basically associate existing nested resources with the parent resource). This applies to ForeignKey relation only.
+!!! note
+    PUT/PATCH for many related fields supports four operations which are `create`, `add`, `remove` and `update`.
+
+
+## NestedField kwargs
+`NestedField` accepts extra kwargs in addition to those accepted by a serializer, these extra kwargs can be used to do more customizations on a nested field as explained below.
+
+
+### accept_pk kwarg
+`accept_pk=True` is used if you want to be able to update nested field by using pk/id of existing data(basically associate existing nested resources with the parent resource). This applies to foreign key relations only. The default value for `accept_pk` is `False`.
+
+Below is an example showing how to use `accept_pk` kwarg.
 
 ```py
 from rest_framework import serializers 
@@ -157,7 +176,8 @@ class PropertySerializer(NestedModelSerializer):
             'id', 'price', 'location'
         ]
 ```
-<br>
+
+Now sending mutation request as
 
 
 ```POST /api/property/```
@@ -170,7 +190,7 @@ Request Body
 }
 ```
 !!! note
-    Here location resource with id 2 is already existing, so what's done here is create new property resource and associate it with a location with id 2.
+    Here location resource with id=2 exists already, so what's done here is create a new property resource and associate it with this location whose id is 2.
 
 Response
 ```js
@@ -184,7 +204,6 @@ Response
     }
 }
 ```
-<br>
 
 Using `accept_pk` doesn't limit you from sending data(instead of pk to nested resource), setting `accept_pk=True` means you can send both data and pks. For instance from the above example you could still do 
 
@@ -213,11 +232,12 @@ Response
     }
 }
 ```
-<br>
 
-## Using NestedField with accept_pk_only kwarg.
-`accept_pk_only=True` is used if you want to be able to update nested field by using pk/id only. This applies to ForeignKey relation only. If this is set you won't be able to send data to create a nested resource.
 
+### accept_pk_only kwarg
+`accept_pk_only=True` is used if you want to be able to update nested field by using pk/id only. This applies to foreign key relations only as well. The default value for `accept_pk_only` kwarg is `False`, if `accept_pk_only=True` is set you won't be able to send data to create a nested resource.
+
+Below is an example showing how to use `accept_pk_only` kwarg.
 ```py
 from rest_framework import serializers 
 from django_restql.fields import NestedField
@@ -241,8 +261,8 @@ class PropertySerializer(NestedModelSerializer):
             'id', 'price', 'location'
         ]
 ```
-<br>
 
+Sending mutation request
 
 ```POST /api/property/```
 
@@ -268,12 +288,11 @@ Response
 ```
 
 !!! note
-    By default `accept_pk=False` and `accept_pk_only=False`, so nested field(foreign key related) accepts data only by default, if `accept_pk=True` is set, it accepts data and pk/id, and if `accept_pk_only=True` is set it accepts pk/id only. You can't set both `accept_pk=True` and `accept_pk_only=True` at the same time.
-<br>
+    By default `accept_pk=False` and `accept_pk_only=False`, so nested field(foreign key related) accepts data only by default, if `accept_pk=True` is set, it accepts data and pk/id, and if `accept_pk_only=True` is set it accepts pk/id only. You can't set both `accept_pk=True` and `accept_pk_only=True`.
 
 
-## Using NestedField with create_ops and update_ops kwargs.
-You can restrict some operations by using `create_ops` and `update_ops` keyword arguments as follows
+### create_ops and update_ops kwargs.
+These two kwargs are used to restrict some operations when creating or updating nested data. Below is an example showing how to restrict some operations by using these two kwargs.
 
 ```py
 from rest_framework import serializers 
@@ -302,8 +321,8 @@ class PropertySerializer(NestedModelSerializer):
             'id', 'price', 'amenities'
         ]
 ```
-<br>
 
+Sending create mutation request
 
 ```POST /api/property/```
 
@@ -330,10 +349,10 @@ Response
     ]
 }
 ```
-<br>
 
+Sending update mutation request
 
-```PUT /api/property/2/```
+```PUT/PATCH /api/property/2/```
 
 Request Body
 ```js
@@ -359,11 +378,40 @@ Response
     ]
 }
 ```
+
+
+### allow_remove_all kwarg
+This kwarg is used to enable and disable removing all related objects on many related nested field at once by using `__all__` directive. The default value of `allow_remove_all` is `False`, which means removing all related objects on many related nested fields is disabled by default so if you want to enable it you must set its value to `True`. For example 
+
+```py
+class CourseSerializer(NestedModelSerializer):
+    books = NestedField(BookSerializer, many=True, allow_remove_all=True)
+
+    class Meta:
+        model = Course
+        fields = ["name", "code", "books"]
+```
+
+With `allow_remove_all=True` as set above you will be able to send a request like
+
+```PUT/PATCH /courses/3/```
+
+Request Body
+```js
+{
+    "books": {
+        "remove":  "__all__"
+    }
+}
+```
+
+This will remove all books associated with a course being updated.
 <br>
 
 
 ## Using DynamicFieldsMixin and NestedField together
 You can use `DynamicFieldsMixin` and `NestedModelSerializer` together if you want your serializer to be writable(on nested fields) and support querying data, this is very common. Below is an example which shows how you can use `DynamicFieldsMixin` and `NestedField` together.
+
 ```py
 from rest_framework import serializers 
 from django_restql.fields import NestedField
@@ -388,7 +436,7 @@ class PropertySerializer(DynamicFieldsMixin, NestedModelSerializer):
         ]
 ```
 
-`NestedField` is nothing but a serializer wrapper, it returns an instance of a modified version of a serializer passed, so you can pass all the args and kwargs accepted by a serializer on it, it will simply pass them to a serializer passed when instantiating an instance. So you can pass anything accepted by a serializer to a `NestedField` wrapper, and if a serializer passed inherits `DynamicFieldsMixin` just like `LocationSerializer` on above example then you can pass any arg or kwarg accepted by `DynamicFieldsMixin` when defining location as a nested field, i.e
+`NestedField` is nothing but a serializer wrapper, it returns an instance of a modified version of a serializer passed, so you can pass all the args and kwargs accepted by a serializer on it, it will simply pass them along to a serializer passed when instantiating an instance. So you can pass anything accepted by a serializer to a `NestedField` wrapper, and if a serializer passed inherits `DynamicFieldsMixin` just like `LocationSerializer` on the example above then you can pass any arg or kwarg accepted by `DynamicFieldsMixin` when defining location as a nested field, i.e
 
 ```py
 location = NestedField(LocationSerializer, fields=[...])
@@ -432,7 +480,9 @@ class PropertySerializer(NestedModelSerializer):
         ]
 ```
 
-The `required=False` kwarg allows you to create Property without including `location` field and the `allow_null=True` kwarg allows `location` field to be set to null if you haven't supplied it e.g
+The `required=False` kwarg allows you to create Property without including `location` field and the `allow_null=True` kwarg allows `location` field to be set to null if you haven't supplied it. For example
+
+Sending mutation request
 
 ```POST /api/property/```
 
@@ -444,8 +494,6 @@ Request Body
 }
 ```
 
-<br>
-
 Response
 ```js
 {
@@ -456,3 +504,94 @@ Response
 ```
 
 If you use `required=False` only without `allow_null=True`, The serializer will allow you to create Property without including `location` field but it will throw error because by default `allow_null=False` which means `null`/`None`(which is what's passed when you don't supply `location` value) is not considered a valid value.
+
+
+## Working data mutation without request
+**Django RESTQL** allows you to do data mutation without having request object, this is used if you don't want to get your mutation data input(serializer data) from a request, in fact `NestedModelSerializer` and `NestedFied` can work independently without using request. Below is an example showing how you can work with data mutation without request object.
+
+```py
+from rest_framework import serializers
+from django_restql.fields import NestedField
+from django_restql.mixins import DynamicFieldsMixin
+from django_restql.serializers import NestedModelSerializer
+
+from app.models import Book, Course
+
+
+class BookSerializer(DynamicFieldsMixin, NestedModelSerializer):
+    class Meta:
+        model = Book
+        fields = ['id', 'title', 'author']
+
+
+class CourseSerializer(DynamicFieldsMixin, NestedModelSerializer):
+    books = NestedField(BookSerializer, many=True, required=False)
+    class Meta:
+        model = Course
+        fields = ['id', 'name', 'code', 'books']
+```
+
+From serializers above you can create a course like
+
+```py
+data = {
+    "name": "Computer Programming",
+    "code": "CS50",
+    "books": {
+        "add": [1, 2],
+        "create": [
+            {'title': 'Basic Data Structures', 'author': 'J. Davis'},
+            {'title': 'Advanced Data Structures', 'author': 'S. Mobit'}
+        ]
+    }
+}
+
+serializer = CourseSerializer(data=data)
+serializer.is_valid()
+serializer.save()
+
+print(serializer.data)
+
+# This will print
+{
+    "id": 2,
+    "name": "Computer Programming",
+    "code": "CS50",
+    "books": [
+        {'id': 1, 'title': 'Programming Intro', 'author': 'K. Moses'},
+        {'id': 2, 'title': 'Understanding Computers', 'author': 'B. Gibson'},
+        {'id': 3, 'title': 'Basic Data Structures', 'author': 'J. Davis'},
+        {'id': 4, 'title': 'Advanced Data Structures', 'author': 'S. Mobit'}
+    ]
+}
+```
+
+To update a created course you can do it like
+
+```py
+data = {
+    "code": "CS100",
+    "books": {
+        "remove": [2, 3]
+    }
+}
+
+course_obj = Course.objects.get(pk=2)
+
+serializer = CourseSerializer(course_obj, data=data)
+serializer.is_valid()
+serializer.save()
+
+print(serializer.data)
+
+# This will print
+{
+    "id": 2,
+    "name": "Computer Programming",
+    "code": "CS100",
+    "books": [
+        {'id': 1, 'title': 'Programming Intro', 'author': 'K. Moses'},
+        {'id': 2, 'title': 'Understanding Computers', 'author': 'B. Gibson'}
+    ]
+}
+```
