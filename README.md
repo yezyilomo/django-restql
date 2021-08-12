@@ -138,7 +138,7 @@ You can do a lot with **Django RESTQL** apart from querying data, like
 - Data filtering and pagination by using query arguments
 - Data mutation(Create and update nested data of any level in a single request)
 
-Full documentation for this project is available at [https://yezyilomo.github.io/django-restql](https://yezyilomo.github.io/django-restql), you are encouraged to read it inorder to utilize this library to the fullest.
+Full documentation for this project is available at [https://yezyilomo.github.io/django-restql](https://yezyilomo.github.io/django-restql), you are advised to read it inorder to utilize this library to the fullest.
 
 
 ## [Django RESTQL Play Ground](https://django-restql-playground.yezyilomo.me)

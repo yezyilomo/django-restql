@@ -108,13 +108,10 @@ def BaseNestedFieldSerializerFactory(
             return default
 
         def set_top_parent(self):
-            if self.parent.parent is None:
-                self._top_parent = self.parent
-            else:
-                self._top_parent = self.parent._top_parent
+            # Pass dow the parent's _top_parent value to a child serializer
+            self._top_parent = self.parent._top_parent
 
     class BaseNestedFieldListSerializer(ListSerializer, BaseNestedField):
-
         def validate_pk_list(self, pks):
             ListField().run_validation(pks)
             queryset = self.child.Meta.model.objects.all()
@@ -132,30 +129,38 @@ def BaseNestedFieldSerializerFactory(
             if isinstance(rel, ManyToOneRel):
                 # ManyToOne Relation
                 field_name = getattr(model, self.field_name).field.name
-                parent_serializer = serializer_class(
+                child_serializer = serializer_class(
                     **self.child.validation_kwargs,
                     data=data,
                     many=True,
                     partial=partial,
                     context=self.context
                 )
+
+                # Pass dow the parent's _top_parent value to a child serializer
+                child_serializer._top_parent = self.parent._top_parent
 
                 # Remove parent field(field_name) for validation purpose
-                parent_serializer.child.fields.pop(field_name, None)
+                child_serializer.child.fields.pop(field_name, None)
 
                 # Check if a serializer is valid
-                parent_serializer.is_valid(raise_exception=True)
+                child_serializer.is_valid(raise_exception=True)
             else:
                 # ManyToMany Relation
-                parent_serializer = serializer_class(
+                child_serializer = serializer_class(
                     **self.child.validation_kwargs,
                     data=data,
                     many=True,
                     partial=partial,
                     context=self.context
                 )
-                parent_serializer.is_valid(raise_exception=True)
-            return parent_serializer.validated_data
+
+                # Pass dow the parent's _top_parent value to a child serializer
+                child_serializer._top_parent = self.parent._top_parent
+
+                # Check if a serializer is valid
+                child_serializer.is_valid(raise_exception=True)
+            return child_serializer.validated_data
 
         def validate_add_list(self, data):
             return self.validate_pk_list(data)
@@ -225,21 +230,10 @@ def BaseNestedFieldSerializerFactory(
             return data
 
         def to_internal_value(self, data):
-            request = self.context.get('request')
-            if request is None:
-                self.set_top_parent()
-                if self._top_parent is None:
-                    return self.validated_data(data, create_ops)
-                return self.validated_data(data, update_ops)
-
-            if request.method in ["PUT", "PATCH"]:
-                return self.validated_data(data, update_ops)
-
-            if request.method in ["POST"]:
+            self.set_top_parent()
+            if self._top_parent.instance is None:
                 return self.validated_data(data, create_ops)
-
-            # Unreachable return
-            return data
+            return self.validated_data(data, update_ops)
 
         def __repr__(self):
             return (
@@ -278,25 +272,27 @@ def BaseNestedFieldSerializerFactory(
             if data == empty:
                 # No value is provided pass an empty value as it is
                 return empty
-            parent_serializer = serializer_class(
+            child_serializer = serializer_class(
                 **self.validation_kwargs,
                 data=data,
                 partial=self.is_partial(self.get_partial_value()),
                 context=self.context
             )
-            parent_serializer.is_valid(raise_exception=True)
-            return parent_serializer.validated_data
+
+            # Pass dow the parent's _top_parent value to a child serializer
+            child_serializer._top_parent = self.parent._top_parent
+
+            # Check if a serializer is valid
+            child_serializer.is_valid(raise_exception=True)
+            return child_serializer.validated_data
 
         def get_partial_value(self):
-            request = self.context.get('request')
-            if request is not None and request.method in ["PATCH"]:
+            if self._top_parent.instance:
                 return True
             return False
 
         def to_internal_value(self, data):
-            request = self.context.get('request')
-            if request is None:
-                self.set_top_parent()
+            self.set_top_parent()
 
             required = kwargs.get('required', True)
             default = kwargs.get('default', empty)
@@ -320,15 +316,12 @@ def BaseNestedFieldSerializerFactory(
 
             if accept_pk_only:
                 return self.validate_pk_based_nested(data)
-
-            if accept_pk:
+            elif accept_pk:
                 if isinstance(data, dict):
                     self.is_replaceable = False
                     return self.validate_data_based_nested(data)
                 else:
-                    self.is_replaceable = True
                     return self.validate_pk_based_nested(data)
-
             return self.validate_data_based_nested(data)
 
         def __repr__(self):
