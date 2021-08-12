@@ -177,7 +177,7 @@ def BaseNestedFieldSerializerFactory(
                     return data
                 else:
                     msg = (
-                        "Usingi `%s` value on `%s` operation is disabled"
+                        "Using `%s` value on `%s` operation is disabled"
                         % (ALL_RELATED_OBJS, REMOVE)
                     )
                     raise ValidationError(msg, code="not_allowed")
