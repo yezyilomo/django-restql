@@ -34,7 +34,7 @@ Or try a live demo on [Django RESTQL Playground](https://django-restql-playgroun
 
 
 ## Requirements
-* Python >= 3.5
+* Python >= 3.6
 * Django >= 1.11
 * Django REST Framework >= 3.5
 
