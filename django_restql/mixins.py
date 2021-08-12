@@ -574,6 +574,10 @@ class BaseNestedMixin(object):
         self.build_restql_nested_fields()
         self.build_restql_source_field_map()
 
+        # This will be used to check top parent's instance to determine
+        # whether it's a create or update request during data validation
+        self._top_parent = self
+
     def build_restql_nested_fields(self):
         # Make field_name -> field_value map for restql nested fields
         self.restql_nested_fields = {}
