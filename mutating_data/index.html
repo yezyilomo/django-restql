@@ -300,8 +300,8 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#working-data-mutation-without-request" class="md-nav__link">
-    Working data mutation without request
+  <a href="#working-with-data-mutation-without-request" class="md-nav__link">
+    Working with data mutation without request
   </a>
   
 </li>
@@ -418,8 +418,8 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#working-data-mutation-without-request" class="md-nav__link">
-    Working data mutation without request
+  <a href="#working-with-data-mutation-without-request" class="md-nav__link">
+    Working with data mutation without request
   </a>
   
 </li>
@@ -918,7 +918,7 @@
 
 
 <p>If you use <code>required=False</code> only without <code>allow_null=True</code>, The serializer will allow you to create Property without including <code>location</code> field but it will throw error because by default <code>allow_null=False</code> which means <code>null</code>/<code>None</code>(which is what's passed when you don't supply <code>location</code> value) is not considered a valid value.</p>
-<h2 id="working-data-mutation-without-request">Working data mutation without request<a class="headerlink" href="#working-data-mutation-without-request" title="Permanent link">&para;</a></h2>
+<h2 id="working-with-data-mutation-without-request">Working with data mutation without request<a class="headerlink" href="#working-with-data-mutation-without-request" title="Permanent link">&para;</a></h2>
 <p><strong>Django RESTQL</strong> allows you to do data mutation without having request object, this is used if you don't want to get your mutation data input(serializer data) from a request, in fact <code>NestedModelSerializer</code> and <code>NestedFied</code> can work independently without using request. Below is an example showing how you can work with data mutation without request object.</p>
 <div class="codehilite"><pre><span></span><code><span class="kn">from</span> <span class="nn">rest_framework</span> <span class="kn">import</span> <span class="n">serializers</span>
 <span class="kn">from</span> <span class="nn">django_restql.fields</span> <span class="kn">import</span> <span class="n">NestedField</span>
