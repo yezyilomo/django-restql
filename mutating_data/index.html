@@ -252,29 +252,56 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#using-nestedfield-with-accept_pk-kwarg" class="md-nav__link">
-    Using NestedField with accept_pk kwarg.
+  <a href="#nestedfield-kwargs" class="md-nav__link">
+    NestedField kwargs
+  </a>
+  
+    <nav class="md-nav" aria-label="NestedField kwargs">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#accept_pk-kwarg" class="md-nav__link">
+    accept_pk kwarg
   </a>
   
 </li>
-      
-        <li class="md-nav__item">
-  <a href="#using-nestedfield-with-accept_pk_only-kwarg" class="md-nav__link">
-    Using NestedField with accept_pk_only kwarg.
+        
+          <li class="md-nav__item">
+  <a href="#accept_pk_only-kwarg" class="md-nav__link">
+    accept_pk_only kwarg
   </a>
   
 </li>
-      
-        <li class="md-nav__item">
-  <a href="#using-nestedfield-with-create_ops-and-update_ops-kwargs" class="md-nav__link">
-    Using NestedField with create_ops and update_ops kwargs.
+        
+          <li class="md-nav__item">
+  <a href="#create_ops-and-update_ops-kwargs" class="md-nav__link">
+    create_ops and update_ops kwargs.
   </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#allow_remove_all-kwarg" class="md-nav__link">
+    allow_remove_all kwarg
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
   
 </li>
       
         <li class="md-nav__item">
   <a href="#using-dynamicfieldsmixin-and-nestedfield-together" class="md-nav__link">
     Using DynamicFieldsMixin and NestedField together
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#working-data-mutation-without-request" class="md-nav__link">
+    Working data mutation without request
   </a>
   
 </li>
@@ -343,29 +370,56 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#using-nestedfield-with-accept_pk-kwarg" class="md-nav__link">
-    Using NestedField with accept_pk kwarg.
+  <a href="#nestedfield-kwargs" class="md-nav__link">
+    NestedField kwargs
+  </a>
+  
+    <nav class="md-nav" aria-label="NestedField kwargs">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#accept_pk-kwarg" class="md-nav__link">
+    accept_pk kwarg
   </a>
   
 </li>
-      
-        <li class="md-nav__item">
-  <a href="#using-nestedfield-with-accept_pk_only-kwarg" class="md-nav__link">
-    Using NestedField with accept_pk_only kwarg.
+        
+          <li class="md-nav__item">
+  <a href="#accept_pk_only-kwarg" class="md-nav__link">
+    accept_pk_only kwarg
   </a>
   
 </li>
-      
-        <li class="md-nav__item">
-  <a href="#using-nestedfield-with-create_ops-and-update_ops-kwargs" class="md-nav__link">
-    Using NestedField with create_ops and update_ops kwargs.
+        
+          <li class="md-nav__item">
+  <a href="#create_ops-and-update_ops-kwargs" class="md-nav__link">
+    create_ops and update_ops kwargs.
   </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#allow_remove_all-kwarg" class="md-nav__link">
+    allow_remove_all kwarg
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
   
 </li>
       
         <li class="md-nav__item">
   <a href="#using-dynamicfieldsmixin-and-nestedfield-together" class="md-nav__link">
     Using DynamicFieldsMixin and NestedField together
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#working-data-mutation-without-request" class="md-nav__link">
+    Working data mutation without request
   </a>
   
 </li>
@@ -429,9 +483,9 @@
 </code></pre></div>
 
 
-<p><br></p>
+<p>With serializers defined as shown above, you will be able to send data mutation request like</p>
 <p><code>POST /api/property/</code></p>
-<p>Request Body</p>
+<p>With a request body like</p>
 <div class="codehilite"><pre><span></span><code><span class="p">{</span>
     <span class="s2">&quot;price&quot;</span><span class="o">:</span> <span class="mi">60000</span><span class="p">,</span>
     <span class="s2">&quot;location&quot;</span><span class="o">:</span> <span class="p">{</span>
@@ -449,12 +503,7 @@
 </code></pre></div>
 
 
-<p>What's done here is pretty clear, location will be created and associated with the property created, also create operation on amenities will create amenities with values specified in a list and associate with the property, add operation will add amenity with id 3 to a list of amenities of the property.</p>
-<div class="admonition note">
-<p class="admonition-title">Note</p>
-<p>POST for many related field supports two operations which are <code>create</code> and <code>add</code>.</p>
-</div>
-<p>Response</p>
+<p>And get a response as</p>
 <div class="codehilite"><pre><span></span><code><span class="p">{</span>
     <span class="s2">&quot;id&quot;</span><span class="o">:</span> <span class="mi">2</span><span class="p">,</span>
     <span class="s2">&quot;price&quot;</span><span class="o">:</span> <span class="mi">60000</span><span class="p">,</span>
@@ -472,8 +521,19 @@
 </code></pre></div>
 
 
+<p>Just to clarify what happed here:</p>
+<ul>
+<li>location has been created and associated with the property created</li>
+<li><code>create</code> operation has created amenities with values specified in a list and associate them with the property</li>
+<li><code>add</code> operation has added amenity with id=3 to a list of amenities of the property.</li>
+</ul>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>POST for many related fields supports two operations which are <code>create</code> and <code>add</code>.</p>
+</div>
 <p><br></p>
-<p><code>PUT /api/property/2/</code></p>
+<p>Below we have an example where we are trying to update the property we have created in the previous example.</p>
+<p><code>PUT/PATCH /api/property/2/</code></p>
 <p>Request Body</p>
 <div class="codehilite"><pre><span></span><code><span class="p">{</span>
     <span class="s2">&quot;price&quot;</span><span class="o">:</span> <span class="mi">50000</span><span class="p">,</span>
@@ -491,12 +551,7 @@
 </code></pre></div>
 
 
-<p>Here <code>add</code>, <code>create</code>, <code>remove</code> and <code>update</code> are operations, so <code>add</code> operation add amenitiy with id 4 to a list of amenities of the property, <code>create</code> operation create amenities with values specified in a list, <code>remove</code> operation dessociate amenities with id 3 from a property, <code>update</code> operation edit amenity with id 1 according to values specified.</p>
-<div class="admonition note">
-<p class="admonition-title">Note</p>
-<p>PUT/PATCH for many related field supports four operations which are <code>create</code>, <code>add</code>, <code>remove</code> and <code>update</code>.</p>
-</div>
-<p>Response</p>
+<p>After sending the requst above we'll get a response which looks like</p>
 <div class="codehilite"><pre><span></span><code><span class="p">{</span>
     <span class="s2">&quot;id&quot;</span><span class="o">:</span> <span class="mi">2</span><span class="p">,</span>
     <span class="s2">&quot;price&quot;</span><span class="o">:</span> <span class="mi">50000</span><span class="p">,</span>
@@ -515,9 +570,23 @@
 </code></pre></div>
 
 
-<p><br></p>
-<h2 id="using-nestedfield-with-accept_pk-kwarg">Using NestedField with accept_pk kwarg.<a class="headerlink" href="#using-nestedfield-with-accept_pk-kwarg" title="Permanent link">&para;</a></h2>
-<p><code>accept_pk=True</code> is used if you want to be able to update nested field by using pk/id of existing data(basically associate existing nested resources with the parent resource). This applies to ForeignKey relation only.</p>
+<p>From the request body <code>add</code>, <code>create</code>, <code>remove</code> and <code>update</code> are operations</p>
+<p>What you see in the response above are details of our property, what really happened after sending the update request is</p>
+<ul>
+<li><code>add</code> operation added amenitiy with id=4 to a list of amenities of the property</li>
+<li><code>create</code> operation created amenities with values specified in a list</li>
+<li><code>remove</code> operation removed amenities with id=3 from a property</li>
+<li><code>update</code> operation updated amenity with id=1 according to values specified.</li>
+</ul>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>PUT/PATCH for many related fields supports four operations which are <code>create</code>, <code>add</code>, <code>remove</code> and <code>update</code>.</p>
+</div>
+<h2 id="nestedfield-kwargs">NestedField kwargs<a class="headerlink" href="#nestedfield-kwargs" title="Permanent link">&para;</a></h2>
+<p><code>NestedField</code> accepts extra kwargs in addition to those accepted by a serializer, these extra kwargs can be used to do more customizations on a nested field as explained below.</p>
+<h3 id="accept_pk-kwarg">accept_pk kwarg<a class="headerlink" href="#accept_pk-kwarg" title="Permanent link">&para;</a></h3>
+<p><code>accept_pk=True</code> is used if you want to be able to update nested field by using pk/id of existing data(basically associate existing nested resources with the parent resource). This applies to foreign key relations only. The default value for <code>accept_pk</code> is <code>False</code>.</p>
+<p>Below is an example showing how to use <code>accept_pk</code> kwarg.</p>
 <div class="codehilite"><pre><span></span><code><span class="kn">from</span> <span class="nn">rest_framework</span> <span class="kn">import</span> <span class="n">serializers</span> 
 <span class="kn">from</span> <span class="nn">django_restql.fields</span> <span class="kn">import</span> <span class="n">NestedField</span>
 <span class="kn">from</span> <span class="nn">django_restql.serializers</span> <span class="kn">import</span> <span class="n">NestedModelSerializer</span>
@@ -542,7 +611,7 @@
 </code></pre></div>
 
 
-<p><br></p>
+<p>Now sending mutation request as</p>
 <p><code>POST /api/property/</code></p>
 <p>Request Body</p>
 <div class="codehilite"><pre><span></span><code><span class="p">{</span>
@@ -554,7 +623,7 @@
 
 <div class="admonition note">
 <p class="admonition-title">Note</p>
-<p>Here location resource with id 2 is already existing, so what's done here is create new property resource and associate it with a location with id 2.</p>
+<p>Here location resource with id=2 exists already, so what's done here is create a new property resource and associate it with this location whose id is 2.</p>
 </div>
 <p>Response</p>
 <div class="codehilite"><pre><span></span><code><span class="p">{</span>
@@ -569,7 +638,6 @@
 </code></pre></div>
 
 
-<p><br></p>
 <p>Using <code>accept_pk</code> doesn't limit you from sending data(instead of pk to nested resource), setting <code>accept_pk=True</code> means you can send both data and pks. For instance from the above example you could still do </p>
 <p><code>POST /api/property/</code></p>
 <p>Request Body</p>
@@ -596,9 +664,9 @@
 </code></pre></div>
 
 
-<p><br></p>
-<h2 id="using-nestedfield-with-accept_pk_only-kwarg">Using NestedField with accept_pk_only kwarg.<a class="headerlink" href="#using-nestedfield-with-accept_pk_only-kwarg" title="Permanent link">&para;</a></h2>
-<p><code>accept_pk_only=True</code> is used if you want to be able to update nested field by using pk/id only. This applies to ForeignKey relation only. If this is set you won't be able to send data to create a nested resource.</p>
+<h3 id="accept_pk_only-kwarg">accept_pk_only kwarg<a class="headerlink" href="#accept_pk_only-kwarg" title="Permanent link">&para;</a></h3>
+<p><code>accept_pk_only=True</code> is used if you want to be able to update nested field by using pk/id only. This applies to foreign key relations only as well. The default value for <code>accept_pk_only</code> kwarg is <code>False</code>, if <code>accept_pk_only=True</code> is set you won't be able to send data to create a nested resource.</p>
+<p>Below is an example showing how to use <code>accept_pk_only</code> kwarg.</p>
 <div class="codehilite"><pre><span></span><code><span class="kn">from</span> <span class="nn">rest_framework</span> <span class="kn">import</span> <span class="n">serializers</span> 
 <span class="kn">from</span> <span class="nn">django_restql.fields</span> <span class="kn">import</span> <span class="n">NestedField</span>
 <span class="kn">from</span> <span class="nn">django_restql.serializers</span> <span class="kn">import</span> <span class="n">NestedModelSerializer</span>
@@ -623,7 +691,7 @@
 </code></pre></div>
 
 
-<p><br></p>
+<p>Sending mutation request</p>
 <p><code>POST /api/property/</code></p>
 <p>Request Body</p>
 <div class="codehilite"><pre><span></span><code><span class="p">{</span>
@@ -648,11 +716,10 @@
 
 <div class="admonition note">
 <p class="admonition-title">Note</p>
-<p>By default <code>accept_pk=False</code> and <code>accept_pk_only=False</code>, so nested field(foreign key related) accepts data only by default, if <code>accept_pk=True</code> is set, it accepts data and pk/id, and if <code>accept_pk_only=True</code> is set it accepts pk/id only. You can't set both <code>accept_pk=True</code> and <code>accept_pk_only=True</code> at the same time.</p>
+<p>By default <code>accept_pk=False</code> and <code>accept_pk_only=False</code>, so nested field(foreign key related) accepts data only by default, if <code>accept_pk=True</code> is set, it accepts data and pk/id, and if <code>accept_pk_only=True</code> is set it accepts pk/id only. You can't set both <code>accept_pk=True</code> and <code>accept_pk_only=True</code>.</p>
 </div>
-<p><br></p>
-<h2 id="using-nestedfield-with-create_ops-and-update_ops-kwargs">Using NestedField with create_ops and update_ops kwargs.<a class="headerlink" href="#using-nestedfield-with-create_ops-and-update_ops-kwargs" title="Permanent link">&para;</a></h2>
-<p>You can restrict some operations by using <code>create_ops</code> and <code>update_ops</code> keyword arguments as follows</p>
+<h3 id="create_ops-and-update_ops-kwargs">create_ops and update_ops kwargs.<a class="headerlink" href="#create_ops-and-update_ops-kwargs" title="Permanent link">&para;</a></h3>
+<p>These two kwargs are used to restrict some operations when creating or updating nested data. Below is an example showing how to restrict some operations by using these two kwargs.</p>
 <div class="codehilite"><pre><span></span><code><span class="kn">from</span> <span class="nn">rest_framework</span> <span class="kn">import</span> <span class="n">serializers</span> 
 <span class="kn">from</span> <span class="nn">django_restql.fields</span> <span class="kn">import</span> <span class="n">NestedField</span>
 <span class="kn">from</span> <span class="nn">django_restql.serializers</span> <span class="kn">import</span> <span class="n">NestedModelSerializer</span> 
@@ -681,7 +748,7 @@
 </code></pre></div>
 
 
-<p><br></p>
+<p>Sending create mutation request</p>
 <p><code>POST /api/property/</code></p>
 <p>Request Body</p>
 <div class="codehilite"><pre><span></span><code><span class="p">{</span>
@@ -709,8 +776,8 @@
 </code></pre></div>
 
 
-<p><br></p>
-<p><code>PUT /api/property/2/</code></p>
+<p>Sending update mutation request</p>
+<p><code>PUT/PATCH /api/property/2/</code></p>
 <p>Request Body</p>
 <div class="codehilite"><pre><span></span><code><span class="p">{</span>
     <span class="s2">&quot;price&quot;</span><span class="o">:</span> <span class="mi">50000</span><span class="p">,</span>
@@ -738,7 +805,30 @@
 </code></pre></div>
 
 
-<p><br></p>
+<h3 id="allow_remove_all-kwarg">allow_remove_all kwarg<a class="headerlink" href="#allow_remove_all-kwarg" title="Permanent link">&para;</a></h3>
+<p>This kwarg is used to enable and disable removing all related objects on many related nested field at once by using <code>__all__</code> directive. The default value of <code>allow_remove_all</code> is <code>False</code>, which means removing all related objects on many related nested fields is disabled by default so if you want to enable it you must set its value to <code>True</code>. For example </p>
+<div class="codehilite"><pre><span></span><code><span class="k">class</span> <span class="nc">CourseSerializer</span><span class="p">(</span><span class="n">NestedModelSerializer</span><span class="p">):</span>
+    <span class="n">books</span> <span class="o">=</span> <span class="n">NestedField</span><span class="p">(</span><span class="n">BookSerializer</span><span class="p">,</span> <span class="n">many</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">allow_remove_all</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+    <span class="k">class</span> <span class="nc">Meta</span><span class="p">:</span>
+        <span class="n">model</span> <span class="o">=</span> <span class="n">Course</span>
+        <span class="n">fields</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;name&quot;</span><span class="p">,</span> <span class="s2">&quot;code&quot;</span><span class="p">,</span> <span class="s2">&quot;books&quot;</span><span class="p">]</span>
+</code></pre></div>
+
+
+<p>With <code>allow_remove_all=True</code> as set above you will be able to send a request like</p>
+<p><code>PUT/PATCH /courses/3/</code></p>
+<p>Request Body</p>
+<div class="codehilite"><pre><span></span><code><span class="p">{</span>
+    <span class="s2">&quot;books&quot;</span><span class="o">:</span> <span class="p">{</span>
+        <span class="s2">&quot;remove&quot;</span><span class="o">:</span>  <span class="s2">&quot;__all__&quot;</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div>
+
+
+<p>This will remove all books associated with a course being updated.
+<br></p>
 <h2 id="using-dynamicfieldsmixin-and-nestedfield-together">Using DynamicFieldsMixin and NestedField together<a class="headerlink" href="#using-dynamicfieldsmixin-and-nestedfield-together" title="Permanent link">&para;</a></h2>
 <p>You can use <code>DynamicFieldsMixin</code> and <code>NestedModelSerializer</code> together if you want your serializer to be writable(on nested fields) and support querying data, this is very common. Below is an example which shows how you can use <code>DynamicFieldsMixin</code> and <code>NestedField</code> together.</p>
 <div class="codehilite"><pre><span></span><code><span class="kn">from</span> <span class="nn">rest_framework</span> <span class="kn">import</span> <span class="n">serializers</span> 
@@ -765,7 +855,7 @@
 </code></pre></div>
 
 
-<p><code>NestedField</code> is nothing but a serializer wrapper, it returns an instance of a modified version of a serializer passed, so you can pass all the args and kwargs accepted by a serializer on it, it will simply pass them to a serializer passed when instantiating an instance. So you can pass anything accepted by a serializer to a <code>NestedField</code> wrapper, and if a serializer passed inherits <code>DynamicFieldsMixin</code> just like <code>LocationSerializer</code> on above example then you can pass any arg or kwarg accepted by <code>DynamicFieldsMixin</code> when defining location as a nested field, i.e</p>
+<p><code>NestedField</code> is nothing but a serializer wrapper, it returns an instance of a modified version of a serializer passed, so you can pass all the args and kwargs accepted by a serializer on it, it will simply pass them along to a serializer passed when instantiating an instance. So you can pass anything accepted by a serializer to a <code>NestedField</code> wrapper, and if a serializer passed inherits <code>DynamicFieldsMixin</code> just like <code>LocationSerializer</code> on the example above then you can pass any arg or kwarg accepted by <code>DynamicFieldsMixin</code> when defining location as a nested field, i.e</p>
 <div class="codehilite"><pre><span></span><code><span class="n">location</span> <span class="o">=</span> <span class="n">NestedField</span><span class="p">(</span><span class="n">LocationSerializer</span><span class="p">,</span> <span class="n">fields</span><span class="o">=</span><span class="p">[</span><span class="o">...</span><span class="p">])</span>
 </code></pre></div>
 
@@ -807,7 +897,8 @@
 </code></pre></div>
 
 
-<p>The <code>required=False</code> kwarg allows you to create Property without including <code>location</code> field and the <code>allow_null=True</code> kwarg allows <code>location</code> field to be set to null if you haven't supplied it e.g</p>
+<p>The <code>required=False</code> kwarg allows you to create Property without including <code>location</code> field and the <code>allow_null=True</code> kwarg allows <code>location</code> field to be set to null if you haven't supplied it. For example</p>
+<p>Sending mutation request</p>
 <p><code>POST /api/property/</code></p>
 <p>Request Body</p>
 <div class="codehilite"><pre><span></span><code><span class="p">{</span>
@@ -817,7 +908,6 @@
 </code></pre></div>
 
 
-<p><br></p>
 <p>Response</p>
 <div class="codehilite"><pre><span></span><code><span class="p">{</span>
     <span class="s2">&quot;id&quot;</span><span class="o">:</span> <span class="mi">2</span><span class="p">,</span>
@@ -828,6 +918,91 @@
 
 
 <p>If you use <code>required=False</code> only without <code>allow_null=True</code>, The serializer will allow you to create Property without including <code>location</code> field but it will throw error because by default <code>allow_null=False</code> which means <code>null</code>/<code>None</code>(which is what's passed when you don't supply <code>location</code> value) is not considered a valid value.</p>
+<h2 id="working-data-mutation-without-request">Working data mutation without request<a class="headerlink" href="#working-data-mutation-without-request" title="Permanent link">&para;</a></h2>
+<p><strong>Django RESTQL</strong> allows you to do data mutation without having request object, this is used if you don't want to get your mutation data input(serializer data) from a request, in fact <code>NestedModelSerializer</code> and <code>NestedFied</code> can work independently without using request. Below is an example showing how you can work with data mutation without request object.</p>
+<div class="codehilite"><pre><span></span><code><span class="kn">from</span> <span class="nn">rest_framework</span> <span class="kn">import</span> <span class="n">serializers</span>
+<span class="kn">from</span> <span class="nn">django_restql.fields</span> <span class="kn">import</span> <span class="n">NestedField</span>
+<span class="kn">from</span> <span class="nn">django_restql.mixins</span> <span class="kn">import</span> <span class="n">DynamicFieldsMixin</span>
+<span class="kn">from</span> <span class="nn">django_restql.serializers</span> <span class="kn">import</span> <span class="n">NestedModelSerializer</span>
+
+<span class="kn">from</span> <span class="nn">app.models</span> <span class="kn">import</span> <span class="n">Book</span><span class="p">,</span> <span class="n">Course</span>
+
+
+<span class="k">class</span> <span class="nc">BookSerializer</span><span class="p">(</span><span class="n">DynamicFieldsMixin</span><span class="p">,</span> <span class="n">NestedModelSerializer</span><span class="p">):</span>
+    <span class="k">class</span> <span class="nc">Meta</span><span class="p">:</span>
+        <span class="n">model</span> <span class="o">=</span> <span class="n">Book</span>
+        <span class="n">fields</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;id&#39;</span><span class="p">,</span> <span class="s1">&#39;title&#39;</span><span class="p">,</span> <span class="s1">&#39;author&#39;</span><span class="p">]</span>
+
+
+<span class="k">class</span> <span class="nc">CourseSerializer</span><span class="p">(</span><span class="n">DynamicFieldsMixin</span><span class="p">,</span> <span class="n">NestedModelSerializer</span><span class="p">):</span>
+    <span class="n">books</span> <span class="o">=</span> <span class="n">NestedField</span><span class="p">(</span><span class="n">BookSerializer</span><span class="p">,</span> <span class="n">many</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">required</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+    <span class="k">class</span> <span class="nc">Meta</span><span class="p">:</span>
+        <span class="n">model</span> <span class="o">=</span> <span class="n">Course</span>
+        <span class="n">fields</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;id&#39;</span><span class="p">,</span> <span class="s1">&#39;name&#39;</span><span class="p">,</span> <span class="s1">&#39;code&#39;</span><span class="p">,</span> <span class="s1">&#39;books&#39;</span><span class="p">]</span>
+</code></pre></div>
+
+
+<p>From serializers above you can create a course like</p>
+<div class="codehilite"><pre><span></span><code><span class="n">data</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;Computer Programming&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;code&quot;</span><span class="p">:</span> <span class="s2">&quot;CS50&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;books&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;add&quot;</span><span class="p">:</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">],</span>
+        <span class="s2">&quot;create&quot;</span><span class="p">:</span> <span class="p">[</span>
+            <span class="p">{</span><span class="s1">&#39;title&#39;</span><span class="p">:</span> <span class="s1">&#39;Basic Data Structures&#39;</span><span class="p">,</span> <span class="s1">&#39;author&#39;</span><span class="p">:</span> <span class="s1">&#39;J. Davis&#39;</span><span class="p">},</span>
+            <span class="p">{</span><span class="s1">&#39;title&#39;</span><span class="p">:</span> <span class="s1">&#39;Advanced Data Structures&#39;</span><span class="p">,</span> <span class="s1">&#39;author&#39;</span><span class="p">:</span> <span class="s1">&#39;S. Mobit&#39;</span><span class="p">}</span>
+        <span class="p">]</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+
+<span class="n">serializer</span> <span class="o">=</span> <span class="n">CourseSerializer</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">data</span><span class="p">)</span>
+<span class="n">serializer</span><span class="o">.</span><span class="n">is_valid</span><span class="p">()</span>
+<span class="n">serializer</span><span class="o">.</span><span class="n">save</span><span class="p">()</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="n">serializer</span><span class="o">.</span><span class="n">data</span><span class="p">)</span>
+
+<span class="c1"># This will print</span>
+<span class="p">{</span>
+    <span class="s2">&quot;id&quot;</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span>
+    <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;Computer Programming&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;code&quot;</span><span class="p">:</span> <span class="s2">&quot;CS50&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;books&quot;</span><span class="p">:</span> <span class="p">[</span>
+        <span class="p">{</span><span class="s1">&#39;id&#39;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span> <span class="s1">&#39;title&#39;</span><span class="p">:</span> <span class="s1">&#39;Programming Intro&#39;</span><span class="p">,</span> <span class="s1">&#39;author&#39;</span><span class="p">:</span> <span class="s1">&#39;K. Moses&#39;</span><span class="p">},</span>
+        <span class="p">{</span><span class="s1">&#39;id&#39;</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span> <span class="s1">&#39;title&#39;</span><span class="p">:</span> <span class="s1">&#39;Understanding Computers&#39;</span><span class="p">,</span> <span class="s1">&#39;author&#39;</span><span class="p">:</span> <span class="s1">&#39;B. Gibson&#39;</span><span class="p">},</span>
+        <span class="p">{</span><span class="s1">&#39;id&#39;</span><span class="p">:</span> <span class="mi">3</span><span class="p">,</span> <span class="s1">&#39;title&#39;</span><span class="p">:</span> <span class="s1">&#39;Basic Data Structures&#39;</span><span class="p">,</span> <span class="s1">&#39;author&#39;</span><span class="p">:</span> <span class="s1">&#39;J. Davis&#39;</span><span class="p">},</span>
+        <span class="p">{</span><span class="s1">&#39;id&#39;</span><span class="p">:</span> <span class="mi">4</span><span class="p">,</span> <span class="s1">&#39;title&#39;</span><span class="p">:</span> <span class="s1">&#39;Advanced Data Structures&#39;</span><span class="p">,</span> <span class="s1">&#39;author&#39;</span><span class="p">:</span> <span class="s1">&#39;S. Mobit&#39;</span><span class="p">}</span>
+    <span class="p">]</span>
+<span class="p">}</span>
+</code></pre></div>
+
+
+<p>To update a created course you can do it like</p>
+<div class="codehilite"><pre><span></span><code><span class="n">data</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">&quot;code&quot;</span><span class="p">:</span> <span class="s2">&quot;CS100&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;books&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;remove&quot;</span><span class="p">:</span> <span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">]</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+
+<span class="n">course_obj</span> <span class="o">=</span> <span class="n">Course</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">pk</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+
+<span class="n">serializer</span> <span class="o">=</span> <span class="n">CourseSerializer</span><span class="p">(</span><span class="n">course_obj</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="n">data</span><span class="p">)</span>
+<span class="n">serializer</span><span class="o">.</span><span class="n">is_valid</span><span class="p">()</span>
+<span class="n">serializer</span><span class="o">.</span><span class="n">save</span><span class="p">()</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="n">serializer</span><span class="o">.</span><span class="n">data</span><span class="p">)</span>
+
+<span class="c1"># This will print</span>
+<span class="p">{</span>
+    <span class="s2">&quot;id&quot;</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span>
+    <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;Computer Programming&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;code&quot;</span><span class="p">:</span> <span class="s2">&quot;CS100&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;books&quot;</span><span class="p">:</span> <span class="p">[</span>
+        <span class="p">{</span><span class="s1">&#39;id&#39;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span> <span class="s1">&#39;title&#39;</span><span class="p">:</span> <span class="s1">&#39;Programming Intro&#39;</span><span class="p">,</span> <span class="s1">&#39;author&#39;</span><span class="p">:</span> <span class="s1">&#39;K. Moses&#39;</span><span class="p">},</span>
+        <span class="p">{</span><span class="s1">&#39;id&#39;</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span> <span class="s1">&#39;title&#39;</span><span class="p">:</span> <span class="s1">&#39;Understanding Computers&#39;</span><span class="p">,</span> <span class="s1">&#39;author&#39;</span><span class="p">:</span> <span class="s1">&#39;B. Gibson&#39;</span><span class="p">}</span>
+    <span class="p">]</span>
+<span class="p">}</span>
+</code></pre></div>
                 
               
               
