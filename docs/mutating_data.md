@@ -506,7 +506,7 @@ Response
 If you use `required=False` only without `allow_null=True`, The serializer will allow you to create Property without including `location` field but it will throw error because by default `allow_null=False` which means `null`/`None`(which is what's passed when you don't supply `location` value) is not considered a valid value.
 
 
-## Working data mutation without request
+## Working with data mutation without request
 **Django RESTQL** allows you to do data mutation without having request object, this is used if you don't want to get your mutation data input(serializer data) from a request, in fact `NestedModelSerializer` and `NestedFied` can work independently without using request. Below is an example showing how you can work with data mutation without request object.
 
 ```py
