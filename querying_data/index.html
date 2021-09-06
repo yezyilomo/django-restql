@@ -1431,8 +1431,8 @@
     <span class="n">articles</span> <span class="p">{</span>       <span class="c1"># many related field</span>
         <span class="n">title</span><span class="p">,</span>       <span class="c1"># string</span>
         <span class="n">body</span><span class="p">,</span>        <span class="c1"># text</span>
-        <span class="n">reviewers</span> <span class="p">{</span>  <span class="c1"># many related field</span>
-            <span class="n">name</span><span class="p">,</span>    <span class="c1"># string</span>
+        <span class="n">reviews</span> <span class="p">{</span>    <span class="c1"># many related field</span>
+            <span class="n">comment</span><span class="p">,</span> <span class="c1"># string</span>
             <span class="n">rating</span>   <span class="c1"># number</span>
         <span class="p">}</span>
     <span class="p">}</span>
@@ -1449,7 +1449,7 @@
 
 <span class="n">prefetch_related</span> <span class="o">=</span> <span class="p">{</span>
     <span class="s2">&quot;articles&quot;</span><span class="p">:</span> <span class="n">Prefetch</span><span class="p">(</span><span class="s2">&quot;articles&quot;</span><span class="p">,</span> <span class="n">queryset</span><span class="o">=</span><span class="n">Article</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">all</span><span class="p">()),</span>
-    <span class="s2">&quot;articles.reviews&quot;</span><span class="p">:</span> <span class="s2">&quot;articles__reviewers&quot;</span>
+    <span class="s2">&quot;articles.reviews&quot;</span><span class="p">:</span> <span class="s2">&quot;articles__reviews&quot;</span>
 <span class="p">}</span>
 </code></pre></div>
 

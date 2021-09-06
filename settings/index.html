@@ -366,7 +366,8 @@
 <p>Configuration for <strong>Django RESTQL</strong> is all namespaced inside a single Django setting named <code>RESTQL</code>, below is a list of what you can configure under <code>RESTQL</code> setting.</p>
 <h2 id="query_param_name">QUERY_PARAM_NAME<a class="headerlink" href="#query_param_name" title="Permanent link">&para;</a></h2>
 <p>The default value for this is <code>query</code>. If you don't want to use the name <code>query</code> as your parameter, you can change it with<code>QUERY_PARAM_NAME</code> on settings file e.g</p>
-<div class="codehilite"><pre><span></span><code><span class="n">RESTQL</span> <span class="o">=</span> <span class="p">{</span>
+<div class="codehilite"><pre><span></span><code><span class="c1"># settings.py file</span>
+<span class="n">RESTQL</span> <span class="o">=</span> <span class="p">{</span>
     <span class="s1">&#39;QUERY_PARAM_NAME&#39;</span><span class="p">:</span> <span class="s1">&#39;your_favourite_name&#39;</span>
 <span class="p">}</span>
 </code></pre></div>
@@ -377,7 +378,6 @@
 <h2 id="max_alias_len">MAX_ALIAS_LEN<a class="headerlink" href="#max_alias_len" title="Permanent link">&para;</a></h2>
 <p>The default value for this is 50. When creating aliases this setting limit the number of characters allowed in aliases. This setting prevents DoS like attacks to API which might be caused by clients specifying a really really long alias which might increase network usage. If you want to change the default value, do as follows</p>
 <div class="codehilite"><pre><span></span><code><span class="c1"># settings.py file</span>
-<span class="c1"># This will turn off auto apply eager loading globally</span>
 <span class="n">RESTQL</span> <span class="o">=</span> <span class="p">{</span>
     <span class="s1">&#39;MAX_ALIAS_LEN&#39;</span><span class="p">:</span> <span class="mi">100</span>  <span class="c1"># Put the value that you want here</span>
 <span class="p">}</span>
