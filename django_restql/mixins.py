@@ -122,7 +122,7 @@ class QueryArgumentsMixin(RequestQueryParserMixin):
 class DynamicFieldsMixin(RequestQueryParserMixin):
     def __init__(self, *args, **kwargs):
         # Don't pass DynamicFieldsMixin's kwargs to the superclass
-        self.restql_kwargs = {
+        self.dynamic_fields_mixin_kwargs = {
             "query": kwargs.pop('query', None),
             "parsed_query": kwargs.pop('parsed_query', None),
             "fields": kwargs.pop('fields', None),
@@ -131,18 +131,20 @@ class DynamicFieldsMixin(RequestQueryParserMixin):
             "disable_dynamic_fields": kwargs.pop('disable_dynamic_fields', False)
         }
 
-        is_field_kwarg_set = self.restql_kwargs["fields"] is not None
-        is_exclude_kwarg_set = self.restql_kwargs["exclude"] is not None
-        msg = "May not set both `fields` and `exclude`"
-        assert not(is_field_kwarg_set and is_exclude_kwarg_set), msg
+        msg = "May not set both `fields` and `exclude` kwargs"
+        assert not(
+            self.dynamic_fields_mixin_kwargs["fields"] is not None and
+            self.dynamic_fields_mixin_kwargs["exclude"] is not None
+        ), msg
 
-        is_query_kwarg_set = self.restql_kwargs["query"] is not None
-        is_parsed_query_kwarg_set = self.restql_kwargs["parsed_query"] is not None
-        msg = "May not set both `query` and `parsed_query`"
-        assert not(is_query_kwarg_set and is_parsed_query_kwarg_set), msg
+        msg = "May not set both `query` and `parsed_query` kwargs"
+        assert not(
+            self.dynamic_fields_mixin_kwargs["query"] is not None and
+            self.dynamic_fields_mixin_kwargs["parsed_query"] is not None
+        ), msg
 
         # flag to toggle using restql fields
-        self._ready_to_use_dynamic_fields = False
+        self.is_ready_to_use_dynamic_fields = False
 
         # initialize parsed restql query
         self.parsed_restql_query = None
@@ -152,18 +154,18 @@ class DynamicFieldsMixin(RequestQueryParserMixin):
 
     def to_representation(self, instance):
         # Activate using restql fields
-        self._ready_to_use_dynamic_fields = True
+        self.is_ready_to_use_dynamic_fields = True
 
-        if self.restql_kwargs["return_pk"]:
+        if self.dynamic_fields_mixin_kwargs["return_pk"]:
             return instance.pk
         return super().to_representation(instance)
 
     @cached_property
     def allowed_fields(self):
         fields = super().fields
-        if self.restql_kwargs["fields"] is not None:
+        if self.dynamic_fields_mixin_kwargs["fields"] is not None:
             # Drop all fields which are not specified on the `fields` kwarg.
-            allowed = set(self.restql_kwargs["fields"])
+            allowed = set(self.dynamic_fields_mixin_kwargs["fields"])
             existing = set(fields)
             not_allowed = existing.symmetric_difference(allowed)
             for field_name in not_allowed:
@@ -173,9 +175,9 @@ class DynamicFieldsMixin(RequestQueryParserMixin):
                     msg = "Field `%s` is not found" % field_name
                     raise FieldNotFound(msg) from None
 
-        if self.restql_kwargs["exclude"] is not None:
+        if self.dynamic_fields_mixin_kwargs["exclude"] is not None:
             # Drop all fields specified on the `exclude` kwarg.
-            not_allowed = set(self.restql_kwargs["exclude"])
+            not_allowed = set(self.dynamic_fields_mixin_kwargs["exclude"])
             for field_name in not_allowed:
                 try:
                     fields.pop(field_name)
@@ -308,9 +310,9 @@ class DynamicFieldsMixin(RequestQueryParserMixin):
             excluded_fields
         )
 
-        including_or_excluding_field_more_than_once = \
-            len(included_and_excluded_fields) != \
-            len(set(included_and_excluded_fields))
+        including_or_excluding_field_more_than_once = (
+            len(included_and_excluded_fields) != len(set(included_and_excluded_fields))
+        )
 
         if including_or_excluding_field_more_than_once:
             repeated_fields = get_duplicates(included_and_excluded_fields)
@@ -360,7 +362,7 @@ class DynamicFieldsMixin(RequestQueryParserMixin):
         return {}
 
     @cached_property
-    def restql_fields(self):
+    def dynamic_fields(self):
         is_top_retrieve_request = (
             self.field_name is None and
             self.parent is None
@@ -387,15 +389,13 @@ class DynamicFieldsMixin(RequestQueryParserMixin):
             parent = self.parent.parent
             if hasattr(parent, "nested_fields"):
                 parent_nested_fields = parent.nested_fields
-                self.parsed_restql_query = \
-                    parent_nested_fields.get(field_name, None)
+                self.parsed_restql_query = parent_nested_fields.get(field_name, None)
         elif isinstance(self.parent, Serializer):
             field_name = self.field_name
             parent = self.parent
             if hasattr(parent, "nested_fields"):
                 parent_nested_fields = parent.nested_fields
-                self.parsed_restql_query = \
-                    parent_nested_fields.get(field_name, None)
+                self.parsed_restql_query = parent_nested_fields.get(field_name, None)
 
         if self.parsed_restql_query is None:
             # There's not query
@@ -407,17 +407,17 @@ class DynamicFieldsMixin(RequestQueryParserMixin):
 
     def get_parsed_restql_query_from_query_kwarg(self):
         parser = QueryParser()
-        return parser.parse(self.restql_kwargs["query"])
+        return parser.parse(self.dynamic_fields_mixin_kwargs["query"])
 
     def get_parsed_restql_query(self):
         request = self.context.get('request')
 
-        if self.restql_kwargs["query"] is not None:
+        if self.dynamic_fields_mixin_kwargs["query"] is not None:
             # Get from query kwarg
             return self.get_parsed_restql_query_from_query_kwarg()
-        elif self.restql_kwargs["parsed_query"] is not None:
+        elif self.dynamic_fields_mixin_kwargs["parsed_query"] is not None:
             # Get from parsed_query kwarg
-            return self.restql_kwargs["parsed_query"]
+            return self.dynamic_fields_mixin_kwargs["parsed_query"]
         elif request is not None and self.has_restql_query_param(request):
             # Get from request query parameter
             return self.get_parsed_restql_query_from_req(request)
@@ -425,10 +425,14 @@ class DynamicFieldsMixin(RequestQueryParserMixin):
 
     @property
     def fields(self):
-        dynamic_fields_disabled = self.restql_kwargs["disable_dynamic_fields"]
-        if self._ready_to_use_dynamic_fields and not dynamic_fields_disabled:
+        should_use_dynamic_fields = (
+            self.is_ready_to_use_dynamic_fields and
+            not self.dynamic_fields_mixin_kwargs["disable_dynamic_fields"]
+        )
+
+        if should_use_dynamic_fields:
             # Return restql fields
-            return self.restql_fields
+            return self.dynamic_fields
         return self.allowed_fields
 
 
@@ -733,12 +737,10 @@ class NestedCreateMixin(BaseNestedMixin):
             if isinstance(field_serializer, Serializer):
                 if field_serializer.is_replaceable:
                     value = validated_data.pop(field)
-                    fields["foreignkey_related"]["replaceable"] \
-                        .update({field: value})
+                    fields["foreignkey_related"]["replaceable"].update({field: value})
                 else:
                     value = validated_data.pop(field)
-                    fields["foreignkey_related"]["writable"]\
-                        .update({field: value})
+                    fields["foreignkey_related"]["writable"].update({field: value})
             elif isinstance(field_serializer, ListSerializer):
                 model = self.Meta.model
                 rel = getattr(model, field).rel
@@ -1031,12 +1033,10 @@ class NestedUpdateMixin(BaseNestedMixin):
             if isinstance(field_serializer, Serializer):
                 if field_serializer.is_replaceable:
                     value = validated_data.pop(field)
-                    fields["foreignkey_related"]["replaceable"] \
-                        .update({field: value})
+                    fields["foreignkey_related"]["replaceable"].update({field: value})
                 else:
                     value = validated_data.pop(field)
-                    fields["foreignkey_related"]["writable"] \
-                        .update({field: value})
+                    fields["foreignkey_related"]["writable"].update({field: value})
             elif isinstance(field_serializer, ListSerializer):
                 model = self.Meta.model
                 rel = getattr(model, field).rel
