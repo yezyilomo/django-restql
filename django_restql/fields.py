@@ -275,7 +275,11 @@ def BaseNestedFieldSerializerFactory(
             child_serializer = serializer_class(
                 **self.validation_kwargs,
                 data=data,
-                partial=self.is_partial(self.get_partial_value()),
+                partial=self.is_partial(
+                    # Use the partial value passed, if it's not passed
+                    # Use the one from the top parent
+                    self._top_parent.partial
+                ),
                 context=self.context
             )
 
@@ -286,11 +290,6 @@ def BaseNestedFieldSerializerFactory(
             child_serializer.is_valid(raise_exception=True)
             return child_serializer.validated_data
 
-        def get_partial_value(self):
-            if self._top_parent.instance:
-                return True
-            return False
-
         def to_internal_value(self, data):
             self.set_top_parent()
 
@@ -298,8 +297,9 @@ def BaseNestedFieldSerializerFactory(
             default = kwargs.get('default', empty)
 
             if data == empty:
-                if self.is_partial(self.get_partial_value()):
-                    return empty  # Ignore validation
+                if self._top_parent.partial:
+                    # Ignore validation bcuz the update is partial
+                    return empty
                 elif required:
                     if default == empty:
                         raise ValidationError(
