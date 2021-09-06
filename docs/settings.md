@@ -4,6 +4,7 @@ Configuration for **Django RESTQL** is all namespaced inside a single Django set
 ## QUERY_PARAM_NAME
 The default value for this is `query`. If you don't want to use the name `query` as your parameter, you can change it with`QUERY_PARAM_NAME` on settings file e.g
 ```py
+# settings.py file
 RESTQL = {
     'QUERY_PARAM_NAME': 'your_favourite_name'
 }
@@ -17,7 +18,6 @@ The default value for this is 50. When creating aliases this setting limit the n
 
 ```py
 # settings.py file
-# This will turn off auto apply eager loading globally
 RESTQL = {
     'MAX_ALIAS_LEN': 100  # Put the value that you want here
 }

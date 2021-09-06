@@ -149,7 +149,7 @@ What you see in the response above are details of our property, what really happ
 
 
 ### accept_pk kwarg
-`accept_pk=True` is used if you want to be able to update nested field by using pk/id of existing data(basically associate existing nested resources with the parent resource). This applies to foreign key relations only. The default value for `accept_pk` is `False`.
+`accept_pk=True` is used if you want to be able to update nested field by using pk/id of existing data(basically associate existing nested resource with the parent resource). This applies to foreign key relations only. The default value for `accept_pk` is `False`.
 
 Below is an example showing how to use `accept_pk` kwarg.
 

@@ -879,8 +879,8 @@ user = {
     articles {       # many related field
         title,       # string
         body,        # text
-        reviewers {  # many related field
-            name,    # string
+        reviews {    # many related field
+            comment, # string
             rating   # number
         }
     }
@@ -897,7 +897,7 @@ select_related = {
 
 prefetch_related = {
     "articles": Prefetch("articles", queryset=Article.objects.all()),
-    "articles.reviews": "articles__reviewers"
+    "articles.reviews": "articles__reviews"
 }
 ```
 
