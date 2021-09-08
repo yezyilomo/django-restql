@@ -73,7 +73,7 @@ class DataQueryingTests(APITestCase):
 
     def test_retrieve_with_flat_query(self):
         url = reverse_lazy("book-detail", args=[self.book1.id])
-        response = self.client.get(url + '?query={title, author}', format="json")
+        response = self.client.get(url + '?query={title, author,}', format="json")
 
         self.assertEqual(
             response.data,
@@ -1186,7 +1186,7 @@ class DataQueryingTests(APITestCase):
 
     def test_list_on_arguments_with_no_quoted_values(self):
         url = reverse_lazy("student-list")
-        response = self.client.get(url + '?query=(name: Yezy, age: 20){name, age, course{name}}', format="json")
+        response = self.client.get(url + '?query=(name: "Yezy", age: 20){name, age, course{name}}', format="json")
 
         self.assertEqual(
             response.data,
@@ -1195,7 +1195,7 @@ class DataQueryingTests(APITestCase):
 
     def test_list_on_arguments_with_single_quoted_string_as_value(self):
         url = reverse_lazy("student-list")
-        response = self.client.get(url + '?query=(name: \'Yezy\', age: \'20\'){name, age, course{name}}', format="json")
+        response = self.client.get(url + "?query=(name: 'Yezy', age: '20', fxa: true){name, age, course{name}}", format="json")
 
         self.assertEqual(
             response.data,
@@ -1204,7 +1204,7 @@ class DataQueryingTests(APITestCase):
 
     def test_list_on_arguments_with_double_quoted_string_as_value(self):
         url = reverse_lazy("student-list")
-        response = self.client.get(url + '?query=(name: "Yezy", age: "20"){name, age, course{name}}', format="json")
+        response = self.client.get(url + '?query=(name: "Yezy", age: 20){name, age, course{name}}', format="json")
 
         self.assertEqual(
             response.data,
@@ -1222,7 +1222,7 @@ class DataQueryingTests(APITestCase):
 
     def test_list_with_applied_filter_on_nested_aliased_field(self):
         url = reverse_lazy("student-list")
-        response = self.client.get(url + '?query={name, age, programme: course(code: CS015){code}}', format="json")
+        response = self.client.get(url + '?query={name, age, programme: course(code: "CS015"){code}}', format="json")
 
         self.assertEqual(
             response.data,
@@ -1231,7 +1231,7 @@ class DataQueryingTests(APITestCase):
 
     def test_list_with_applied_filter_on_very_deeply_nested_aliased_field(self):
         url = reverse_lazy("student-list")
-        response = self.client.get(url + '?query={name, age, program: course{readings: books(author: Y.Mobit){author}}}', format="json")
+        response = self.client.get(url + '?query={name, age, program: course{readings: books(author: "Y.Mobit"){author}}}', format="json")
 
         self.assertEqual(
             response.data,
