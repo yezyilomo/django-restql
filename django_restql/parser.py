@@ -27,40 +27,50 @@ class AllFields(str):
     grammar = '*'
 
 
-class BaseArgument(List):
+class ArgumentWithoutQuotes(List):
+    grammar = name(), ':', re.compile(r'true|false|null|[-+]?[0-9]*\.?[0-9]+')
+
+    def number(self, val):
+        try:
+            return int(val)
+        except ValueError:
+            return float(val)
+
     @property
     def value(self):
-        try:
-            return self[0]
-        except IndexError:
-            return ""
+        raw_val = self[0]
+        FIXED_DATA_TYPES = {
+            'true': True,
+            'false': False,
+            'null': None
+        }
+        if raw_val in FIXED_DATA_TYPES:
+            return FIXED_DATA_TYPES[raw_val]
+        return self.number(raw_val)
 
 
-class ArgumentWithoutQuotes(BaseArgument):
-    grammar = name(), ':', re.compile(r'[^,:"\'\)]+')
+class ArgumentWithQuotes(List):
+    grammar = name(), ':', re.compile(r'"([^"\\]|\\.|\\\n)*"|\'([^\'\\]|\\.|\\\n)*\'')
 
-
-class ArgumentWithSingleQuotes(BaseArgument):
-    grammar = name(), ':', "'", optional(re.compile(r'[^\']+')), "'"
-
-
-class ArgumentWithDoubleQuotes(BaseArgument):
-    grammar = name(), ':', '"', optional(re.compile(r'[^"]+')), '"'
+    @property
+    def value(self):
+        # Slicing is for removing quotes
+        # at the begining and end of a string
+        return self[0][1:-1]
 
 
 class Arguments(List):
     grammar = optional(csl(
         [
             ArgumentWithoutQuotes,
-            ArgumentWithSingleQuotes,
-            ArgumentWithDoubleQuotes
+            ArgumentWithQuotes,
         ],
-        separator=','
+        separator=[',', '']
     ))
 
 
 class ArgumentsBlock(List):
-    grammar = optional('(', Arguments, ')')
+    grammar = optional('(', Arguments, optional(','), ')')
 
     @property
     def arguments(self):
@@ -91,12 +101,12 @@ class ParentField(List):
 class BlockBody(List):
     grammar = optional(csl(
         [ParentField, IncludedField, ExcludedField, AllFields],
-        separator=','
+        separator=[',', '']
     ))
 
 
 class Block(List):
-    grammar = ArgumentsBlock, '{', BlockBody, '}'
+    grammar = ArgumentsBlock, '{', BlockBody, optional(','), '}'
 
     @property
     def arguments(self):
