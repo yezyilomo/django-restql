@@ -624,13 +624,15 @@ class NestedCreateMixin(BaseNestedMixin):
         nested_fields = self.restql_source_field_map
         for field, value in data.items():
             # Get nested field serializer
-            nf_serializer = nested_fields[field]
-            serializer_class = nf_serializer.serializer_class
-            kwargs = nf_serializer.validation_kwargs
+            nested_field_serializer = nested_fields[field]
+            serializer_class = nested_field_serializer.serializer_class
+            kwargs = nested_field_serializer.validation_kwargs
             serializer = serializer_class(
                 **kwargs,
                 data=value,
-                partial=nf_serializer.is_partial(False),
+                # Reject partial update by default(if partial kwarg is not passed)
+                # since we need all required fields when creating object
+                partial=nested_field_serializer.is_partial(False),
                 context=self.context
             )
             serializer.is_valid(raise_exception=True)
@@ -645,15 +647,17 @@ class NestedCreateMixin(BaseNestedMixin):
         nested_fields = self.restql_source_field_map
 
         # Get nested field serializer
-        nf_serializer = nested_fields[field].child
-        serializer_class = nf_serializer.serializer_class
-        kwargs = nf_serializer.validation_kwargs
+        nested_field_serializer = nested_fields[field].child
+        serializer_class = nested_field_serializer.serializer_class
+        kwargs = nested_field_serializer.validation_kwargs
         pks = []
         for values in data:
             serializer = serializer_class(
                 **kwargs,
                 data=values,
-                partial=nf_serializer.is_partial(False),
+                # Reject partial update by default(if partial kwarg is not passed)
+                # since we need all required fields when creating object
+                partial=nested_field_serializer.is_partial(False),
                 context=self.context,
             )
             serializer.is_valid(raise_exception=True)
@@ -798,15 +802,17 @@ class NestedUpdateMixin(BaseNestedMixin):
         nested_fields = self.restql_source_field_map
         for field, values in data.items():
             # Get nested field serializer
-            nf_serializer = nested_fields[field]
-            serializer_class = nf_serializer.serializer_class
-            kwargs = nf_serializer.validation_kwargs
+            nested_field_serializer = nested_fields[field]
+            serializer_class = nested_field_serializer.serializer_class
+            kwargs = nested_field_serializer.validation_kwargs
             nested_obj = getattr(instance, field)
             serializer = serializer_class(
                 nested_obj,
                 **kwargs,
                 data=values,
-                partial=nf_serializer.is_partial(True),  # Allow partial update since this is nested update
+                # Allow partial update by default(if partial kwarg is not passed)
+                # since this is nested update
+                partial=nested_field_serializer.is_partial(True),
                 context=self.context
             )
             serializer.is_valid(raise_exception=True)
@@ -825,15 +831,17 @@ class NestedUpdateMixin(BaseNestedMixin):
 
     def bulk_create_many_to_many_related(self, field, nested_obj, data):
         # Get nested field serializer
-        nf_serializer = self.restql_source_field_map[field].child
-        serializer_class = nf_serializer.serializer_class
-        kwargs = nf_serializer.validation_kwargs
+        nested_field_serializer = self.restql_source_field_map[field].child
+        serializer_class = nested_field_serializer.serializer_class
+        kwargs = nested_field_serializer.validation_kwargs
         pks = []
         for values in data:
             serializer = serializer_class(
                 **kwargs,
                 data=values,
-                partial=nf_serializer.is_partial(False),
+                # Reject partial update by default(if partial kwarg is not passed)
+                # since we need all required fields when creating object
+                partial=nested_field_serializer.is_partial(False),
                 context=self.context
             )
             serializer.is_valid(raise_exception=True)
@@ -844,15 +852,17 @@ class NestedUpdateMixin(BaseNestedMixin):
 
     def bulk_create_many_to_one_related(self, field, nested_obj, data):
         # Get nested field serializer
-        nf_serializer = self.restql_source_field_map[field].child
-        serializer_class = nf_serializer.serializer_class
-        kwargs = nf_serializer.validation_kwargs
+        nested_field_serializer = self.restql_source_field_map[field].child
+        serializer_class = nested_field_serializer.serializer_class
+        kwargs = nested_field_serializer.validation_kwargs
         pks = []
         for values in data:
             serializer = serializer_class(
                 **kwargs,
                 data=values,
-                partial=nf_serializer.is_partial(False),
+                # Reject partial update by default(if partial kwarg is not passed)
+                # since we need all required fields when creating object
+                partial=nested_field_serializer.is_partial(False),
                 context=self.context
             )
             serializer.is_valid(raise_exception=True)
@@ -865,16 +875,18 @@ class NestedUpdateMixin(BaseNestedMixin):
         objs = []
 
         # Get nested field serializer
-        nf_serializer = self.restql_source_field_map[field].child
-        serializer_class = nf_serializer.serializer_class
-        kwargs = nf_serializer.validation_kwargs
+        nested_field_serializer = self.restql_source_field_map[field].child
+        serializer_class = nested_field_serializer.serializer_class
+        kwargs = nested_field_serializer.validation_kwargs
         for pk, values in data.items():
             obj = nested_obj.get(pk=pk)
             serializer = serializer_class(
                 obj,
                 **kwargs,
                 data=values,
-                partial=nf_serializer.is_partial(True),  # Allow partial update since this is nested update
+                # Allow partial update by default(if partial kwarg is not passed)
+                # since this is nested update
+                partial=nested_field_serializer.is_partial(True),
                 context=self.context
             )
             serializer.is_valid(raise_exception=True)
@@ -887,9 +899,9 @@ class NestedUpdateMixin(BaseNestedMixin):
         objs = []
 
         # Get nested field serializer
-        nf_serializer = self.restql_source_field_map[field].child
-        serializer_class = nf_serializer.serializer_class
-        kwargs = nf_serializer.validation_kwargs
+        nested_field_serializer = self.restql_source_field_map[field].child
+        serializer_class = nested_field_serializer.serializer_class
+        kwargs = nested_field_serializer.validation_kwargs
         model = self.Meta.model
         foreignkey = getattr(model, field).field.name
         nested_obj = getattr(instance, field)
@@ -900,7 +912,9 @@ class NestedUpdateMixin(BaseNestedMixin):
                 obj,
                 **kwargs,
                 data=values,
-                partial=nf_serializer.is_partial(True),  # Allow partial update since this is nested update
+                # Allow partial update by default(if partial kwarg is not passed)
+                # since this is nested update
+                partial=nested_field_serializer.is_partial(True),
                 context=self.context
             )
             serializer.is_valid(raise_exception=True)
