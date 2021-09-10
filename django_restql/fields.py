@@ -112,7 +112,7 @@ def BaseNestedFieldSerializerFactory(
             self._top_parent = self.parent._top_parent
 
     class BaseNestedFieldListSerializer(ListSerializer, BaseNestedField):
-        def validate_pk_list(self, pks):
+        def run_pk_list_validation(self, pks):
             ListField().run_validation(pks)
             queryset = self.child.Meta.model.objects.all()
             validator = PrimaryKeyRelatedField(
@@ -120,9 +120,9 @@ def BaseNestedFieldSerializerFactory(
                 queryset=queryset,
                 many=True
             )
-            return validator.run_validation(pks)
+            validator.run_validation(pks)
 
-        def validate_data_list(self, data, partial=None):
+        def run_data_list_validation(self, data, partial=None):
             ListField().run_validation(data)
             model = self.parent.Meta.model
             rel = getattr(model, self.field_name).rel
@@ -160,18 +160,17 @@ def BaseNestedFieldSerializerFactory(
 
                 # Check if a serializer is valid
                 child_serializer.is_valid(raise_exception=True)
-            return child_serializer.validated_data
 
-        def validate_add_list(self, data):
-            return self.validate_pk_list(data)
+        def run_add_list_validation(self, data):
+            self.run_pk_list_validation(data)
 
-        def validate_create_list(self, data):
-            return self.validate_data_list(
+        def run_create_list_validation(self, data):
+            self.run_data_list_validation(
                 data,
                 partial=self.is_partial(False)
             )
 
-        def validate_remove_list(self, data):
+        def run_remove_list_validation(self, data):
             if data == ALL_RELATED_OBJS:
                 if allow_remove_all:
                     return data
@@ -181,40 +180,36 @@ def BaseNestedFieldSerializerFactory(
                         % (ALL_RELATED_OBJS, REMOVE)
                     )
                     raise ValidationError(msg, code="not_allowed")
-            return self.validate_pk_list(data)
+            self.run_pk_list_validation(data)
 
-        def validate_update_list(self, data):
+        def run_update_list_validation(self, data):
             DictField().run_validation(data)
             pks = list(data.keys())
-            self.validate_pk_list(pks)
+            self.run_pk_list_validation(pks)
             values = list(data.values())
-            self.validate_data_list(
+            self.run_data_list_validation(
                 values,
                 partial=self.is_partial(True)
             )
 
-        def get_operation_validation_methods(self, operations):
-            all_operation_validation_methods = {
-                ADD: self.validate_add_list,
-                CREATE: self.validate_create_list,
-                REMOVE: self.validate_remove_list,
-                UPDATE: self.validate_update_list,
-            }
-
-            required_validation_methods = {
-                operation: all_operation_validation_methods[operation]
-                for operation in operations
-            }
-
-            return required_validation_methods
-
-        def validated_data(self, data, request_ops):
-            validation_methods = self.get_operation_validation_methods(request_ops)
-
+        def run_data_validation(self, data, allowed_ops):
             DictField().run_validation(data)
+
+            operation_2_validation_method = {
+                ADD: self.run_add_list_validation,
+                CREATE: self.run_create_list_validation,
+                REMOVE: self.run_remove_list_validation,
+                UPDATE: self.run_update_list_validation,
+            }
+
+            allowed_operation_2_validation_method = {
+                operation: operation_2_validation_method[operation]
+                for operation in allowed_ops
+            }
+
             for operation, values in data.items():
                 try:
-                    validation_methods[operation](values)
+                    allowed_operation_2_validation_method[operation](values)
                 except ValidationError as e:
                     detail = {operation: e.detail}
                     code = e.get_codes()
@@ -223,17 +218,18 @@ def BaseNestedFieldSerializerFactory(
                     msg = (
                         "`%s` is not a valid operation, valid operations(s) "
                         "for this request %s"
-                        % (operation, join_words(request_ops))
+                        % (operation, join_words(allowed_ops))
                     )
                     code = 'invalid_operation'
                     raise ValidationError(msg, code=code) from None
-            return data
 
         def to_internal_value(self, data):
             self.set_top_parent()
             if self._top_parent.instance is None:
-                return self.validated_data(data, create_ops)
-            return self.validated_data(data, update_ops)
+                self.run_data_validation(data, create_ops)
+            else:
+                self.run_data_validation(data, update_ops)
+            return data
 
         def __repr__(self):
             return (
@@ -258,17 +254,17 @@ def BaseNestedFieldSerializerFactory(
             # i.e v3.7 v3.9 v3.10 etc doesn't need this function
             return self.to_internal_value(data)
 
-        def validate_pk_based_nested(self, data):
+        def run_pk_validation(self, pk):
             queryset = self.Meta.model.objects.all()
             validator = PrimaryKeyRelatedField(
                 **self.validation_kwargs,
                 queryset=queryset,
                 many=False
             )
-            obj = validator.run_validation(data)
-            return obj
+            # If valid return object instead of pk
+            return validator.run_validation(pk)
 
-        def validate_data_based_nested(self, data):
+        def run_data_validation(self, data):
             if data == empty:
                 # No value is provided pass an empty value as it is
                 return empty
@@ -315,14 +311,14 @@ def BaseNestedFieldSerializerFactory(
                     data = None
 
             if accept_pk_only:
-                return self.validate_pk_based_nested(data)
+                return self.run_pk_validation(data)
             elif accept_pk:
                 if isinstance(data, dict):
                     self.is_replaceable = False
-                    return self.validate_data_based_nested(data)
+                    return self.run_data_validation(data)
                 else:
-                    return self.validate_pk_based_nested(data)
-            return self.validate_data_based_nested(data)
+                    return self.run_pk_validation(data)
+            return self.run_data_validation(data)
 
         def __repr__(self):
             return (

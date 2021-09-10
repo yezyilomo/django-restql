@@ -191,7 +191,7 @@ class DataQueryingTests(APITestCase):
 
     def test_retrieve_with_exclude_operator_applied_on_a_nested_field(self):
         url = reverse_lazy("student-detail", args=[self.student.id])
-        response = self.client.get(url + '?query={name, age, phone_numbers{-number, -student}}', format="json")
+        response = self.client.get(url + '?query={name age phone_numbers{-number -student}}', format="json")
 
         self.assertEqual(
             response.data,
@@ -1195,7 +1195,7 @@ class DataQueryingTests(APITestCase):
 
     def test_list_on_arguments_with_single_quoted_string_as_value(self):
         url = reverse_lazy("student-list")
-        response = self.client.get(url + "?query=(name: 'Yezy', age: '20', fxa: true){name, age, course{name}}", format="json")
+        response = self.client.get(url + "?query=(name: 'Yezy', age: '20',){name, age, course{name,},}", format="json")
 
         self.assertEqual(
             response.data,

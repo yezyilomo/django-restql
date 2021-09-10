@@ -1,4 +1,3 @@
-import copy
 from collections import namedtuple
 
 from django.db.models import Prefetch
@@ -597,29 +596,13 @@ class BaseNestedMixin(object):
             # Get the actual source of the field
             self.restql_source_field_map.update({field.source: field})
 
-    def to_internal_value(self, data):
-        validated_data = super().to_internal_value(data)
-
-        if self.partial:
-            empty_fields = []
-            restql_nested_fields = self.restql_source_field_map.keys()
-
-            for field in restql_nested_fields:
-                if field in validated_data and validated_data[field] == empty:
-                    empty_fields.append(field)
-
-            for field in empty_fields:
-                # Ignore empty fields for partial update
-                validated_data.pop(field)
-
-        return validated_data
-
 
 class NestedCreateMixin(BaseNestedMixin):
     """ Create Mixin """
 
     def create_writable_foreignkey_related(self, data):
-        # data format {field: {sub_field: value}}
+        # data format
+        # {field: {sub_field: value}}
         objs = {}
         nested_fields = self.restql_source_field_map
         for field, value in data.items():
@@ -666,12 +649,11 @@ class NestedCreateMixin(BaseNestedMixin):
         return pks
 
     def create_many_to_one_related(self, instance, data):
-        # data format {field: {
-        # foreignkey_name: name,
-        # data: {
+        # data format
+        # {field: {
         # ADD: [pks],
         # CREATE: [{sub_field: value}]
-        # }}
+        # }...}
         field_pks = {}
         for field, values in data.items():
             model = self.Meta.model
@@ -692,10 +674,11 @@ class NestedCreateMixin(BaseNestedMixin):
         return field_pks
 
     def create_many_to_many_related(self, instance, data):
-        # data format {field: {
+        # data format
+        # {field: {
         # ADD: [pks],
         # CREATE: [{sub_field: value}]
-        # }}
+        # }...}
         field_pks = {}
         for field, values in data.items():
             obj = getattr(instance, field)
@@ -722,21 +705,17 @@ class NestedCreateMixin(BaseNestedMixin):
             }
         }
 
-        # Make a shallow copy of validated_data so that we can
-        # iterate and alter it
-        data = copy.copy(validated_data)
-        nested_fields = self.restql_source_field_map
-        for field in data:
-            if field not in nested_fields:
-                # Not a nested field
+        restql_nested_fields = self.restql_source_field_map
+        for field in restql_nested_fields:
+            if field not in validated_data:
+                # Nested field value is not provided
                 continue
-
-            if data[field] == empty:
+            elif validated_data[field] == empty:
                 # Avoid validation of unfilled nested field
                 validated_data.pop(field)
                 continue
 
-            field_serializer = nested_fields[field]
+            field_serializer = restql_nested_fields[field]
 
             if isinstance(field_serializer, Serializer):
                 if field_serializer.is_replaceable:
@@ -755,8 +734,6 @@ class NestedCreateMixin(BaseNestedMixin):
                 elif isinstance(rel, ManyToManyRel):
                     value = validated_data.pop(field)
                     fields["many_to"]["many_related"].update({field: value})
-            else:
-                pass
 
         foreignkey_related = {
             **fields["foreignkey_related"]["replaceable"],
@@ -923,14 +900,13 @@ class NestedUpdateMixin(BaseNestedMixin):
         return objs
 
     def update_many_to_one_related(self, instance, data):
-        # data format {field: {
-        # foreignkey_name: name:
-        # data: {
+        # data format
+        # {field: {
         # ADD: [{sub_field: value}],
         # CREATE: [{sub_field: value}],
         # REMOVE: [pk],
         # UPDATE: {pk: {sub_field: value}}
-        # }}}
+        # }...}
         for field, values in data.items():
             nested_obj = getattr(instance, field)
             model = self.Meta.model
@@ -970,12 +946,13 @@ class NestedUpdateMixin(BaseNestedMixin):
         return instance
 
     def update_many_to_many_related(self, instance, data):
-        # data format {field: {
+        # data format
+        # {field: {
         # ADD: [{sub_field: value}],
         # CREATE: [{sub_field: value}],
         # REMOVE: [pk],
         # UPDATE: {pk: {sub_field: value}}
-        # }}
+        # }...}
         for field, values in data.items():
             nested_obj = getattr(instance, field)
             for operation in values:
@@ -1028,21 +1005,17 @@ class NestedUpdateMixin(BaseNestedMixin):
             }
         }
 
-        # Make a shallow copy of validated_data so that we can
-        # iterate and alter it
-        data = copy.copy(validated_data)
-        nested_fields = self.restql_source_field_map
-        for field in data:
-            # Not a nested field
-            if field not in nested_fields:
+        restql_nested_fields = self.restql_source_field_map
+        for field in restql_nested_fields:
+            if field not in validated_data:
+                # Nested field value is not provided
                 continue
-
-            if data[field] == empty:
+            elif validated_data[field] == empty:
                 # Avoid validation of unfilled nested field
                 validated_data.pop(field)
                 continue
 
-            field_serializer = nested_fields[field]
+            field_serializer = restql_nested_fields[field]
 
             if isinstance(field_serializer, Serializer):
                 if field_serializer.is_replaceable:
@@ -1061,8 +1034,8 @@ class NestedUpdateMixin(BaseNestedMixin):
                 elif isinstance(rel, ManyToManyRel):
                     value = validated_data.pop(field)
                     fields["many_to"]["many_related"].update({field: value})
-            else:
-                pass
+
+        instance = super().update(instance, validated_data)
 
         self.update_replaceable_foreignkey_related(
             instance,
@@ -1084,4 +1057,4 @@ class NestedUpdateMixin(BaseNestedMixin):
             fields["many_to"]["one_related"]
         )
 
-        return super().update(instance, validated_data)
+        return instance
