@@ -1482,7 +1482,7 @@ class DataMutationTests(APITestCase):
             }
         )
 
-    def test_post_on_pk_nested_nullable_foreignkey_related_field(self):
+    def test_post_on_pk_nested_nullable_foreignkey_related_field_with_null_not_passed(self):
         url = reverse_lazy("rstudent-list")
         data = {
             "name": "yezy",
@@ -1500,12 +1500,12 @@ class DataMutationTests(APITestCase):
             }
         )
 
-    def test_post_on_pk_nested_nullable_foreignkey_related_field_with_empty_string(self):
+    def test_post_on_pk_nested_nullable_foreignkey_related_field_with_null_passed(self):
         url = reverse_lazy("rstudent-list")
         data = {
             "name": "yezy",
             "age": 33,
-            "course": ""
+            "course": None
         }
         response = self.client.post(url, data, format="json")
 
@@ -1573,7 +1573,7 @@ class DataMutationTests(APITestCase):
         data = {
             "name": "yezy",
             "age": 33,
-            "course": ""
+            "course": None
         }
         response = self.client.post(url, data, format="json")
 
@@ -1897,7 +1897,7 @@ class DataMutationTests(APITestCase):
         data = {
             "name": "yezy",
             "age": 33,
-            "course": ''
+            "course": None
         }
         response = self.client.put(url, data, format="json")
 
@@ -2284,11 +2284,12 @@ class DataMutationTests(APITestCase):
             }
         )
 
-    def test_patch_on_writable_nested_nullable_foreignkey_related_field(self):
+    def test_patch_on_writable_nested_nullable_foreignkey_related_field_without_null_value(self):
         url = reverse_lazy("wstudent-detail", args=[self.student.id])
         data = {
             "name": "yezy",
-            "age": 26
+            "age": 26,
+            # "course": None  # We are not passing null
         }
         response = self.client.patch(url, data, format="json")
 
@@ -2311,12 +2312,12 @@ class DataMutationTests(APITestCase):
             }
         )
 
-    def test_patch_on_writable_nested_nullable_foreignkey_related_field_with_empty_string(self):
+    def test_patch_on_writable_nested_nullable_foreignkey_related_field_with_null_value(self):
         url = reverse_lazy("wstudent-detail", args=[self.student.id])
         data = {
             "name": "yezy",
             "age": 33,
-            "course": ''
+            "course": None
         }
         response = self.client.patch(url, data, format="json")
 
