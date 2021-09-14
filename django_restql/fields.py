@@ -4,7 +4,7 @@ except ImportError:
     from django.utils.functional import classproperty
 from django.db.models.fields.related import ManyToOneRel
 
-from rest_framework.fields import DictField, ListField, empty
+from rest_framework.fields import DictField, ListField, SkipField, empty
 from rest_framework.serializers import (
     ListSerializer, PrimaryKeyRelatedField,
     SerializerMethodField, ValidationError
@@ -265,9 +265,6 @@ def BaseNestedFieldSerializerFactory(
             return validator.run_validation(pk)
 
         def run_data_validation(self, data):
-            if data == empty:
-                # No value is provided pass an empty value as it is
-                return empty
             child_serializer = serializer_class(
                 **self.validation_kwargs,
                 data=data,
@@ -293,9 +290,16 @@ def BaseNestedFieldSerializerFactory(
             default = kwargs.get('default', empty)
 
             if data == empty:
-                if self._top_parent.partial:
-                    # Ignore validation bcuz the update is partial
-                    return empty
+                # Implementation under this block is made
+                # according to DRF behaviour to other normal fields
+                # For more details see
+                # https://www.django-rest-framework.org/api-guide/fields/#required
+                # https://www.django-rest-framework.org/api-guide/fields/#default
+                # https://www.django-rest-framework.org/api-guide/fields/#allow_null
+                if self._top_parent.partial or not required:
+                    # Skip the field because the update is partial
+                    # or the field is not required(optional)
+                    raise SkipField()
                 elif required:
                     if default == empty:
                         raise ValidationError(
@@ -303,12 +307,8 @@ def BaseNestedFieldSerializerFactory(
                             code='required'
                         )
                     else:
+                        # Use the default value
                         data = default
-                else:
-                    data = empty
-            else:
-                if data == "":
-                    data = None
 
             if accept_pk_only:
                 return self.run_pk_validation(data)

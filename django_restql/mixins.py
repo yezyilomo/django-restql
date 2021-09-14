@@ -5,7 +5,6 @@ from django.db.models.fields.related import ManyToManyRel, ManyToOneRel
 from django.http import QueryDict
 from django.utils.functional import cached_property
 
-from rest_framework.fields import empty
 from rest_framework.serializers import (
     ListSerializer, Serializer, ValidationError
 )
@@ -694,6 +693,10 @@ class NestedCreateMixin(BaseNestedMixin):
         return field_pks
 
     def create(self, validated_data):
+        # Make a copty of validated_data so that we don't
+        # alter it in case user need to access it later
+        validated_data_copy = {**validated_data}
+
         fields = {
             "foreignkey_related": {
                 "replaceable": {},
@@ -707,32 +710,28 @@ class NestedCreateMixin(BaseNestedMixin):
 
         restql_nested_fields = self.restql_source_field_map
         for field in restql_nested_fields:
-            if field not in validated_data:
+            if field not in validated_data_copy:
                 # Nested field value is not provided
-                continue
-            elif validated_data[field] == empty:
-                # Avoid validation of unfilled nested field
-                validated_data.pop(field)
                 continue
 
             field_serializer = restql_nested_fields[field]
 
             if isinstance(field_serializer, Serializer):
                 if field_serializer.is_replaceable:
-                    value = validated_data.pop(field)
+                    value = validated_data_copy.pop(field)
                     fields["foreignkey_related"]["replaceable"].update({field: value})
                 else:
-                    value = validated_data.pop(field)
+                    value = validated_data_copy.pop(field)
                     fields["foreignkey_related"]["writable"].update({field: value})
             elif isinstance(field_serializer, ListSerializer):
                 model = self.Meta.model
                 rel = getattr(model, field).rel
 
                 if isinstance(rel, ManyToOneRel):
-                    value = validated_data.pop(field)
+                    value = validated_data_copy.pop(field)
                     fields["many_to"]["one_related"].update({field: value})
                 elif isinstance(rel, ManyToManyRel):
-                    value = validated_data.pop(field)
+                    value = validated_data_copy.pop(field)
                     fields["many_to"]["many_related"].update({field: value})
 
         foreignkey_related = {
@@ -742,7 +741,7 @@ class NestedCreateMixin(BaseNestedMixin):
             )
         }
 
-        instance = super().create({**validated_data, **foreignkey_related})
+        instance = super().create({**validated_data_copy, **foreignkey_related})
 
         self.create_many_to_many_related(
             instance,
@@ -994,6 +993,10 @@ class NestedUpdateMixin(BaseNestedMixin):
         return instance
 
     def update(self, instance, validated_data):
+        # Make a copty of validated_data so that we don't
+        # alter it in case user need to access it later
+        validated_data_copy = {**validated_data}
+
         fields = {
             "foreignkey_related": {
                 "replaceable": {},
@@ -1007,35 +1010,31 @@ class NestedUpdateMixin(BaseNestedMixin):
 
         restql_nested_fields = self.restql_source_field_map
         for field in restql_nested_fields:
-            if field not in validated_data:
+            if field not in validated_data_copy:
                 # Nested field value is not provided
-                continue
-            elif validated_data[field] == empty:
-                # Avoid validation of unfilled nested field
-                validated_data.pop(field)
                 continue
 
             field_serializer = restql_nested_fields[field]
 
             if isinstance(field_serializer, Serializer):
                 if field_serializer.is_replaceable:
-                    value = validated_data.pop(field)
+                    value = validated_data_copy.pop(field)
                     fields["foreignkey_related"]["replaceable"].update({field: value})
                 else:
-                    value = validated_data.pop(field)
+                    value = validated_data_copy.pop(field)
                     fields["foreignkey_related"]["writable"].update({field: value})
             elif isinstance(field_serializer, ListSerializer):
                 model = self.Meta.model
                 rel = getattr(model, field).rel
 
                 if isinstance(rel, ManyToOneRel):
-                    value = validated_data.pop(field)
+                    value = validated_data_copy.pop(field)
                     fields["many_to"]["one_related"].update({field: value})
                 elif isinstance(rel, ManyToManyRel):
-                    value = validated_data.pop(field)
+                    value = validated_data_copy.pop(field)
                     fields["many_to"]["many_related"].update({field: value})
 
-        instance = super().update(instance, validated_data)
+        instance = super().update(instance, validated_data_copy)
 
         self.update_replaceable_foreignkey_related(
             instance,
