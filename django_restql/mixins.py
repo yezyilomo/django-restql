@@ -67,8 +67,8 @@ class QueryArgumentsMixin(RequestQueryParserMixin):
                 pass
 
         query = {
-            "include": ["*"],
-            "exclude": [],
+            "included": ["*"],
+            "excluded": [],
             "arguments": {},
             "aliases": {},
         }
@@ -87,7 +87,7 @@ class QueryArgumentsMixin(RequestQueryParserMixin):
                     name: value
                 })
 
-        for field in parsed_query['include']:
+        for field in parsed_query["included"]:
             if isinstance(field, dict):
                 nested_field = self.get_nested_field_from_dict(field)
                 nested_query_params = self.build_query_params(
@@ -241,15 +241,15 @@ class DynamicFieldsMixin(RequestQueryParserMixin):
         # The format is  {nested_field: [sub_fields ...] ...}
         allowed_nested_fields = {}
 
-        # self.parsed_restql_query["exclude"]
+        # self.parsed_restql_query["excluded"]
         # is a list of names of excluded fields
         # The format is [field1, field2 ...]
-        excluded_fields = self.parsed_restql_query["exclude"]
+        excluded_fields = self.parsed_restql_query["excluded"]
 
-        # The self.parsed_restql_query["include"]
+        # The self.parsed_restql_query["included"]
         # contains a list of allowed fields,
         # The format is [field, {nested_field: [sub_fields ...]} ...]
-        included_fields = self.parsed_restql_query["include"]
+        included_fields = self.parsed_restql_query["included"]
 
         include_all_fields = False  # Assume the * is not set initially
 
@@ -259,7 +259,7 @@ class DynamicFieldsMixin(RequestQueryParserMixin):
         for field in included_fields:
             if field == "*":
                 # Include all fields but ignore `*` since
-                # is not an actual field(it's just a flag)
+                # it's not an actual field(it's just a flag)
                 include_all_fields = True
                 continue
             if isinstance(field, dict):
@@ -325,7 +325,7 @@ class DynamicFieldsMixin(RequestQueryParserMixin):
             raise ValidationError(msg, "invalid")
 
         if excluded_fields:
-            # Here we are sure that self.parsed_restql_query["exclude"]
+            # Here we are sure that self.parsed_restql_query["excluded"]
             # is not empty which means the user specified fields to exclude,
             # so we just check if provided fields exists then remove them from
             # a list of all fields
@@ -335,9 +335,9 @@ class DynamicFieldsMixin(RequestQueryParserMixin):
             return all_fields
 
         if included_fields and not include_all_fields:
-            # Here we are sure that self.parsed_restql_query["exclude"]
+            # Here we are sure that self.parsed_restql_query["excluded"]
             # is empty which means the exclude operator(-) has not been used,
-            # so self.parsed_restql_query["include"] contains only selected fields
+            # so self.parsed_restql_query["included"] contains only selected fields
             all_allowed_fields = (
                 allowed_flat_fields +
                 list(allowed_nested_fields.keys())
@@ -349,8 +349,8 @@ class DynamicFieldsMixin(RequestQueryParserMixin):
             return all_fields
 
         if include_all_fields:
-            # Here we are sure both self.parsed_restql_query["exclude"] and
-            # self.parsed_restql_query["include"] are empty, but * has been
+            # Here we are sure both self.parsed_restql_query["excluded"] and
+            # self.parsed_restql_query["included"] are empty, but * has been
             # used to select all fields, so we return all fields without
             # removing any
             return all_fields
@@ -396,8 +396,7 @@ class DynamicFieldsMixin(RequestQueryParserMixin):
                 self.parsed_restql_query = parent_nested_fields.get(field_name, None)
 
         if self.parsed_restql_query is None:
-            # There's not query
-            # Retrieve all fields
+            # There's no query so we retrieve all fields
             return self.allowed_fields
 
         # Get fields selected by using `query` parameter
@@ -451,8 +450,8 @@ class EagerLoadingMixin(RequestQueryParserMixin):
 
         # Else include all fields
         query = {
-            "include": ["*"],
-            "exclude": [],
+            "included": ["*"],
+            "excluded": [],
             "arguments": {},
             "aliases": {},
         }
@@ -481,26 +480,26 @@ class EagerLoadingMixin(RequestQueryParserMixin):
         """
         Returns the parsed query as a dict.
         """
-        keys = {}
-        include = parsed_restql_query.get("include", [])
-        exclude = parsed_restql_query.get("exclude", [])
+        parsed_query = {}
+        included_fields = parsed_restql_query.get("included", [])
+        excluded_fields = parsed_restql_query.get("excluded", [])
 
-        for item in include:
-            if isinstance(item, str):
-                keys[item] = True
-            elif isinstance(item, dict):
-                nested_field = cls.get_nested_field_from_dict(item)
+        for field in included_fields:
+            if isinstance(field, str):
+                parsed_query[field] = True
+            elif isinstance(field, dict):
+                nested_field = cls.get_nested_field_from_dict(field)
                 nested_keys = cls.get_dict_parsed_restql_query(nested_field.fields)
-                keys[nested_field.name] = nested_keys
+                parsed_query[nested_field.name] = nested_keys
 
-        for item in exclude:
-            if isinstance(item, str):
-                keys[item] = False
-            elif isinstance(item, dict):
-                nested_field = cls.get_nested_field_from_dict(item)
+        for field in excluded_fields:
+            if isinstance(field, str):
+                parsed_query[field] = False
+            elif isinstance(field, dict):
+                nested_field = cls.get_nested_field_from_dict(field)
                 nested_keys = cls.get_dict_parsed_restql_query(nested_field.fields)
-                keys[nested_field.name] = nested_keys
-        return keys
+                parsed_query[nested_field.name] = nested_keys
+        return parsed_query
 
     @staticmethod
     def get_related_fields(related_fields_mapping, dict_parsed_restql_query):
