@@ -133,10 +133,10 @@ class QueryParser(object):
 
     def _transform_block(self, block):
         fields = {
-            "include": [],
-            "exclude": [],
-            "arguments": {},
+            "included": [],
+            "excluded": [],
             "aliases": {},
+            "arguments": {},
         }
 
         for argument in block.arguments:
@@ -154,17 +154,17 @@ class QueryParser(object):
 
             if isinstance(field, dict):
                 # A field is a parent
-                fields["include"].append(field)
+                fields["included"].append(field)
             elif isinstance(field, IncludedField):
-                fields["include"].append(str(field.name))
+                fields["included"].append(str(field.name))
             elif isinstance(field, ExcludedField):
-                fields["exclude"].append(str(field.name))
+                fields["excluded"].append(str(field.name))
             elif isinstance(field, AllFields):
                 # include all fields
-                fields["include"].append("*")
+                fields["included"].append("*")
 
-        if fields["exclude"] and "*" not in fields["include"]:
-            fields["include"].append("*")
+        if fields["excluded"] and "*" not in fields["included"]:
+            fields["included"].append("*")
 
         field_names = set(fields["aliases"].values())
         field_aliases = set(fields["aliases"].keys())

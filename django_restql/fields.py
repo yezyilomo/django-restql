@@ -28,8 +28,8 @@ class DynamicSerializerMethodField(SerializerMethodField):
         else:
             # Include all fields
             query = {
-                "include": ["*"],
-                "exclude": [],
+                "included": ["*"],
+                "excluded": [],
                 "arguments": {},
                 "aliases": {},
             }
@@ -96,9 +96,9 @@ def BaseNestedFieldSerializerFactory(
         raise InvalidOperation(msg)
 
     class BaseNestedField(BaseRESTQLNestedField):
-        # Original nested serializer
         @classproperty
         def serializer_class(cls):
+            # Return original nested serializer
             return serializer_class
 
         def is_partial(self, default):
