@@ -1564,7 +1564,9 @@ class DataMutationTests(APITestCase):
                 },
                 'contacts': [
                     {'number': '076711110', 'type': 'Office', 'student': 2}
-                ]
+                ],
+                'study_partner': None,
+                'sport_partners': []
             }
         )
 
@@ -1861,7 +1863,9 @@ class DataMutationTests(APITestCase):
                 'contacts': [
                     {'number': '076711110', 'type': 'Office', 'student': 1},
                     {'number': '073008880', 'type': 'Home', 'student': 1},
-                ]
+                ],
+                'study_partner': None,
+                'sport_partners': []
             }
         )
 
@@ -2280,7 +2284,9 @@ class DataMutationTests(APITestCase):
                 'contacts': [
                     {'number': '076711110', 'type': 'Office', 'student': 1},
                     {'number': '073008880', 'type': 'Home', 'student': 1},
-                ]
+                ],
+                'study_partner': None,
+                'sport_partners': []
             }
         )
 
@@ -2676,6 +2682,47 @@ class DataQueryingAndMutationTests(APITestCase):
             }
         )
 
+    def test_post_on_self_referencing_nested_field(self):
+        url = reverse_lazy("wstudent_with_alias-list")
+        data = {
+            "name": "Gwen",
+            "age": 27,
+            "program": {"name": "Programming & Data Analysis", "code": "CS010"},
+            "contacts": {},
+            "study_partner": {"name": "Ilomo", "age": 24},
+            "sport_partners": {
+                "add": [1],
+                "create": [
+                    {"name": "Yoram", "age": 26},
+                    {"name": "Gaby", "age": 23}
+                ]
+            }
+        }
+        response = self.client.post(
+            url + '?query={*, study_partner{name}, sport_partners{name, age}}',
+            data, format="json"
+        )
+
+        self.assertEqual(
+            response.data,
+            {
+                'name': 'Gwen',
+                'age': 27,
+                'program': {
+                    'name': 'Programming & Data Analysis',
+                    'code': 'CS010',
+                    'books': []
+                },
+                'contacts': [],
+                'study_partner': {'name': 'Ilomo'},
+                'sport_partners': [
+                    {'name': 'Yezy', 'age': 24},
+                    {'name': 'Yoram', 'age': 26},
+                    {'name': 'Gaby', 'age': 23},
+                ]
+            }
+        )
+
     # **************** PUT Tests ********************* #
 
     def test_put_on_pk_nested_foreignkey_related_field_mix_with_query_param(self):
@@ -2774,6 +2821,51 @@ class DataQueryingAndMutationTests(APITestCase):
             }
         )
 
+    def test_put_on_self_referencing_nested_field(self):
+        url = reverse_lazy("wstudent_with_alias-detail", args=[self.student.id])
+        data = {
+            "name": "yezy",
+            "age": 27,
+            "program": {"name": "Programming & Data Analysis", "code": "CS55"},
+            "contacts": {},
+            "study_partner": {"name": "Ilomo", "age": 24},
+            "sport_partners": {
+                "create": [
+                    {"name": "Yoram", "age": 26},
+                    {"name": "Gaby", "age": 23}
+                ]
+            }
+        }
+        response = self.client.put(
+            url + '?query={*, study_partner{name}, sport_partners{name, age}}',
+            data, format="json"
+        )
+
+        self.assertEqual(
+            response.data,
+            {
+                'name': 'yezy',
+                'age': 27,
+                'program': {
+                    'name': 'Programming & Data Analysis',
+                    'code': 'CS55',
+                    'books': [
+                        {'title': 'Advanced Data Structures', 'author': 'S.Mobit', "genre": None},
+                        {'title': 'Basic Data Structures', 'author': 'S.Mobit', "genre": None}
+                    ]
+                },
+                'contacts': [
+                    {'number': '076711110', 'type': 'Office', 'student': 1},
+                    {'number': '073008880', 'type': 'Home', 'student': 1},
+                ],
+                'study_partner': {'name': 'Ilomo'},
+                'sport_partners': [
+                    {'name': 'Yoram', 'age': 26},
+                    {'name': 'Gaby', 'age': 23},
+                ]
+            }
+        )
+
     # **************** PATCH Tests ********************* #
 
     def test_patch_on_pk_nested_foreignkey_related_field_mix_with_query_param(self):
@@ -2867,5 +2959,50 @@ class DataQueryingAndMutationTests(APITestCase):
                         {'name': 'Basic Data Structures'}
                     ]
                 }
+            }
+        )
+
+    def test_patch_on_self_referencing_nested_field(self):
+        url = reverse_lazy("wstudent_with_alias-detail", args=[self.student.id])
+        data = {
+            "name": "yezy",
+            "age": 27,
+            "program": {"name": "Programming & Data Analysis", "code": "CS55"},
+            "contacts": {},
+            "study_partner": 1,
+            "sport_partners": {
+                "create": [
+                    {"name": "Yoram", "age": 26},
+                    {"name": "Gaby", "age": 23}
+                ]
+            }
+        }
+        response = self.client.patch(
+            url + '?query={*, study_partner{name}, sport_partners{name, age}}',
+            data, format="json"
+        )
+
+        self.assertEqual(
+            response.data,
+            {
+                'name': 'yezy',
+                'age': 27,
+                'program': {
+                    'name': 'Programming & Data Analysis',
+                    'code': 'CS55',
+                    'books': [
+                        {'title': 'Advanced Data Structures', 'author': 'S.Mobit', "genre": None},
+                        {'title': 'Basic Data Structures', 'author': 'S.Mobit', "genre": None}
+                    ]
+                },
+                'contacts': [
+                    {'number': '076711110', 'type': 'Office', 'student': 1},
+                    {'number': '073008880', 'type': 'Home', 'student': 1},
+                ],
+                'study_partner': {'name': 'Yezy'},
+                'sport_partners': [
+                    {'name': 'Yoram', 'age': 26},
+                    {'name': 'Gaby', 'age': 23},
+                ]
             }
         )
