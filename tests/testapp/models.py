@@ -22,6 +22,8 @@ class Student(models.Model):
     name = models.CharField(max_length=50)
     age = models.IntegerField()
     course = models.ForeignKey(Course, blank=True, null=True, on_delete=models.CASCADE, related_name="students")
+    study_partner = models.OneToOneField('self', blank=True, null=True, on_delete=models.CASCADE)
+    sport_partners = models.ManyToManyField('self', blank=True, related_name="sport_partners")
 
 
 class Phone(models.Model):
