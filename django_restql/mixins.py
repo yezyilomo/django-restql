@@ -11,7 +11,7 @@ from rest_framework.serializers import (
 
 from .exceptions import FieldNotFound, QueryFormatError
 from .fields import (
-    ALL_RELATED_OBJS, BaseRESTQLNestedField, DynamicSerializerMethodField
+    ALL_RELATED_OBJS, DynamicSerializerMethodField, TemporaryNestedField
 )
 from .operations import ADD, CREATE, REMOVE, UPDATE
 from .parser import QueryParser
@@ -290,7 +290,7 @@ class DynamicFieldsMixin(RequestQueryParserMixin):
 
         # Keep track of nested fields for future reference from child
         # serializers
-        self.nested_fields = allowed_nested_fields
+        self.restql_parsed_nested_fields = allowed_nested_fields
 
         def get_duplicates(items):
             unique = []
@@ -385,14 +385,14 @@ class DynamicFieldsMixin(RequestQueryParserMixin):
         elif isinstance(self.parent, ListSerializer):
             field_name = self.parent.field_name
             parent = self.parent.parent
-            if hasattr(parent, "nested_fields"):
-                parent_nested_fields = parent.nested_fields
+            if hasattr(parent, "restql_parsed_nested_fields"):
+                parent_nested_fields = parent.restql_parsed_nested_fields
                 self.parsed_restql_query = parent_nested_fields.get(field_name, None)
         elif isinstance(self.parent, Serializer):
             field_name = self.field_name
             parent = self.parent
-            if hasattr(parent, "nested_fields"):
-                parent_nested_fields = parent.nested_fields
+            if hasattr(parent, "restql_parsed_nested_fields"):
+                parent_nested_fields = parent.restql_parsed_nested_fields
                 self.parsed_restql_query = parent_nested_fields.get(field_name, None)
 
         if self.parsed_restql_query is None:
@@ -571,28 +571,28 @@ class BaseNestedMixin(object):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        # The order in which these two methods are called is important
-        self.build_restql_nested_fields()
-        self.build_restql_source_field_map()
-
         # This will be used to check top parent's instance to determine
         # whether it's a create or update request during data validation
         self._top_parent = self
 
-    def build_restql_nested_fields(self):
-        # Make field_name -> field_value map for restql nested fields
-        self.restql_nested_fields = {}
-        for name, field in self.fields.items():
-            if isinstance(field, BaseRESTQLNestedField):
-                self.restql_nested_fields.update({name: field})
+    def get_fields(self):
+        # Replace all temporary fields with the actual fields
+        fields = super().get_fields()
+        for field_name, field in fields.items():
+            if isinstance(field, TemporaryNestedField):
+                fields.update({
+                    field_name: field.get_actual_nested_field(self.__class__)
+                })
+        return fields
 
-    def build_restql_source_field_map(self):
+    @cached_property
+    def restql_writable_nested_fields(self):
         # Make field_source -> field_value map for restql nested fields
-        # You shoul run this after `build_restql_nested_fields`
-        self.restql_source_field_map = {}
-        for field in self.restql_nested_fields.values():
+        writable_nested_fields = {}
+        for _, field in self.fields.items():
             # Get the actual source of the field
-            self.restql_source_field_map.update({field.source: field})
+            writable_nested_fields.update({field.source: field})
+        return writable_nested_fields
 
 
 class NestedCreateMixin(BaseNestedMixin):
@@ -602,7 +602,7 @@ class NestedCreateMixin(BaseNestedMixin):
         # data format
         # {field: {sub_field: value}}
         objs = {}
-        nested_fields = self.restql_source_field_map
+        nested_fields = self.restql_writable_nested_fields
         for field, value in data.items():
             # Get nested field serializer
             nested_field_serializer = nested_fields[field]
@@ -625,7 +625,7 @@ class NestedCreateMixin(BaseNestedMixin):
         return objs
 
     def bulk_create_objs(self, field, data):
-        nested_fields = self.restql_source_field_map
+        nested_fields = self.restql_writable_nested_fields
 
         # Get nested field serializer
         nested_field_serializer = nested_fields[field].child
@@ -656,7 +656,7 @@ class NestedCreateMixin(BaseNestedMixin):
         for field, values in data.items():
             model = self.Meta.model
             foreignkey = getattr(model, field).field.name
-            nested_fields = self.restql_source_field_map
+            nested_fields = self.restql_writable_nested_fields
             for operation in values:
                 if operation == ADD:
                     pks = values[operation]
@@ -707,7 +707,7 @@ class NestedCreateMixin(BaseNestedMixin):
             }
         }
 
-        restql_nested_fields = self.restql_source_field_map
+        restql_nested_fields = self.restql_writable_nested_fields
         for field in restql_nested_fields:
             if field not in validated_data_copy:
                 # Nested field value is not provided
@@ -774,7 +774,7 @@ class NestedUpdateMixin(BaseNestedMixin):
     def update_writable_foreignkey_related(self, instance, data):
         # data format {field: {sub_field: value}}
         objs = {}
-        nested_fields = self.restql_source_field_map
+        nested_fields = self.restql_writable_nested_fields
         for field, values in data.items():
             # Get nested field serializer
             nested_field_serializer = nested_fields[field]
@@ -806,7 +806,7 @@ class NestedUpdateMixin(BaseNestedMixin):
 
     def bulk_create_many_to_many_related(self, field, nested_obj, data):
         # Get nested field serializer
-        nested_field_serializer = self.restql_source_field_map[field].child
+        nested_field_serializer = self.restql_writable_nested_fields[field].child
         serializer_class = nested_field_serializer.serializer_class
         kwargs = nested_field_serializer.validation_kwargs
         pks = []
@@ -827,7 +827,7 @@ class NestedUpdateMixin(BaseNestedMixin):
 
     def bulk_create_many_to_one_related(self, field, nested_obj, data):
         # Get nested field serializer
-        nested_field_serializer = self.restql_source_field_map[field].child
+        nested_field_serializer = self.restql_writable_nested_fields[field].child
         serializer_class = nested_field_serializer.serializer_class
         kwargs = nested_field_serializer.validation_kwargs
         pks = []
@@ -850,7 +850,7 @@ class NestedUpdateMixin(BaseNestedMixin):
         objs = []
 
         # Get nested field serializer
-        nested_field_serializer = self.restql_source_field_map[field].child
+        nested_field_serializer = self.restql_writable_nested_fields[field].child
         serializer_class = nested_field_serializer.serializer_class
         kwargs = nested_field_serializer.validation_kwargs
         for pk, values in data.items():
@@ -874,7 +874,7 @@ class NestedUpdateMixin(BaseNestedMixin):
         objs = []
 
         # Get nested field serializer
-        nested_field_serializer = self.restql_source_field_map[field].child
+        nested_field_serializer = self.restql_writable_nested_fields[field].child
         serializer_class = nested_field_serializer.serializer_class
         kwargs = nested_field_serializer.validation_kwargs
         model = self.Meta.model
@@ -909,7 +909,7 @@ class NestedUpdateMixin(BaseNestedMixin):
             nested_obj = getattr(instance, field)
             model = self.Meta.model
             foreignkey = getattr(model, field).field.name
-            nested_fields = self.restql_source_field_map
+            nested_fields = self.restql_writable_nested_fields
             for operation in values:
                 if operation == ADD:
                     pks = values[operation]
@@ -1007,7 +1007,7 @@ class NestedUpdateMixin(BaseNestedMixin):
             }
         }
 
-        restql_nested_fields = self.restql_source_field_map
+        restql_nested_fields = self.restql_writable_nested_fields
         for field in restql_nested_fields:
             if field not in validated_data_copy:
                 # Nested field value is not provided

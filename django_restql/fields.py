@@ -4,7 +4,7 @@ except ImportError:
     from django.utils.functional import classproperty
 from django.db.models.fields.related import ManyToOneRel
 
-from rest_framework.fields import DictField, ListField, SkipField, empty
+from rest_framework.fields import DictField, ListField, SkipField, empty, Field
 from rest_framework.serializers import (
     ListSerializer, PrimaryKeyRelatedField,
     SerializerMethodField, ValidationError
@@ -22,9 +22,9 @@ ALL_RELATED_OBJS = '__all__'
 class DynamicSerializerMethodField(SerializerMethodField):
     def to_representation(self, value):
         method = getattr(self.parent, self.method_name)
-        if (hasattr(self.parent, "nested_fields") and
-                self.field_name in self.parent.nested_fields):
-            query = self.parent.nested_fields[self.field_name]
+        if (hasattr(self.parent, "restql_parsed_nested_fields") and
+                self.field_name in self.parent.restql_parsed_nested_fields):
+            query = self.parent.restql_parsed_nested_fields[self.field_name]
         else:
             # Include all fields
             query = {
@@ -94,6 +94,11 @@ def BaseNestedFieldSerializerFactory(
             join_words(UPDATE_OPERATIONS)
         ) % "update_ops=%s" % update_ops
         raise InvalidOperation(msg)
+
+    if serializer_class == "self":
+        # We have a self referencing serializer so the serializer
+        # class is not available at the moment, we return None
+        return None
 
     class BaseNestedField(BaseRESTQLNestedField):
         @classproperty
@@ -337,9 +342,47 @@ def BaseNestedFieldSerializerFactory(
     }
 
 
+class TemporaryNestedField(Field, BaseRESTQLNestedField):
+    """
+    This is meant to be used temporarily when 'self' is
+    passed as the first arg to `NestedField`
+    """
+
+    def __init__(
+            self, NestedField, *args,
+            field_args=None, field_kwargs=None, **kwargs):
+        self.field_args = field_args
+        self.field_kwargs = field_kwargs
+        self.NestedField = NestedField
+        super().__init__(*args, **kwargs)
+
+    def get_actual_nested_field(self, serializer_class):
+        # Replace "self" with the actual parent serializer class
+        self.field_kwargs.update({
+            "serializer_class": serializer_class
+        })
+
+        # Reproduce the actual field
+        return self.NestedField(
+            *self.field_args,
+            **self.field_kwargs
+        )
+
+
 def NestedFieldWraper(*args, **kwargs):
-    factory = BaseNestedFieldSerializerFactory(*args, **kwargs)
     serializer_class = kwargs["serializer_class"]
+    factory = BaseNestedFieldSerializerFactory(*args, **kwargs)
+
+    if factory is None:
+        # We have a self referencing serializer so we return
+        # a temporary field while we are waiting for the parent
+        # to be ready(when it's ready the parent itself will replace
+        # this field with the actual field)
+        return TemporaryNestedField(
+            NestedFieldWraper,
+            field_args=args,
+            field_kwargs=kwargs
+        )
 
     serializer_validation_kwargs = {**factory['kwargs']}
 
