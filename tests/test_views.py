@@ -1394,7 +1394,7 @@ class DataMutationTests(APITestCase):
                 'course': {
                     'name': 'Programming',
                     'books': [
-                        {'title': 'Basic Data Structures', 'author': 'S.Mobit', "genre": None}
+                        {'title': 'Basic Data Structures', 'author': 'S.Mobit', "genres": []}
                     ]
                 },
                 'phone_numbers': [
@@ -1424,7 +1424,7 @@ class DataMutationTests(APITestCase):
                     'name': 'Programming',
                     'code': 'CS150',
                     'books': [
-                        {"title": "Advanced Data Structures", "author": "S.Mobit", "genre": None}
+                        {"title": "Advanced Data Structures", "author": "S.Mobit", "genres": []}
                     ]
                 },
                 'phone_numbers': []
@@ -1475,7 +1475,7 @@ class DataMutationTests(APITestCase):
                     'name': 'Programming',
                     'code': 'CS150',
                     'books': [
-                        {"title": "Advanced Data Structures", "author": "S.Mobit", "genre": None}
+                        {"title": "Advanced Data Structures", "author": "S.Mobit", "genres": []}
                     ]
                 },
                 'contacts': []
@@ -1566,7 +1566,7 @@ class DataMutationTests(APITestCase):
                     {'number': '076711110', 'type': 'Office', 'student': 2}
                 ],
                 'study_partner': None,
-                'sport_partners': []
+                'sport_mates': []
             }
         )
 
@@ -1604,8 +1604,8 @@ class DataMutationTests(APITestCase):
                 "name": "Data Structures",
                 "code": "CS310",
                 "books": [
-                    {'title': 'Advanced Data Structures', 'author': 'S.Mobit', "genre": None},
-                    {'title': 'Basic Data Structures', 'author': 'S.Mobit', "genre": None}
+                    {'title': 'Advanced Data Structures', 'author': 'S.Mobit', "genres": []},
+                    {'title': 'Basic Data Structures', 'author': 'S.Mobit', "genres": []}
                 ]
             }
         )
@@ -1628,8 +1628,8 @@ class DataMutationTests(APITestCase):
                 "name": "Data Structures",
                 "code": "CS310",
                 "books": [
-                    {"title": "Linear Math", "author": "Me", "genre": None},
-                    {"title": "Algebra Three", "author": "Me", "genre": None}
+                    {"title": "Linear Math", "author": "Me", "genres": []},
+                    {"title": "Algebra Three", "author": "Me", "genres": []}
                 ]
             }
         )
@@ -1642,7 +1642,11 @@ class DataMutationTests(APITestCase):
                     {
                         "title": "Linear Math 2",
                         "author": "B.Chris",
-                        "genre": {"title": "Science", "description": "All about nature"}
+                        "genres": {
+                            "create": [
+                                {"title": "Science", "description": "All about nature"}
+                            ]
+                        }
                     },
             ]}
         }
@@ -1657,7 +1661,9 @@ class DataMutationTests(APITestCase):
                 "books": [
                     {
                         "title": "Linear Math 2", "author": "B.Chris",
-                        "genre": {"title": "Science", "description": "All about nature"}
+                        "genres": [
+                            {"title": "Science", "description": "All about nature"}
+                        ]
                     },
                 ]
             }
@@ -1681,8 +1687,8 @@ class DataMutationTests(APITestCase):
                 "name": "Data Structures",
                 "code": "CS310",
                 "books": [
-                    {'title': 'Advanced Data Structures', 'author': 'S.Mobit', "genre": None},
-                    {"title": "Algebra Three", "author": "Me", "genre": None}
+                    {'title': 'Advanced Data Structures', 'author': 'S.Mobit', "genres": []},
+                    {"title": "Algebra Three", "author": "Me", "genres": []}
                 ]
             }
         )
@@ -1698,7 +1704,11 @@ class DataMutationTests(APITestCase):
                 "books": {"create": [
                     {
                         "title": "Python Tricks", "author": "Dan Bader",
-                        "genre": {"title": "Computing", "description": "Computer science"}
+                        "genres": {
+                            "create": [
+                                {"title": "Computing", "description": "Computer science"}
+                            ]
+                        }
                     }
                 ]}
             }
@@ -1716,7 +1726,9 @@ class DataMutationTests(APITestCase):
                     'books': [
                         {
                             "title": "Python Tricks", "author": "Dan Bader",
-                            "genre": {"title": "Computing", "description": "Computer science"}
+                            "genres": [
+                                {"title": "Computing", "description": "Computer science"}
+                            ]
                         }
                     ]
                 },
@@ -1772,7 +1784,7 @@ class DataMutationTests(APITestCase):
                 'course': {
                     'name': 'Programming', 'code': 'CS150',
                     'books': [
-                        {"title": "Advanced Data Structures", "author": "S.Mobit", "genre": None}
+                        {"title": "Advanced Data Structures", "author": "S.Mobit", "genres": []}
                     ]
                 },
                 'phone_numbers': [
@@ -1799,7 +1811,7 @@ class DataMutationTests(APITestCase):
                 'program': {
                     'name': 'Programming', 'code': 'CS150',
                     'books': [
-                        {"title": "Advanced Data Structures", "author": "S.Mobit", "genre": None}
+                        {"title": "Advanced Data Structures", "author": "S.Mobit", "genres": []}
                     ]
                 },
                 'contacts': [
@@ -1825,8 +1837,8 @@ class DataMutationTests(APITestCase):
                 'course': {
                     'name': 'Programming', 'code': 'CS50',
                     'books': [
-                        {'title': 'Advanced Data Structures', 'author': 'S.Mobit', "genre": None},
-                        {'title': 'Basic Data Structures', 'author': 'S.Mobit', "genre": None}
+                        {'title': 'Advanced Data Structures', 'author': 'S.Mobit', "genres": []},
+                        {'title': 'Basic Data Structures', 'author': 'S.Mobit', "genres": []}
                     ]
                 },
                 'phone_numbers': [
@@ -1856,8 +1868,8 @@ class DataMutationTests(APITestCase):
                     'name': 'Programming & Data Analysis',
                     'code': 'CS55',
                     'books': [
-                        {'title': 'Advanced Data Structures', 'author': 'S.Mobit', "genre": None},
-                        {'title': 'Basic Data Structures', 'author': 'S.Mobit', "genre": None}
+                        {'title': 'Advanced Data Structures', 'author': 'S.Mobit', "genres": []},
+                        {'title': 'Basic Data Structures', 'author': 'S.Mobit', "genres": []}
                     ]
                 },
                 'contacts': [
@@ -1865,7 +1877,7 @@ class DataMutationTests(APITestCase):
                     {'number': '073008880', 'type': 'Home', 'student': 1},
                 ],
                 'study_partner': None,
-                'sport_partners': []
+                'sport_mates': []
             }
         )
 
@@ -1885,8 +1897,8 @@ class DataMutationTests(APITestCase):
                     'name': 'Data Structures',
                     'code': 'CS210',
                     'books': [
-                        {'title': 'Advanced Data Structures', 'author': 'S.Mobit', "genre": None},
-                        {'title': 'Basic Data Structures', 'author': 'S.Mobit', "genre": None}
+                        {'title': 'Advanced Data Structures', 'author': 'S.Mobit', "genres": []},
+                        {'title': 'Basic Data Structures', 'author': 'S.Mobit', "genres": []}
                     ]
                 },
                 'phone_numbers': [
@@ -1934,8 +1946,8 @@ class DataMutationTests(APITestCase):
                 "name": "Data Structures",
                 "code": "CS410",
                 "books": [
-                    {'title': 'Advanced Data Structures', 'author': 'S.Mobit', "genre": None},
-                    {'title': 'Basic Data Structures', 'author': 'S.Mobit', "genre": None}
+                    {'title': 'Advanced Data Structures', 'author': 'S.Mobit', "genres": []},
+                    {'title': 'Basic Data Structures', 'author': 'S.Mobit', "genres": []}
                 ]
             }
         )
@@ -1979,8 +1991,8 @@ class DataMutationTests(APITestCase):
                 "name": "Data Structures",
                 "code": "CS310",
                 "books": [
-                    {'title': 'Advanced Data Structures', 'author': 'S.Mobit', "genre": None},
-                    {"title": "Primitive Data Types", "author": "S.Mobit", "genre": None}
+                    {'title': 'Advanced Data Structures', 'author': 'S.Mobit', "genres": []},
+                    {"title": "Primitive Data Types", "author": "S.Mobit", "genres": []}
                 ]
             }
         )
@@ -2004,7 +2016,7 @@ class DataMutationTests(APITestCase):
                 "name": "Data Structures",
                 "code": "CS310",
                 "books": [
-                    {"title": "React Programming", "author": "M.Json", "genre": None}
+                    {"title": "React Programming", "author": "M.Json", "genres": []}
                 ]
             }
         )
@@ -2028,7 +2040,7 @@ class DataMutationTests(APITestCase):
                 "name": "Data Structures",
                 "code": "CS310",
                 "books": [
-                    {"title": "React Programming", "author": "S.Mobit", "genre": None}
+                    {"title": "React Programming", "author": "S.Mobit", "genres": []}
                 ]
             }
         )
@@ -2055,7 +2067,7 @@ class DataMutationTests(APITestCase):
                 'course': {
                     'name': 'Programming', 'code': 'CS50',
                     'books': [
-                        {'title': 'Basic Data Structures', 'author': 'S.Mobit', "genre": None}
+                        {'title': 'Basic Data Structures', 'author': 'S.Mobit', "genres": []}
                     ]
                 },
                 'phone_numbers': [
@@ -2089,8 +2101,8 @@ class DataMutationTests(APITestCase):
                 'course': {
                     'name': 'Programming', 'code': 'CS50',
                     'books': [
-                        {'title': 'Advanced Data Structures', 'author': 'S.Mobit', "genre": None},
-                        {'title': 'Basic Data Structures', 'author': 'S.Mobit', "genre": None}
+                        {'title': 'Advanced Data Structures', 'author': 'S.Mobit', "genres": []},
+                        {'title': 'Basic Data Structures', 'author': 'S.Mobit', "genres": []}
                     ]
                 },
                 'phone_numbers': [
@@ -2144,7 +2156,7 @@ class DataMutationTests(APITestCase):
                 'course': {
                     'name': 'Programming', 'code': 'CS150',
                     'books': [
-                        {"title": "Advanced Data Structures", "author": "S.Mobit", "genre": None}
+                        {"title": "Advanced Data Structures", "author": "S.Mobit", "genres": []}
                     ]
                 },
                 'phone_numbers': [
@@ -2169,8 +2181,8 @@ class DataMutationTests(APITestCase):
                     "name": "Data Structures",
                     "code": "CS210",
                     "books": [
-                        {"title": "Advanced Data Structures", "author": "S.Mobit", "genre": None},
-                        {"title": "Basic Data Structures", "author": "S.Mobit", "genre": None}
+                        {"title": "Advanced Data Structures", "author": "S.Mobit", "genres": []},
+                        {"title": "Basic Data Structures", "author": "S.Mobit", "genres": []}
                     ]
                 },
                 'phone_numbers': [
@@ -2196,7 +2208,7 @@ class DataMutationTests(APITestCase):
                 'program': {
                     'name': 'Programming', 'code': 'CS150',
                     'books': [
-                        {"title": "Advanced Data Structures", "author": "S.Mobit", "genre": None}
+                        {"title": "Advanced Data Structures", "author": "S.Mobit", "genres": []}
                     ]
                 },
                 'contacts': [
@@ -2221,8 +2233,8 @@ class DataMutationTests(APITestCase):
                     "name": "Data Structures",
                     "code": "CS210",
                     "books": [
-                        {"title": "Advanced Data Structures", "author": "S.Mobit", "genre": None},
-                        {"title": "Basic Data Structures", "author": "S.Mobit", "genre": None}
+                        {"title": "Advanced Data Structures", "author": "S.Mobit", "genres": []},
+                        {"title": "Basic Data Structures", "author": "S.Mobit", "genres": []}
                     ]
                 },
                 'phone_numbers': [
@@ -2247,8 +2259,8 @@ class DataMutationTests(APITestCase):
                 'course': {
                     'name': 'Programming', 'code': 'CS50',
                     'books': [
-                        {'title': 'Advanced Data Structures', 'author': 'S.Mobit', "genre": None},
-                        {'title': 'Basic Data Structures', 'author': 'S.Mobit', "genre": None}
+                        {'title': 'Advanced Data Structures', 'author': 'S.Mobit', "genres": []},
+                        {'title': 'Basic Data Structures', 'author': 'S.Mobit', "genres": []}
                     ]
                 },
                 'phone_numbers': [
@@ -2277,8 +2289,8 @@ class DataMutationTests(APITestCase):
                     'name': 'Programming & Data Analysis',
                     'code': 'CS55',
                     'books': [
-                        {'title': 'Advanced Data Structures', 'author': 'S.Mobit', "genre": None},
-                        {'title': 'Basic Data Structures', 'author': 'S.Mobit', "genre": None}
+                        {'title': 'Advanced Data Structures', 'author': 'S.Mobit', "genres": []},
+                        {'title': 'Basic Data Structures', 'author': 'S.Mobit', "genres": []}
                     ]
                 },
                 'contacts': [
@@ -2286,7 +2298,7 @@ class DataMutationTests(APITestCase):
                     {'number': '073008880', 'type': 'Home', 'student': 1},
                 ],
                 'study_partner': None,
-                'sport_partners': []
+                'sport_mates': []
             }
         )
 
@@ -2307,8 +2319,8 @@ class DataMutationTests(APITestCase):
                     "name": "Data Structures",
                     "code": "CS210",
                     "books": [
-                        {"title": "Advanced Data Structures", "author": "S.Mobit", "genre": None},
-                        {"title": "Basic Data Structures", "author": "S.Mobit", "genre": None}
+                        {"title": "Advanced Data Structures", "author": "S.Mobit", "genres": []},
+                        {"title": "Basic Data Structures", "author": "S.Mobit", "genres": []}
                     ]
                 },
                 'phone_numbers': [
@@ -2356,8 +2368,8 @@ class DataMutationTests(APITestCase):
                 "name": "Data Structures",
                 "code": "CS410",
                 "books": [
-                    {'title': 'Advanced Data Structures', 'author': 'S.Mobit', "genre": None},
-                    {'title': 'Basic Data Structures', 'author': 'S.Mobit', "genre": None}
+                    {'title': 'Advanced Data Structures', 'author': 'S.Mobit', "genres": []},
+                    {'title': 'Basic Data Structures', 'author': 'S.Mobit', "genres": []}
                 ]
             }
         )
@@ -2401,8 +2413,8 @@ class DataMutationTests(APITestCase):
                 "name": "Data Structures",
                 "code": "CS310",
                 "books": [
-                    {'title': 'Advanced Data Structures', 'author': 'S.Mobit', "genre": None},
-                    {"title": "Primitive Data Types", "author": "S.Mobit", "genre": None}
+                    {'title': 'Advanced Data Structures', 'author': 'S.Mobit', "genres": []},
+                    {"title": "Primitive Data Types", "author": "S.Mobit", "genres": []}
                 ]
             }
         )
@@ -2426,7 +2438,7 @@ class DataMutationTests(APITestCase):
                 "name": "Data Structures",
                 "code": "CS310",
                 "books": [
-                    {"title": "React Programming", "author": "M.Json", "genre": None}
+                    {"title": "React Programming", "author": "M.Json", "genres": []}
                 ]
             }
         )
@@ -2450,7 +2462,7 @@ class DataMutationTests(APITestCase):
                 "name": "Data Structures",
                 "code": "CS310",
                 "books": [
-                    {"title": "React Programming", "author": "S.Mobit", "genre": None}
+                    {"title": "React Programming", "author": "S.Mobit", "genres": []}
                 ]
             }
         )
@@ -2477,7 +2489,7 @@ class DataMutationTests(APITestCase):
                 'course': {
                     'name': 'Programming', 'code': 'CS50',
                     'books': [
-                        {'title': 'Basic Data Structures', 'author': 'S.Mobit', "genre": None}
+                        {'title': 'Basic Data Structures', 'author': 'S.Mobit', "genres": []}
                     ]
                 },
                 'phone_numbers': [
@@ -2511,8 +2523,8 @@ class DataMutationTests(APITestCase):
                 'course': {
                     'name': 'Programming', 'code': 'CS50',
                     'books': [
-                        {'title': 'Advanced Data Structures', 'author': 'S.Mobit', "genre": None},
-                        {'title': 'Basic Data Structures', 'author': 'S.Mobit', "genre": None}
+                        {'title': 'Advanced Data Structures', 'author': 'S.Mobit', "genres": []},
+                        {'title': 'Basic Data Structures', 'author': 'S.Mobit', "genres": []}
                     ]
                 },
                 'phone_numbers': [
@@ -2596,7 +2608,7 @@ class DataQueryingAndMutationTests(APITestCase):
                     'name': 'Programming',
                     'code': 'CS150',
                     'books': [
-                        {"title": "Advanced Data Structures", "author": "S.Mobit", "genre": None}
+                        {"title": "Advanced Data Structures", "author": "S.Mobit", "genres": []}
                     ]
                 }
             }
@@ -2619,7 +2631,7 @@ class DataQueryingAndMutationTests(APITestCase):
                     'name': 'Programming',
                     'code': 'CS150',
                     'books': [
-                        {"title": "Advanced Data Structures", "author": "S.Mobit", "genre": None}
+                        {"title": "Advanced Data Structures", "author": "S.Mobit", "genres": []}
                     ]
                 }
             }
@@ -2690,7 +2702,7 @@ class DataQueryingAndMutationTests(APITestCase):
             "program": {"name": "Programming & Data Analysis", "code": "CS010"},
             "contacts": {},
             "study_partner": {"name": "Ilomo", "age": 24},
-            "sport_partners": {
+            "sport_mates": {
                 "add": [1],
                 "create": [
                     {"name": "Yoram", "age": 26},
@@ -2699,7 +2711,7 @@ class DataQueryingAndMutationTests(APITestCase):
             }
         }
         response = self.client.post(
-            url + '?query={*, study_partner{name}, sport_partners{name, age}}',
+            url + '?query={*, study_partner{name}, sport_mates{name, age}}',
             data, format="json"
         )
 
@@ -2715,7 +2727,7 @@ class DataQueryingAndMutationTests(APITestCase):
                 },
                 'contacts': [],
                 'study_partner': {'name': 'Ilomo'},
-                'sport_partners': [
+                'sport_mates': [
                     {'name': 'Yezy', 'age': 24},
                     {'name': 'Yoram', 'age': 26},
                     {'name': 'Gaby', 'age': 23},
@@ -2740,7 +2752,7 @@ class DataQueryingAndMutationTests(APITestCase):
                 'course': {
                     'name': 'Programming', 'code': 'CS150',
                     'books': [
-                        {"title": "Advanced Data Structures", "author": "S.Mobit", "genre": None}
+                        {"title": "Advanced Data Structures", "author": "S.Mobit", "genres": []}
                     ]
                 }
             }
@@ -2762,8 +2774,8 @@ class DataQueryingAndMutationTests(APITestCase):
                 'course': {
                     'name': 'Programming', 'code': 'CS50',
                     'books': [
-                        {'title': 'Advanced Data Structures', 'author': 'S.Mobit', "genre": None},
-                        {'title': 'Basic Data Structures', 'author': 'S.Mobit', "genre": None}
+                        {'title': 'Advanced Data Structures', 'author': 'S.Mobit', "genres": []},
+                        {'title': 'Basic Data Structures', 'author': 'S.Mobit', "genres": []}
                     ]
                 }
             }
@@ -2829,7 +2841,7 @@ class DataQueryingAndMutationTests(APITestCase):
             "program": {"name": "Programming & Data Analysis", "code": "CS55"},
             "contacts": {},
             "study_partner": {"name": "Ilomo", "age": 24},
-            "sport_partners": {
+            "sport_mates": {
                 "create": [
                     {"name": "Yoram", "age": 26},
                     {"name": "Gaby", "age": 23}
@@ -2837,7 +2849,7 @@ class DataQueryingAndMutationTests(APITestCase):
             }
         }
         response = self.client.put(
-            url + '?query={*, study_partner{name}, sport_partners{name, age}}',
+            url + '?query={*, study_partner{name}, sport_mates{name, age}}',
             data, format="json"
         )
 
@@ -2850,8 +2862,8 @@ class DataQueryingAndMutationTests(APITestCase):
                     'name': 'Programming & Data Analysis',
                     'code': 'CS55',
                     'books': [
-                        {'title': 'Advanced Data Structures', 'author': 'S.Mobit', "genre": None},
-                        {'title': 'Basic Data Structures', 'author': 'S.Mobit', "genre": None}
+                        {'title': 'Advanced Data Structures', 'author': 'S.Mobit', "genres": []},
+                        {'title': 'Basic Data Structures', 'author': 'S.Mobit', "genres": []}
                     ]
                 },
                 'contacts': [
@@ -2859,7 +2871,7 @@ class DataQueryingAndMutationTests(APITestCase):
                     {'number': '073008880', 'type': 'Home', 'student': 1},
                 ],
                 'study_partner': {'name': 'Ilomo'},
-                'sport_partners': [
+                'sport_mates': [
                     {'name': 'Yoram', 'age': 26},
                     {'name': 'Gaby', 'age': 23},
                 ]
@@ -2882,7 +2894,7 @@ class DataQueryingAndMutationTests(APITestCase):
                 'course': {
                     'name': 'Programming', 'code': 'CS150',
                     'books': [
-                        {"title": "Advanced Data Structures", "author": "S.Mobit", "genre": None}
+                        {"title": "Advanced Data Structures", "author": "S.Mobit", "genres": []}
                     ]
                 }
             }
@@ -2903,8 +2915,8 @@ class DataQueryingAndMutationTests(APITestCase):
                 'course': {
                     'name': 'Programming', 'code': 'CS50',
                     'books': [
-                        {'title': 'Advanced Data Structures', 'author': 'S.Mobit', "genre": None},
-                        {'title': 'Basic Data Structures', 'author': 'S.Mobit', "genre": None}
+                        {'title': 'Advanced Data Structures', 'author': 'S.Mobit', "genres": []},
+                        {'title': 'Basic Data Structures', 'author': 'S.Mobit', "genres": []}
                     ]
                 }
             }
@@ -2970,7 +2982,7 @@ class DataQueryingAndMutationTests(APITestCase):
             "program": {"name": "Programming & Data Analysis", "code": "CS55"},
             "contacts": {},
             "study_partner": 1,
-            "sport_partners": {
+            "sport_mates": {
                 "create": [
                     {"name": "Yoram", "age": 26},
                     {"name": "Gaby", "age": 23}
@@ -2978,7 +2990,7 @@ class DataQueryingAndMutationTests(APITestCase):
             }
         }
         response = self.client.patch(
-            url + '?query={*, study_partner{name}, sport_partners{name, age}}',
+            url + '?query={*, study_partner{name}, sport_mates{name, age}}',
             data, format="json"
         )
 
@@ -2991,8 +3003,8 @@ class DataQueryingAndMutationTests(APITestCase):
                     'name': 'Programming & Data Analysis',
                     'code': 'CS55',
                     'books': [
-                        {'title': 'Advanced Data Structures', 'author': 'S.Mobit', "genre": None},
-                        {'title': 'Basic Data Structures', 'author': 'S.Mobit', "genre": None}
+                        {'title': 'Advanced Data Structures', 'author': 'S.Mobit', "genres": []},
+                        {'title': 'Basic Data Structures', 'author': 'S.Mobit', "genres": []}
                     ]
                 },
                 'contacts': [
@@ -3000,7 +3012,7 @@ class DataQueryingAndMutationTests(APITestCase):
                     {'number': '073008880', 'type': 'Home', 'student': 1},
                 ],
                 'study_partner': {'name': 'Yezy'},
-                'sport_partners': [
+                'sport_mates': [
                     {'name': 'Yoram', 'age': 26},
                     {'name': 'Gaby', 'age': 23},
                 ]
