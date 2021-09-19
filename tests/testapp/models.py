@@ -9,7 +9,7 @@ class Genre(models.Model):
 class Book(models.Model):
     title = models.CharField(max_length=50)
     author = models.CharField(max_length=50)
-    genre = models.ForeignKey(Genre, blank=True, null=True, on_delete=models.CASCADE, related_name="books")
+    genres = models.ManyToManyField(Genre, blank=True, related_name="books")
 
 
 class Course(models.Model):

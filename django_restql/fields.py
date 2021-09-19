@@ -4,7 +4,9 @@ except ImportError:
     from django.utils.functional import classproperty
 from django.db.models.fields.related import ManyToOneRel
 
-from rest_framework.fields import DictField, ListField, SkipField, empty, Field
+from rest_framework.fields import (
+    DictField, ListField, SkipField, Field, empty
+)
 from rest_framework.serializers import (
     ListSerializer, PrimaryKeyRelatedField,
     SerializerMethodField, ValidationError
@@ -22,18 +24,22 @@ ALL_RELATED_OBJS = '__all__'
 class DynamicSerializerMethodField(SerializerMethodField):
     def to_representation(self, value):
         method = getattr(self.parent, self.method_name)
-        if (hasattr(self.parent, "restql_parsed_nested_fields") and
-                self.field_name in self.parent.restql_parsed_nested_fields):
-            query = self.parent.restql_parsed_nested_fields[self.field_name]
+        is_parsed_query_available = (
+            hasattr(self.parent, "restql_nested_parsed_queries") and
+            self.field_name in self.parent.restql_nested_parsed_queries
+        )
+
+        if is_parsed_query_available:
+            parsed_query = self.parent.restql_nested_parsed_queries[self.field_name]
         else:
             # Include all fields
-            query = {
+            parsed_query = {
                 "included": ["*"],
                 "excluded": [],
                 "arguments": {},
                 "aliases": {},
             }
-        return method(value, query)
+        return method(value, parsed_query)
 
 
 class BaseRESTQLNestedField(object):
@@ -112,10 +118,6 @@ def BaseNestedFieldSerializerFactory(
                 return partial
             return default
 
-        def set_top_parent(self):
-            # Pass dow the parent's _top_parent value to a child serializer
-            self._top_parent = self.parent._top_parent
-
     class BaseNestedFieldListSerializer(ListSerializer, BaseNestedField):
         def run_pk_list_validation(self, pks):
             ListField().run_validation(pks)
@@ -130,10 +132,10 @@ def BaseNestedFieldSerializerFactory(
         def run_data_list_validation(self, data, partial=None):
             ListField().run_validation(data)
             model = self.parent.Meta.model
-            rel = getattr(model, self.field_name).rel
+            rel = getattr(model, self.source).rel
             if isinstance(rel, ManyToOneRel):
                 # ManyToOne Relation
-                field_name = getattr(model, self.field_name).field.name
+                field_name = getattr(model, self.source).field.name
                 child_serializer = serializer_class(
                     **self.child.validation_kwargs,
                     data=data,
@@ -141,9 +143,6 @@ def BaseNestedFieldSerializerFactory(
                     partial=partial,
                     context=self.context
                 )
-
-                # Pass dow the parent's _top_parent value to a child serializer
-                child_serializer._top_parent = self.parent._top_parent
 
                 # Remove parent field(field_name) for validation purpose
                 child_serializer.child.fields.pop(field_name, None)
@@ -159,9 +158,6 @@ def BaseNestedFieldSerializerFactory(
                     partial=partial,
                     context=self.context
                 )
-
-                # Pass dow the parent's _top_parent value to a child serializer
-                child_serializer._top_parent = self.parent._top_parent
 
                 # Check if a serializer is valid
                 child_serializer.is_valid(raise_exception=True)
@@ -229,8 +225,7 @@ def BaseNestedFieldSerializerFactory(
                     raise ValidationError(msg, code=code) from None
 
         def to_internal_value(self, data):
-            self.set_top_parent()
-            if self._top_parent.instance is None:
+            if self.child.root.instance is None:
                 self.run_data_validation(data, create_ops)
             else:
                 self.run_data_validation(data, update_ops)
@@ -275,22 +270,20 @@ def BaseNestedFieldSerializerFactory(
                 data=data,
                 partial=self.is_partial(
                     # Use the partial value passed, if it's not passed
-                    # Use the one from the top parent
-                    self._top_parent.partial
+                    # Use the one from the top level parent
+                    self.root.partial
                 ),
                 context=self.context
             )
 
-            # Pass dow the parent's _top_parent value to a child serializer
-            child_serializer._top_parent = self.parent._top_parent
+            # Set parent to a child serializer
+            child_serializer.parent = self.parent
 
             # Check if a serializer is valid
             child_serializer.is_valid(raise_exception=True)
             return child_serializer.validated_data
 
         def to_internal_value(self, data):
-            self.set_top_parent()
-
             required = kwargs.get('required', True)
             default = kwargs.get('default', empty)
 
@@ -301,7 +294,7 @@ def BaseNestedFieldSerializerFactory(
                 # https://www.django-rest-framework.org/api-guide/fields/#required
                 # https://www.django-rest-framework.org/api-guide/fields/#default
                 # https://www.django-rest-framework.org/api-guide/fields/#allow_null
-                if self._top_parent.partial or not required:
+                if self.root.partial or not required:
                     # Skip the field because the update is partial
                     # or the field is not required(optional)
                     raise SkipField()

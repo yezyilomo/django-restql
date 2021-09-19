@@ -116,11 +116,11 @@ class StudentWithAliasSerializer(DynamicFieldsMixin, serializers.ModelSerializer
 
 ############### Serializers for Nested Data Mutation Testing ##############
 class WritableBookSerializer(DynamicFieldsMixin, NestedModelSerializer):
-    genre = NestedField(GenreSerializer, many=False, required=False, allow_null=True, accept_pk=True)
+    genres = NestedField(GenreSerializer, many=True, required=False)
 
     class Meta:
         model = Book
-        fields = ['title', 'author', 'genre']
+        fields = ['title', 'author', 'genres']
 
 
 class WritableCourseSerializer(DynamicFieldsMixin, NestedModelSerializer):
@@ -166,11 +166,11 @@ class WritableStudentWithAliasSerializer(DynamicFieldsMixin, NestedModelSerializ
         'self', required=False, allow_null=True,
         accept_pk=True, exclude=['study_partner']
     )
-    sport_partners = NestedField(
-        'self', required=False,
-        many=True, exclude=['sport_partners']
+    sport_mates = NestedField(
+        'self', required=False, many=True,
+        source="sport_partners", exclude=['sport_mates']
     )
 
     class Meta:
         model = Student
-        fields = ['name', 'age', 'program', 'contacts', 'study_partner', 'sport_partners']
+        fields = ['name', 'age', 'program', 'contacts', 'study_partner', 'sport_mates']
