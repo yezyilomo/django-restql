@@ -12,6 +12,7 @@ from rest_framework.serializers import (
     SerializerMethodField, ValidationError
 )
 
+from .parser import Query
 from .exceptions import InvalidOperation
 from .operations import ADD, CREATE, REMOVE, UPDATE
 
@@ -33,12 +34,13 @@ class DynamicSerializerMethodField(SerializerMethodField):
             parsed_query = self.parent.restql_nested_parsed_queries[self.field_name]
         else:
             # Include all fields
-            parsed_query = {
-                "included": ["*"],
-                "excluded": [],
-                "arguments": {},
-                "aliases": {},
-            }
+            parsed_query = Query(
+                field_name=None,
+                included_fields=["*"],
+                excluded_fields=[],
+                aliases={},
+                arguments={}
+            )
         return method(value, parsed_query)
 
 
@@ -122,12 +124,11 @@ def BaseNestedFieldSerializerFactory(
         def run_pk_list_validation(self, pks):
             ListField().run_validation(pks)
             queryset = self.child.Meta.model.objects.all()
-            validator = PrimaryKeyRelatedField(
+            PrimaryKeyRelatedField(
                 **self.child.validation_kwargs,
                 queryset=queryset,
                 many=True
-            )
-            validator.run_validation(pks)
+            ).run_validation(pks)
 
         def run_data_list_validation(self, data, partial=None):
             ListField().run_validation(data)
@@ -173,15 +174,14 @@ def BaseNestedFieldSerializerFactory(
 
         def run_remove_list_validation(self, data):
             if data == ALL_RELATED_OBJS:
-                if allow_remove_all:
-                    return data
-                else:
+                if not allow_remove_all:
                     msg = (
                         "Using `%s` value on `%s` operation is disabled"
                         % (ALL_RELATED_OBJS, REMOVE)
                     )
                     raise ValidationError(msg, code="not_allowed")
-            self.run_pk_list_validation(data)
+            else:
+                self.run_pk_list_validation(data)
 
         def run_update_list_validation(self, data):
             DictField().run_validation(data)

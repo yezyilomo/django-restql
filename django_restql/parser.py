@@ -1,4 +1,5 @@
 import re
+from collections import namedtuple
 
 from pypeg2 import List, contiguous, csl, name, optional, parse
 
@@ -126,48 +127,55 @@ class Block(List):
 ParentField.grammar = IncludedField, Block
 
 
+Query = namedtuple(
+    "Query",
+    ("field_name", "included_fields", "excluded_fields", "aliases", "arguments")
+)
+
+
 class QueryParser(object):
     def parse(self, query):
         parse_tree = parse(query, Block)
-        return self._transform_block(parse_tree)
+        return self._transform_block(parse_tree, parent_field=None)
 
-    def _transform_block(self, block):
-        fields = {
-            "included": [],
-            "excluded": [],
-            "aliases": {},
-            "arguments": {},
-        }
+    def _transform_block(self, block, parent_field=None):
+        query = Query(
+            field_name=parent_field,
+            included_fields=[],
+            excluded_fields=[],
+            aliases={},
+            arguments={}
+        )
 
         for argument in block.arguments:
             argument = {str(argument.name): argument.value}
-            fields['arguments'].update(argument)
+            query.arguments.update(argument)
 
         for field in block.body:
             # A field may be a parent or included field or excluded field
             if isinstance(field, (ParentField, IncludedField)):
                 # Find all aliases
                 if field.alias:
-                    fields["aliases"].update({str(field.name): str(field.alias)})
+                    query.aliases.update({str(field.name): str(field.alias)})
 
             field = self._transform_field(field)
 
-            if isinstance(field, dict):
+            if isinstance(field, Query):
                 # A field is a parent
-                fields["included"].append(field)
+                query.included_fields.append(field)
             elif isinstance(field, IncludedField):
-                fields["included"].append(str(field.name))
+                query.included_fields.append(str(field.name))
             elif isinstance(field, ExcludedField):
-                fields["excluded"].append(str(field.name))
+                query.excluded_fields.append(str(field.name))
             elif isinstance(field, AllFields):
                 # include all fields
-                fields["included"].append("*")
+                query.included_fields.append("*")
 
-        if fields["excluded"] and "*" not in fields["included"]:
-            fields["included"].append("*")
+        if query.excluded_fields and "*" not in query.included_fields:
+            query.included_fields.append("*")
 
-        field_names = set(fields["aliases"].values())
-        field_aliases = set(fields["aliases"].keys())
+        field_names = set(query.aliases.values())
+        field_aliases = set(query.aliases.keys())
         faulty_fields = field_names.intersection(field_aliases)
         if faulty_fields:
             # We check this here because if we let it pass during
@@ -180,7 +188,7 @@ class QueryParser(object):
                 "The list of fields which led to this error is %s."
             ) % str(list(faulty_fields))
             raise QueryFormatError(msg)
-        return fields
+        return query
 
     def _transform_field(self, field):
         # A field may be a parent or included field or excluded field
@@ -189,6 +197,7 @@ class QueryParser(object):
         return field
 
     def _transform_parent_field(self, parent_field):
-        parent_field_name = str(parent_field.name)
-        parent_field_value = self._transform_block(parent_field.block)
-        return {parent_field_name: parent_field_value}
+        return self._transform_block(
+            parent_field.block,
+            parent_field=str(parent_field.name)
+        )
