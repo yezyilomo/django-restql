@@ -130,6 +130,10 @@ If you want to retrieve user's `id`, `username` and `location` fields but under 
 ]
 ```
 
+!!! note
+    Using commas(`,`) to separate fields and arguments is optional, you can use spaces too just like in GraphQL
+    For example you could write your query as ```query={id  username  location{country  city}}``` so the choice is yours.
+
 ## Exclude(-) operator
 Using **Django RESTQL** filtering as it is when there are no many fields on a serializer is great, but sometimes you might have a case where you would like everything except a handful of fields on a larger serializer. These fields might be nested and trying the whitelist approach might possibly be too long for the url. 
 
@@ -700,13 +704,41 @@ query = (age: 18){
 ```
 Here we have three arguments, `age`, `country` and `city` and their corresponding values.
 
-To escape any special character(including `, : " ' {} ()`) use single quote `'` or double quote `"`, also if you want to escape double quote use single quote and vice versa. Escaping is very useful if you are dealing with data containing special characters e.g time, dates, lists, texts etc. Below is an example which contain an argument with a date type.
+To escape any special character in a string(including `, : " ' {} ()`) use backslash `\`, single quote `'` or double quote `"`, also if you want to escape double quote you can use single quote and vice versa. Escaping is very useful if you are dealing with data containing special characters e.g time, dates, lists, texts etc. Below is an example which contain an argument with a date type.
 
 ```
 query = (age: 18, join_date__lt: '2020-04-27T23:02:32Z'){
     name,
     age,
-    location(country: Canada, city: Toronto){
+    location(country: 'Canada', city: 'Toronto'){
+        country,
+        city
+    }
+}
+```
+
+
+### Query arguments data types
+Django RESTQL supports five primitive data types for query arguments which are `String`, `Int`, `Float`, `Boolean`, and `null`
+
+The table below shows possible argument values and their corresponding python values
+
+| Argument Value | Python Value  |
+| -------------- | ------------- |
+| String(e.g "Hi!" or 'Hi!')     | Python String(e.g "Hi!" or 'Hi!') |
+| Int(e.g 25)    | Python Int(e.g 25) |
+| Float(e.g 25.34)               | Python Float(e.g 25.34)
+| true           | True          |
+| false          | False         |
+| null           | None          |
+
+Below is a query showing how these data types are used
+
+```
+query = (age__gt: 18, is_active: true, location__ne: null, height__gt: 5.4){
+    name,
+    age,
+    location(country: "Canada"){
         country,
         city
     }

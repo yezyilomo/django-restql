@@ -62,6 +62,7 @@ You can do a lot with **Django RESTQL** apart from querying data, like
 
 - Rename fields
 - Restrict some fields on nested fields
+- Define self referencing nested fields
 - Optimize data fetching on nested fields
 - Data filtering and pagination by using query arguments
 - Data mutation(Create and update nested data of any level in a single request)
