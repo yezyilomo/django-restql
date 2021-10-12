@@ -324,9 +324,6 @@ def BaseNestedFieldSerializerFactory(
                 (serializer_class.__name__, )
             )
 
-    read_only = kwargs.get('read_only', False)
-    write_only = kwargs.get('write_only', False)
-    kwargs.update({"read_only": read_only, "write_only": write_only})
     return {
         "serializer_class": BaseNestedFieldSerializer,
         "list_serializer_class": BaseNestedFieldListSerializer,

@@ -9,7 +9,8 @@ from rest_framework.serializers import (
 
 from .exceptions import FieldNotFound, QueryFormatError
 from .fields import (
-    ALL_RELATED_OBJS, DynamicSerializerMethodField, TemporaryNestedField
+    ALL_RELATED_OBJS, BaseRESTQLNestedField,
+    DynamicSerializerMethodField, TemporaryNestedField
 )
 from .operations import ADD, CREATE, REMOVE, UPDATE
 from .parser import Query, QueryParser
@@ -572,7 +573,8 @@ class BaseNestedMixin(object):
         writable_nested_fields = {}
         for _, field in self.fields.items():
             # Get the actual source of the field
-            writable_nested_fields.update({field.source: field})
+            if isinstance(field, BaseRESTQLNestedField):
+                writable_nested_fields.update({field.source: field})
         return writable_nested_fields
 
 
