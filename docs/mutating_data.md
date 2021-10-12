@@ -144,6 +144,44 @@ What you see in the response above are details of our property, what really happ
     PUT/PATCH for many related fields supports four operations which are `create`, `add`, `remove` and `update`.
 
 
+## Self referencing nested field
+Currently DRF doesn't allow declaring self referencing nested fields but you might have a self referencing nested field in your project since Django allows creating them. Django RESTQL comes with a nice way to deal with this scenario.
+
+Let's assume we have a student model as shows below
+
+```py
+# models.py
+
+class Student(models.Model):
+    name = models.CharField(max_length=50)
+    age = models.IntegerField()
+    study_partners = models.ManyToManyField('self', related_name='study_partners')
+```
+
+As you can see from the model above `study_partners` is a self referencing field. Below is the corresponding serializer for our model
+
+```py
+# serializers.py
+
+class StudentSerializer(NestedModelSerializer):
+    # Define study_partners as self referencing nested field
+    study_partners = NestedField(
+        'self',
+        many=True,
+        required=False,
+        exclude=['study_partners']
+    )
+
+    class Meta:
+        model = Student
+        fields = ['id', 'name', 'age', 'study_partners']
+```
+
+You can see that we have passed `self` to `NestedField` just like in `Student` model, this means that `study_partners` field is a self referencing field.
+
+The other important thing here is `exclude=['study_partners']`, this excludes the field `study_partners` on a nested field to avoid recursion error if the self reference is cyclic.
+
+
 ## NestedField kwargs
 `NestedField` accepts extra kwargs in addition to those accepted by a serializer, these extra kwargs can be used to do more customizations on a nested field as explained below.
 
