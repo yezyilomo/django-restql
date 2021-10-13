@@ -252,6 +252,13 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#self-referencing-nested-field" class="md-nav__link">
+    Self referencing nested field
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#nestedfield-kwargs" class="md-nav__link">
     NestedField kwargs
   </a>
@@ -365,6 +372,13 @@
         <li class="md-nav__item">
   <a href="#using-nestedfield-and-nestedmodelserializer" class="md-nav__link">
     Using NestedField and NestedModelSerializer
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#self-referencing-nested-field" class="md-nav__link">
+    Self referencing nested field
   </a>
   
 </li>
@@ -582,6 +596,38 @@
 <p class="admonition-title">Note</p>
 <p>PUT/PATCH for many related fields supports four operations which are <code>create</code>, <code>add</code>, <code>remove</code> and <code>update</code>.</p>
 </div>
+<h2 id="self-referencing-nested-field">Self referencing nested field<a class="headerlink" href="#self-referencing-nested-field" title="Permanent link">&para;</a></h2>
+<p>Currently DRF doesn't allow declaring self referencing nested fields but you might have a self referencing nested field in your project since Django allows creating them. Django RESTQL comes with a nice way to deal with this scenario.</p>
+<p>Let's assume we have a student model as shows below</p>
+<div class="codehilite"><pre><span></span><code><span class="c1"># models.py</span>
+
+<span class="k">class</span> <span class="nc">Student</span><span class="p">(</span><span class="n">models</span><span class="o">.</span><span class="n">Model</span><span class="p">):</span>
+    <span class="n">name</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">CharField</span><span class="p">(</span><span class="n">max_length</span><span class="o">=</span><span class="mi">50</span><span class="p">)</span>
+    <span class="n">age</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">IntegerField</span><span class="p">()</span>
+    <span class="n">study_partners</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">ManyToManyField</span><span class="p">(</span><span class="s1">&#39;self&#39;</span><span class="p">,</span> <span class="n">related_name</span><span class="o">=</span><span class="s1">&#39;study_partners&#39;</span><span class="p">)</span>
+</code></pre></div>
+
+
+<p>As you can see from the model above <code>study_partners</code> is a self referencing field. Below is the corresponding serializer for our model</p>
+<div class="codehilite"><pre><span></span><code><span class="c1"># serializers.py</span>
+
+<span class="k">class</span> <span class="nc">StudentSerializer</span><span class="p">(</span><span class="n">NestedModelSerializer</span><span class="p">):</span>
+    <span class="c1"># Define study_partners as self referencing nested field</span>
+    <span class="n">study_partners</span> <span class="o">=</span> <span class="n">NestedField</span><span class="p">(</span>
+        <span class="s1">&#39;self&#39;</span><span class="p">,</span>
+        <span class="n">many</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="n">required</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="n">exclude</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;study_partners&#39;</span><span class="p">]</span>
+    <span class="p">)</span>
+
+    <span class="k">class</span> <span class="nc">Meta</span><span class="p">:</span>
+        <span class="n">model</span> <span class="o">=</span> <span class="n">Student</span>
+        <span class="n">fields</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;id&#39;</span><span class="p">,</span> <span class="s1">&#39;name&#39;</span><span class="p">,</span> <span class="s1">&#39;age&#39;</span><span class="p">,</span> <span class="s1">&#39;study_partners&#39;</span><span class="p">]</span>
+</code></pre></div>
+
+
+<p>You can see that we have passed <code>self</code> to <code>NestedField</code> just like in <code>Student</code> model, this means that <code>study_partners</code> field is a self referencing field.</p>
+<p>The other important thing here is <code>exclude=['study_partners']</code>, this excludes the field <code>study_partners</code> on a nested field to avoid recursion error if the self reference is cyclic.</p>
 <h2 id="nestedfield-kwargs">NestedField kwargs<a class="headerlink" href="#nestedfield-kwargs" title="Permanent link">&para;</a></h2>
 <p><code>NestedField</code> accepts extra kwargs in addition to those accepted by a serializer, these extra kwargs can be used to do more customizations on a nested field as explained below.</p>
 <h3 id="accept_pk-kwarg">accept_pk kwarg<a class="headerlink" href="#accept_pk-kwarg" title="Permanent link">&para;</a></h3>

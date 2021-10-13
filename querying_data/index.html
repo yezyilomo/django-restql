@@ -331,6 +331,13 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
+  <a href="#query-arguments-data-types" class="md-nav__link">
+    Query arguments data types
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#filtering-pagination-with-query-arguments" class="md-nav__link">
     Filtering &amp; pagination with query arguments
   </a>
@@ -543,6 +550,13 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
+  <a href="#query-arguments-data-types" class="md-nav__link">
+    Query arguments data types
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#filtering-pagination-with-query-arguments" class="md-nav__link">
     Filtering &amp; pagination with query arguments
   </a>
@@ -733,6 +747,11 @@
 </code></pre></div>
 
 
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Using commas(<code>,</code>) to separate fields and arguments is optional, you can use spaces too just like in GraphQL
+For example you could write your query as <code>query={id  username  location{country  city}}</code> so the choice is yours.</p>
+</div>
 <h2 id="exclude-operator">Exclude(-) operator<a class="headerlink" href="#exclude-operator" title="Permanent link">&para;</a></h2>
 <p>Using <strong>Django RESTQL</strong> filtering as it is when there are no many fields on a serializer is great, but sometimes you might have a case where you would like everything except a handful of fields on a larger serializer. These fields might be nested and trying the whitelist approach might possibly be too long for the url. </p>
 <p><strong>Django RESTQL</strong> comes with the exclude(-) operator which can be used to exclude some fields in scenarios where you want to get all fields except few ones. Using exclude operator is very simple, you just need to prepend the exclude(-) operator to the field which you want to exclude when writing your query that's all. Take an example below</p>
@@ -1261,11 +1280,60 @@
 
 
 <p>Here we have three arguments, <code>age</code>, <code>country</code> and <code>city</code> and their corresponding values.</p>
-<p>To escape any special character(including <code>, : " ' {} ()</code>) use single quote <code>'</code> or double quote <code>"</code>, also if you want to escape double quote use single quote and vice versa. Escaping is very useful if you are dealing with data containing special characters e.g time, dates, lists, texts etc. Below is an example which contain an argument with a date type.</p>
+<p>To escape any special character in a string(including <code>, : " ' {} ()</code>) use backslash <code>\</code>, single quote <code>'</code> or double quote <code>"</code>, also if you want to escape double quote you can use single quote and vice versa. Escaping is very useful if you are dealing with data containing special characters e.g time, dates, lists, texts etc. Below is an example which contain an argument with a date type.</p>
 <div class="codehilite"><pre><span></span><code>query = (age: 18, join_date__lt: &#39;2020-04-27T23:02:32Z&#39;){
     name,
     age,
-    location(country: Canada, city: Toronto){
+    location(country: &#39;Canada&#39;, city: &#39;Toronto&#39;){
+        country,
+        city
+    }
+}
+</code></pre></div>
+
+
+<h3 id="query-arguments-data-types">Query arguments data types<a class="headerlink" href="#query-arguments-data-types" title="Permanent link">&para;</a></h3>
+<p>Django RESTQL supports five primitive data types for query arguments which are <code>String</code>, <code>Int</code>, <code>Float</code>, <code>Boolean</code>, and <code>null</code></p>
+<p>The table below shows possible argument values and their corresponding python values</p>
+<table>
+<thead>
+<tr>
+<th>Argument Value</th>
+<th>Python Value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>String(e.g "Hi!" or 'Hi!')</td>
+<td>Python String(e.g "Hi!" or 'Hi!')</td>
+</tr>
+<tr>
+<td>Int(e.g 25)</td>
+<td>Python Int(e.g 25)</td>
+</tr>
+<tr>
+<td>Float(e.g 25.34)</td>
+<td>Python Float(e.g 25.34)</td>
+</tr>
+<tr>
+<td>true</td>
+<td>True</td>
+</tr>
+<tr>
+<td>false</td>
+<td>False</td>
+</tr>
+<tr>
+<td>null</td>
+<td>None</td>
+</tr>
+</tbody>
+</table>
+<p>Below is a query showing how these data types are used</p>
+<div class="codehilite"><pre><span></span><code>query = (age__gt: 18, is_active: true, location__ne: null, height__gt: 5.4){
+    name,
+    age,
+    location(country: &quot;Canada&quot;){
         country,
         city
     }
