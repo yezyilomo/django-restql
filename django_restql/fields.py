@@ -281,7 +281,12 @@ def BaseNestedFieldSerializerFactory(
 
             # Check if a serializer is valid
             child_serializer.is_valid(raise_exception=True)
-            return child_serializer.validated_data
+
+            # return data to be passed to a nested serializer,
+            # don't be tempted to return child_serializer.validated_data
+            # cuz it changes representation of some values for instance
+            # pks gets converted into objects
+            return data
 
         def to_internal_value(self, data):
             required = kwargs.get('required', True)

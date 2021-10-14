@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from tests.testapp.models import Genre, Book, Course, Student, Phone
+from tests.testapp.models import Genre, Book, Instructor, Course, Student, Phone
 
 from django_restql.fields import NestedField, DynamicSerializerMethodField
 from django_restql.mixins import DynamicFieldsMixin
@@ -11,6 +11,12 @@ class GenreSerializer(DynamicFieldsMixin, serializers.ModelSerializer):
     class Meta:
         model = Genre
         fields = ['title', 'description']
+
+
+class InstructorSerializer(DynamicFieldsMixin, serializers.ModelSerializer):
+    class Meta:
+        model = Instructor
+        fields = ['name']
 
 
 class BookSerializer(DynamicFieldsMixin, serializers.ModelSerializer):
@@ -125,10 +131,11 @@ class WritableBookSerializer(DynamicFieldsMixin, NestedModelSerializer):
 
 class WritableCourseSerializer(DynamicFieldsMixin, NestedModelSerializer):
     books = NestedField(WritableBookSerializer, many=True, required=False, allow_remove_all=True)
+    instructor = NestedField(InstructorSerializer, accept_pk=True, required=False)
 
     class Meta:
         model = Course
-        fields = ['name', 'code', 'books']
+        fields = ['name', 'code', 'books', 'instructor']
 
 
 class ReplaceableStudentSerializer(DynamicFieldsMixin, NestedModelSerializer):
