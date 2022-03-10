@@ -747,17 +747,16 @@ class NestedUpdateMixin(BaseNestedMixin):
     @staticmethod
     def update_replaceable_foreignkey_related(instance, data):
         # data format {field: obj}
-        objs = {}
         for field, nested_obj in data.items():
             setattr(instance, field, nested_obj)
+        if data:
             instance.save()
-            objs.update({field: instance})
-        return objs
 
     def update_writable_foreignkey_related(self, instance, data):
         # data format {field: {sub_field: value}}
-        objs = {}
         nested_fields = self.restql_writable_nested_fields
+
+        needs_save = False
         for field, values in data.items():
             # Get nested field serializer
             nested_field_serializer = nested_fields[field]
@@ -776,18 +775,15 @@ class NestedUpdateMixin(BaseNestedMixin):
             serializer.is_valid(raise_exception=True)
             if values is None:
                 setattr(instance, field, None)
-                instance.save()
-                objs.update({field: None})
+                needs_save = True
             else:
                 obj = serializer.save()
                 if nested_obj is None:
                     # Patch back newly created object to instance
                     setattr(instance, field, obj)
-                    instance.save()
-                    objs.update({field: obj})
-                else:
-                    objs.update({field: nested_obj})
-        return objs
+                    needs_save = True
+        if needs_save:
+            instance.save()
 
     def bulk_create_many_to_many_related(self, field, nested_obj, data):
         # Get nested field serializer
@@ -832,7 +828,6 @@ class NestedUpdateMixin(BaseNestedMixin):
 
     def bulk_update_many_to_many_related(self, field, nested_obj, data):
         # {pk: {sub_field: values}}
-        objs = []
 
         # Get nested field serializer
         nested_field_serializer = self.restql_writable_nested_fields[field].child
@@ -851,12 +846,9 @@ class NestedUpdateMixin(BaseNestedMixin):
             )
             serializer.is_valid(raise_exception=True)
             obj = serializer.save()
-            objs.append(obj)
-        return objs
 
     def bulk_update_many_to_one_related(self, field, instance, data):
         # {pk: {sub_field: values}}
-        objs = []
 
         # Get nested field serializer
         nested_field_serializer = self.restql_writable_nested_fields[field].child
@@ -879,8 +871,6 @@ class NestedUpdateMixin(BaseNestedMixin):
             )
             serializer.is_valid(raise_exception=True)
             obj = serializer.save()
-            objs.append(obj)
-        return objs
 
     def update_many_to_one_related(self, instance, data):
         # data format
