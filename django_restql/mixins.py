@@ -243,7 +243,7 @@ class DynamicFieldsMixin(RequestQueryParserMixin):
         include_all_fields = False  # Assume the * is not set initially
 
         # Go through all included fields to check if
-        # They are all valid and to set `nested_fields`
+        # they are all valid and to set `nested_fields`
         # property on parent fields for future reference
         for field in included_fields:
             if field == "*":
@@ -675,7 +675,7 @@ class NestedCreateMixin(BaseNestedMixin):
         return field_pks
 
     def create(self, validated_data):
-        # Make a copty of validated_data so that we don't
+        # Make a copy of validated_data so that we don't
         # alter it in case user need to access it later
         validated_data_copy = {**validated_data}
 
@@ -776,12 +776,14 @@ class NestedUpdateMixin(BaseNestedMixin):
             serializer.is_valid(raise_exception=True)
             if values is None:
                 setattr(instance, field, None)
+                instance.save()
                 objs.update({field: None})
             else:
                 obj = serializer.save()
                 if nested_obj is None:
                     # Patch back newly created object to instance
                     setattr(instance, field, obj)
+                    instance.save()
                     objs.update({field: obj})
                 else:
                     objs.update({field: nested_obj})
