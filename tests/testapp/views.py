@@ -60,7 +60,19 @@ class CourseWithDynamicSerializerMethodFieldViewSet(viewsets.ModelViewSet):
 class StudentViewSet(QueryArgumentsMixin, viewsets.ModelViewSet):
     serializer_class = StudentSerializer
     queryset = Student.objects.all()
+
+    # For django-filter <=21.1
     filter_fields = {
+        'name': ['exact'],
+        'age': ['exact'],
+        'course__name': ['exact'],
+        'course__code': ['exact'],
+        'course__books__title': ['exact'],
+        'course__books__author': ['exact'],
+    }
+
+    # For django-filter > 21.1
+    filterset_fields = {
         'name': ['exact'],
         'age': ['exact'],
         'course__name': ['exact'],
