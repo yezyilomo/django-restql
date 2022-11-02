@@ -14,7 +14,12 @@ Including another URLconf
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
 
-from django.conf.urls import include, url
+try:
+    # For django <= 3.x
+    from django.conf.urls import include, url as path
+except ImportError:
+    from django.urls import include, path
+
 from tests.testapp import views
 
 from rest_framework import routers
@@ -41,5 +46,5 @@ router.register('writable-students', views.WritableStudentViewSet, 'wstudent')
 router.register('writable-students-with-alias', views.WritableStudentWithAliasViewSet, 'wstudent_with_alias')
 
 urlpatterns = [
-    url('', include(router.urls))
+    path('', include(router.urls))
 ]
