@@ -123,13 +123,13 @@ class DynamicFieldsMixin(RequestQueryParserMixin):
         }
 
         msg = "May not set both `fields` and `exclude` kwargs"
-        assert not(
+        assert not (
             self.dynamic_fields_mixin_kwargs["fields"] is not None and
             self.dynamic_fields_mixin_kwargs["exclude"] is not None
         ), msg
 
         msg = "May not set both `query` and `parsed_query` kwargs"
-        assert not(
+        assert not (
             self.dynamic_fields_mixin_kwargs["query"] is not None and
             self.dynamic_fields_mixin_kwargs["parsed_query"] is not None
         ), msg
