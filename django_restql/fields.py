@@ -61,7 +61,7 @@ def BaseNestedFieldSerializerFactory(
     many = kwargs.get("many", False)
     partial = kwargs.get("partial", None)
 
-    assert not(
+    assert not (
         many and (accept_pk or accept_pk_only)
     ), (
         "May not set both `many=True` and `accept_pk=True` "
@@ -69,11 +69,11 @@ def BaseNestedFieldSerializerFactory(
         "(accept_pk and accept_pk_only applies to foreign key relation only)."
     )
 
-    assert not(
+    assert not (
         accept_pk and accept_pk_only
     ), "May not set both `accept_pk=True` and `accept_pk_only=True`"
 
-    assert not(
+    assert not (
         allow_remove_all and not many
     ), (
         "`allow_remove_all=True` can only be applied to many related "
