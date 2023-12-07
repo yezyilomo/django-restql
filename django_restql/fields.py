@@ -82,8 +82,9 @@ def BaseNestedFieldSerializerFactory(
 
     def join_words(words, many='are', single='is'):
         word_list = ["`" + word + "`" for word in words]
-        sentence = " & ".join([", ".join(word_list[:-1]), word_list[-1]])
+
         if len(words) > 1:
+            sentence = " & ".join([", ".join(word_list[:-1]), word_list[-1]])
             return "%s %s" % (many, sentence)
         elif len(words) == 1:
             return "%s %s" % (single, word_list[0])
