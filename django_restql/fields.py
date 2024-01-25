@@ -82,8 +82,9 @@ def BaseNestedFieldSerializerFactory(
 
     def join_words(words, many='are', single='is'):
         word_list = ["`" + word + "`" for word in words]
-        sentence = " & ".join([", ".join(word_list[:-1]), word_list[-1]])
+
         if len(words) > 1:
+            sentence = " & ".join([", ".join(word_list[:-1]), word_list[-1]])
             return "%s %s" % (many, sentence)
         elif len(words) == 1:
             return "%s %s" % (single, word_list[0])
@@ -130,7 +131,7 @@ def BaseNestedFieldSerializerFactory(
                 many=True
             ).run_validation(pks)
 
-        def run_data_list_validation(self, data, partial=None):
+        def run_data_list_validation(self, data, partial=None, operation=None):
             ListField().run_validation(data)
             model = self.parent.Meta.model
             rel = getattr(model, self.source).rel
@@ -142,7 +143,7 @@ def BaseNestedFieldSerializerFactory(
                     data=data,
                     many=True,
                     partial=partial,
-                    context=self.context
+                    context={**self.context, "parent_operation": operation}
                 )
 
                 # Remove parent field(field_name) for validation purpose
@@ -157,7 +158,7 @@ def BaseNestedFieldSerializerFactory(
                     data=data,
                     many=True,
                     partial=partial,
-                    context=self.context
+                    context={**self.context, "parent_operation": operation}
                 )
 
                 # Check if a serializer is valid
@@ -169,7 +170,8 @@ def BaseNestedFieldSerializerFactory(
         def run_create_list_validation(self, data):
             self.run_data_list_validation(
                 data,
-                partial=self.is_partial(False)
+                partial=self.is_partial(False),
+                operation=CREATE
             )
 
         def run_remove_list_validation(self, data):
@@ -190,7 +192,8 @@ def BaseNestedFieldSerializerFactory(
             values = list(data.values())
             self.run_data_list_validation(
                 values,
-                partial=self.is_partial(True)
+                partial=self.is_partial(True),
+                operation=UPDATE
             )
 
         def run_data_validation(self, data, allowed_ops):
@@ -226,8 +229,14 @@ def BaseNestedFieldSerializerFactory(
 
         def to_internal_value(self, data):
             if self.child.root.instance is None:
-                self.run_data_validation(data, create_ops)
+                parent_operation = self.context.get("parent_operation")
+                if parent_operation == "update":
+                    # Definitely an update
+                    self.run_data_validation(data, update_ops)
+                else:
+                    self.run_data_validation(data, create_ops)
             else:
+                # Definitely an update
                 self.run_data_validation(data, update_ops)
             return data
 
@@ -265,13 +274,15 @@ def BaseNestedFieldSerializerFactory(
             return validator.run_validation(pk)
 
         def run_data_validation(self, data):
+            parent_operation = self.context.get("parent_operation")
+
             child_serializer = serializer_class(
                 **self.validation_kwargs,
                 data=data,
                 partial=self.is_partial(
                     # Use the partial value passed, if it's not passed
                     # Use the one from the top level parent
-                    self.root.partial
+                    True if parent_operation == UPDATE else False
                 ),
                 context=self.context
             )

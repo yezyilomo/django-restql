@@ -122,7 +122,7 @@ class StudentWithAliasSerializer(DynamicFieldsMixin, serializers.ModelSerializer
 
 ############### Serializers for Nested Data Mutation Testing ##############
 class WritableBookSerializer(DynamicFieldsMixin, NestedModelSerializer):
-    genres = NestedField(GenreSerializer, many=True, required=False)
+    genres = NestedField(GenreSerializer, many=True, required=False, partial=False)
 
     class Meta:
         model = Book
