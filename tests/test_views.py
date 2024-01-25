@@ -2535,7 +2535,7 @@ class DataMutationTests(APITestCase):
             }
         )
 
-    def test_patch_on_deep_nested_fields(self):
+    def test_patch_with_mixed_operations(self):
         url = reverse_lazy("wstudent-detail", args=[self.student.id])
         data = {
             "name": "yezy",
@@ -2544,7 +2544,34 @@ class DataMutationTests(APITestCase):
                 "name": "Programming",
                 "code": "CS50",
                 "books": {
-                    "remove": [1]
+                    "update": {
+                        1: {
+                            "title": "React Programming",
+                            "author": "K.Kennedy",
+                            "genres": {
+                                # update_operations applies here since the parent is "update"
+                                "remove": [],
+                                "add": [],
+                                "create": [
+                                    {"title": "Modern Programming", "description": "New tools"}
+                                ],
+                                "update": {}
+                            }
+                        }
+                    },
+                    "create": [
+                        {
+                            "title": "CS Foundation",
+                            "author": "T.Howard",
+                            "genres": {
+                                # create_operations applies here since the parent is "create"
+                                "add": [],
+                                "create": [
+                                    {"title": "Classical Programming", "description": "Classical tech tools"}
+                                ]
+                            }
+                        }
+                    ]
                 }
             }
         }
@@ -2557,7 +2584,13 @@ class DataMutationTests(APITestCase):
                 'course': {
                     'name': 'Programming', 'code': 'CS50',
                     'books': [
-                        {'title': 'Basic Data Structures', 'author': 'S.Mobit', "genres": []}
+                        {'title': 'React Programming', 'author': 'K.Kennedy', "genres": [
+                            {"title": "Modern Programming", "description": "New tools"}
+                        ]},
+                        {'title': 'Basic Data Structures', 'author': 'S.Mobit', 'genres': []},
+                        {'title': 'CS Foundation', 'author': 'T.Howard', "genres": [
+                            {"title": "Classical Programming", "description": "Classical tech tools"}
+                        ]}
                     ],
                     'instructor': None
                 },
