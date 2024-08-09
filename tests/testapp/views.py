@@ -1,15 +1,24 @@
 from django.db.models import Prefetch
 from rest_framework import viewsets
 
-from tests.testapp.models import Book, Course, Student, Phone
+from tests.testapp.models import Book, Course, Student, Phone, Post
 from tests.testapp.serializers import (
-    BookSerializer, CourseSerializer, StudentSerializer,
-    CourseWithFieldsKwargSerializer, CourseWithExcludeKwargSerializer,
-    CourseWithReturnPkkwargSerializer, ReplaceableStudentSerializer,
-    WritableStudentSerializer, WritableCourseSerializer,
-    CourseWithAliasedBooksSerializer, CourseWithDynamicSerializerMethodField,
-    StudentWithAliasSerializer, WritableStudentWithAliasSerializer,
-    ReplaceableStudentWithAliasSerializer, CourseWithDisableDynamicFieldsKwargSerializer
+    BookSerializer,
+    CourseSerializer,
+    StudentSerializer,
+    CourseWithFieldsKwargSerializer,
+    CourseWithExcludeKwargSerializer,
+    CourseWithReturnPkkwargSerializer,
+    ReplaceableStudentSerializer,
+    WritableStudentSerializer,
+    WritableCourseSerializer,
+    CourseWithAliasedBooksSerializer,
+    CourseWithDynamicSerializerMethodField,
+    StudentWithAliasSerializer,
+    WritableStudentWithAliasSerializer,
+    ReplaceableStudentWithAliasSerializer,
+    CourseWithDisableDynamicFieldsKwargSerializer,
+    PostSerializer,
 )
 
 from django_restql.mixins import EagerLoadingMixin, QueryArgumentsMixin
@@ -63,46 +72,46 @@ class StudentViewSet(QueryArgumentsMixin, viewsets.ModelViewSet):
 
     # For django-filter <=21.1
     filter_fields = {
-        'name': ['exact'],
-        'age': ['exact'],
-        'course__name': ['exact'],
-        'course__code': ['exact'],
-        'course__books__title': ['exact'],
-        'course__books__author': ['exact'],
+        "name": ["exact"],
+        "age": ["exact"],
+        "course__name": ["exact"],
+        "course__code": ["exact"],
+        "course__books__title": ["exact"],
+        "course__books__author": ["exact"],
     }
 
     # For django-filter > 21.1
     filterset_fields = {
-        'name': ['exact'],
-        'age': ['exact'],
-        'course__name': ['exact'],
-        'course__code': ['exact'],
-        'course__books__title': ['exact'],
-        'course__books__author': ['exact'],
+        "name": ["exact"],
+        "age": ["exact"],
+        "course__name": ["exact"],
+        "course__code": ["exact"],
+        "course__books__title": ["exact"],
+        "course__books__author": ["exact"],
     }
 
 
 class StudentEagerLoadingViewSet(EagerLoadingMixin, viewsets.ModelViewSet):
     serializer_class = StudentWithAliasSerializer
     queryset = Student.objects.all()
-    select_related = {
-        "program": "course"
-    }
+    select_related = {"program": "course"}
     prefetch_related = {
         "phone_numbers": "phone_numbers",
-        "program.books": "course__books"
+        "program.books": "course__books",
     }
 
 
-class StudentEagerLoadingPrefetchObjectViewSet(EagerLoadingMixin, viewsets.ModelViewSet):
+class StudentEagerLoadingPrefetchObjectViewSet(
+    EagerLoadingMixin, viewsets.ModelViewSet
+):
     serializer_class = StudentWithAliasSerializer
     queryset = Student.objects.all()
-    select_related = {
-        "program": "course"
-    }
+    select_related = {"program": "course"}
     prefetch_related = {
-        "phone_numbers": [Prefetch("phone_numbers", queryset=Phone.objects.all()), ],
-        "program.books": Prefetch("course__books", queryset=Book.objects.all())
+        "phone_numbers": [
+            Prefetch("phone_numbers", queryset=Phone.objects.all()),
+        ],
+        "program.books": Prefetch("course__books", queryset=Book.objects.all()),
     }
 
 
@@ -110,12 +119,12 @@ class StudentAutoApplyEagerLoadingViewSet(EagerLoadingMixin, viewsets.ModelViewS
     serializer_class = StudentWithAliasSerializer
     queryset = Student.objects.all()
     auto_apply_eager_loading = False
-    select_related = {
-        "program": "course"
-    }
+    select_related = {"program": "course"}
     prefetch_related = {
-        "phone_numbers": [Prefetch("phone_numbers", queryset=Phone.objects.all()), ],
-        "program.books": Prefetch("course__books", queryset=Book.objects.all())
+        "phone_numbers": [
+            Prefetch("phone_numbers", queryset=Phone.objects.all()),
+        ],
+        "program.books": Prefetch("course__books", queryset=Book.objects.all()),
     }
 
 
@@ -143,3 +152,8 @@ class WritableStudentViewSet(viewsets.ModelViewSet):
 class WritableStudentWithAliasViewSet(viewsets.ModelViewSet):
     serializer_class = WritableStudentWithAliasSerializer
     queryset = Student.objects.all()
+
+
+class PostViewSet(viewsets.ModelViewSet):
+    serializer_class = PostSerializer
+    queryset = Post.objects.all()

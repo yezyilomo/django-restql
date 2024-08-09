@@ -1,17 +1,19 @@
-from django.db.models import Prefetch
+from django.db.models import Prefetch, Model
 from django.core.exceptions import ObjectDoesNotExist
 from django.db.models.fields.related import ManyToManyRel, ManyToOneRel
+from django.contrib.contenttypes.fields import GenericRel, GenericRelation
+from django.contrib.contenttypes.models import ContentType
 from django.http import QueryDict
 from django.utils.functional import cached_property
 
-from rest_framework.serializers import (
-    ListSerializer, Serializer, ValidationError
-)
+from rest_framework.serializers import ListSerializer, Serializer, ValidationError
 
 from .exceptions import FieldNotFound, QueryFormatError
 from .fields import (
-    ALL_RELATED_OBJS, BaseRESTQLNestedField,
-    DynamicSerializerMethodField, TemporaryNestedField
+    ALL_RELATED_OBJS,
+    BaseRESTQLNestedField,
+    DynamicSerializerMethodField,
+    TemporaryNestedField,
 )
 from .operations import ADD, CREATE, REMOVE, UPDATE
 from .parser import Query, QueryParser
@@ -28,6 +30,7 @@ class RequestQueryParserMixin(object):
     This means `request.query_params` might not be available
     when this mixin is used.
     """
+
     @classmethod
     def has_restql_query_param(cls, request):
         query_param_name = restql_settings.QUERY_PARAM_NAME
@@ -35,7 +38,7 @@ class RequestQueryParserMixin(object):
 
     @classmethod
     def get_parsed_restql_query_from_req(cls, request):
-        if hasattr(request, 'parsed_restql_query'):
+        if hasattr(request, "parsed_restql_query"):
             # Use cached parsed restql query
             return request.parsed_restql_query
         raw_query = request.GET[restql_settings.QUERY_PARAM_NAME]
@@ -50,6 +53,7 @@ class RequestQueryParserMixin(object):
 
 class QueryArgumentsMixin(RequestQueryParserMixin):
     """Mixin for converting query arguments into query parameters"""
+
     def get_parsed_restql_query(self, request):
         if self.has_restql_query_param(request):
             try:
@@ -65,28 +69,25 @@ class QueryArgumentsMixin(RequestQueryParserMixin):
             included_fields=["*"],
             excluded_fields=[],
             aliases={},
-            arguments={}
+            arguments={},
         )
         return query
 
     def build_query_params(self, parsed_query, parent=None):
         query_params = {}
-        prefix = ''
+        prefix = ""
         if parent is None:
             query_params.update(parsed_query.arguments)
         else:
-            prefix = parent + '__'
+            prefix = parent + "__"
             for argument, value in parsed_query.arguments.items():
                 name = prefix + argument
-                query_params.update({
-                    name: value
-                })
+                query_params.update({name: value})
 
         for field in parsed_query.included_fields:
             if isinstance(field, Query):
                 nested_query_params = self.build_query_params(
-                    field,
-                    parent=prefix + field.field_name
+                    field, parent=prefix + field.field_name
                 )
                 query_params.update(nested_query_params)
         return query_params
@@ -115,24 +116,24 @@ class DynamicFieldsMixin(RequestQueryParserMixin):
     def __init__(self, *args, **kwargs):
         # Don't pass DynamicFieldsMixin's kwargs to the superclass
         self.dynamic_fields_mixin_kwargs = {
-            "query": kwargs.pop('query', None),
-            "parsed_query": kwargs.pop('parsed_query', None),
-            "fields": kwargs.pop('fields', None),
-            "exclude": kwargs.pop('exclude', None),
-            "return_pk": kwargs.pop('return_pk', False),
-            "disable_dynamic_fields": kwargs.pop('disable_dynamic_fields', False)
+            "query": kwargs.pop("query", None),
+            "parsed_query": kwargs.pop("parsed_query", None),
+            "fields": kwargs.pop("fields", None),
+            "exclude": kwargs.pop("exclude", None),
+            "return_pk": kwargs.pop("return_pk", False),
+            "disable_dynamic_fields": kwargs.pop("disable_dynamic_fields", False),
         }
 
         msg = "May not set both `fields` and `exclude` kwargs"
         assert not (
-            self.dynamic_fields_mixin_kwargs["fields"] is not None and
-            self.dynamic_fields_mixin_kwargs["exclude"] is not None
+            self.dynamic_fields_mixin_kwargs["fields"] is not None
+            and self.dynamic_fields_mixin_kwargs["exclude"] is not None
         ), msg
 
         msg = "May not set both `query` and `parsed_query` kwargs"
         assert not (
-            self.dynamic_fields_mixin_kwargs["query"] is not None and
-            self.dynamic_fields_mixin_kwargs["parsed_query"] is not None
+            self.dynamic_fields_mixin_kwargs["query"] is not None
+            and self.dynamic_fields_mixin_kwargs["parsed_query"] is not None
         ), msg
 
         # flag to toggle using restql fields
@@ -187,10 +188,7 @@ class DynamicFieldsMixin(RequestQueryParserMixin):
 
     @staticmethod
     def is_nested_field(field_name, field, raise_exception=False):
-        nested_classes = (
-            Serializer, ListSerializer,
-            DynamicSerializerMethodField
-        )
+        nested_classes = (Serializer, ListSerializer, DynamicSerializerMethodField)
         if isinstance(field, nested_classes):
             return True
         else:
@@ -210,20 +208,13 @@ class DynamicFieldsMixin(RequestQueryParserMixin):
 
     def rename_aliased_fields(self, aliases, all_fields):
         for field, alias in aliases.items():
-            self.is_field_found(
-                field,
-                all_fields,
-                raise_exception=True
-            )
+            self.is_field_found(field, all_fields, raise_exception=True)
             self.is_valid_alias(alias)
             all_fields[alias] = all_fields[field]
         return all_fields
 
     def select_fields(self, parsed_query, all_fields):
-        self.rename_aliased_fields(
-            parsed_query.aliases,
-            all_fields
-        )
+        self.rename_aliased_fields(parsed_query.aliases, all_fields)
 
         # The format is [field1, field2 ...]
         allowed_flat_fields = []
@@ -254,20 +245,11 @@ class DynamicFieldsMixin(RequestQueryParserMixin):
                 continue
             if isinstance(field, Query):
                 # Nested field
-                alias = parsed_query.aliases.get(
-                    field.field_name,
-                    field.field_name
-                )
+                alias = parsed_query.aliases.get(field.field_name, field.field_name)
 
-                self.is_field_found(
-                    field.field_name,
-                    all_fields,
-                    raise_exception=True
-                )
+                self.is_field_found(field.field_name, all_fields, raise_exception=True)
                 self.is_nested_field(
-                    field.field_name,
-                    all_fields[field.field_name],
-                    raise_exception=True
+                    field.field_name, all_fields[field.field_name], raise_exception=True
                 )
                 allowed_nested_fields.update({alias: field})
             else:
@@ -287,14 +269,12 @@ class DynamicFieldsMixin(RequestQueryParserMixin):
             return repeated
 
         included_and_excluded_fields = (
-            allowed_flat_fields +
-            list(allowed_nested_fields.keys()) +
-            excluded_fields
+            allowed_flat_fields + list(allowed_nested_fields.keys()) + excluded_fields
         )
 
-        including_or_excluding_field_more_than_once = (
-            len(included_and_excluded_fields) != len(set(included_and_excluded_fields))
-        )
+        including_or_excluding_field_more_than_once = len(
+            included_and_excluded_fields
+        ) != len(set(included_and_excluded_fields))
 
         if including_or_excluding_field_more_than_once:
             repeated_fields = get_duplicates(included_and_excluded_fields)
@@ -321,8 +301,8 @@ class DynamicFieldsMixin(RequestQueryParserMixin):
             # Here we are sure that parsed_query.excluded_fields
             # is empty which means the exclude operator(-) has not been used,
             # so parsed_query.included_fields contains only selected fields
-            all_allowed_fields = (
-                set(allowed_flat_fields) | set(allowed_nested_fields.keys())
+            all_allowed_fields = set(allowed_flat_fields) | set(
+                allowed_nested_fields.keys()
             )
 
             existing_fields = set(all_fields.keys())
@@ -351,9 +331,8 @@ class DynamicFieldsMixin(RequestQueryParserMixin):
     def dynamic_fields(self):
         parsed_restql_query = None
 
-        is_root_serializer = (
-            self.parent is None or
-            (isinstance(self.parent, ListSerializer) and self.parent.parent is None)
+        is_root_serializer = self.parent is None or (
+            isinstance(self.parent, ListSerializer) and self.parent.parent is None
         )
 
         if is_root_serializer:
@@ -385,8 +364,7 @@ class DynamicFieldsMixin(RequestQueryParserMixin):
 
         # Get fields selected by `query` parameter
         selected_fields, nested_parsed_queries = self.select_fields(
-            parsed_query=parsed_restql_query,
-            all_fields=self.allowed_fields
+            parsed_query=parsed_restql_query, all_fields=self.allowed_fields
         )
 
         # Keep track of parsed queries of nested fields
@@ -399,7 +377,7 @@ class DynamicFieldsMixin(RequestQueryParserMixin):
         return parser.parse(self.dynamic_fields_mixin_kwargs["query"])
 
     def get_parsed_restql_query(self):
-        request = self.context.get('request')
+        request = self.context.get("request")
 
         if self.dynamic_fields_mixin_kwargs["query"] is not None:
             # Get from query kwarg
@@ -415,8 +393,8 @@ class DynamicFieldsMixin(RequestQueryParserMixin):
     @property
     def fields(self):
         should_use_dynamic_fields = (
-            self.is_ready_to_use_dynamic_fields and
-            not self.dynamic_fields_mixin_kwargs["disable_dynamic_fields"]
+            self.is_ready_to_use_dynamic_fields
+            and not self.dynamic_fields_mixin_kwargs["disable_dynamic_fields"]
         )
 
         if should_use_dynamic_fields:
@@ -446,13 +424,13 @@ class EagerLoadingMixin(RequestQueryParserMixin):
             included_fields=["*"],
             excluded_fields=[],
             aliases={},
-            arguments={}
+            arguments={},
         )
         return query
 
     @property
     def should_auto_apply_eager_loading(self):
-        if hasattr(self, 'auto_apply_eager_loading'):
+        if hasattr(self, "auto_apply_eager_loading"):
             return self.auto_apply_eager_loading
         return restql_settings.AUTO_APPLY_EAGER_LOADING
 
@@ -563,9 +541,9 @@ class BaseNestedMixin(object):
         fields = super().get_fields()
         for field_name, field in fields.items():
             if isinstance(field, TemporaryNestedField):
-                fields.update({
-                    field_name: field.get_actual_nested_field(self.__class__)
-                })
+                fields.update(
+                    {field_name: field.get_actual_nested_field(self.__class__)}
+                )
         return fields
 
     @cached_property
@@ -580,7 +558,7 @@ class BaseNestedMixin(object):
 
 
 class NestedCreateMixin(BaseNestedMixin):
-    """ Create Mixin """
+    """Create Mixin"""
 
     def create_writable_foreignkey_related(self, data):
         # data format
@@ -598,7 +576,7 @@ class NestedCreateMixin(BaseNestedMixin):
                 # Reject partial update by default(if partial kwarg is not passed)
                 # since we need all required fields when creating object
                 partial=nested_field_serializer.is_partial(False),
-                context={**self.context, "parent_operation": CREATE}
+                context={**self.context, "parent_operation": CREATE},
             )
             serializer.is_valid(raise_exception=True)
             if value is None:
@@ -655,6 +633,47 @@ class NestedCreateMixin(BaseNestedMixin):
                     field_pks.update({field: pks})
         return field_pks
 
+    def create_many_to_one_generic_related(
+        self, instance: Model, data: dict[str, dict]
+    ):
+        """NOTE: Only create operation is supported for generic foreign keys"""
+        field_pks = {}
+        nested_fields = self.restql_writable_nested_fields
+
+        content_type = ContentType.objects.get_for_model(instance)
+        object_id = instance.pk
+
+        for field, values in data.items():
+            if CREATE not in values:
+                continue
+
+            model: type[Model] = self.Meta.model
+            relation: GenericRelation = getattr(model, field).field
+
+            nested_field_serializer = nested_fields[field].child
+            serializer_class = nested_field_serializer.serializer_class
+            kwargs = nested_field_serializer.validation_kwargs
+
+            serializer = serializer_class(data=values[CREATE], **kwargs, many=True)
+            serializer.is_valid(raise_exception=True)
+            items = serializer.validated_data
+
+            child_model: type[Model] = serializer.child.Meta.model
+            objs = [
+                child_model(
+                    **item,
+                    **{
+                        relation.content_type_field_name: content_type,
+                        relation.object_id_field_name: object_id,
+                    },
+                )
+                for item in items
+            ]
+            objs = child_model.objects.bulk_create(objs)
+            field_pks.update({field: [obj.pk for obj in objs]})
+
+        return field_pks
+
     def create_many_to_many_related(self, instance, data):
         # data format
         # {field: {
@@ -681,14 +700,12 @@ class NestedCreateMixin(BaseNestedMixin):
         validated_data_copy = {**validated_data}
 
         fields = {
-            "foreignkey_related": {
-                "replaceable": {},
-                "writable": {}
-            },
+            "foreignkey_related": {"replaceable": {}, "writable": {}},
             "many_to": {
                 "many_related": {},
-                "one_related": {}
-            }
+                "one_related": {},
+                "one_generic_related": {},
+            },
         }
 
         restql_nested_fields = self.restql_writable_nested_fields
@@ -713,6 +730,9 @@ class NestedCreateMixin(BaseNestedMixin):
                 if isinstance(rel, ManyToOneRel):
                     value = validated_data_copy.pop(field)
                     fields["many_to"]["one_related"].update({field: value})
+                elif isinstance(rel, GenericRel):
+                    value = validated_data_copy.pop(field)
+                    fields["many_to"]["one_generic_related"].update({field: value})
                 elif isinstance(rel, ManyToManyRel):
                     value = validated_data_copy.pop(field)
                     fields["many_to"]["many_related"].update({field: value})
@@ -721,26 +741,25 @@ class NestedCreateMixin(BaseNestedMixin):
             **fields["foreignkey_related"]["replaceable"],
             **self.create_writable_foreignkey_related(
                 fields["foreignkey_related"]["writable"]
-            )
+            ),
         }
 
         instance = super().create({**validated_data_copy, **foreignkey_related})
 
-        self.create_many_to_many_related(
-            instance,
-            fields["many_to"]["many_related"]
-        )
+        self.create_many_to_many_related(instance, fields["many_to"]["many_related"])
 
-        self.create_many_to_one_related(
-            instance,
-            fields["many_to"]["one_related"]
+        self.create_many_to_one_related(instance, fields["many_to"]["one_related"])
+
+        self.create_many_to_one_generic_related(
+            instance, fields["many_to"]["one_generic_related"]
         )
 
         return instance
 
 
 class NestedUpdateMixin(BaseNestedMixin):
-    """ Update Mixin """
+    """Update Mixin"""
+
     @staticmethod
     def constrain_error_prefix(field):
         return "Error on `%s` field: " % (field,)
@@ -771,7 +790,7 @@ class NestedUpdateMixin(BaseNestedMixin):
                 # Allow partial update by default(if partial kwarg is not passed)
                 # since this is nested update
                 partial=nested_field_serializer.is_partial(True),
-                context={**self.context, "parent_operation": UPDATE}
+                context={**self.context, "parent_operation": UPDATE},
             )
             serializer.is_valid(raise_exception=True)
             if values is None:
@@ -799,7 +818,7 @@ class NestedUpdateMixin(BaseNestedMixin):
                 # Reject partial update by default(if partial kwarg is not passed)
                 # since we need all required fields when creating object
                 partial=nested_field_serializer.is_partial(False),
-                context={**self.context, "parent_operation": CREATE}
+                context={**self.context, "parent_operation": CREATE},
             )
             serializer.is_valid(raise_exception=True)
             obj = serializer.save()
@@ -820,7 +839,7 @@ class NestedUpdateMixin(BaseNestedMixin):
                 # Reject partial update by default(if partial kwarg is not passed)
                 # since we need all required fields when creating object
                 partial=nested_field_serializer.is_partial(False),
-                context={**self.context, "parent_operation": CREATE}
+                context={**self.context, "parent_operation": CREATE},
             )
             serializer.is_valid(raise_exception=True)
             obj = serializer.save()
@@ -847,7 +866,7 @@ class NestedUpdateMixin(BaseNestedMixin):
                 # Allow partial update by default(if partial kwarg is not passed)
                 # since this is nested update
                 partial=nested_field_serializer.is_partial(True),
-                context={**self.context, "parent_operation": UPDATE}
+                context={**self.context, "parent_operation": UPDATE},
             )
             serializer.is_valid(raise_exception=True)
             obj = serializer.save()
@@ -876,7 +895,7 @@ class NestedUpdateMixin(BaseNestedMixin):
                 # Allow partial update by default(if partial kwarg is not passed)
                 # since this is nested update
                 partial=nested_field_serializer.is_partial(True),
-                context={**self.context, "parent_operation": UPDATE}
+                context={**self.context, "parent_operation": UPDATE},
             )
             serializer.is_valid(raise_exception=True)
             obj = serializer.save()
@@ -904,9 +923,7 @@ class NestedUpdateMixin(BaseNestedMixin):
                     for v in values[operation]:
                         v.update({foreignkey: instance.pk})
                     self.bulk_create_many_to_one_related(
-                        field,
-                        nested_obj,
-                        values[operation]
+                        field, nested_obj, values[operation]
                     )
                 elif operation == REMOVE:
                     qs = nested_obj.all()
@@ -916,14 +933,10 @@ class NestedUpdateMixin(BaseNestedMixin):
                         qs.filter(pk__in=values[operation]).delete()
                 elif operation == UPDATE:
                     self.bulk_update_many_to_one_related(
-                        field,
-                        instance,
-                        values[operation]
+                        field, instance, values[operation]
                     )
                 else:
-                    message = (
-                        "`%s` is an invalid operation" % (operation,)
-                    )
+                    message = "`%s` is an invalid operation" % (operation,)
                     raise ValidationError(message, code="invalid_operation")
         return instance
 
@@ -948,9 +961,7 @@ class NestedUpdateMixin(BaseNestedMixin):
                         raise ValidationError(msg, code=code) from None
                 elif operation == CREATE:
                     self.bulk_create_many_to_many_related(
-                        field,
-                        nested_obj,
-                        values[operation]
+                        field, nested_obj, values[operation]
                     )
                 elif operation == REMOVE:
                     pks = values[operation]
@@ -964,14 +975,10 @@ class NestedUpdateMixin(BaseNestedMixin):
                         raise ValidationError(msg, code=code) from None
                 elif operation == UPDATE:
                     self.bulk_update_many_to_many_related(
-                        field,
-                        nested_obj,
-                        values[operation]
+                        field, nested_obj, values[operation]
                     )
                 else:
-                    message = (
-                        "`%s` is an invalid operation" % (operation,)
-                    )
+                    message = "`%s` is an invalid operation" % (operation,)
                     raise ValidationError(message, code="invalid_operation")
         return instance
 
@@ -981,14 +988,8 @@ class NestedUpdateMixin(BaseNestedMixin):
         validated_data_copy = {**validated_data}
 
         fields = {
-            "foreignkey_related": {
-                "replaceable": {},
-                "writable": {}
-            },
-            "many_to": {
-                "many_related": {},
-                "one_related": {}
-            }
+            "foreignkey_related": {"replaceable": {}, "writable": {}},
+            "many_to": {"many_related": {}, "one_related": {}},
         }
 
         restql_nested_fields = self.restql_writable_nested_fields
@@ -1020,23 +1021,15 @@ class NestedUpdateMixin(BaseNestedMixin):
         instance = super().update(instance, validated_data_copy)
 
         self.update_replaceable_foreignkey_related(
-            instance,
-            fields["foreignkey_related"]["replaceable"]
+            instance, fields["foreignkey_related"]["replaceable"]
         )
 
         self.update_writable_foreignkey_related(
-            instance,
-            fields["foreignkey_related"]["writable"]
+            instance, fields["foreignkey_related"]["writable"]
         )
 
-        self.update_many_to_many_related(
-            instance,
-            fields["many_to"]["many_related"]
-        )
+        self.update_many_to_many_related(instance, fields["many_to"]["many_related"])
 
-        self.update_many_to_one_related(
-            instance,
-            fields["many_to"]["one_related"]
-        )
+        self.update_many_to_one_related(instance, fields["many_to"]["one_related"])
 
         return instance
