@@ -223,7 +223,7 @@ class AttachmentSerializer(serializers.ModelSerializer):
 
 
 class PostSerializer(NestedModelSerializer):
-    attachments = NestedField(AttachmentSerializer, many=True)
+    attachments = NestedField(AttachmentSerializer, many=True, required=False)
 
     class Meta:
         model = Post

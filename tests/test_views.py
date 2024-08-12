@@ -1920,6 +1920,16 @@ class DataMutationTests(APITestCase):
         existing_attachment.refresh_from_db()
         self.assertEqual(existing_attachment.document, post)
 
+    def test_post_without_attachments(self):
+        response = self.client.post(
+            reverse_lazy("post-list"),
+            data={"title": "Olympic games", "content": "Test post without attachments"},
+            format="json",
+        )
+        self.assertEqual(response.status_code, 201)
+        self.assertEqual(Post.objects.count(), 1)
+        self.assertEqual(Post.objects.first().attachments.count(), 0)
+
     # **************** PUT Tests ********************* #
 
     def test_put_on_pk_nested_foreignkey_related_field(self):
