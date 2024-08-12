@@ -40,9 +40,7 @@ class Student(models.Model):
     study_partner = models.OneToOneField(
         "self", blank=True, null=True, on_delete=models.CASCADE
     )
-    sport_partners = models.ManyToManyField(
-        "self", blank=True, related_name="sport_partners"
-    )
+    sport_partners = models.ManyToManyField("self", blank=True)
 
 
 class Phone(models.Model):

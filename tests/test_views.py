@@ -1892,26 +1892,33 @@ class DataMutationTests(APITestCase):
 
     # **************** POST with generic relations ********************* #
     def test_post_on_generic_relation_field(self):
+        existing_attachment = Attachment.objects.create(
+            content="Existing attachment", document=Post.objects.create()
+        )
+
         response = self.client.post(
             reverse_lazy("post-list"),
             {
-                "title": "My Post",
-                "content": "This is my post",
+                "title": "New post",
+                "content": "This is the post",
                 "attachments": {
                     "create": [
-                        {"content": "This is my first attachment"},
-                        {"content": "This is my second attachment"},
-                    ]
+                        {"content": "This is first attachment"},
+                        {"content": "This is second attachment"},
+                    ],
+                    "add": [existing_attachment.pk],
                 },
             },
             format="json",
         )
         self.assertEqual(response.status_code, 201)
-        self.assertEqual(Post.objects.count(), 1)
-        post = Post.objects.get()
-        self.assertEqual(Attachment.objects.filter(post=post).count(), 2)
-        attachment = Attachment.objects.first()
-        self.assertEqual(attachment.content, "This is my first attachment")
+        self.assertEqual(Post.objects.count(), 2)
+        post = Post.objects.get(title="New post")
+        self.assertEqual(Attachment.objects.filter(post=post).count(), 3)
+        attachment = Attachment.objects.last()
+        self.assertEqual(attachment.content, "This is second attachment")
+        existing_attachment.refresh_from_db()
+        self.assertEqual(existing_attachment.document, post)
 
     # **************** PUT Tests ********************* #
 
@@ -2881,6 +2888,42 @@ class DataMutationTests(APITestCase):
                 },
                 "phone_numbers": [],
             },
+        )
+
+    def test_patch_with_mixed_operations_on_generic_relation(self):
+        post = Post.objects.create()
+        attachment = Attachment.objects.create(document=post)
+        removed_attachment = Attachment.objects.create(document=post, content="removed")
+        attachment_to_add = Attachment.objects.create(
+            content="attachment to add",
+            document=Post.objects.create(title="Another post"),
+        )
+
+        response = self.client.patch(
+            reverse_lazy("post-detail", args=[post.pk]),
+            {
+                "attachments": {
+                    "create": [
+                        {"content": "new attachment"},
+                    ],
+                    "update": {str(attachment.pk): {"content": "old attachment"}},
+                    "remove": [removed_attachment.pk],
+                    "add": [attachment_to_add.pk],
+                }
+            },
+            format="json",
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(Attachment.objects.filter(post=post).count(), 3)
+        attachment.refresh_from_db()
+        self.assertEqual(attachment.content, "old attachment")
+        with self.assertRaises(Attachment.DoesNotExist):
+            removed_attachment.refresh_from_db()
+
+        attachment_to_add.refresh_from_db()
+        self.assertEqual(attachment_to_add.document, post)
+        self.assertEqual(
+            Attachment.objects.get(content="new attachment").document, post
         )
 
 

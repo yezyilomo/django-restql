@@ -636,41 +636,48 @@ class NestedCreateMixin(BaseNestedMixin):
     def create_many_to_one_generic_related(
         self, instance: Model, data: dict[str, dict]
     ):
-        """NOTE: Only create operation is supported for generic foreign keys"""
         field_pks = {}
         nested_fields = self.restql_writable_nested_fields
 
         content_type = ContentType.objects.get_for_model(instance)
-        object_id = instance.pk
 
         for field, values in data.items():
-            if CREATE not in values:
-                continue
-
-            model: type[Model] = self.Meta.model
-            relation: GenericRelation = getattr(model, field).field
+            relation: GenericRelation = getattr(self.Meta.model, field).field
 
             nested_field_serializer = nested_fields[field].child
             serializer_class = nested_field_serializer.serializer_class
             kwargs = nested_field_serializer.validation_kwargs
+            model: type[Model] = nested_field_serializer.Meta.model
 
-            serializer = serializer_class(data=values[CREATE], **kwargs, many=True)
-            serializer.is_valid(raise_exception=True)
-            items = serializer.validated_data
+            for operation in values:
+                if operation == ADD:
+                    pks = values[operation]
+                    qs = model.objects.filter(pk__in=pks)
+                    qs.update(
+                        **{
+                            relation.object_id_field_name: instance.pk,
+                            relation.content_type_field_name: content_type,
+                        }
+                    )
+                elif operation == CREATE:
+                    serializer = serializer_class(
+                        data=values[operation], **kwargs, many=True
+                    )
+                    serializer.is_valid(raise_exception=True)
+                    items = serializer.validated_data
 
-            child_model: type[Model] = serializer.child.Meta.model
-            objs = [
-                child_model(
-                    **item,
-                    **{
-                        relation.content_type_field_name: content_type,
-                        relation.object_id_field_name: object_id,
-                    },
-                )
-                for item in items
-            ]
-            objs = child_model.objects.bulk_create(objs)
-            field_pks.update({field: [obj.pk for obj in objs]})
+                    objs = [
+                        model(
+                            **item,
+                            **{
+                                relation.content_type_field_name: content_type,
+                                relation.object_id_field_name: instance.pk,
+                            },
+                        )
+                        for item in items
+                    ]
+                    objs = model.objects.bulk_create(objs)
+                    field_pks[field] = [obj.pk for obj in objs]
 
         return field_pks
 
@@ -871,7 +878,9 @@ class NestedUpdateMixin(BaseNestedMixin):
             serializer.is_valid(raise_exception=True)
             obj = serializer.save()
 
-    def bulk_update_many_to_one_related(self, field, instance, data):
+    def bulk_update_many_to_one_related(
+        self, field, instance, data, update_foreign_key: bool = True
+    ):
         # {pk: {sub_field: values}}
 
         # Get nested field serializer
@@ -887,7 +896,8 @@ class NestedUpdateMixin(BaseNestedMixin):
             except ObjectDoesNotExist:
                 # This pk does't belong to nested field
                 continue
-            values.update({foreignkey: instance.pk})
+            if update_foreign_key:
+                values.update({foreignkey: instance.pk})
             serializer = serializer_class(
                 obj,
                 **kwargs,
@@ -940,6 +950,30 @@ class NestedUpdateMixin(BaseNestedMixin):
                     raise ValidationError(message, code="invalid_operation")
         return instance
 
+    def update_many_to_one_generic_related(self, instance, data):
+        # it's same logic for add & create operations
+        # which are already handled by NestedCreateMixin
+        NestedCreateMixin.create_many_to_one_generic_related(self, instance, data)
+
+        for field, values in data.items():
+            nested_qs = getattr(instance, field)
+            for operation in values:
+                if operation not in [ADD, CREATE, UPDATE, REMOVE]:
+                    message = f"`{operation}` is an invalid operation"
+                    raise ValidationError(message, code="invalid_operation")
+
+                if operation == REMOVE:
+                    qs = nested_qs.all()
+                    if values[operation] == ALL_RELATED_OBJS:
+                        qs.delete()
+                    else:
+                        qs.filter(pk__in=values[operation]).delete()
+                elif operation == UPDATE:
+                    self.bulk_update_many_to_one_related(
+                        field, instance, values[operation], update_foreign_key=False
+                    )
+        return instance
+
     def update_many_to_many_related(self, instance, data):
         # data format
         # {field: {
@@ -989,7 +1023,11 @@ class NestedUpdateMixin(BaseNestedMixin):
 
         fields = {
             "foreignkey_related": {"replaceable": {}, "writable": {}},
-            "many_to": {"many_related": {}, "one_related": {}},
+            "many_to": {
+                "many_related": {},
+                "one_related": {},
+                "one_generic_related": {},
+            },
         }
 
         restql_nested_fields = self.restql_writable_nested_fields
@@ -1014,6 +1052,9 @@ class NestedUpdateMixin(BaseNestedMixin):
                 if isinstance(rel, ManyToOneRel):
                     value = validated_data_copy.pop(field)
                     fields["many_to"]["one_related"].update({field: value})
+                elif isinstance(rel, GenericRel):
+                    value = validated_data_copy.pop(field)
+                    fields["many_to"]["one_generic_related"][field] = value
                 elif isinstance(rel, ManyToManyRel):
                     value = validated_data_copy.pop(field)
                     fields["many_to"]["many_related"].update({field: value})
@@ -1032,4 +1073,7 @@ class NestedUpdateMixin(BaseNestedMixin):
 
         self.update_many_to_one_related(instance, fields["many_to"]["one_related"])
 
+        self.update_many_to_one_generic_related(
+            instance, fields["many_to"]["one_generic_related"]
+        )
         return instance

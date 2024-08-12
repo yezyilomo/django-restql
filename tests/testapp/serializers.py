@@ -13,7 +13,6 @@ from tests.testapp.models import (
 from django_restql.fields import NestedField, DynamicSerializerMethodField
 from django_restql.mixins import DynamicFieldsMixin
 from django_restql.serializers import NestedModelSerializer
-from django_restql import operations as ops
 
 
 ######## Serializers for Data Querying And Mutations Testing ##########
@@ -224,11 +223,7 @@ class AttachmentSerializer(serializers.ModelSerializer):
 
 
 class PostSerializer(NestedModelSerializer):
-    attachments = NestedField(
-        AttachmentSerializer,
-        many=True,
-        create_ops=[ops.CREATE],
-    )
+    attachments = NestedField(AttachmentSerializer, many=True)
 
     class Meta:
         model = Post
