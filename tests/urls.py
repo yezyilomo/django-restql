@@ -26,25 +26,66 @@ from rest_framework import routers
 
 router = routers.DefaultRouter()
 
-router.register('books', views.BookViewSet, 'book')
-router.register('courses', views.CourseViewSet, 'course')
-router.register('courses-with-disable-dynamic-fields', views.CourseWithDisableDaynamicFieldsKwargViewSet, 'course_with_disable_dynamic_fields_kwarg')
-router.register('courses-with-returnpk-kwarg', views.CourseWithReturnPkkwargViewSet, 'course_with_returnpk_kwarg')
-router.register('courses-with-field-kwarg', views.CourseWithFieldsKwargViewSet, 'course_with_field_kwarg')
-router.register('courses-with-exclude-kwarg', views.CourseWithExcludeKwargViewSet, 'course_with_exclude_kwarg')
-router.register('courses-with-aliased-books', views.CourseWithAliasedBooksViewSet, 'course_with_aliased_books')
-router.register('course-with-dynamic-serializer-method-field', views.CourseWithDynamicSerializerMethodFieldViewSet, 'course_with_dynamic_serializer_method_field')
-router.register('students', views.StudentViewSet, 'student')
-router.register('students-eager-loading', views.StudentEagerLoadingViewSet, 'student_eager_loading')
-router.register('students-eager-loading-prefetch', views.StudentEagerLoadingPrefetchObjectViewSet, 'student_eager_loading_prefetch')
-router.register('students-auto-apply-eager-loading', views.StudentAutoApplyEagerLoadingViewSet, 'student_auto_apply_eager_loading')
+router.register("books", views.BookViewSet, "book")
+router.register("courses", views.CourseViewSet, "course")
+router.register(
+    "courses-with-disable-dynamic-fields",
+    views.CourseWithDisableDaynamicFieldsKwargViewSet,
+    "course_with_disable_dynamic_fields_kwarg",
+)
+router.register(
+    "courses-with-returnpk-kwarg",
+    views.CourseWithReturnPkkwargViewSet,
+    "course_with_returnpk_kwarg",
+)
+router.register(
+    "courses-with-field-kwarg",
+    views.CourseWithFieldsKwargViewSet,
+    "course_with_field_kwarg",
+)
+router.register(
+    "courses-with-exclude-kwarg",
+    views.CourseWithExcludeKwargViewSet,
+    "course_with_exclude_kwarg",
+)
+router.register(
+    "courses-with-aliased-books",
+    views.CourseWithAliasedBooksViewSet,
+    "course_with_aliased_books",
+)
+router.register(
+    "course-with-dynamic-serializer-method-field",
+    views.CourseWithDynamicSerializerMethodFieldViewSet,
+    "course_with_dynamic_serializer_method_field",
+)
+router.register("students", views.StudentViewSet, "student")
+router.register(
+    "students-eager-loading", views.StudentEagerLoadingViewSet, "student_eager_loading"
+)
+router.register(
+    "students-eager-loading-prefetch",
+    views.StudentEagerLoadingPrefetchObjectViewSet,
+    "student_eager_loading_prefetch",
+)
+router.register(
+    "students-auto-apply-eager-loading",
+    views.StudentAutoApplyEagerLoadingViewSet,
+    "student_auto_apply_eager_loading",
+)
 
-router.register('writable-courses', views.WritableCourseViewSet, 'wcourse')
-router.register('replaceable-students', views.ReplaceableStudentViewSet, 'rstudent')
-router.register('replaceable-students-with-alias', views.ReplaceableStudentWithAliasViewSet, 'rstudent_with_alias')
-router.register('writable-students', views.WritableStudentViewSet, 'wstudent')
-router.register('writable-students-with-alias', views.WritableStudentWithAliasViewSet, 'wstudent_with_alias')
+router.register("writable-courses", views.WritableCourseViewSet, "wcourse")
+router.register("replaceable-students", views.ReplaceableStudentViewSet, "rstudent")
+router.register(
+    "replaceable-students-with-alias",
+    views.ReplaceableStudentWithAliasViewSet,
+    "rstudent_with_alias",
+)
+router.register("writable-students", views.WritableStudentViewSet, "wstudent")
+router.register(
+    "writable-students-with-alias",
+    views.WritableStudentWithAliasViewSet,
+    "wstudent_with_alias",
+)
+router.register("posts", views.PostViewSet, "post")
 
-urlpatterns = [
-    path('', include(router.urls))
-]
+urlpatterns = [path("", include(router.urls))]

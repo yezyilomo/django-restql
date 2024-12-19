@@ -1,5 +1,14 @@
 from rest_framework import serializers
-from tests.testapp.models import Genre, Book, Instructor, Course, Student, Phone
+from tests.testapp.models import (
+    Genre,
+    Book,
+    Instructor,
+    Course,
+    Student,
+    Phone,
+    Attachment,
+    Post,
+)
 
 from django_restql.fields import NestedField, DynamicSerializerMethodField
 from django_restql.mixins import DynamicFieldsMixin
@@ -10,25 +19,25 @@ from django_restql.serializers import NestedModelSerializer
 class GenreSerializer(DynamicFieldsMixin, serializers.ModelSerializer):
     class Meta:
         model = Genre
-        fields = ['title', 'description']
+        fields = ["title", "description"]
 
 
 class InstructorSerializer(DynamicFieldsMixin, serializers.ModelSerializer):
     class Meta:
         model = Instructor
-        fields = ['name']
+        fields = ["name"]
 
 
 class BookSerializer(DynamicFieldsMixin, serializers.ModelSerializer):
     class Meta:
         model = Book
-        fields = ['title', 'author']
+        fields = ["title", "author"]
 
 
 class PhoneSerializer(DynamicFieldsMixin, serializers.ModelSerializer):
     class Meta:
         model = Phone
-        fields = ['number', 'type', 'student']
+        fields = ["number", "type", "student"]
 
 
 ################# Serializers for Data Querying Testing ################
@@ -37,15 +46,17 @@ class CourseSerializer(DynamicFieldsMixin, serializers.ModelSerializer):
 
     class Meta:
         model = Course
-        fields = ['name', 'code', 'books']
+        fields = ["name", "code", "books"]
 
 
-class CourseWithDisableDynamicFieldsKwargSerializer(DynamicFieldsMixin, serializers.ModelSerializer):
+class CourseWithDisableDynamicFieldsKwargSerializer(
+    DynamicFieldsMixin, serializers.ModelSerializer
+):
     books = BookSerializer(many=True, read_only=True, disable_dynamic_fields=True)
 
     class Meta:
         model = Course
-        fields = ['name', 'code', 'books']
+        fields = ["name", "code", "books"]
 
 
 class CourseWithReturnPkkwargSerializer(CourseSerializer):
@@ -53,7 +64,7 @@ class CourseWithReturnPkkwargSerializer(CourseSerializer):
 
     class Meta:
         model = Course
-        fields = ['name', 'code', 'books']
+        fields = ["name", "code", "books"]
 
 
 class CourseWithFieldsKwargSerializer(CourseSerializer):
@@ -75,7 +86,7 @@ class CourseWithAliasedBooksSerializer(CourseSerializer):
 
     class Meta:
         model = Course
-        fields = ['name', 'code', 'tomes']
+        fields = ["name", "code", "tomes"]
 
 
 class CourseWithDynamicSerializerMethodField(CourseSerializer):
@@ -84,7 +95,7 @@ class CourseWithDynamicSerializerMethodField(CourseSerializer):
 
     class Meta:
         model = Course
-        fields = ['name', 'code', 'tomes', 'related_books']
+        fields = ["name", "code", "tomes", "related_books"]
 
     def get_tomes(self, obj, parsed_query):
         books = obj.books.all()
@@ -96,9 +107,7 @@ class CourseWithDynamicSerializerMethodField(CourseSerializer):
     def get_related_books(self, obj, parsed_query):
         books = obj.books.all()
         query = "{title}"
-        serializer = BookSerializer(
-            books, query=query, many=True, read_only=True
-        )
+        serializer = BookSerializer(books, query=query, many=True, read_only=True)
         return serializer.data
 
 
@@ -108,7 +117,7 @@ class StudentSerializer(DynamicFieldsMixin, serializers.ModelSerializer):
 
     class Meta:
         model = Student
-        fields = ['name', 'age', 'course', 'phone_numbers']
+        fields = ["name", "age", "course", "phone_numbers"]
 
 
 class StudentWithAliasSerializer(DynamicFieldsMixin, serializers.ModelSerializer):
@@ -117,7 +126,7 @@ class StudentWithAliasSerializer(DynamicFieldsMixin, serializers.ModelSerializer
 
     class Meta:
         model = Student
-        fields = ['name', 'age', 'program', 'phone_numbers']
+        fields = ["name", "age", "program", "phone_numbers"]
 
 
 ############### Serializers for Nested Data Mutation Testing ##############
@@ -126,58 +135,96 @@ class WritableBookSerializer(DynamicFieldsMixin, NestedModelSerializer):
 
     class Meta:
         model = Book
-        fields = ['title', 'author', 'genres']
+        fields = ["title", "author", "genres"]
 
 
 class WritableCourseSerializer(DynamicFieldsMixin, NestedModelSerializer):
-    books = NestedField(WritableBookSerializer, many=True, required=False, allow_remove_all=True)
+    books = NestedField(
+        WritableBookSerializer, many=True, required=False, allow_remove_all=True
+    )
     instructor = NestedField(InstructorSerializer, accept_pk=True, required=False)
 
     class Meta:
         model = Course
-        fields = ['name', 'code', 'books', 'instructor']
+        fields = ["name", "code", "books", "instructor"]
 
 
 class ReplaceableStudentSerializer(DynamicFieldsMixin, NestedModelSerializer):
-    course = NestedField(WritableCourseSerializer, accept_pk=True, allow_null=True, required=False)
+    course = NestedField(
+        WritableCourseSerializer, accept_pk=True, allow_null=True, required=False
+    )
     phone_numbers = PhoneSerializer(many=True, read_only=True)
 
     class Meta:
         model = Student
-        fields = ['name', 'age', 'course', 'phone_numbers']
+        fields = ["name", "age", "course", "phone_numbers"]
 
 
 class ReplaceableStudentWithAliasSerializer(DynamicFieldsMixin, NestedModelSerializer):
     full_name = serializers.CharField(source="name")
-    program = NestedField(WritableCourseSerializer, source="course", accept_pk_only=True, allow_null=True, required=False)
-    contacts = NestedField(PhoneSerializer, source="phone_numbers", many=True, required=False)
+    program = NestedField(
+        WritableCourseSerializer,
+        source="course",
+        accept_pk_only=True,
+        allow_null=True,
+        required=False,
+    )
+    contacts = NestedField(
+        PhoneSerializer, source="phone_numbers", many=True, required=False
+    )
 
     class Meta:
         model = Student
-        fields = ['full_name', 'age', 'program', 'contacts']
+        fields = ["full_name", "age", "program", "contacts"]
 
 
 class WritableStudentSerializer(DynamicFieldsMixin, NestedModelSerializer):
     course = NestedField(WritableCourseSerializer, allow_null=True, required=False)
-    phone_numbers = NestedField(PhoneSerializer, many=True, required=False, allow_remove_all=True)
+    phone_numbers = NestedField(
+        PhoneSerializer, many=True, required=False, allow_remove_all=True
+    )
 
     class Meta:
         model = Student
-        fields = ['name', 'age', 'course', 'phone_numbers']
+        fields = ["name", "age", "course", "phone_numbers"]
 
 
 class WritableStudentWithAliasSerializer(DynamicFieldsMixin, NestedModelSerializer):
-    program = NestedField(WritableCourseSerializer, source="course", allow_null=True, required=False)
-    contacts = NestedField(PhoneSerializer, source="phone_numbers", many=True, required=False)
+    program = NestedField(
+        WritableCourseSerializer, source="course", allow_null=True, required=False
+    )
+    contacts = NestedField(
+        PhoneSerializer, source="phone_numbers", many=True, required=False
+    )
     study_partner = NestedField(
-        'self', required=False, allow_null=True,
-        accept_pk=True, exclude=['study_partner']
+        "self",
+        required=False,
+        allow_null=True,
+        accept_pk=True,
+        exclude=["study_partner"],
     )
     sport_mates = NestedField(
-        'self', required=False, many=True,
-        source="sport_partners", exclude=['sport_mates']
+        "self",
+        required=False,
+        many=True,
+        source="sport_partners",
+        exclude=["sport_mates"],
     )
 
     class Meta:
         model = Student
-        fields = ['name', 'age', 'program', 'contacts', 'study_partner', 'sport_mates']
+        fields = ["name", "age", "program", "contacts", "study_partner", "sport_mates"]
+
+
+class AttachmentSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Attachment
+        fields = ["content"]
+
+
+class PostSerializer(NestedModelSerializer):
+    attachments = NestedField(AttachmentSerializer, many=True, required=False)
+
+    class Meta:
+        model = Post
+        fields = ["title", "content", "attachments"]
