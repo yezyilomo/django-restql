@@ -633,21 +633,19 @@ class NestedCreateMixin(BaseNestedMixin):
                     field_pks.update({field: pks})
         return field_pks
 
-    def create_many_to_one_generic_related(
-        self, instance: Model, data: dict[str, dict]
-    ):
+    def create_many_to_one_generic_related(self, instance, data):
         field_pks = {}
         nested_fields = self.restql_writable_nested_fields
 
         content_type = ContentType.objects.get_for_model(instance)
 
         for field, values in data.items():
-            relation: GenericRelation = getattr(self.Meta.model, field).field
+            relation = getattr(self.Meta.model, field).field
 
             nested_field_serializer = nested_fields[field].child
             serializer_class = nested_field_serializer.serializer_class
             kwargs = nested_field_serializer.validation_kwargs
-            model: type[Model] = nested_field_serializer.Meta.model
+            model = nested_field_serializer.Meta.model
 
             for operation in values:
                 if operation == ADD:
@@ -879,7 +877,7 @@ class NestedUpdateMixin(BaseNestedMixin):
             obj = serializer.save()
 
     def bulk_update_many_to_one_related(
-        self, field, instance, data, update_foreign_key: bool = True
+        self, field, instance, data, update_foreign_key=True
     ):
         # {pk: {sub_field: values}}
 
