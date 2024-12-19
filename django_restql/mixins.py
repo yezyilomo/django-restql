@@ -1,7 +1,7 @@
-from django.db.models import Prefetch, Model
+from django.db.models import Prefetch
 from django.core.exceptions import ObjectDoesNotExist
 from django.db.models.fields.related import ManyToManyRel, ManyToOneRel
-from django.contrib.contenttypes.fields import GenericRel, GenericRelation
+from django.contrib.contenttypes.fields import GenericRel
 from django.contrib.contenttypes.models import ContentType
 from django.http import QueryDict
 from django.utils.functional import cached_property
