@@ -1,10 +1,15 @@
+from django.http import QueryDict
 from django.db.models import Prefetch
+from django.utils.functional import cached_property
 from django.core.exceptions import ObjectDoesNotExist
 from django.db.models.fields.related import ManyToManyRel, ManyToOneRel
-from django.contrib.contenttypes.fields import GenericRel
-from django.contrib.contenttypes.models import ContentType
-from django.http import QueryDict
-from django.utils.functional import cached_property
+
+try:
+    from django.contrib.contenttypes.fields import GenericRel
+    from django.contrib.contenttypes.models import ContentType
+except ImportError:
+    GenericRel = None
+    ContentType = None
 
 from rest_framework.serializers import ListSerializer, Serializer, ValidationError
 
@@ -637,8 +642,9 @@ class NestedCreateMixin(BaseNestedMixin):
         field_pks = {}
         nested_fields = self.restql_writable_nested_fields
 
-        content_type = ContentType.objects.get_for_model(instance)
-
+        content_type = (
+            ContentType.objects.get_for_model(instance) if ContentType else None
+        )
         for field, values in data.items():
             relation = getattr(self.Meta.model, field).field
 
@@ -735,12 +741,12 @@ class NestedCreateMixin(BaseNestedMixin):
                 if isinstance(rel, ManyToOneRel):
                     value = validated_data_copy.pop(field)
                     fields["many_to"]["one_related"].update({field: value})
-                elif isinstance(rel, GenericRel):
-                    value = validated_data_copy.pop(field)
-                    fields["many_to"]["one_generic_related"].update({field: value})
                 elif isinstance(rel, ManyToManyRel):
                     value = validated_data_copy.pop(field)
                     fields["many_to"]["many_related"].update({field: value})
+                elif GenericRel and isinstance(rel, GenericRel):
+                    value = validated_data_copy.pop(field)
+                    fields["many_to"]["one_generic_related"].update({field: value})
 
         foreignkey_related = {
             **fields["foreignkey_related"]["replaceable"],
@@ -755,9 +761,11 @@ class NestedCreateMixin(BaseNestedMixin):
 
         self.create_many_to_one_related(instance, fields["many_to"]["one_related"])
 
-        self.create_many_to_one_generic_related(
-            instance, fields["many_to"]["one_generic_related"]
-        )
+        if fields["many_to"]["one_generic_related"]:
+            # Call create_many_to_one_generic_related only if we have generic relationship
+            self.create_many_to_one_generic_related(
+                instance, fields["many_to"]["one_generic_related"]
+            )
 
         return instance
 
@@ -1050,12 +1058,12 @@ class NestedUpdateMixin(BaseNestedMixin):
                 if isinstance(rel, ManyToOneRel):
                     value = validated_data_copy.pop(field)
                     fields["many_to"]["one_related"].update({field: value})
-                elif isinstance(rel, GenericRel):
-                    value = validated_data_copy.pop(field)
-                    fields["many_to"]["one_generic_related"][field] = value
                 elif isinstance(rel, ManyToManyRel):
                     value = validated_data_copy.pop(field)
                     fields["many_to"]["many_related"].update({field: value})
+                elif GenericRel and isinstance(rel, GenericRel):
+                    value = validated_data_copy.pop(field)
+                    fields["many_to"]["one_generic_related"].update({field: value})
 
         instance = super().update(instance, validated_data_copy)
 
@@ -1071,7 +1079,9 @@ class NestedUpdateMixin(BaseNestedMixin):
 
         self.update_many_to_one_related(instance, fields["many_to"]["one_related"])
 
-        self.update_many_to_one_generic_related(
-            instance, fields["many_to"]["one_generic_related"]
-        )
+        if fields["many_to"]["one_generic_related"]:
+            # Call update_many_to_one_generic_related only if we have generic relationship
+            self.update_many_to_one_generic_related(
+                instance, fields["many_to"]["one_generic_related"]
+            )
         return instance
