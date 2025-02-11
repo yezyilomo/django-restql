@@ -7,7 +7,7 @@ from django.db.models.fields.related import ManyToManyRel, ManyToOneRel
 try:
     from django.contrib.contenttypes.fields import GenericRel
     from django.contrib.contenttypes.models import ContentType
-except ImportError:
+except (RuntimeError, ImportError):
     GenericRel = None
     ContentType = None
 
