@@ -7,7 +7,7 @@ from django.db.models.fields.related import ManyToManyRel, ManyToOneRel
 try:
     from django.contrib.contenttypes.fields import GenericRel
     from django.contrib.contenttypes.models import ContentType
-except (RuntimeError, ImportError):
+except ImportError:
     GenericRel = None
     ContentType = None
 
@@ -284,13 +284,16 @@ class DynamicFieldsMixin(RequestQueryParserMixin):
         if including_or_excluding_field_more_than_once:
             repeated_fields = get_duplicates(included_and_excluded_fields)
             msg = (
-                "QueryFormatError: You have either "
-                "included/excluded a field more than once, "  # e.g {id, id}
-                "used the same alias more than once, "  # e.g {x: name, x: age}
-                "used a field name as an alias to another field or "  # e.g {id, id: age} Here age's not a parent
-                "renamed a field and included/excluded it again, "  # e.g {ID: id, id}
-                "The list of fields which led to this error is %s."
-            ) % str(repeated_fields)
+                (
+                    "QueryFormatError: You have either "
+                    "included/excluded a field more than once, "  # e.g {id, id}
+                    "used the same alias more than once, "  # e.g {x: name, x: age}
+                    "used a field name as an alias to another field or "  # e.g {id, id: age} Here age's not a parent
+                    "renamed a field and included/excluded it again, "  # e.g {ID: id, id}
+                    "The list of fields which led to this error is %s."
+                )
+                % str(repeated_fields)
+            )
             raise ValidationError(msg, "invalid")
 
         if excluded_fields:
