@@ -2123,6 +2123,29 @@ class DataMutationTests(APITestCase):
             },
         )
 
+    def test_put_with_delete_on_null_kwarg(
+        self,
+    ):
+        course = Course.objects.create(name="Test case", code="TS101")
+        student = Student.objects.create(name="Yezy", age=24, course=course)
+
+        url = reverse_lazy("wstudent-detail", args=[student.id])
+        data = {"name": "yezy", "age": 33, "course": None}
+        response = self.client.put(url, data, format="json")
+
+        self.assertEqual(
+            response.data,
+            {
+                "name": "yezy",
+                "age": 33,
+                "course": None,
+                "phone_numbers": [],
+            },
+        )
+
+        # Check if course has been deleted
+        self.assertEqual(Course.objects.filter(id=course.id).count(), 0)
+
     def test_put_with_add_operation(self):
         url = reverse_lazy("wcourse-detail", args=[self.course2.id])
         data = {"name": "Data Structures", "code": "CS410", "books": {"add": [2]}}
