@@ -1,6 +1,4 @@
 
-
-
 <!doctype html>
 <html lang="en" class="no-js">
   <head>
@@ -10,8 +8,15 @@
       
       
       
-      <link rel="shortcut icon" href="../img/favicon.svg">
-      <meta name="generator" content="mkdocs-1.1.2, mkdocs-material-5.5.0">
+      
+        <link rel="prev" href="..">
+      
+      
+        <link rel="next" href="../mutating_data/">
+      
+      
+      <link rel="icon" href="../img/favicon.svg">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.6.15">
     
     
       
@@ -19,30 +24,35 @@
       
     
     
-      <link rel="stylesheet" href="../assets/stylesheets/main.b5d04df8.min.css">
+      <link rel="stylesheet" href="../assets/stylesheets/main.342714a4.min.css">
       
-        <link rel="stylesheet" href="../assets/stylesheets/palette.9ab2c1f8.min.css">
+        
+        <link rel="stylesheet" href="../assets/stylesheets/palette.06af60db.min.css">
       
+      
+
+
+    
+    
+      
+    
+    
       
         
         
-        <meta name="theme-color" content="#009688">
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
       
-    
-    
-    
-      
-        <link href="https://fonts.gstatic.com" rel="preconnect" crossorigin>
-        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,400,400i,700%7CRoboto+Mono&display=fallback">
-        <style>body,input{font-family:"Roboto",-apple-system,BlinkMacSystemFont,Helvetica,Arial,sans-serif}code,kbd,pre{font-family:"Roboto Mono",SFMono-Regular,Consolas,Menlo,monospace}</style>
-      
-    
     
     
       <link rel="stylesheet" href="../extra.css">
     
+    <script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
     
       
+
+    
     
     
   </head>
@@ -51,7 +61,9 @@
     
     
     
-    <body dir="ltr" data-md-color-scheme="" data-md-color-primary="teal" data-md-color-accent="teal">
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="teal" data-md-color-accent="teal">
   
     
     <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
@@ -69,68 +81,90 @@
       
     </div>
     
-      <header class="md-header" data-md-component="header">
-  <nav class="md-header-nav md-grid" aria-label="Header">
-    <a href=".." title="Django RESTQL" class="md-header-nav__button md-logo" aria-label="Django RESTQL">
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href=".." title="Django RESTQL" class="md-header__button md-logo" aria-label="Django RESTQL" data-md-component="logo">
       
   <img src="../img/icon.svg" alt="logo">
 
     </a>
-    <label class="md-header-nav__button md-icon" for="__drawer">
-      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3V6m0 5h18v2H3v-2m0 5h18v2H3v-2z"/></svg>
-    </label>
-    <div class="md-header-nav__title" data-md-component="header-title">
+    <label class="md-header__button md-icon" for="__drawer">
       
-        <div class="md-header-nav__ellipsis">
-          <span class="md-header-nav__topic md-ellipsis">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
             Django RESTQL
           </span>
-          <span class="md-header-nav__topic md-ellipsis">
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
             
               Querying Data
             
           </span>
         </div>
-      
+      </div>
     </div>
     
-      <label class="md-header-nav__button md-icon" for="__search">
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0116 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 019.5 16 6.5 6.5 0 013 9.5 6.5 6.5 0 019.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5z"/></svg>
-      </label>
       
-<div class="md-search" data-md-component="search" role="dialog">
+    
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
   <label class="md-search__overlay" for="__search"></label>
   <div class="md-search__inner" role="search">
     <form class="md-search__form" name="search">
-      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" data-md-state="active">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
       <label class="md-search__icon md-icon" for="__search">
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0116 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 019.5 16 6.5 6.5 0 013 9.5 6.5 6.5 0 019.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5z"/></svg>
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12z"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
       </label>
-      <button type="reset" class="md-search__icon md-icon" aria-label="Clear" data-md-component="search-reset" tabindex="-1">
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12 19 6.41z"/></svg>
-      </button>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
     </form>
     <div class="md-search__output">
-      <div class="md-search__scrollwrap" data-md-scrollfix>
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
         <div class="md-search-result" data-md-component="search-result">
           <div class="md-search-result__meta">
             Initializing search
           </div>
-          <ol class="md-search-result__list"></ol>
+          <ol class="md-search-result__list" role="presentation"></ol>
         </div>
       </div>
     </div>
   </div>
 </div>
+      
     
     
-      <div class="md-header-nav__source">
-        
-<a href="https://github.com/yezyilomo/django-restql/" title="Go to repository" class="md-source">
+      <div class="md-header__source">
+        <a href="https://github.com/yezyilomo/django-restql/" title="Go to repository" class="md-source" data-md-component="source">
   <div class="md-source__icon md-icon">
     
-    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><path d="M439.55 236.05L244 40.45a28.87 28.87 0 00-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 01-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 000 40.81l195.61 195.6a28.86 28.86 0 0040.8 0l194.69-194.69a28.86 28.86 0 000-40.81z"/></svg>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.7.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2024 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81"/></svg>
   </div>
   <div class="md-source__repository">
     yezyilomo/django-restql
@@ -139,25 +173,31 @@
       </div>
     
   </nav>
+  
 </header>
     
     <div class="md-container" data-md-component="container">
       
+      
         
-      
-      
+          
         
       
       <main class="md-main" data-md-component="main">
         <div class="md-main__inner md-grid">
           
             
-              <div class="md-sidebar md-sidebar--primary" data-md-component="navigation">
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
                 <div class="md-sidebar__scrollwrap">
                   <div class="md-sidebar__inner">
-                    <nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
   <label class="md-nav__title" for="__drawer">
-    <a href=".." title="Django RESTQL" class="md-nav__button md-logo" aria-label="Django RESTQL">
+    <a href=".." title="Django RESTQL" class="md-nav__button md-logo" aria-label="Django RESTQL" data-md-component="logo">
       
   <img src="../img/icon.svg" alt="logo">
 
@@ -166,11 +206,10 @@
   </label>
   
     <div class="md-nav__source">
-      
-<a href="https://github.com/yezyilomo/django-restql/" title="Go to repository" class="md-source">
+      <a href="https://github.com/yezyilomo/django-restql/" title="Go to repository" class="md-source" data-md-component="source">
   <div class="md-source__icon md-icon">
     
-    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><path d="M439.55 236.05L244 40.45a28.87 28.87 0 00-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 01-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 000 40.81l195.61 195.6a28.86 28.86 0 0040.8 0l194.69-194.69a28.86 28.86 0 000-40.81z"/></svg>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.7.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2024 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81"/></svg>
   </div>
   <div class="md-source__repository">
     yezyilomo/django-restql
@@ -182,94 +221,132 @@
     
       
       
-      
-
-
-  <li class="md-nav__item">
-    <a href=".." title="Intro" class="md-nav__link">
-      Intro
-    </a>
-  </li>
-
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href=".." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Intro
     
-      
-      
-      
-
+  </span>
   
 
+      </a>
+    </li>
+  
 
-  <li class="md-nav__item md-nav__item--active">
-    
-    <input class="md-nav__toggle md-toggle" data-md-toggle="toc" type="checkbox" id="__toc">
     
       
-    
-    
-      <label class="md-nav__link md-nav__link--active" for="__toc">
-        Querying Data
-        <span class="md-nav__icon md-icon">
-          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 9h14V7H3v2m0 4h14v-2H3v2m0 4h14v-2H3v2m16 0h2v-2h-2v2m0-10v2h2V7h-2m0 6h2v-2h-2v2z"/></svg>
-        </span>
-      </label>
-    
-    <a href="./" title="Querying Data" class="md-nav__link md-nav__link--active">
-      Querying Data
-    </a>
-    
       
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    Querying Data
+    
+  </span>
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    Querying Data
+    
+  </span>
+  
+
+      </a>
+      
+        
+
 <nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
   
   
     
   
   
     <label class="md-nav__title" for="__toc">
-      <span class="md-nav__icon md-icon">
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12z"/></svg>
-      </span>
+      <span class="md-nav__icon md-icon"></span>
       Table of contents
     </label>
-    <ul class="md-nav__list" data-md-scrollfix>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
   <a href="#querying-nested-fields" class="md-nav__link">
-    Querying nested fields
+    <span class="md-ellipsis">
+      Querying nested fields
+    </span>
   </a>
   
 </li>
       
         <li class="md-nav__item">
   <a href="#exclude-operator" class="md-nav__link">
-    Exclude(-) operator
+    <span class="md-ellipsis">
+      Exclude(-) operator
+    </span>
   </a>
   
 </li>
       
         <li class="md-nav__item">
   <a href="#wildcard-operator" class="md-nav__link">
-    Wildcard(*) operator
+    <span class="md-ellipsis">
+      Wildcard(*) operator
+    </span>
   </a>
   
 </li>
       
         <li class="md-nav__item">
   <a href="#aliases" class="md-nav__link">
-    Aliases
+    <span class="md-ellipsis">
+      Aliases
+    </span>
   </a>
   
 </li>
       
         <li class="md-nav__item">
   <a href="#dynamicserializermethodfield" class="md-nav__link">
-    DynamicSerializerMethodField
+    <span class="md-ellipsis">
+      DynamicSerializerMethodField
+    </span>
   </a>
   
 </li>
       
         <li class="md-nav__item">
   <a href="#dynamicfieldsmixin-kwargs" class="md-nav__link">
-    DynamicFieldsMixin kwargs
+    <span class="md-ellipsis">
+      DynamicFieldsMixin kwargs
+    </span>
   </a>
   
     <nav class="md-nav" aria-label="DynamicFieldsMixin kwargs">
@@ -277,42 +354,54 @@
         
           <li class="md-nav__item">
   <a href="#fields-kwarg" class="md-nav__link">
-    fields kwarg
+    <span class="md-ellipsis">
+      fields kwarg
+    </span>
   </a>
   
 </li>
         
           <li class="md-nav__item">
   <a href="#exclude-kwarg" class="md-nav__link">
-    exclude kwarg
+    <span class="md-ellipsis">
+      exclude kwarg
+    </span>
   </a>
   
 </li>
         
           <li class="md-nav__item">
   <a href="#query-kwarg" class="md-nav__link">
-    query kwarg
+    <span class="md-ellipsis">
+      query kwarg
+    </span>
   </a>
   
 </li>
         
           <li class="md-nav__item">
   <a href="#parsed_query-kwarg" class="md-nav__link">
-    parsed_query kwarg
+    <span class="md-ellipsis">
+      parsed_query kwarg
+    </span>
   </a>
   
 </li>
         
           <li class="md-nav__item">
   <a href="#return_pk-kwarg" class="md-nav__link">
-    return_pk kwarg
+    <span class="md-ellipsis">
+      return_pk kwarg
+    </span>
   </a>
   
 </li>
         
           <li class="md-nav__item">
   <a href="#disable_dynamic_fields-kwarg" class="md-nav__link">
-    disable_dynamic_fields kwarg
+    <span class="md-ellipsis">
+      disable_dynamic_fields kwarg
+    </span>
   </a>
   
 </li>
@@ -324,7 +413,9 @@
       
         <li class="md-nav__item">
   <a href="#query-arguments" class="md-nav__link">
-    Query arguments
+    <span class="md-ellipsis">
+      Query arguments
+    </span>
   </a>
   
     <nav class="md-nav" aria-label="Query arguments">
@@ -332,14 +423,18 @@
         
           <li class="md-nav__item">
   <a href="#query-arguments-data-types" class="md-nav__link">
-    Query arguments data types
+    <span class="md-ellipsis">
+      Query arguments data types
+    </span>
   </a>
   
 </li>
         
           <li class="md-nav__item">
   <a href="#filtering-pagination-with-query-arguments" class="md-nav__link">
-    Filtering &amp; pagination with query arguments
+    <span class="md-ellipsis">
+      Filtering &amp; pagination with query arguments
+    </span>
   </a>
   
 </li>
@@ -351,7 +446,9 @@
       
         <li class="md-nav__item">
   <a href="#setting-up-eager-loading" class="md-nav__link">
-    Setting up eager loading
+    <span class="md-ellipsis">
+      Setting up eager loading
+    </span>
   </a>
   
     <nav class="md-nav" aria-label="Setting up eager loading">
@@ -359,21 +456,27 @@
         
           <li class="md-nav__item">
   <a href="#syntax-for-prefetch_related-and-select_related" class="md-nav__link">
-    Syntax for prefetch_related and select_related
+    <span class="md-ellipsis">
+      Syntax for prefetch_related and select_related
+    </span>
   </a>
   
 </li>
         
           <li class="md-nav__item">
   <a href="#example-of-eagerloadingmixin-usage" class="md-nav__link">
-    Example of EagerLoadingMixin usage
+    <span class="md-ellipsis">
+      Example of EagerLoadingMixin usage
+    </span>
   </a>
   
 </li>
         
           <li class="md-nav__item">
   <a href="#known-caveats" class="md-nav__link">
-    Known Caveats
+    <span class="md-ellipsis">
+      Known Caveats
+    </span>
   </a>
   
 </li>
@@ -386,44 +489,75 @@
     </ul>
   
 </nav>
-    
-  </li>
+      
+    </li>
+  
 
     
       
       
-      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../mutating_data/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Mutating Data
+    
+  </span>
+  
 
-
-  <li class="md-nav__item">
-    <a href="../mutating_data/" title="Mutating Data" class="md-nav__link">
-      Mutating Data
-    </a>
-  </li>
+      </a>
+    </li>
+  
 
     
       
       
-      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../settings/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Settings
+    
+  </span>
+  
 
-
-  <li class="md-nav__item">
-    <a href="../settings/" title="Settings" class="md-nav__link">
-      Settings
-    </a>
-  </li>
+      </a>
+    </li>
+  
 
     
       
       
-      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../license/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    License
+    
+  </span>
+  
 
-
-  <li class="md-nav__item">
-    <a href="../license/" title="License" class="md-nav__link">
-      License
-    </a>
-  </li>
+      </a>
+    </li>
+  
 
     
   </ul>
@@ -433,62 +567,75 @@
               </div>
             
             
-              <div class="md-sidebar md-sidebar--secondary" data-md-component="toc">
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
                 <div class="md-sidebar__scrollwrap">
                   <div class="md-sidebar__inner">
                     
+
 <nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
   
   
     
   
   
     <label class="md-nav__title" for="__toc">
-      <span class="md-nav__icon md-icon">
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12z"/></svg>
-      </span>
+      <span class="md-nav__icon md-icon"></span>
       Table of contents
     </label>
-    <ul class="md-nav__list" data-md-scrollfix>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
   <a href="#querying-nested-fields" class="md-nav__link">
-    Querying nested fields
+    <span class="md-ellipsis">
+      Querying nested fields
+    </span>
   </a>
   
 </li>
       
         <li class="md-nav__item">
   <a href="#exclude-operator" class="md-nav__link">
-    Exclude(-) operator
+    <span class="md-ellipsis">
+      Exclude(-) operator
+    </span>
   </a>
   
 </li>
       
         <li class="md-nav__item">
   <a href="#wildcard-operator" class="md-nav__link">
-    Wildcard(*) operator
+    <span class="md-ellipsis">
+      Wildcard(*) operator
+    </span>
   </a>
   
 </li>
       
         <li class="md-nav__item">
   <a href="#aliases" class="md-nav__link">
-    Aliases
+    <span class="md-ellipsis">
+      Aliases
+    </span>
   </a>
   
 </li>
       
         <li class="md-nav__item">
   <a href="#dynamicserializermethodfield" class="md-nav__link">
-    DynamicSerializerMethodField
+    <span class="md-ellipsis">
+      DynamicSerializerMethodField
+    </span>
   </a>
   
 </li>
       
         <li class="md-nav__item">
   <a href="#dynamicfieldsmixin-kwargs" class="md-nav__link">
-    DynamicFieldsMixin kwargs
+    <span class="md-ellipsis">
+      DynamicFieldsMixin kwargs
+    </span>
   </a>
   
     <nav class="md-nav" aria-label="DynamicFieldsMixin kwargs">
@@ -496,42 +643,54 @@
         
           <li class="md-nav__item">
   <a href="#fields-kwarg" class="md-nav__link">
-    fields kwarg
+    <span class="md-ellipsis">
+      fields kwarg
+    </span>
   </a>
   
 </li>
         
           <li class="md-nav__item">
   <a href="#exclude-kwarg" class="md-nav__link">
-    exclude kwarg
+    <span class="md-ellipsis">
+      exclude kwarg
+    </span>
   </a>
   
 </li>
         
           <li class="md-nav__item">
   <a href="#query-kwarg" class="md-nav__link">
-    query kwarg
+    <span class="md-ellipsis">
+      query kwarg
+    </span>
   </a>
   
 </li>
         
           <li class="md-nav__item">
   <a href="#parsed_query-kwarg" class="md-nav__link">
-    parsed_query kwarg
+    <span class="md-ellipsis">
+      parsed_query kwarg
+    </span>
   </a>
   
 </li>
         
           <li class="md-nav__item">
   <a href="#return_pk-kwarg" class="md-nav__link">
-    return_pk kwarg
+    <span class="md-ellipsis">
+      return_pk kwarg
+    </span>
   </a>
   
 </li>
         
           <li class="md-nav__item">
   <a href="#disable_dynamic_fields-kwarg" class="md-nav__link">
-    disable_dynamic_fields kwarg
+    <span class="md-ellipsis">
+      disable_dynamic_fields kwarg
+    </span>
   </a>
   
 </li>
@@ -543,7 +702,9 @@
       
         <li class="md-nav__item">
   <a href="#query-arguments" class="md-nav__link">
-    Query arguments
+    <span class="md-ellipsis">
+      Query arguments
+    </span>
   </a>
   
     <nav class="md-nav" aria-label="Query arguments">
@@ -551,14 +712,18 @@
         
           <li class="md-nav__item">
   <a href="#query-arguments-data-types" class="md-nav__link">
-    Query arguments data types
+    <span class="md-ellipsis">
+      Query arguments data types
+    </span>
   </a>
   
 </li>
         
           <li class="md-nav__item">
   <a href="#filtering-pagination-with-query-arguments" class="md-nav__link">
-    Filtering &amp; pagination with query arguments
+    <span class="md-ellipsis">
+      Filtering &amp; pagination with query arguments
+    </span>
   </a>
   
 </li>
@@ -570,7 +735,9 @@
       
         <li class="md-nav__item">
   <a href="#setting-up-eager-loading" class="md-nav__link">
-    Setting up eager loading
+    <span class="md-ellipsis">
+      Setting up eager loading
+    </span>
   </a>
   
     <nav class="md-nav" aria-label="Setting up eager loading">
@@ -578,21 +745,27 @@
         
           <li class="md-nav__item">
   <a href="#syntax-for-prefetch_related-and-select_related" class="md-nav__link">
-    Syntax for prefetch_related and select_related
+    <span class="md-ellipsis">
+      Syntax for prefetch_related and select_related
+    </span>
   </a>
   
 </li>
         
           <li class="md-nav__item">
   <a href="#example-of-eagerloadingmixin-usage" class="md-nav__link">
-    Example of EagerLoadingMixin usage
+    <span class="md-ellipsis">
+      Example of EagerLoadingMixin usage
+    </span>
   </a>
   
 </li>
         
           <li class="md-nav__item">
   <a href="#known-caveats" class="md-nav__link">
-    Known Caveats
+    <span class="md-ellipsis">
+      Known Caveats
+    </span>
   </a>
   
 </li>
@@ -610,142 +783,133 @@
               </div>
             
           
-          <div class="md-content">
-            <article class="md-content__inner md-typeset">
-              
-                
-                  <a href="https://github.com/yezyilomo/django-restql/edit/master/docs/querying_data.md" title="Edit this page" class="md-content__button md-icon">
-                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20.71 7.04c.39-.39.39-1.04 0-1.41l-2.34-2.34c-.37-.39-1.02-.39-1.41 0l-1.84 1.83 3.75 3.75M3 17.25V21h3.75L17.81 9.93l-3.75-3.75L3 17.25z"/></svg>
-                  </a>
-                
+          
+            <div class="md-content" data-md-component="content">
+              <article class="md-content__inner md-typeset">
                 
                   
-                
-                
-                <h1 id="querying-data">Querying Data<a class="headerlink" href="#querying-data" title="Permanent link">&para;</a></h1>
+
+
+  
+  
+
+
+<h1 id="querying-data">Querying Data<a class="headerlink" href="#querying-data" title="Permanent link">&para;</a></h1>
 <p><strong>Django RESTQL</strong> makes data querying(selecting fields to include in a response) way easier, if you want to use it to query data you just have to inherit the <code>DynamicFieldsMixin</code> class when defining your serializer, that's all. Below is an example showing how to use <code>DynamicFieldsMixin</code>.</p>
-<div class="codehilite"><pre><span></span><code><span class="kn">from</span> <span class="nn">rest_framework</span> <span class="kn">import</span> <span class="n">serializers</span>
-<span class="kn">from</span> <span class="nn">django.contrib.auth.models</span> <span class="kn">import</span> <span class="n">User</span>
-<span class="kn">from</span> <span class="nn">django_restql.mixins</span> <span class="kn">import</span> <span class="n">DynamicFieldsMixin</span>
+<div class="codehilite"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">rest_framework</span><span class="w"> </span><span class="kn">import</span> <span class="n">serializers</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">django.contrib.auth.models</span><span class="w"> </span><span class="kn">import</span> <span class="n">User</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">django_restql.mixins</span><span class="w"> </span><span class="kn">import</span> <span class="n">DynamicFieldsMixin</span>
 
 
-<span class="k">class</span> <span class="nc">UserSerializer</span><span class="p">(</span><span class="n">DynamicFieldsMixin</span><span class="p">,</span> <span class="n">serializer</span><span class="o">.</span><span class="n">ModelSerializer</span><span class="p">):</span>
-    <span class="k">class</span> <span class="nc">Meta</span><span class="p">:</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">UserSerializer</span><span class="p">(</span><span class="n">DynamicFieldsMixin</span><span class="p">,</span> <span class="n">serializer</span><span class="o">.</span><span class="n">ModelSerializer</span><span class="p">):</span>
+    <span class="k">class</span><span class="w"> </span><span class="nc">Meta</span><span class="p">:</span>
         <span class="n">model</span> <span class="o">=</span> <span class="n">User</span>
         <span class="n">fields</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;id&#39;</span><span class="p">,</span> <span class="s1">&#39;username&#39;</span><span class="p">,</span> <span class="s1">&#39;email&#39;</span><span class="p">]</span>
 </code></pre></div>
 
-
 <p>Here a regular request returns all fields as specified on a DRF serializer, in fact <strong>Django RESTQL</strong> doesn't handle this(regular) request at all. Below is an example of a regular request and its response </p>
 <p><code>GET /users</code></p>
 <div class="codehilite"><pre><span></span><code><span class="p">[</span>
-    <span class="p">{</span>
-        <span class="s2">&quot;id&quot;</span><span class="o">:</span> <span class="mi">1</span><span class="p">,</span>
-        <span class="s2">&quot;username&quot;</span><span class="o">:</span> <span class="s2">&quot;yezyilomo&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;email&quot;</span><span class="o">:</span> <span class="s2">&quot;yezileliilomo@hotmail.com&quot;</span><span class="p">,</span>
-    <span class="p">},</span>
-    <span class="p">...</span>
+<span class="w">    </span><span class="p">{</span>
+<span class="w">        </span><span class="s2">&quot;id&quot;</span><span class="o">:</span><span class="w"> </span><span class="mf">1</span><span class="p">,</span>
+<span class="w">        </span><span class="s2">&quot;username&quot;</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;yezyilomo&quot;</span><span class="p">,</span>
+<span class="w">        </span><span class="s2">&quot;email&quot;</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;yezileliilomo@hotmail.com&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="p">},</span>
+<span class="w">    </span><span class="p">...</span>
 <span class="p">]</span>
 </code></pre></div>
-
 
 <p>As you can see all fields have been returned as specified on <code>UserSerializer</code>.</p>
 <p><strong>Django RESTQL</strong> handle all requests with a <code>query</code> parameter, this parameter is the one which is used to pass all fields to be included/excluded in a response.</p>
 <p>For example to select <code>id</code> and <code>username</code> fields from User model, send a request with a <code>query</code> parameter as shown below.</p>
 <p><code>GET /users/?query={id, username}</code></p>
 <div class="codehilite"><pre><span></span><code><span class="p">[</span>
-    <span class="p">{</span>
-        <span class="s2">&quot;id&quot;</span><span class="o">:</span> <span class="mi">1</span><span class="p">,</span>
-        <span class="s2">&quot;username&quot;</span><span class="o">:</span> <span class="s2">&quot;yezyilomo&quot;</span>
-    <span class="p">},</span>
-    <span class="p">...</span>
+<span class="w">    </span><span class="p">{</span>
+<span class="w">        </span><span class="s2">&quot;id&quot;</span><span class="o">:</span><span class="w"> </span><span class="mf">1</span><span class="p">,</span>
+<span class="w">        </span><span class="s2">&quot;username&quot;</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;yezyilomo&quot;</span>
+<span class="w">    </span><span class="p">},</span>
+<span class="w">    </span><span class="p">...</span>
 <span class="p">]</span>
 </code></pre></div>
-
 
 <p>You can see only <code>id</code> and <code>username</code> fields have been returned in a response as specified on a <code>query</code> parameter.</p>
 <h2 id="querying-nested-fields">Querying nested fields<a class="headerlink" href="#querying-nested-fields" title="Permanent link">&para;</a></h2>
 <p><strong>Django RESTQL</strong> support querying both flat and nested data, so you can expand or query nested fields at any level as defined on a serializer. In an example below we have <code>location</code> and <code>groups</code> as nested fields on User model.</p>
-<div class="codehilite"><pre><span></span><code><span class="kn">from</span> <span class="nn">rest_framework</span> <span class="kn">import</span> <span class="n">serializers</span>
-<span class="kn">from</span> <span class="nn">django.contrib.auth.models</span> <span class="kn">import</span> <span class="n">User</span>
-<span class="kn">from</span> <span class="nn">django_restql.mixins</span> <span class="kn">import</span> <span class="n">DynamicFieldsMixin</span>
+<div class="codehilite"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">rest_framework</span><span class="w"> </span><span class="kn">import</span> <span class="n">serializers</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">django.contrib.auth.models</span><span class="w"> </span><span class="kn">import</span> <span class="n">User</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">django_restql.mixins</span><span class="w"> </span><span class="kn">import</span> <span class="n">DynamicFieldsMixin</span>
 
-<span class="kn">from</span> <span class="nn">app.models</span> <span class="kn">import</span> <span class="n">GroupSerializer</span><span class="p">,</span> <span class="n">LocationSerializer</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">app.models</span><span class="w"> </span><span class="kn">import</span> <span class="n">GroupSerializer</span><span class="p">,</span> <span class="n">LocationSerializer</span>
 
 
-<span class="k">class</span> <span class="nc">GroupSerializer</span><span class="p">(</span><span class="n">DynamicFieldsMixin</span><span class="p">,</span> <span class="n">serializer</span><span class="o">.</span><span class="n">ModelSerializer</span><span class="p">):</span>
-    <span class="k">class</span> <span class="nc">Meta</span><span class="p">:</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">GroupSerializer</span><span class="p">(</span><span class="n">DynamicFieldsMixin</span><span class="p">,</span> <span class="n">serializer</span><span class="o">.</span><span class="n">ModelSerializer</span><span class="p">):</span>
+    <span class="k">class</span><span class="w"> </span><span class="nc">Meta</span><span class="p">:</span>
         <span class="n">model</span> <span class="o">=</span> <span class="n">Group</span>
         <span class="n">fields</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;id&#39;</span><span class="p">,</span> <span class="s1">&#39;name&#39;</span><span class="p">]</span>
 
 
-<span class="k">class</span> <span class="nc">LocationSerializer</span><span class="p">(</span><span class="n">DynamicFieldsMixin</span><span class="p">,</span> <span class="n">serializer</span><span class="o">.</span><span class="n">ModelSerializer</span><span class="p">):</span>
-    <span class="k">class</span> <span class="nc">Meta</span><span class="p">:</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">LocationSerializer</span><span class="p">(</span><span class="n">DynamicFieldsMixin</span><span class="p">,</span> <span class="n">serializer</span><span class="o">.</span><span class="n">ModelSerializer</span><span class="p">):</span>
+    <span class="k">class</span><span class="w"> </span><span class="nc">Meta</span><span class="p">:</span>
         <span class="n">model</span> <span class="o">=</span> <span class="n">Location</span>
         <span class="n">fields</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;id&#39;</span><span class="p">,</span> <span class="s1">&#39;country&#39;</span><span class="p">,</span>  <span class="s1">&#39;city&#39;</span><span class="p">,</span> <span class="s1">&#39;street&#39;</span><span class="p">]</span>
 
 
-<span class="k">class</span> <span class="nc">UserSerializer</span><span class="p">(</span><span class="n">DynamicFieldsMixin</span><span class="p">,</span> <span class="n">serializer</span><span class="o">.</span><span class="n">ModelSerializer</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">UserSerializer</span><span class="p">(</span><span class="n">DynamicFieldsMixin</span><span class="p">,</span> <span class="n">serializer</span><span class="o">.</span><span class="n">ModelSerializer</span><span class="p">):</span>
     <span class="n">groups</span> <span class="o">=</span> <span class="n">GroupSerializer</span><span class="p">(</span><span class="n">many</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">read_only</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
     <span class="n">location</span> <span class="o">=</span> <span class="n">LocationSerializer</span><span class="p">(</span><span class="n">many</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">read_only</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span> 
-    <span class="k">class</span> <span class="nc">Meta</span><span class="p">:</span>
+    <span class="k">class</span><span class="w"> </span><span class="nc">Meta</span><span class="p">:</span>
         <span class="n">model</span> <span class="o">=</span> <span class="n">User</span>
         <span class="n">fields</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;id&#39;</span><span class="p">,</span> <span class="s1">&#39;username&#39;</span><span class="p">,</span> <span class="s1">&#39;email&#39;</span><span class="p">,</span> <span class="s1">&#39;location&#39;</span><span class="p">,</span> <span class="s1">&#39;groups&#39;</span><span class="p">]</span>
 </code></pre></div>
 
-
 <p>If you want to retrieve user's <code>id</code>, <code>username</code> and <code>location</code> fields but under <code>location</code> field you want to get only <code>country</code> and <code>city</code> fields here is how you can do it</p>
 <p><code>GET /users/?query={id, username, location{country, city}}</code></p>
 <div class="codehilite"><pre><span></span><code><span class="p">[</span>
-    <span class="p">{</span>
-        <span class="s2">&quot;id&quot;</span><span class="o">:</span> <span class="mi">1</span><span class="p">,</span>
-        <span class="s2">&quot;username&quot;</span><span class="o">:</span> <span class="s2">&quot;yezyilomo&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;location&quot;</span><span class="o">:</span> <span class="p">{</span>
-            <span class="s2">&quot;contry&quot;</span><span class="o">:</span> <span class="s2">&quot;Tanzania&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;city&quot;</span><span class="o">:</span> <span class="s2">&quot;Dar es salaam&quot;</span>
-        <span class="p">}</span>
-    <span class="p">},</span>
-    <span class="p">...</span>
+<span class="w">    </span><span class="p">{</span>
+<span class="w">        </span><span class="s2">&quot;id&quot;</span><span class="o">:</span><span class="w"> </span><span class="mf">1</span><span class="p">,</span>
+<span class="w">        </span><span class="s2">&quot;username&quot;</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;yezyilomo&quot;</span><span class="p">,</span>
+<span class="w">        </span><span class="s2">&quot;location&quot;</span><span class="o">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="s2">&quot;contry&quot;</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;Tanzania&quot;</span><span class="p">,</span>
+<span class="w">            </span><span class="s2">&quot;city&quot;</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;Dar es salaam&quot;</span>
+<span class="w">        </span><span class="p">}</span>
+<span class="w">    </span><span class="p">},</span>
+<span class="w">    </span><span class="p">...</span>
 <span class="p">]</span>
 </code></pre></div>
-
 
 <h3>More examples to get you comfortable with the query syntax</h3>
-
 <p><code>GET /users/?query={location, groups}</code></p>
 <div class="codehilite"><pre><span></span><code><span class="p">[</span>
-    <span class="p">{</span>
-        <span class="s2">&quot;location&quot;</span><span class="o">:</span> <span class="p">{</span>
-            <span class="s2">&quot;id&quot;</span><span class="o">:</span> <span class="mi">1</span><span class="p">,</span>
-            <span class="s2">&quot;contry&quot;</span><span class="o">:</span> <span class="s2">&quot;Tanzania&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;city&quot;</span><span class="o">:</span> <span class="s2">&quot;Dar es salaam&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;street&quot;</span><span class="o">:</span> <span class="s2">&quot;Oyster Bay&quot;</span>
-        <span class="p">}</span>
-        <span class="s2">&quot;groups&quot;</span><span class="o">:</span> <span class="p">[</span>
-            <span class="p">{</span><span class="s2">&quot;id&quot;</span><span class="o">:</span> <span class="mi">2</span><span class="p">,</span> <span class="s2">&quot;name&quot;</span><span class="o">:</span> <span class="s2">&quot;Auth_User&quot;</span><span class="p">},</span>
-            <span class="p">{</span><span class="s2">&quot;id&quot;</span><span class="o">:</span> <span class="mi">3</span><span class="p">,</span> <span class="s2">&quot;name&quot;</span><span class="o">:</span> <span class="s2">&quot;Admin_User&quot;</span><span class="p">}</span>
-        <span class="p">]</span>
-    <span class="p">},</span>
-    <span class="p">...</span>
+<span class="w">    </span><span class="p">{</span>
+<span class="w">        </span><span class="s2">&quot;location&quot;</span><span class="o">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="s2">&quot;id&quot;</span><span class="o">:</span><span class="w"> </span><span class="mf">1</span><span class="p">,</span>
+<span class="w">            </span><span class="s2">&quot;contry&quot;</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;Tanzania&quot;</span><span class="p">,</span>
+<span class="w">            </span><span class="s2">&quot;city&quot;</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;Dar es salaam&quot;</span><span class="p">,</span>
+<span class="w">            </span><span class="s2">&quot;street&quot;</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;Oyster Bay&quot;</span>
+<span class="w">        </span><span class="p">}</span>
+<span class="w">        </span><span class="s2">&quot;groups&quot;</span><span class="o">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">            </span><span class="p">{</span><span class="s2">&quot;id&quot;</span><span class="o">:</span><span class="w"> </span><span class="mf">2</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;name&quot;</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;Auth_User&quot;</span><span class="p">},</span>
+<span class="w">            </span><span class="p">{</span><span class="s2">&quot;id&quot;</span><span class="o">:</span><span class="w"> </span><span class="mf">3</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;name&quot;</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;Admin_User&quot;</span><span class="p">}</span>
+<span class="w">        </span><span class="p">]</span>
+<span class="w">    </span><span class="p">},</span>
+<span class="w">    </span><span class="p">...</span>
 <span class="p">]</span>
 </code></pre></div>
-
 
 <p><br/></p>
 <p><code>GET /users/?query={id, username, groups{name}}</code></p>
 <div class="codehilite"><pre><span></span><code><span class="p">[</span>
-    <span class="p">{</span>
-        <span class="s2">&quot;id&quot;</span><span class="o">:</span> <span class="mi">1</span><span class="p">,</span>
-        <span class="s2">&quot;username&quot;</span><span class="o">:</span> <span class="s2">&quot;yezyilomo&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;groups&quot;</span><span class="o">:</span> <span class="p">[</span>
-            <span class="p">{</span><span class="s2">&quot;name&quot;</span><span class="o">:</span> <span class="s2">&quot;Auth_User&quot;</span><span class="p">},</span>
-            <span class="p">{</span><span class="s2">&quot;name&quot;</span><span class="o">:</span> <span class="s2">&quot;Admin_User&quot;</span><span class="p">}</span>
-        <span class="p">]</span>
-    <span class="p">},</span>
-    <span class="p">...</span>
+<span class="w">    </span><span class="p">{</span>
+<span class="w">        </span><span class="s2">&quot;id&quot;</span><span class="o">:</span><span class="w"> </span><span class="mf">1</span><span class="p">,</span>
+<span class="w">        </span><span class="s2">&quot;username&quot;</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;yezyilomo&quot;</span><span class="p">,</span>
+<span class="w">        </span><span class="s2">&quot;groups&quot;</span><span class="o">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">            </span><span class="p">{</span><span class="s2">&quot;name&quot;</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;Auth_User&quot;</span><span class="p">},</span>
+<span class="w">            </span><span class="p">{</span><span class="s2">&quot;name&quot;</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;Admin_User&quot;</span><span class="p">}</span>
+<span class="w">        </span><span class="p">]</span>
+<span class="w">    </span><span class="p">},</span>
+<span class="w">    </span><span class="p">...</span>
 <span class="p">]</span>
 </code></pre></div>
-
 
 <div class="admonition note">
 <p class="admonition-title">Note</p>
@@ -755,62 +919,58 @@ For example you could write your query as <code>query={id  username  location{co
 <h2 id="exclude-operator">Exclude(-) operator<a class="headerlink" href="#exclude-operator" title="Permanent link">&para;</a></h2>
 <p>Using <strong>Django RESTQL</strong> filtering as it is when there are no many fields on a serializer is great, but sometimes you might have a case where you would like everything except a handful of fields on a larger serializer. These fields might be nested and trying the whitelist approach might possibly be too long for the url. </p>
 <p><strong>Django RESTQL</strong> comes with the exclude(-) operator which can be used to exclude some fields in scenarios where you want to get all fields except few ones. Using exclude operator is very simple, you just need to prepend the exclude(-) operator to the field which you want to exclude when writing your query that's all. Take an example below</p>
-<div class="codehilite"><pre><span></span><code><span class="kn">from</span> <span class="nn">rest_framework</span> <span class="kn">import</span> <span class="n">serializers</span> 
-<span class="kn">from</span> <span class="nn">django_restql.mixins</span> <span class="kn">import</span> <span class="n">DynamicFieldsMixin</span>
+<div class="codehilite"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">rest_framework</span><span class="w"> </span><span class="kn">import</span> <span class="n">serializers</span> 
+<span class="kn">from</span><span class="w"> </span><span class="nn">django_restql.mixins</span><span class="w"> </span><span class="kn">import</span> <span class="n">DynamicFieldsMixin</span>
 
-<span class="kn">from</span> <span class="nn">app.models</span> <span class="kn">import</span> <span class="n">Location</span><span class="p">,</span> <span class="n">Property</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">app.models</span><span class="w"> </span><span class="kn">import</span> <span class="n">Location</span><span class="p">,</span> <span class="n">Property</span>
 
 
-<span class="k">class</span> <span class="nc">LocationSerializer</span><span class="p">(</span><span class="n">DynamicFieldsMixin</span><span class="p">,</span> <span class="n">serializer</span><span class="o">.</span><span class="n">ModelSerializer</span><span class="p">):</span>
-    <span class="k">class</span> <span class="nc">Meta</span><span class="p">:</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">LocationSerializer</span><span class="p">(</span><span class="n">DynamicFieldsMixin</span><span class="p">,</span> <span class="n">serializer</span><span class="o">.</span><span class="n">ModelSerializer</span><span class="p">):</span>
+    <span class="k">class</span><span class="w"> </span><span class="nc">Meta</span><span class="p">:</span>
         <span class="n">model</span> <span class="o">=</span> <span class="n">Location</span>
         <span class="n">fields</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;id&quot;</span><span class="p">,</span> <span class="s2">&quot;city&quot;</span><span class="p">,</span> <span class="s2">&quot;country&quot;</span><span class="p">,</span> <span class="s2">&quot;state&quot;</span><span class="p">,</span> <span class="s2">&quot;street&quot;</span><span class="p">]</span>
 
 
-<span class="k">class</span> <span class="nc">PropertySerializer</span><span class="p">(</span><span class="n">DynamicFieldsMixin</span><span class="p">,</span> <span class="n">serializer</span><span class="o">.</span><span class="n">ModelSerializer</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">PropertySerializer</span><span class="p">(</span><span class="n">DynamicFieldsMixin</span><span class="p">,</span> <span class="n">serializer</span><span class="o">.</span><span class="n">ModelSerializer</span><span class="p">):</span>
     <span class="n">location</span> <span class="o">=</span> <span class="n">LocationSerializer</span><span class="p">(</span><span class="n">many</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">read_only</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span> 
-    <span class="k">class</span> <span class="nc">Meta</span><span class="p">:</span>
+    <span class="k">class</span><span class="w"> </span><span class="nc">Meta</span><span class="p">:</span>
         <span class="n">model</span> <span class="o">=</span> <span class="n">Property</span>
         <span class="n">fields</span> <span class="o">=</span> <span class="p">[</span>
             <span class="s1">&#39;id&#39;</span><span class="p">,</span> <span class="s1">&#39;price&#39;</span><span class="p">,</span> <span class="s1">&#39;location&#39;</span>
         <span class="p">]</span>
 </code></pre></div>
 
-
 <p>If we want to get all fields under <code>LocationSerializer</code> except <code>id</code> and <code>street</code>, by using the exclude(-) operator we could do it as follows</p>
 <p><code>GET /location/?query={-id, -street}</code></p>
 <div class="codehilite"><pre><span></span><code><span class="p">[</span>
-    <span class="p">{</span>
-        <span class="s2">&quot;country&quot;</span><span class="o">:</span> <span class="s2">&quot;China&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;city&quot;</span><span class="o">:</span> <span class="s2">&quot;Beijing&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;state&quot;</span><span class="o">:</span> <span class="s2">&quot;Chaoyang&quot;</span>
-    <span class="p">},</span>
-    <span class="p">...</span>
+<span class="w">    </span><span class="p">{</span>
+<span class="w">        </span><span class="s2">&quot;country&quot;</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;China&quot;</span><span class="p">,</span>
+<span class="w">        </span><span class="s2">&quot;city&quot;</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;Beijing&quot;</span><span class="p">,</span>
+<span class="w">        </span><span class="s2">&quot;state&quot;</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;Chaoyang&quot;</span>
+<span class="w">    </span><span class="p">},</span>
+<span class="w">    </span><span class="p">...</span>
 <span class="p">]</span>
 </code></pre></div>
-
 
 <p>This is equivalent to <code>query={country, city, state}</code></p>
 <p>You can use exclude operator on nested fields too, for example if you want to get <code>price</code> and <code>location</code> fields but under <code>location</code> you want all fields except <code>id</code> here is how you could do it.</p>
 <p><code>GET /property/?query={price, location{-id}}</code></p>
 <div class="codehilite"><pre><span></span><code><span class="p">[</span>
-    <span class="p">{</span>
-        <span class="s2">&quot;price&quot;</span><span class="o">:</span> <span class="mi">5000</span>
-        <span class="s2">&quot;location&quot;</span><span class="o">:</span> <span class="p">{</span>
-            <span class="s2">&quot;country&quot;</span><span class="o">:</span> <span class="s2">&quot;China&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;city&quot;</span> <span class="s2">&quot;Beijing&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;state&quot;</span><span class="o">:</span> <span class="s2">&quot;Chaoyang&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;street&quot;</span><span class="o">:</span> <span class="s2">&quot;Hanang&quot;</span>
-        <span class="p">}</span>
-    <span class="p">},</span>
-    <span class="p">...</span>
+<span class="w">    </span><span class="p">{</span>
+<span class="w">        </span><span class="s2">&quot;price&quot;</span><span class="o">:</span><span class="w"> </span><span class="mf">5000</span>
+<span class="w">        </span><span class="s2">&quot;location&quot;</span><span class="o">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="s2">&quot;country&quot;</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;China&quot;</span><span class="p">,</span>
+<span class="w">            </span><span class="s2">&quot;city&quot;</span><span class="w"> </span><span class="s2">&quot;Beijing&quot;</span><span class="p">,</span>
+<span class="w">            </span><span class="s2">&quot;state&quot;</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;Chaoyang&quot;</span><span class="p">,</span>
+<span class="w">            </span><span class="s2">&quot;street&quot;</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;Hanang&quot;</span>
+<span class="w">        </span><span class="p">}</span>
+<span class="w">    </span><span class="p">},</span>
+<span class="w">    </span><span class="p">...</span>
 <span class="p">]</span>
 </code></pre></div>
 
-
 <p>This is equivalent to <code>query={price, location{country, city, state, street}}</code></p>
 <h3>More examples to get you comfortable with the exclude(-) operator</h3>
-
 <p>Assuming this is the structure of the model we are querying</p>
 <div class="codehilite"><pre><span></span><code><span class="n">data</span> <span class="o">=</span> <span class="p">{</span>
     <span class="n">username</span><span class="p">,</span>
@@ -826,7 +986,6 @@ For example you could write your query as <code>query={id  username  location{co
 <span class="p">}</span>
 </code></pre></div>
 
-
 <p>Here is how we can structure our queries to exclude some fields by using exclude(-) operator</p>
 <div class="codehilite"><pre><span></span><code><span class="p">{</span><span class="o">-</span><span class="n">username</span><span class="p">}</span>   <span class="err">≡</span>   <span class="p">{</span><span class="n">birthdate</span><span class="p">,</span> <span class="n">location</span><span class="p">{</span><span class="n">country</span><span class="p">,</span> <span class="n">city</span><span class="p">},</span> <span class="n">contact</span><span class="p">{</span><span class="n">phone</span><span class="p">,</span> <span class="n">email</span><span class="p">}}</span>
 
@@ -840,7 +999,6 @@ For example you could write your query as <code>query={id  username  location{co
 
 <span class="p">{</span><span class="n">username</span><span class="p">,</span> <span class="n">location</span><span class="p">{</span><span class="o">-</span><span class="n">city</span><span class="p">},</span> <span class="n">contact</span><span class="p">{</span><span class="o">-</span><span class="n">email</span><span class="p">}}</span>   <span class="err">≡</span>    <span class="p">{</span><span class="n">username</span><span class="p">,</span> <span class="n">location</span><span class="p">{</span><span class="n">country</span><span class="p">},</span> <span class="n">contact</span><span class="p">{</span><span class="n">phone</span><span class="p">}}</span>
 </code></pre></div>
-
 
 <h2 id="wildcard-operator">Wildcard(*) operator<a class="headerlink" href="#wildcard-operator" title="Permanent link">&para;</a></h2>
 <p>In addition to the exclude(-) operator, <strong>Django RESTQL</strong> comes with a wildcard(*) operator for including all fields. Using a wildcard(*) operator is very simple, for example if you want to get all fields from a model by using a wildcard(*) operator you could simply write your query as </p>
@@ -860,7 +1018,6 @@ For example you could write your query as <code>query={id  username  location{co
 <span class="p">}</span>
 </code></pre></div>
 
-
 <p>Let's say you want to get all user fields but under <code>contact</code> field you want to get only <code>phone</code>, you could use the whitelisting approach and write your query as </p>
 <p><code>query={username, birthdate, contact{phone}}</code> </p>
 <p>but if you have many fields on user model you might endup writing a very long query, such problem can be avoided by using a wildcard(*) operator which in our case we could simply write the query as</p>
@@ -875,13 +1032,11 @@ For example you could write your query as <code>query={id  username  location{co
 <span class="p">{</span><span class="o">*</span><span class="p">,</span> <span class="o">-</span><span class="n">username</span><span class="p">,</span> <span class="n">contact</span><span class="p">{</span><span class="o">*</span><span class="p">,</span> <span class="o">-</span><span class="n">facebook</span><span class="p">,</span> <span class="o">-</span><span class="n">linkedin</span><span class="p">}}</span>   <span class="err">≡</span>   <span class="p">{</span><span class="n">birthdate</span><span class="p">,</span> <span class="n">contact</span><span class="p">{</span><span class="n">phone</span><span class="p">,</span> <span class="n">email</span><span class="p">,</span> <span class="n">twitter</span><span class="p">,</span> <span class="n">github</span><span class="p">}}</span>
 </code></pre></div>
 
-
 <p>Below is a list of mistakes which leads to query syntax/format error, these mistakes may happen accidentally as it's very easy/tempting to make them with the exclude(-) operator and wildcard(*) operator syntax.</p>
 <div class="codehilite"><pre><span></span><code><span class="p">{</span><span class="n">username</span><span class="p">,</span> <span class="o">-</span><span class="n">location</span><span class="p">{</span><span class="n">country</span><span class="p">}}</span>  <span class="c1"># Should not expand excluded field</span>
 <span class="p">{</span><span class="o">*</span><span class="n">username</span><span class="p">}</span>  <span class="c1"># What are you even trying to accomplish</span>
 <span class="p">{</span><span class="o">*</span><span class="n">location</span><span class="p">{</span><span class="n">country</span><span class="p">}}</span>  <span class="c1"># This is definitely wrong</span>
 </code></pre></div>
-
 
 <h2 id="aliases">Aliases<a class="headerlink" href="#aliases" title="Permanent link">&para;</a></h2>
 <p>When working with API, you may want to rename a field to something other than what the API has to offer. Aliases exist as part of this library to solve this exact problem.</p>
@@ -890,27 +1045,25 @@ For example you could write your query as <code>query={id  username  location{co
 <p><code>GET /users/?query={id, updated_at}</code></p>
 <p>You will get the following JSON response:</p>
 <div class="codehilite"><pre><span></span><code><span class="p">[</span>
-    <span class="p">{</span>
-        <span class="s2">&quot;id&quot;</span><span class="o">:</span> <span class="mi">1</span><span class="p">,</span>
-        <span class="s2">&quot;updated_at&quot;</span><span class="o">:</span> <span class="s2">&quot;2021-05-05T21:05:23.034Z&quot;</span>
-    <span class="p">},</span>
-    <span class="p">...</span>
+<span class="w">    </span><span class="p">{</span>
+<span class="w">        </span><span class="s2">&quot;id&quot;</span><span class="o">:</span><span class="w"> </span><span class="mf">1</span><span class="p">,</span>
+<span class="w">        </span><span class="s2">&quot;updated_at&quot;</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;2021-05-05T21:05:23.034Z&quot;</span>
+<span class="w">    </span><span class="p">},</span>
+<span class="w">    </span><span class="p">...</span>
 <span class="p">]</span>
 </code></pre></div>
-
 
 <p>The id here is fine, but the <code>updated_at</code> doesn’t quite conform to the camel case convention in JavaScript(Which is where APIs are used mostly). Let’s change it by using an alias.</p>
 <p><code>GET /users/?query={id, updatedAt: updated_at}</code></p>
 <p>Which yields the following:</p>
 <div class="codehilite"><pre><span></span><code><span class="p">[</span>
-    <span class="p">{</span>
-        <span class="s2">&quot;id&quot;</span><span class="o">:</span> <span class="mi">1</span><span class="p">,</span>
-        <span class="s2">&quot;updatedAt&quot;</span><span class="o">:</span> <span class="s2">&quot;2021-05-05T21:05:23.034Z&quot;</span>
-    <span class="p">},</span>
-    <span class="p">...</span>
+<span class="w">    </span><span class="p">{</span>
+<span class="w">        </span><span class="s2">&quot;id&quot;</span><span class="o">:</span><span class="w"> </span><span class="mf">1</span><span class="p">,</span>
+<span class="w">        </span><span class="s2">&quot;updatedAt&quot;</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;2021-05-05T21:05:23.034Z&quot;</span>
+<span class="w">    </span><span class="p">},</span>
+<span class="w">    </span><span class="p">...</span>
 <span class="p">]</span>
 </code></pre></div>
-
 
 <p>Creating an alias is very easy just like in <a href="https://graphql.org/learn/queries/#aliases">GraphQL</a>. Simply add a new name and a colon(:) before the field you want to rename.</p>
 <h3>More examples</h3>
@@ -919,22 +1072,21 @@ For example you could write your query as <code>query={id  username  location{co
 <p><code>GET /students/?query={name, dateOfBirth: date_of_birth, programme: course{id, name, readings: books}}</code></p>
 <p>This yields</p>
 <div class="codehilite"><pre><span></span><code><span class="p">[</span>
-    <span class="p">{</span>
-        <span class="s2">&quot;name&quot;</span><span class="o">:</span> <span class="s2">&quot;Yezy Ilomo&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;dateOfBirth&quot;</span><span class="o">:</span> <span class="s2">&quot;04-08-1995&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;programme&quot;</span><span class="o">:</span> <span class="p">{</span>
-            <span class="s2">&quot;id&quot;</span><span class="o">:</span> <span class="mi">4</span><span class="p">,</span>
-            <span class="s2">&quot;name&quot;</span><span class="o">:</span> <span class="s2">&quot;Computer Science&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;readings&quot;</span><span class="o">:</span> <span class="p">[</span>
-                <span class="p">{</span><span class="s2">&quot;id&quot;</span><span class="o">:</span> <span class="mi">1</span><span class="p">,</span> <span class="s2">&quot;title&quot;</span><span class="o">:</span> <span class="s2">&quot;Alogarithms&quot;</span><span class="p">},</span>
-                <span class="p">{</span><span class="s2">&quot;id&quot;</span><span class="o">:</span> <span class="mi">2</span><span class="p">,</span> <span class="s2">&quot;title&quot;</span><span class="o">:</span> <span class="s2">&quot;Data Structures&quot;</span><span class="p">},</span>
-            <span class="p">]</span>
-        <span class="p">}</span>
-    <span class="p">},</span>
-    <span class="p">...</span>
+<span class="w">    </span><span class="p">{</span>
+<span class="w">        </span><span class="s2">&quot;name&quot;</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;Yezy Ilomo&quot;</span><span class="p">,</span>
+<span class="w">        </span><span class="s2">&quot;dateOfBirth&quot;</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;04-08-1995&quot;</span><span class="p">,</span>
+<span class="w">        </span><span class="s2">&quot;programme&quot;</span><span class="o">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="s2">&quot;id&quot;</span><span class="o">:</span><span class="w"> </span><span class="mf">4</span><span class="p">,</span>
+<span class="w">            </span><span class="s2">&quot;name&quot;</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;Computer Science&quot;</span><span class="p">,</span>
+<span class="w">            </span><span class="s2">&quot;readings&quot;</span><span class="o">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">                </span><span class="p">{</span><span class="s2">&quot;id&quot;</span><span class="o">:</span><span class="w"> </span><span class="mf">1</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;title&quot;</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;Alogarithms&quot;</span><span class="p">},</span>
+<span class="w">                </span><span class="p">{</span><span class="s2">&quot;id&quot;</span><span class="o">:</span><span class="w"> </span><span class="mf">2</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;title&quot;</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;Data Structures&quot;</span><span class="p">},</span>
+<span class="w">            </span><span class="p">]</span>
+<span class="w">        </span><span class="p">}</span>
+<span class="w">    </span><span class="p">},</span>
+<span class="w">    </span><span class="p">...</span>
 <span class="p">]</span>
 </code></pre></div>
-
 
 <div class="admonition note">
 <p class="admonition-title">Note</p>
@@ -942,19 +1094,19 @@ For example you could write your query as <code>query={id  username  location{co
 </div>
 <h2 id="dynamicserializermethodfield">DynamicSerializerMethodField<a class="headerlink" href="#dynamicserializermethodfield" title="Permanent link">&para;</a></h2>
 <p><code>DynamicSerializerMethodField</code> is a wraper of the <code>SerializerMethodField</code>, it adds a parsed query argument from a parent serializer to a method bound to a <code>SerializerMethodField</code>, this parsed query argument can be passed to a serializer used within a method to allow further querying. For example in the scenario below we are using <code>DynamicSerializerMethodField</code> because we want to be able to query <code>related_books</code> field.</p>
-<div class="codehilite"><pre><span></span><code><span class="kn">from</span> <span class="nn">django_restql.mixins</span> <span class="kn">import</span> <span class="n">DynamicFieldsMixin</span>
-<span class="kn">from</span> <span class="nn">django_restql.fields</span> <span class="kn">import</span> <span class="n">DynamicSerializerMethodField</span>
+<div class="codehilite"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">django_restql.mixins</span><span class="w"> </span><span class="kn">import</span> <span class="n">DynamicFieldsMixin</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">django_restql.fields</span><span class="w"> </span><span class="kn">import</span> <span class="n">DynamicSerializerMethodField</span>
 
 
-<span class="k">class</span> <span class="nc">CourseSerializer</span><span class="p">(</span><span class="n">DynamicFieldsMixin</span><span class="p">,</span> <span class="n">serializers</span><span class="o">.</span><span class="n">ModelSerializer</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">CourseSerializer</span><span class="p">(</span><span class="n">DynamicFieldsMixin</span><span class="p">,</span> <span class="n">serializers</span><span class="o">.</span><span class="n">ModelSerializer</span><span class="p">):</span>
     <span class="c1"># Use `DynamicSerializerMethodField` instead of `SerializerMethodField`</span>
     <span class="c1"># if you want to be able to query `related_books`</span>
     <span class="n">related_books</span> <span class="o">=</span> <span class="n">DynamicSerializerMethodField</span><span class="p">()</span>
-    <span class="k">class</span> <span class="nc">Meta</span><span class="p">:</span>
+    <span class="k">class</span><span class="w"> </span><span class="nc">Meta</span><span class="p">:</span>
         <span class="n">model</span> <span class="o">=</span> <span class="n">Course</span>
         <span class="n">fields</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">,</span> <span class="s1">&#39;code&#39;</span><span class="p">,</span> <span class="s1">&#39;related_books&#39;</span><span class="p">]</span>
 
-    <span class="k">def</span> <span class="nf">get_related_books</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obj</span><span class="p">,</span> <span class="n">parsed_query</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_related_books</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obj</span><span class="p">,</span> <span class="n">parsed_query</span><span class="p">):</span>
         <span class="c1"># With `DynamicSerializerMethodField` you get this extra</span>
         <span class="c1"># `parsed_query` argument in addition to `obj`</span>
         <span class="n">books</span> <span class="o">=</span> <span class="n">obj</span><span class="o">.</span><span class="n">books</span><span class="o">.</span><span class="n">all</span><span class="p">()</span>
@@ -970,114 +1122,107 @@ For example you could write your query as <code>query={id  username  location{co
         <span class="k">return</span> <span class="n">serializer</span><span class="o">.</span><span class="n">data</span>
 </code></pre></div>
 
-
 <p><code>GET /course/?query={name, related_books}</code></p>
 <div class="codehilite"><pre><span></span><code><span class="p">[</span>
-    <span class="p">{</span>
-        <span class="s2">&quot;name&quot;</span><span class="o">:</span> <span class="s2">&quot;Data Structures&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;related_books&quot;</span><span class="o">:</span> <span class="p">[</span>
-            <span class="p">{</span><span class="s2">&quot;title&quot;</span><span class="o">:</span> <span class="s2">&quot;Advanced Data Structures&quot;</span><span class="p">,</span> <span class="s2">&quot;author&quot;</span><span class="o">:</span> <span class="s2">&quot;S.Mobit&quot;</span><span class="p">},</span>
-            <span class="p">{</span><span class="s2">&quot;title&quot;</span><span class="o">:</span> <span class="s2">&quot;Basic Data Structures&quot;</span><span class="p">,</span> <span class="s2">&quot;author&quot;</span><span class="o">:</span> <span class="s2">&quot;S.Mobit&quot;</span><span class="p">}</span>
-        <span class="p">]</span>
-    <span class="p">}</span>
+<span class="w">    </span><span class="p">{</span>
+<span class="w">        </span><span class="s2">&quot;name&quot;</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;Data Structures&quot;</span><span class="p">,</span>
+<span class="w">        </span><span class="s2">&quot;related_books&quot;</span><span class="o">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">            </span><span class="p">{</span><span class="s2">&quot;title&quot;</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;Advanced Data Structures&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;author&quot;</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;S.Mobit&quot;</span><span class="p">},</span>
+<span class="w">            </span><span class="p">{</span><span class="s2">&quot;title&quot;</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;Basic Data Structures&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;author&quot;</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;S.Mobit&quot;</span><span class="p">}</span>
+<span class="w">        </span><span class="p">]</span>
+<span class="w">    </span><span class="p">}</span>
 <span class="p">]</span>
 </code></pre></div>
-
 
 <p><br/></p>
 <p><code>GET /course/?query={name, related_books{title}}</code></p>
 <div class="codehilite"><pre><span></span><code><span class="p">[</span>
-    <span class="p">{</span>
-        <span class="s2">&quot;name&quot;</span><span class="o">:</span> <span class="s2">&quot;Data Structures&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;related_books&quot;</span><span class="o">:</span> <span class="p">[</span>
-            <span class="p">{</span><span class="s2">&quot;title&quot;</span><span class="o">:</span> <span class="s2">&quot;Advanced Data Structures&quot;</span><span class="p">},</span>
-            <span class="p">{</span><span class="s2">&quot;title&quot;</span><span class="o">:</span> <span class="s2">&quot;Basic Data Structures&quot;</span><span class="p">}</span>
-        <span class="p">]</span>
-    <span class="p">}</span>
+<span class="w">    </span><span class="p">{</span>
+<span class="w">        </span><span class="s2">&quot;name&quot;</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;Data Structures&quot;</span><span class="p">,</span>
+<span class="w">        </span><span class="s2">&quot;related_books&quot;</span><span class="o">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">            </span><span class="p">{</span><span class="s2">&quot;title&quot;</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;Advanced Data Structures&quot;</span><span class="p">},</span>
+<span class="w">            </span><span class="p">{</span><span class="s2">&quot;title&quot;</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;Basic Data Structures&quot;</span><span class="p">}</span>
+<span class="w">        </span><span class="p">]</span>
+<span class="w">    </span><span class="p">}</span>
 <span class="p">]</span>
 </code></pre></div>
-
 
 <p><br/></p>
 <h2 id="dynamicfieldsmixin-kwargs">DynamicFieldsMixin kwargs<a class="headerlink" href="#dynamicfieldsmixin-kwargs" title="Permanent link">&para;</a></h2>
 <p><code>DynamicFieldsMixin</code> accepts extra kwargs in addition to those accepted by a serializer, these extra kwargs can be used to do more customizations on a serializer as explained below.</p>
 <h3 id="fields-kwarg">fields kwarg<a class="headerlink" href="#fields-kwarg" title="Permanent link">&para;</a></h3>
 <p>With <strong>Django RESTQL</strong> you can specify fields to be included when instantiating a serializer, this provides a way to refilter fields on nested fields(i.e you can opt to remove some fields on a nested field). Below is an example which shows how you can specify fields to be included on nested resources. </p>
-<div class="codehilite"><pre><span></span><code><span class="kn">from</span> <span class="nn">rest_framework</span> <span class="kn">import</span> <span class="n">serializers</span>
-<span class="kn">from</span> <span class="nn">django.contrib.auth.models</span> <span class="kn">import</span> <span class="n">User</span>
-<span class="kn">from</span> <span class="nn">django_restql.mixins</span> <span class="kn">import</span> <span class="n">DynamicFieldsMixin</span>
+<div class="codehilite"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">rest_framework</span><span class="w"> </span><span class="kn">import</span> <span class="n">serializers</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">django.contrib.auth.models</span><span class="w"> </span><span class="kn">import</span> <span class="n">User</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">django_restql.mixins</span><span class="w"> </span><span class="kn">import</span> <span class="n">DynamicFieldsMixin</span>
 
-<span class="kn">from</span> <span class="nn">app.models</span> <span class="kn">import</span> <span class="n">Book</span><span class="p">,</span> <span class="n">Course</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">app.models</span><span class="w"> </span><span class="kn">import</span> <span class="n">Book</span><span class="p">,</span> <span class="n">Course</span>
 
 
-<span class="k">class</span> <span class="nc">BookSerializer</span><span class="p">(</span><span class="n">DynamicFieldsMixin</span><span class="p">,</span> <span class="n">serializers</span><span class="o">.</span><span class="n">ModelSerializer</span><span class="p">):</span>
-    <span class="k">class</span> <span class="nc">Meta</span><span class="p">:</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">BookSerializer</span><span class="p">(</span><span class="n">DynamicFieldsMixin</span><span class="p">,</span> <span class="n">serializers</span><span class="o">.</span><span class="n">ModelSerializer</span><span class="p">):</span>
+    <span class="k">class</span><span class="w"> </span><span class="nc">Meta</span><span class="p">:</span>
         <span class="n">model</span> <span class="o">=</span> <span class="n">Book</span>
         <span class="n">fields</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;id&#39;</span><span class="p">,</span> <span class="s1">&#39;title&#39;</span><span class="p">,</span> <span class="s1">&#39;author&#39;</span><span class="p">]</span>
 
 
-<span class="k">class</span> <span class="nc">CourseSerializer</span><span class="p">(</span><span class="n">DynamicFieldsMixin</span><span class="p">,</span> <span class="n">serializers</span><span class="o">.</span><span class="n">ModelSerializer</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">CourseSerializer</span><span class="p">(</span><span class="n">DynamicFieldsMixin</span><span class="p">,</span> <span class="n">serializers</span><span class="o">.</span><span class="n">ModelSerializer</span><span class="p">):</span>
     <span class="n">books</span> <span class="o">=</span> <span class="n">BookSerializer</span><span class="p">(</span><span class="n">many</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">read_only</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">fields</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;title&quot;</span><span class="p">])</span>
-    <span class="k">class</span> <span class="nc">Meta</span><span class="p">:</span>
+    <span class="k">class</span><span class="w"> </span><span class="nc">Meta</span><span class="p">:</span>
         <span class="n">model</span> <span class="o">=</span> <span class="n">Course</span>
         <span class="n">fields</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">,</span> <span class="s1">&#39;code&#39;</span><span class="p">,</span> <span class="s1">&#39;books&#39;</span><span class="p">]</span>
 </code></pre></div>
 
-
 <p><code>GET /courses/</code></p>
 <div class="codehilite"><pre><span></span><code><span class="p">[</span>
-    <span class="p">{</span>
-        <span class="s2">&quot;name&quot;</span><span class="o">:</span> <span class="s2">&quot;Computer Programming&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;code&quot;</span><span class="o">:</span> <span class="s2">&quot;CS50&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;books&quot;</span><span class="o">:</span> <span class="p">[</span>
-            <span class="p">{</span><span class="s2">&quot;title&quot;</span><span class="o">:</span> <span class="s2">&quot;Computer Programming Basics&quot;</span><span class="p">},</span>
-            <span class="p">{</span><span class="s2">&quot;title&quot;</span><span class="o">:</span> <span class="s2">&quot;Data structures&quot;</span><span class="p">}</span>
-        <span class="p">]</span>
-    <span class="p">},</span>
-    <span class="p">...</span>
+<span class="w">    </span><span class="p">{</span>
+<span class="w">        </span><span class="s2">&quot;name&quot;</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;Computer Programming&quot;</span><span class="p">,</span>
+<span class="w">        </span><span class="s2">&quot;code&quot;</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;CS50&quot;</span><span class="p">,</span>
+<span class="w">        </span><span class="s2">&quot;books&quot;</span><span class="o">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">            </span><span class="p">{</span><span class="s2">&quot;title&quot;</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;Computer Programming Basics&quot;</span><span class="p">},</span>
+<span class="w">            </span><span class="p">{</span><span class="s2">&quot;title&quot;</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;Data structures&quot;</span><span class="p">}</span>
+<span class="w">        </span><span class="p">]</span>
+<span class="w">    </span><span class="p">},</span>
+<span class="w">    </span><span class="p">...</span>
 <span class="p">]</span>
 </code></pre></div>
-
 
 <p>As you see from the response above, the nested resource(book) has only one field(title) as specified on  <code>fields=["title"]</code> kwarg during instantiating BookSerializer, so if you send a request like </p>
 <p><code>GET /course?query={name, code, books{title, author}}</code> </p>
 <p>you will get an error that <code>author</code> field is not found because it was not included here <code>fields=["title"]</code>.</p>
 <h3 id="exclude-kwarg">exclude kwarg<a class="headerlink" href="#exclude-kwarg" title="Permanent link">&para;</a></h3>
 <p>You can also specify fields to be excluded when instantiating a serializer by using <code>exclude</code> kwarg, below is an example which shows how to use <code>exclude</code> kwarg.</p>
-<div class="codehilite"><pre><span></span><code><span class="kn">from</span> <span class="nn">rest_framework</span> <span class="kn">import</span> <span class="n">serializers</span>
-<span class="kn">from</span> <span class="nn">django_restql.mixins</span> <span class="kn">import</span> <span class="n">DynamicFieldsMixin</span>
+<div class="codehilite"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">rest_framework</span><span class="w"> </span><span class="kn">import</span> <span class="n">serializers</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">django_restql.mixins</span><span class="w"> </span><span class="kn">import</span> <span class="n">DynamicFieldsMixin</span>
 
-<span class="kn">from</span> <span class="nn">app.models</span> <span class="kn">import</span> <span class="n">Book</span><span class="p">,</span> <span class="n">Course</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">app.models</span><span class="w"> </span><span class="kn">import</span> <span class="n">Book</span><span class="p">,</span> <span class="n">Course</span>
 
 
-<span class="k">class</span> <span class="nc">BookSerializer</span><span class="p">(</span><span class="n">DynamicFieldsMixin</span><span class="p">,</span> <span class="n">serializers</span><span class="o">.</span><span class="n">ModelSerializer</span><span class="p">):</span>
-    <span class="k">class</span> <span class="nc">Meta</span><span class="p">:</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">BookSerializer</span><span class="p">(</span><span class="n">DynamicFieldsMixin</span><span class="p">,</span> <span class="n">serializers</span><span class="o">.</span><span class="n">ModelSerializer</span><span class="p">):</span>
+    <span class="k">class</span><span class="w"> </span><span class="nc">Meta</span><span class="p">:</span>
         <span class="n">model</span> <span class="o">=</span> <span class="n">Book</span>
         <span class="n">fields</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;id&#39;</span><span class="p">,</span> <span class="s1">&#39;title&#39;</span><span class="p">,</span> <span class="s1">&#39;author&#39;</span><span class="p">]</span>
 
 
-<span class="k">class</span> <span class="nc">CourseSerializer</span><span class="p">(</span><span class="n">DynamicFieldsMixin</span><span class="p">,</span> <span class="n">serializers</span><span class="o">.</span><span class="n">ModelSerializer</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">CourseSerializer</span><span class="p">(</span><span class="n">DynamicFieldsMixin</span><span class="p">,</span> <span class="n">serializers</span><span class="o">.</span><span class="n">ModelSerializer</span><span class="p">):</span>
     <span class="n">books</span> <span class="o">=</span> <span class="n">BookSerializer</span><span class="p">(</span><span class="n">many</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">read_only</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">exclude</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;author&quot;</span><span class="p">])</span>
-    <span class="k">class</span> <span class="nc">Meta</span><span class="p">:</span>
+    <span class="k">class</span><span class="w"> </span><span class="nc">Meta</span><span class="p">:</span>
         <span class="n">model</span> <span class="o">=</span> <span class="n">Course</span>
         <span class="n">fields</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">,</span> <span class="s1">&#39;code&#39;</span><span class="p">,</span> <span class="s1">&#39;books&#39;</span><span class="p">]</span>
 </code></pre></div>
 
-
 <p><code>GET /courses/</code></p>
 <div class="codehilite"><pre><span></span><code><span class="p">[</span>
-    <span class="p">{</span>
-        <span class="s2">&quot;name&quot;</span><span class="o">:</span> <span class="s2">&quot;Computer Programming&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;code&quot;</span><span class="o">:</span> <span class="s2">&quot;CS50&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;books&quot;</span><span class="o">:</span> <span class="p">[</span>
-            <span class="p">{</span><span class="s2">&quot;id&quot;</span><span class="o">:</span> <span class="mi">1</span><span class="p">,</span> <span class="s2">&quot;title&quot;</span><span class="o">:</span> <span class="s2">&quot;Computer Programming Basics&quot;</span><span class="p">},</span>
-            <span class="p">{</span><span class="s2">&quot;id&quot;</span><span class="o">:</span> <span class="mi">2</span><span class="p">,</span> <span class="s2">&quot;title&quot;</span><span class="o">:</span> <span class="s2">&quot;Data structures&quot;</span><span class="p">}</span>
-        <span class="p">]</span>
-    <span class="p">},</span>
-    <span class="p">...</span>
+<span class="w">    </span><span class="p">{</span>
+<span class="w">        </span><span class="s2">&quot;name&quot;</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;Computer Programming&quot;</span><span class="p">,</span>
+<span class="w">        </span><span class="s2">&quot;code&quot;</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;CS50&quot;</span><span class="p">,</span>
+<span class="w">        </span><span class="s2">&quot;books&quot;</span><span class="o">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">            </span><span class="p">{</span><span class="s2">&quot;id&quot;</span><span class="o">:</span><span class="w"> </span><span class="mf">1</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;title&quot;</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;Computer Programming Basics&quot;</span><span class="p">},</span>
+<span class="w">            </span><span class="p">{</span><span class="s2">&quot;id&quot;</span><span class="o">:</span><span class="w"> </span><span class="mf">2</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;title&quot;</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;Data structures&quot;</span><span class="p">}</span>
+<span class="w">        </span><span class="p">]</span>
+<span class="w">    </span><span class="p">},</span>
+<span class="w">    </span><span class="p">...</span>
 <span class="p">]</span>
 </code></pre></div>
-
 
 <p>From the response above you can see that <code>author</code> field has been excluded fom book nested resource as specified on  <code>exclude=["author"]</code> kwarg during instantiating BookSerializer.</p>
 <div class="admonition note">
@@ -1086,39 +1231,37 @@ For example you could write your query as <code>query={id  username  location{co
 </div>
 <p><code>GET /books/</code></p>
 <div class="codehilite"><pre><span></span><code><span class="p">[</span>
-    <span class="p">{</span>
-        <span class="s2">&quot;id&quot;</span><span class="o">:</span> <span class="mi">1</span><span class="p">,</span>
-        <span class="s2">&quot;title&quot;</span><span class="o">:</span> <span class="s2">&quot;Computer Programming Basics&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;author&quot;</span><span class="o">:</span> <span class="s2">&quot;S.Mobit&quot;</span>
-    <span class="p">},</span>
-    <span class="p">...</span>
+<span class="w">    </span><span class="p">{</span>
+<span class="w">        </span><span class="s2">&quot;id&quot;</span><span class="o">:</span><span class="w"> </span><span class="mf">1</span><span class="p">,</span>
+<span class="w">        </span><span class="s2">&quot;title&quot;</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;Computer Programming Basics&quot;</span><span class="p">,</span>
+<span class="w">        </span><span class="s2">&quot;author&quot;</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;S.Mobit&quot;</span>
+<span class="w">    </span><span class="p">},</span>
+<span class="w">    </span><span class="p">...</span>
 <span class="p">]</span>
 </code></pre></div>
-
 
 <p>So you can see that all fields have appeared as specified on <code>fields = ['id', 'title', 'author']</code> on BookSerializer class.
 <br/></p>
 <h3 id="query-kwarg">query kwarg<a class="headerlink" href="#query-kwarg" title="Permanent link">&para;</a></h3>
 <p><strong>Django RESTQL</strong> allows you to query fields by using <code>query</code> kwarg too, this is used if you don't want to get your query string from a request parameter, in fact <code>DynamicFieldsMixin</code> can work independently without using request. So by using <code>query</code> kwarg if you have serializers like </p>
-<div class="codehilite"><pre><span></span><code><span class="kn">from</span> <span class="nn">rest_framework</span> <span class="kn">import</span> <span class="n">serializers</span>
-<span class="kn">from</span> <span class="nn">django_restql.mixins</span> <span class="kn">import</span> <span class="n">DynamicFieldsMixin</span>
+<div class="codehilite"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">rest_framework</span><span class="w"> </span><span class="kn">import</span> <span class="n">serializers</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">django_restql.mixins</span><span class="w"> </span><span class="kn">import</span> <span class="n">DynamicFieldsMixin</span>
 
-<span class="kn">from</span> <span class="nn">app.models</span> <span class="kn">import</span> <span class="n">Book</span><span class="p">,</span> <span class="n">Course</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">app.models</span><span class="w"> </span><span class="kn">import</span> <span class="n">Book</span><span class="p">,</span> <span class="n">Course</span>
 
 
-<span class="k">class</span> <span class="nc">BookSerializer</span><span class="p">(</span><span class="n">DynamicFieldsMixin</span><span class="p">,</span> <span class="n">serializers</span><span class="o">.</span><span class="n">ModelSerializer</span><span class="p">):</span>
-    <span class="k">class</span> <span class="nc">Meta</span><span class="p">:</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">BookSerializer</span><span class="p">(</span><span class="n">DynamicFieldsMixin</span><span class="p">,</span> <span class="n">serializers</span><span class="o">.</span><span class="n">ModelSerializer</span><span class="p">):</span>
+    <span class="k">class</span><span class="w"> </span><span class="nc">Meta</span><span class="p">:</span>
         <span class="n">model</span> <span class="o">=</span> <span class="n">Book</span>
         <span class="n">fields</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;id&#39;</span><span class="p">,</span> <span class="s1">&#39;title&#39;</span><span class="p">,</span> <span class="s1">&#39;author&#39;</span><span class="p">]</span>
 
 
-<span class="k">class</span> <span class="nc">CourseSerializer</span><span class="p">(</span><span class="n">DynamicFieldsMixin</span><span class="p">,</span> <span class="n">serializers</span><span class="o">.</span><span class="n">ModelSerializer</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">CourseSerializer</span><span class="p">(</span><span class="n">DynamicFieldsMixin</span><span class="p">,</span> <span class="n">serializers</span><span class="o">.</span><span class="n">ModelSerializer</span><span class="p">):</span>
     <span class="n">books</span> <span class="o">=</span> <span class="n">BookSerializer</span><span class="p">(</span><span class="n">many</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">read_only</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">exclude</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;author&quot;</span><span class="p">])</span>
-    <span class="k">class</span> <span class="nc">Meta</span><span class="p">:</span>
+    <span class="k">class</span><span class="w"> </span><span class="nc">Meta</span><span class="p">:</span>
         <span class="n">model</span> <span class="o">=</span> <span class="n">Course</span>
         <span class="n">fields</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">,</span> <span class="s1">&#39;code&#39;</span><span class="p">,</span> <span class="s1">&#39;books&#39;</span><span class="p">]</span>
 </code></pre></div>
-
 
 <p>You can query fields as  </p>
 <div class="codehilite"><pre><span></span><code><span class="n">objs</span> <span class="o">=</span> <span class="n">Course</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">all</span><span class="p">()</span>
@@ -1139,32 +1282,30 @@ For example you could write your query as <code>query={id  username  location{co
 <span class="p">]</span>
 </code></pre></div>
 
-
 <p>As you see this doesn't need a request or view to work, you can use it anywhere as long as you pass your query string to a <code>query</code> kwarg.</p>
 <h3 id="parsed_query-kwarg">parsed_query kwarg<a class="headerlink" href="#parsed_query-kwarg" title="Permanent link">&para;</a></h3>
 <p>In addition to <code>query</code> kwarg, <strong>Django RESTQL</strong> allows you to query fields by using <code>parsed_query</code> kwarg. Here <code>parsed_query</code> is a query which has been parsed by a <code>QueryParser</code>. You probably won't need to use this directly as you are not adviced to write parsed query yourself, so the value of <code>parsed_query</code> kwarg should be something coming from <code>QueryParser</code>. If you have serializers like </p>
-<div class="codehilite"><pre><span></span><code><span class="kn">from</span> <span class="nn">rest_framework</span> <span class="kn">import</span> <span class="n">serializers</span>
-<span class="kn">from</span> <span class="nn">django_restql.mixins</span> <span class="kn">import</span> <span class="n">DynamicFieldsMixin</span>
+<div class="codehilite"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">rest_framework</span><span class="w"> </span><span class="kn">import</span> <span class="n">serializers</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">django_restql.mixins</span><span class="w"> </span><span class="kn">import</span> <span class="n">DynamicFieldsMixin</span>
 
-<span class="kn">from</span> <span class="nn">app.models</span> <span class="kn">import</span> <span class="n">Book</span><span class="p">,</span> <span class="n">Course</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">app.models</span><span class="w"> </span><span class="kn">import</span> <span class="n">Book</span><span class="p">,</span> <span class="n">Course</span>
 
 
-<span class="k">class</span> <span class="nc">BookSerializer</span><span class="p">(</span><span class="n">DynamicFieldsMixin</span><span class="p">,</span> <span class="n">serializers</span><span class="o">.</span><span class="n">ModelSerializer</span><span class="p">):</span>
-    <span class="k">class</span> <span class="nc">Meta</span><span class="p">:</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">BookSerializer</span><span class="p">(</span><span class="n">DynamicFieldsMixin</span><span class="p">,</span> <span class="n">serializers</span><span class="o">.</span><span class="n">ModelSerializer</span><span class="p">):</span>
+    <span class="k">class</span><span class="w"> </span><span class="nc">Meta</span><span class="p">:</span>
         <span class="n">model</span> <span class="o">=</span> <span class="n">Book</span>
         <span class="n">fields</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;id&#39;</span><span class="p">,</span> <span class="s1">&#39;title&#39;</span><span class="p">,</span> <span class="s1">&#39;author&#39;</span><span class="p">]</span>
 
 
-<span class="k">class</span> <span class="nc">CourseSerializer</span><span class="p">(</span><span class="n">DynamicFieldsMixin</span><span class="p">,</span> <span class="n">serializers</span><span class="o">.</span><span class="n">ModelSerializer</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">CourseSerializer</span><span class="p">(</span><span class="n">DynamicFieldsMixin</span><span class="p">,</span> <span class="n">serializers</span><span class="o">.</span><span class="n">ModelSerializer</span><span class="p">):</span>
     <span class="n">books</span> <span class="o">=</span> <span class="n">BookSerializer</span><span class="p">(</span><span class="n">many</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">read_only</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">exclude</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;author&quot;</span><span class="p">])</span>
-    <span class="k">class</span> <span class="nc">Meta</span><span class="p">:</span>
+    <span class="k">class</span><span class="w"> </span><span class="nc">Meta</span><span class="p">:</span>
         <span class="n">model</span> <span class="o">=</span> <span class="n">Course</span>
         <span class="n">fields</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">,</span> <span class="s1">&#39;code&#39;</span><span class="p">,</span> <span class="s1">&#39;books&#39;</span><span class="p">]</span>
 </code></pre></div>
 
-
 <p>You can query fields by using <code>parsed_query</code> kwarg as follows</p>
-<div class="codehilite"><pre><span></span><code><span class="kn">import</span> <span class="nn">QueryParser</span> <span class="kn">from</span> <span class="nn">django_restql.parser</span>
+<div class="codehilite"><pre><span></span><code><span class="kn">import</span><span class="w"> </span><span class="nn">QueryParser</span> <span class="kn">from</span><span class="w"> </span><span class="nn">django_restql.parser</span>
 
 <span class="n">objs</span> <span class="o">=</span> <span class="n">Course</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">all</span><span class="p">()</span>
 <span class="n">query</span> <span class="o">=</span> <span class="s2">&quot;{name, books</span><span class="si">{title}</span><span class="s2">}&quot;</span>
@@ -1189,80 +1330,75 @@ For example you could write your query as <code>query={id  username  location{co
 <span class="p">]</span>
 </code></pre></div>
 
-
 <p><code>parsed_query</code> kwarg is often used with <code>DynamicMethodField</code> to pass part of parsed query to nested fields to allow further querying.</p>
 <h3 id="return_pk-kwarg">return_pk kwarg<a class="headerlink" href="#return_pk-kwarg" title="Permanent link">&para;</a></h3>
 <p>With <strong>Django RESTQL</strong> you can specify whether to return nested resource pk or data. Below is an example which shows how we can use <code>return_pk</code> kwarg.</p>
-<div class="codehilite"><pre><span></span><code><span class="kn">from</span> <span class="nn">rest_framework</span> <span class="kn">import</span> <span class="n">serializers</span>
-<span class="kn">from</span> <span class="nn">django_restql.mixins</span> <span class="kn">import</span> <span class="n">DynamicFieldsMixin</span>
+<div class="codehilite"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">rest_framework</span><span class="w"> </span><span class="kn">import</span> <span class="n">serializers</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">django_restql.mixins</span><span class="w"> </span><span class="kn">import</span> <span class="n">DynamicFieldsMixin</span>
 
-<span class="kn">from</span> <span class="nn">app.models</span> <span class="kn">import</span> <span class="n">Book</span><span class="p">,</span> <span class="n">Course</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">app.models</span><span class="w"> </span><span class="kn">import</span> <span class="n">Book</span><span class="p">,</span> <span class="n">Course</span>
 
 
-<span class="k">class</span> <span class="nc">BookSerializer</span><span class="p">(</span><span class="n">DynamicFieldsMixin</span><span class="p">,</span> <span class="n">serializers</span><span class="o">.</span><span class="n">ModelSerializer</span><span class="p">):</span>
-    <span class="k">class</span> <span class="nc">Meta</span><span class="p">:</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">BookSerializer</span><span class="p">(</span><span class="n">DynamicFieldsMixin</span><span class="p">,</span> <span class="n">serializers</span><span class="o">.</span><span class="n">ModelSerializer</span><span class="p">):</span>
+    <span class="k">class</span><span class="w"> </span><span class="nc">Meta</span><span class="p">:</span>
         <span class="n">model</span> <span class="o">=</span> <span class="n">Book</span>
         <span class="n">fields</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;id&#39;</span><span class="p">,</span> <span class="s1">&#39;title&#39;</span><span class="p">,</span> <span class="s1">&#39;author&#39;</span><span class="p">]</span>
 
 
-<span class="k">class</span> <span class="nc">CourseSerializer</span><span class="p">(</span><span class="n">DynamicFieldsMixin</span><span class="p">,</span> <span class="n">serializers</span><span class="o">.</span><span class="n">ModelSerializer</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">CourseSerializer</span><span class="p">(</span><span class="n">DynamicFieldsMixin</span><span class="p">,</span> <span class="n">serializers</span><span class="o">.</span><span class="n">ModelSerializer</span><span class="p">):</span>
     <span class="n">books</span> <span class="o">=</span> <span class="n">BookSerializer</span><span class="p">(</span><span class="n">many</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">read_only</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">return_pk</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-    <span class="k">class</span> <span class="nc">Meta</span><span class="p">:</span>
+    <span class="k">class</span><span class="w"> </span><span class="nc">Meta</span><span class="p">:</span>
         <span class="n">model</span> <span class="o">=</span> <span class="n">Course</span>
         <span class="n">fields</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">,</span> <span class="s1">&#39;code&#39;</span><span class="p">,</span> <span class="s1">&#39;books&#39;</span><span class="p">]</span>
 </code></pre></div>
 
-
 <p><code>GET /course/</code></p>
 <div class="codehilite"><pre><span></span><code><span class="p">[</span>
-    <span class="p">{</span>
-        <span class="s2">&quot;name&quot;</span><span class="o">:</span> <span class="s2">&quot;Computer Programming&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;code&quot;</span><span class="o">:</span> <span class="s2">&quot;CS50&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;books&quot;</span><span class="o">:</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">]</span>
-    <span class="p">},</span>
-    <span class="p">...</span>
+<span class="w">    </span><span class="p">{</span>
+<span class="w">        </span><span class="s2">&quot;name&quot;</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;Computer Programming&quot;</span><span class="p">,</span>
+<span class="w">        </span><span class="s2">&quot;code&quot;</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;CS50&quot;</span><span class="p">,</span>
+<span class="w">        </span><span class="s2">&quot;books&quot;</span><span class="o">:</span><span class="w"> </span><span class="p">[</span><span class="mf">1</span><span class="p">,</span><span class="w"> </span><span class="mf">2</span><span class="p">]</span>
+<span class="w">    </span><span class="p">},</span>
+<span class="w">    </span><span class="p">...</span>
 <span class="p">]</span>
 </code></pre></div>
-
 
 <p>So you can see that on a nested field <code>books</code> pks have been returned instead of books data as specified on <code>return_pk=True</code> kwarg on <code>BookSerializer</code>.
 <br/></p>
 <h3 id="disable_dynamic_fields-kwarg">disable_dynamic_fields kwarg<a class="headerlink" href="#disable_dynamic_fields-kwarg" title="Permanent link">&para;</a></h3>
 <p>Sometimes there are cases where you want to disable fields filtering with on a specific nested field, <strong>Django RESTQL</strong> allows you to do so by using <code>disable_dynamic_fields</code> kwarg when instantiating a serializer. Below is an example which shows how to use <code>disable_dynamic_fields</code> kwarg.</p>
-<div class="codehilite"><pre><span></span><code><span class="kn">from</span> <span class="nn">rest_framework</span> <span class="kn">import</span> <span class="n">serializers</span>
-<span class="kn">from</span> <span class="nn">django_restql.mixins</span> <span class="kn">import</span> <span class="n">DynamicFieldsMixin</span>
+<div class="codehilite"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">rest_framework</span><span class="w"> </span><span class="kn">import</span> <span class="n">serializers</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">django_restql.mixins</span><span class="w"> </span><span class="kn">import</span> <span class="n">DynamicFieldsMixin</span>
 
-<span class="kn">from</span> <span class="nn">app.models</span> <span class="kn">import</span> <span class="n">Book</span><span class="p">,</span> <span class="n">Course</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">app.models</span><span class="w"> </span><span class="kn">import</span> <span class="n">Book</span><span class="p">,</span> <span class="n">Course</span>
 
 
-<span class="k">class</span> <span class="nc">BookSerializer</span><span class="p">(</span><span class="n">DynamicFieldsMixin</span><span class="p">,</span> <span class="n">serializers</span><span class="o">.</span><span class="n">ModelSerializer</span><span class="p">):</span>
-    <span class="k">class</span> <span class="nc">Meta</span><span class="p">:</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">BookSerializer</span><span class="p">(</span><span class="n">DynamicFieldsMixin</span><span class="p">,</span> <span class="n">serializers</span><span class="o">.</span><span class="n">ModelSerializer</span><span class="p">):</span>
+    <span class="k">class</span><span class="w"> </span><span class="nc">Meta</span><span class="p">:</span>
         <span class="n">model</span> <span class="o">=</span> <span class="n">Book</span>
         <span class="n">fields</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;id&#39;</span><span class="p">,</span> <span class="s1">&#39;title&#39;</span><span class="p">,</span> <span class="s1">&#39;author&#39;</span><span class="p">]</span>
 
 
-<span class="k">class</span> <span class="nc">CourseSerializer</span><span class="p">(</span><span class="n">DynamicFieldsMixin</span><span class="p">,</span> <span class="n">serializers</span><span class="o">.</span><span class="n">ModelSerializer</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">CourseSerializer</span><span class="p">(</span><span class="n">DynamicFieldsMixin</span><span class="p">,</span> <span class="n">serializers</span><span class="o">.</span><span class="n">ModelSerializer</span><span class="p">):</span>
     <span class="c1"># Disable fields filtering on this field</span>
     <span class="n">books</span> <span class="o">=</span> <span class="n">BookSerializer</span><span class="p">(</span><span class="n">many</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">read_only</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">disable_dynamic_fields</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-    <span class="k">class</span> <span class="nc">Meta</span><span class="p">:</span>
+    <span class="k">class</span><span class="w"> </span><span class="nc">Meta</span><span class="p">:</span>
         <span class="n">model</span> <span class="o">=</span> <span class="n">Course</span>
         <span class="n">fields</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">,</span> <span class="s1">&#39;code&#39;</span><span class="p">,</span> <span class="s1">&#39;books&#39;</span><span class="p">]</span>
 </code></pre></div>
 
-
 <p><code>GET /course/?query={name, books{title}}</code></p>
 <div class="codehilite"><pre><span></span><code><span class="p">[</span>
-    <span class="p">{</span>
-        <span class="s2">&quot;name&quot;</span><span class="o">:</span> <span class="s2">&quot;Computer Programming&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;books&quot;</span><span class="o">:</span> <span class="p">[</span>
-            <span class="p">{</span><span class="s2">&quot;id&quot;</span><span class="o">:</span> <span class="mi">1</span><span class="p">,</span> <span class="s2">&quot;title&quot;</span><span class="o">:</span> <span class="s2">&quot;Computer Programming Basics&quot;</span><span class="p">,</span> <span class="s2">&quot;author&quot;</span><span class="o">:</span> <span class="s2">&quot;J.Vough&quot;</span><span class="p">},</span>
-            <span class="p">{</span><span class="s2">&quot;id&quot;</span><span class="o">:</span> <span class="mi">2</span><span class="p">,</span> <span class="s2">&quot;title&quot;</span><span class="o">:</span> <span class="s2">&quot;Data structures&quot;</span><span class="p">,</span> <span class="s2">&quot;author&quot;</span><span class="o">:</span> <span class="s2">&quot;D.Denis&quot;</span><span class="p">}</span>
-        <span class="p">]</span>
-    <span class="p">},</span>
-    <span class="p">...</span>
+<span class="w">    </span><span class="p">{</span>
+<span class="w">        </span><span class="s2">&quot;name&quot;</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;Computer Programming&quot;</span><span class="p">,</span>
+<span class="w">        </span><span class="s2">&quot;books&quot;</span><span class="o">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">            </span><span class="p">{</span><span class="s2">&quot;id&quot;</span><span class="o">:</span><span class="w"> </span><span class="mf">1</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;title&quot;</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;Computer Programming Basics&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;author&quot;</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;J.Vough&quot;</span><span class="p">},</span>
+<span class="w">            </span><span class="p">{</span><span class="s2">&quot;id&quot;</span><span class="o">:</span><span class="w"> </span><span class="mf">2</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;title&quot;</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;Data structures&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;author&quot;</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;D.Denis&quot;</span><span class="p">}</span>
+<span class="w">        </span><span class="p">]</span>
+<span class="w">    </span><span class="p">},</span>
+<span class="w">    </span><span class="p">...</span>
 <span class="p">]</span>
 </code></pre></div>
-
 
 <p>So you can see that even though the query asked for only <code>title</code> field under <code>books</code>, all fields have been returned, so this means fields filtering has applied on <code>CourseSerializer</code> but not on <code>BookSerializer</code> because we used <code>disable_dynamic_fields=True</code> on it.
 <br/></p>
@@ -1278,7 +1414,6 @@ For example you could write your query as <code>query={id  username  location{co
 }
 </code></pre></div>
 
-
 <p>Here we have three arguments, <code>age</code>, <code>country</code> and <code>city</code> and their corresponding values.</p>
 <p>To escape any special character in a string(including <code>, : " ' {} ()</code>) use backslash <code>\</code>, single quote <code>'</code> or double quote <code>"</code>, also if you want to escape double quote you can use single quote and vice versa. Escaping is very useful if you are dealing with data containing special characters e.g time, dates, lists, texts etc. Below is an example which contain an argument with a date type.</p>
 <div class="codehilite"><pre><span></span><code>query = (age: 18, join_date__lt: &#39;2020-04-27T23:02:32Z&#39;){
@@ -1290,7 +1425,6 @@ For example you could write your query as <code>query={id  username  location{co
     }
 }
 </code></pre></div>
-
 
 <h3 id="query-arguments-data-types">Query arguments data types<a class="headerlink" href="#query-arguments-data-types" title="Permanent link">&para;</a></h3>
 <p>Django RESTQL supports five primitive data types for query arguments which are <code>String</code>, <code>Int</code>, <code>Float</code>, <code>Boolean</code>, and <code>null</code></p>
@@ -1340,15 +1474,14 @@ For example you could write your query as <code>query={id  username  location{co
 }
 </code></pre></div>
 
-
 <h3 id="filtering-pagination-with-query-arguments">Filtering &amp; pagination with query arguments<a class="headerlink" href="#filtering-pagination-with-query-arguments" title="Permanent link">&para;</a></h3>
 <p>As mentioned before you can use query arguments to do filtering and pagination, Django RESTQL itself doesn't do filtering or pagination but it can help you to convert query arguments into query parameters from there you can use any library which you want to do the actual filtering or any pagination class to do pagination as long as they work with query parameters. To convert query arguments into query parameters all you need to do is inherit <code>QueryArgumentsMixin</code> in your viewset, that's it. For example</p>
 <div class="codehilite"><pre><span></span><code><span class="c1"># views.py</span>
 
-<span class="kn">from</span> <span class="nn">rest_framework</span> <span class="kn">import</span> <span class="n">viewsets</span>
-<span class="kn">from</span> <span class="nn">django_restql.mixins</span> <span class="kn">import</span> <span class="n">QueryArgumentsMixin</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">rest_framework</span><span class="w"> </span><span class="kn">import</span> <span class="n">viewsets</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">django_restql.mixins</span><span class="w"> </span><span class="kn">import</span> <span class="n">QueryArgumentsMixin</span>
 
-<span class="k">class</span> <span class="nc">StudentViewSet</span><span class="p">(</span><span class="n">QueryArgumentsMixin</span><span class="p">,</span> <span class="n">viewsets</span><span class="o">.</span><span class="n">ModelViewSet</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">StudentViewSet</span><span class="p">(</span><span class="n">QueryArgumentsMixin</span><span class="p">,</span> <span class="n">viewsets</span><span class="o">.</span><span class="n">ModelViewSet</span><span class="p">):</span>
     <span class="n">serializer_class</span> <span class="o">=</span> <span class="n">StudentSerializer</span>
     <span class="n">queryset</span> <span class="o">=</span> <span class="n">Student</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">all</span><span class="p">()</span>
     <span class="n">filter_fields</span> <span class="o">=</span> <span class="p">{</span>
@@ -1358,7 +1491,6 @@ For example you could write your query as <code>query={id  username  location{co
         <span class="s1">&#39;location__city&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;exact&#39;</span><span class="p">],</span>
     <span class="p">}</span>
 </code></pre></div>
-
 
 <p>Whether you are using <a href="https://github.com/carltongibson/django-filter">django-filter</a> or <a href="https://github.com/philipn/django-rest-framework-filters">djangorestframework-filters</a> or any filter backend to do the actual filtering, Once you've configured it, you can continue to use all of the features found in filter backend of your choise as usual. The purpose of Django RESTQL on filtering is only to generate query parameters form query arguments. For example if you have a query like</p>
 <div class="codehilite"><pre><span></span><code>query = (age: 18){
@@ -1371,11 +1503,9 @@ For example you could write your query as <code>query={id  username  location{co
 }
 </code></pre></div>
 
-
 <p>Django RESTQL would generate three query parameters from this as shown below</p>
 <div class="codehilite"><pre><span></span><code><span class="n">query_params</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;age&quot;</span><span class="p">:</span> <span class="mi">18</span><span class="p">,</span> <span class="s2">&quot;location__country&quot;</span><span class="p">:</span> <span class="s2">&quot;Canada&quot;</span><span class="p">,</span> <span class="s2">&quot;location__city&quot;</span><span class="p">:</span> <span class="s2">&quot;Toronto&quot;</span><span class="p">}</span>
 </code></pre></div>
-
 
 <p>These will be used by the filter backend you have set to do the actual filtering.</p>
 <p>The same applies to pagination, sorting etc, once you have configured your pagination class whether it's <code>PageNumberPagination</code>, <code>LimitOffsetPagination</code>, <code>CursorPagination</code> or a custom, you will be able do it with query arguments. For example if you're using <code>LimitOffsetPagination</code> and you have a query like </p>
@@ -1389,33 +1519,30 @@ For example you could write your query as <code>query={id  username  location{co
 }
 </code></pre></div>
 
-
 <p>Django RESTQL would generate two query parameters from this as shown below</p>
 <div class="codehilite"><pre><span></span><code><span class="n">query_params</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;limit&quot;</span><span class="p">:</span> <span class="mi">20</span><span class="p">,</span> <span class="s2">&quot;offset&quot;</span><span class="p">:</span> <span class="mi">50</span><span class="p">}</span>
 </code></pre></div>
-
 
 <p>These will be used by pagination class you have set to do the actual pagination.</p>
 <p>So to use query arguments as query parameters all you need to do is inherit <code>QueryArgumentsMixin</code> to your viewset to convert query arguments into query parameters, from there you can use whatever you want to accomplish whatever with those generated query parameters.</p>
 <h2 id="setting-up-eager-loading">Setting up eager loading<a class="headerlink" href="#setting-up-eager-loading" title="Permanent link">&para;</a></h2>
 <p>Often times, using <code>prefetch_related</code> or <code>select_related</code> on a view queryset can help speed up the serialization. For example, if you had a many-to-many relation like Books to a Course, it's usually more efficient to call <code>prefetch_related</code> on the books so that serializing a list of courses only triggers one additional query, instead of a number of queries equal to the number of courses.</p>
 <p><code>EagerLoadingMixin</code> gives access to <code>prefetch_related</code> and <code>select_related</code> properties, these two are dictionaries that match serializer field names to respective values that would be passed into <code>prefetch_related</code> or <code>select_related</code>. Take the following serializers as examples.</p>
-<div class="codehilite"><pre><span></span><code><span class="k">class</span> <span class="nc">CourseSerializer</span><span class="p">(</span><span class="n">DynamicFieldsMixin</span><span class="p">,</span> <span class="n">serializers</span><span class="o">.</span><span class="n">ModelSerializer</span><span class="p">):</span>
+<div class="codehilite"><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">CourseSerializer</span><span class="p">(</span><span class="n">DynamicFieldsMixin</span><span class="p">,</span> <span class="n">serializers</span><span class="o">.</span><span class="n">ModelSerializer</span><span class="p">):</span>
     <span class="n">books</span> <span class="o">=</span> <span class="n">BookSerializer</span><span class="p">(</span><span class="n">many</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">read_only</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 
-    <span class="k">class</span> <span class="nc">Meta</span><span class="p">:</span>
+    <span class="k">class</span><span class="w"> </span><span class="nc">Meta</span><span class="p">:</span>
         <span class="n">model</span> <span class="o">=</span> <span class="n">Course</span>
         <span class="n">fields</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">,</span> <span class="s1">&#39;code&#39;</span><span class="p">,</span> <span class="s1">&#39;books&#39;</span><span class="p">]</span>
 
-<span class="k">class</span> <span class="nc">StudentSerializer</span><span class="p">(</span><span class="n">DynamicFieldsMixin</span><span class="p">,</span> <span class="n">serializers</span><span class="o">.</span><span class="n">ModelSerializer</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">StudentSerializer</span><span class="p">(</span><span class="n">DynamicFieldsMixin</span><span class="p">,</span> <span class="n">serializers</span><span class="o">.</span><span class="n">ModelSerializer</span><span class="p">):</span>
     <span class="n">program</span> <span class="o">=</span> <span class="n">CourseSerializer</span><span class="p">(</span><span class="n">source</span><span class="o">=</span><span class="s2">&quot;course&quot;</span><span class="p">,</span> <span class="n">many</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">read_only</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
     <span class="n">phone_numbers</span> <span class="o">=</span> <span class="n">PhoneSerializer</span><span class="p">(</span><span class="n">many</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">read_only</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 
-    <span class="k">class</span> <span class="nc">Meta</span><span class="p">:</span>
+    <span class="k">class</span><span class="w"> </span><span class="nc">Meta</span><span class="p">:</span>
         <span class="n">model</span> <span class="o">=</span> <span class="n">Student</span>
         <span class="n">fields</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">,</span> <span class="s1">&#39;age&#39;</span><span class="p">,</span> <span class="s1">&#39;program&#39;</span><span class="p">,</span> <span class="s1">&#39;phone_numbers&#39;</span><span class="p">]</span>
 </code></pre></div>
-
 
 <p>In a view, these can be used as described earlier in this documentation. However, if prefetching of <code>books</code> always happened, but we did not ask for <code>{program}</code> or <code>program{books}</code>, then we did an additional query for nothing. Conversely, not prefetching can lead to even more queries being triggered. When leveraging the <code>EagerLoadingMixin</code> on a view, the specific fields that warrant a <code>select_related</code> or <code>prefetch_related</code> can be described.</p>
 <h3 id="syntax-for-prefetch_related-and-select_related">Syntax for prefetch_related and select_related<a class="headerlink" href="#syntax-for-prefetch_related-and-select_related" title="Permanent link">&para;</a></h3>
@@ -1424,12 +1551,10 @@ For example you could write your query as <code>query={id  username  location{co
 <span class="n">prefetch_related</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;serializer_field_name&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;field_to_prefetch&quot;</span><span class="p">]}</span>
 </code></pre></div>
 
-
 <p>If you are selecting or prefetching one field per serializer field name you can use</p>
 <div class="codehilite"><pre><span></span><code><span class="n">select_related</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;serializer_field_name&quot;</span><span class="p">:</span> <span class="s2">&quot;field_to_select&quot;</span><span class="p">}</span>
 <span class="n">prefetch_related</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;serializer_field_name&quot;</span><span class="p">:</span> <span class="s2">&quot;field_to_prefetch&quot;</span><span class="p">}</span>
 </code></pre></div>
-
 
 <p><strong>Syntax Interpretation</strong></p>
 <ul>
@@ -1439,12 +1564,12 @@ For example you could write your query as <code>query={id  username  location{co
 <li>If you want to select or prefetch nested field use dot(.) to separate parent and child fields on <code>serializer_field_name</code> eg <code>parent.child</code>.</li>
 </ul>
 <h3 id="example-of-eagerloadingmixin-usage">Example of EagerLoadingMixin usage<a class="headerlink" href="#example-of-eagerloadingmixin-usage" title="Permanent link">&para;</a></h3>
-<div class="codehilite"><pre><span></span><code><span class="kn">from</span> <span class="nn">rest_framework</span> <span class="kn">import</span> <span class="n">viewsets</span>
-<span class="kn">from</span> <span class="nn">django_restql.mixins</span> <span class="kn">import</span> <span class="n">EagerLoadingMixin</span>
-<span class="kn">from</span> <span class="nn">myapp.serializers</span> <span class="kn">import</span> <span class="n">StudentSerializer</span>
-<span class="kn">from</span> <span class="nn">myapp.models</span> <span class="kn">import</span> <span class="n">Student</span>
+<div class="codehilite"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">rest_framework</span><span class="w"> </span><span class="kn">import</span> <span class="n">viewsets</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">django_restql.mixins</span><span class="w"> </span><span class="kn">import</span> <span class="n">EagerLoadingMixin</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">myapp.serializers</span><span class="w"> </span><span class="kn">import</span> <span class="n">StudentSerializer</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">myapp.models</span><span class="w"> </span><span class="kn">import</span> <span class="n">Student</span>
 
-<span class="k">class</span> <span class="nc">StudentViewSet</span><span class="p">(</span><span class="n">EagerLoadingMixin</span><span class="p">,</span> <span class="n">viewsets</span><span class="o">.</span><span class="n">ModelViewSet</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">StudentViewSet</span><span class="p">(</span><span class="n">EagerLoadingMixin</span><span class="p">,</span> <span class="n">viewsets</span><span class="o">.</span><span class="n">ModelViewSet</span><span class="p">):</span>
     <span class="n">serializer_class</span> <span class="o">=</span> <span class="n">StudentSerializer</span>
     <span class="n">queryset</span> <span class="o">=</span> <span class="n">Student</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">all</span><span class="p">()</span>
 
@@ -1461,7 +1586,6 @@ For example you could write your query as <code>query={id  username  location{co
         <span class="s2">&quot;program.books&quot;</span><span class="p">:</span> <span class="s2">&quot;course__books&quot;</span>
     <span class="p">}</span>
 </code></pre></div>
-
 
 <h3>Example Queries</h3>
 
@@ -1480,7 +1604,6 @@ For example you could write your query as <code>query={id  username  location{co
 </li>
 </ul>
 <h3>More example to get you comfortable with the syntax</h3>
-
 <p>Assuming this is the structure of the model and corresponding field types </p>
 <div class="codehilite"><pre><span></span><code><span class="n">user</span> <span class="o">=</span> <span class="p">{</span>
     <span class="n">username</span><span class="p">,</span>        <span class="c1"># string</span>
@@ -1507,7 +1630,6 @@ For example you could write your query as <code>query={id  username  location{co
 <span class="p">}</span>
 </code></pre></div>
 
-
 <p>Here is how <code>select_related</code> and <code>prefetch_related</code> could be written for this model</p>
 <div class="codehilite"><pre><span></span><code><span class="n">select_related</span> <span class="o">=</span> <span class="p">{</span>
     <span class="s2">&quot;location&quot;</span><span class="p">:</span> <span class="s2">&quot;location&quot;</span><span class="p">,</span>
@@ -1521,88 +1643,61 @@ For example you could write your query as <code>query={id  username  location{co
 <span class="p">}</span>
 </code></pre></div>
 
-
 <h3 id="known-caveats">Known Caveats<a class="headerlink" href="#known-caveats" title="Permanent link">&para;</a></h3>
 <p>When prefetching with a <code>to_attr</code>, ensure that there are no collisions. Django does not allow multiple prefetches with the same <code>to_attr</code> on the same queryset.</p>
 <p>When prefetching <em>and</em> calling <code>select_related</code> on a field, Django may error, since the ORM does allow prefetching a selectable field, but not both at the same time.</p>
-                
-              
-              
-                
 
 
-              
-            </article>
-          </div>
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
         </div>
+        
       </main>
       
-        
-<footer class="md-footer">
-  
-    <div class="md-footer-nav">
-      <nav class="md-footer-nav__inner md-grid" aria-label="Footer">
-        
-          <a href=".." title="Intro" class="md-footer-nav__link md-footer-nav__link--prev" rel="prev">
-            <div class="md-footer-nav__button md-icon">
-              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12z"/></svg>
-            </div>
-            <div class="md-footer-nav__title">
-              <div class="md-ellipsis">
-                <span class="md-footer-nav__direction">
-                  Previous
-                </span>
-                Intro
-              </div>
-            </div>
-          </a>
-        
-        
-          <a href="../mutating_data/" title="Mutating Data" class="md-footer-nav__link md-footer-nav__link--next" rel="next">
-            <div class="md-footer-nav__title">
-              <div class="md-ellipsis">
-                <span class="md-footer-nav__direction">
-                  Next
-                </span>
-                Mutating Data
-              </div>
-            </div>
-            <div class="md-footer-nav__button md-icon">
-              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M4 11v2h12l-5.5 5.5 1.42 1.42L19.84 12l-7.92-7.92L10.5 5.5 16 11H4z"/></svg>
-            </div>
-          </a>
-        
-      </nav>
-    </div>
+        <footer class="md-footer">
   
   <div class="md-footer-meta md-typeset">
     <div class="md-footer-meta__inner md-grid">
-      <div class="md-footer-copyright">
-        
-        Made with
-        <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
-          Material for MkDocs
-        </a>
-      </div>
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
       
     </div>
   </div>
 </footer>
       
     </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
     
-      <script src="../assets/javascripts/vendor.92ffa368.min.js"></script>
-      <script src="../assets/javascripts/bundle.5123e3d4.min.js"></script><script id="__lang" type="application/json">{"clipboard.copy": "Copy to clipboard", "clipboard.copied": "Copied to clipboard", "search.config.lang": "en", "search.config.pipeline": "trimmer, stopWordFilter", "search.config.separator": "[\\s\\-]+", "search.result.placeholder": "Type to start searching", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents"}</script>
+    
+    
       
-      <script>
-        app = initialize({
-          base: "..",
-          features: [],
-          search: Object.assign({
-            worker: "../assets/javascripts/worker/search.a68abb33.min.js"
-          }, typeof search !== "undefined" && search)
-        })
-      </script>
+      <script id="__config" type="application/json">{"base": "..", "features": [], "search": "../assets/javascripts/workers/search.d50fe291.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../assets/javascripts/bundle.56ea9cef.min.js"></script>
       
     
   </body>
