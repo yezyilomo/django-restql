@@ -53,6 +53,7 @@ def BaseNestedFieldSerializerFactory(
         *args,
         accept_pk=False,
         accept_pk_only=False,
+        delete_on_null=False,
         allow_remove_all=False,
         create_ops=CREATE_OPERATIONS,
         update_ops=UPDATE_OPERATIONS,
@@ -79,6 +80,14 @@ def BaseNestedFieldSerializerFactory(
         "`allow_remove_all=True` can only be applied to many related "
         "nested fields, ensure the kwarg `many=True` is set."
     )
+
+    assert not (
+        delete_on_null and accept_pk
+    ), "`delete_on_null=True` can not be used if  `accept_pk=True`."
+
+    assert not (
+        delete_on_null and accept_pk_only
+    ), "`delete_on_null=True` can not be used if  `accept_pk_only=True`."
 
     def join_words(words, many='are', single='is'):
         word_list = ["`" + word + "`" for word in words]
@@ -248,10 +257,11 @@ def BaseNestedFieldSerializerFactory(
 
     class BaseNestedFieldSerializer(serializer_class, BaseNestedField):
 
-        # might be used before `to_internal_value` method is called
-        # so we're creating this property to make sure it's available
+        # These variables might be used before `to_internal_value` method is called
+        # so we're creating them to make sure they're available
         # as long as the class is created
         is_replaceable = accept_pk_only or accept_pk
+        should_delete_on_null = delete_on_null
 
         class Meta(serializer_class.Meta):
             list_serializer_class = BaseNestedFieldListSerializer
