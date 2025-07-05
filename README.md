@@ -150,6 +150,14 @@ Full documentation for this project is available at [https://yezyilomo.github.io
 `python runtests.py`
 
 
+## Writing & Deploying Docs
+Run `pip3 install mkdocs-material` to install mkdocs-material
+
+Run `mkdocs serve` to serve docs locally
+
+Run `mkdocs gh-deploy --force` to deploy docs to gh-page
+
+
 ## Credits
 * Implementation of this library is based on the idea behind [GraphQL](https://graphql.org/).
 * My intention is to extend the capability of [drf-dynamic-fields](https://github.com/dbrgn/drf-dynamic-fields) library to support more functionalities like allowing to query nested fields both flat and iterable at any level and allow writing on nested fields while maintaining simplicity.
