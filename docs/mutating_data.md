@@ -447,6 +447,75 @@ This will remove all books associated with a course being updated.
 <br>
 
 
+### delete_on_null kwarg
+When dealing with nested fields, there are scenarios where the previously assigned object or resource is no longer needed after the field is cleared (i.e. set to `null`). In such cases, passing `delete_on_null=True` kwarg enables automatic deletion of the previously assigned resource when the nested field is explicitly updated to `null`.
+
+This keyword argument applies only to `ForeignKey` or `OneToOne` relationships.
+The default value for `delete_on_null` kwarg is `False`.
+
+Below is an example showing how to use `delete_on_null` kwarg.
+```py
+from rest_framework import serializers 
+from django_restql.fields import NestedField
+from django_restql.serializers import NestedModelSerializer
+
+from app.models import Location, Property
+
+
+class LocationSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Location
+        fields = ["id", "city", "country"]
+
+
+class PropertySerializer(NestedModelSerializer):
+    location = NestedField(LocationSerializer, delete_on_null=True)
+    class Meta:
+        model = Property
+        fields = [
+            'id', 'price', 'location'
+        ]
+```
+
+Assuming we have a property with this structure
+```js
+{
+    "id": 1,
+    "price": 30000,
+    "location": {
+        "id": 5,
+        "city": "Arusha",
+        "country": "Tanzania"
+    }
+}
+```
+
+Sending a mutation request to update this property by removing a location
+
+```PUT/PATCH  /api/property/1/```
+
+Request Body
+```js
+{
+    "location": null
+}
+```
+
+Response
+```js
+{
+    "id": 1,
+    "price": 30000,
+    "location": null
+}
+```
+
+In this case, the property’s location is updated to null, and the previously assigned Location instance (with id: 5) is deleted from the database.
+
+!!! note
+    `delete_on_null=True` can only be used when both `accept_pk=False` and `accept_pk_only=False`. This is because `accept_pk=True` or `accept_pk_only=True` typically implies that the nested object is not tightly coupled to the parent and may be referenced elsewhere. Automatically deleting it in such cases could lead to unintended side effects or broken references.
+
+
 ## Using DynamicFieldsMixin and NestedField together
 You can use `DynamicFieldsMixin` and `NestedModelSerializer` together if you want your serializer to be writable(on nested fields) and support querying data, this is very common. Below is an example which shows how you can use `DynamicFieldsMixin` and `NestedField` together.
 
