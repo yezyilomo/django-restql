@@ -87,7 +87,6 @@ Just to clarify what happed here:
 
 !!! note
     POST for many related fields supports two operations which are `create` and `add`.
-<br>
 
 Below we have an example where we are trying to update the property we have created in the previous example.
 
@@ -444,7 +443,6 @@ Request Body
 ```
 
 This will remove all books associated with a course being updated.
-<br>
 
 
 ### delete_on_null kwarg

@@ -113,7 +113,8 @@ If you want to retrieve user's `id`, `username` and `location` fields but under 
     ...
 ]
 ```
-<br/>
+
+
 
 `GET /users/?query={id, username, groups{name}}`
 ```js
@@ -389,7 +390,6 @@ class CourseSerializer(DynamicFieldsMixin, serializers.ModelSerializer):
     }
 ]
 ```
-<br/>
 
 `GET /course/?query={name, related_books{title}}`
 ```js
@@ -403,7 +403,7 @@ class CourseSerializer(DynamicFieldsMixin, serializers.ModelSerializer):
     }
 ]
 ```
-<br/>
+
 
 ## DynamicFieldsMixin kwargs
 `DynamicFieldsMixin` accepts extra kwargs in addition to those accepted by a serializer, these extra kwargs can be used to do more customizations on a serializer as explained below.
@@ -494,19 +494,18 @@ From the response above you can see that `author` field has been excluded fom bo
 !!! note
     `fields` and `exclude` kwargs have no effect when you access the resources directly, so when you access books you will still get all fields i.e
 
-`GET /books/`
-```js
-[
-    {
-        "id": 1,
-        "title": "Computer Programming Basics",
-        "author": "S.Mobit"
-    },
-    ...
-]
-```
-So you can see that all fields have appeared as specified on `fields = ['id', 'title', 'author']` on BookSerializer class.
-<br/>
+    `GET /books/`
+    ```js
+    [
+        {
+            "id": 1,
+            "title": "Computer Programming Basics",
+            "author": "S.Mobit"
+        },
+        ...
+    ]
+    ```
+    Yo you can see that all fields have appeared as specified on `fields = ['id', 'title', 'author']` on BookSerializer class.
 
 
 ### query kwarg
@@ -645,7 +644,6 @@ class CourseSerializer(DynamicFieldsMixin, serializers.ModelSerializer):
 ]
 ```
 So you can see that on a nested field `books` pks have been returned instead of books data as specified on `return_pk=True` kwarg on `BookSerializer`.
-<br/>
 
 
 ### disable_dynamic_fields kwarg
@@ -686,7 +684,6 @@ class CourseSerializer(DynamicFieldsMixin, serializers.ModelSerializer):
 ]
 ```
 So you can see that even though the query asked for only `title` field under `books`, all fields have been returned, so this means fields filtering has applied on `CourseSerializer` but not on `BookSerializer` because we used `disable_dynamic_fields=True` on it.
-<br/>
 
 
 ## Query arguments

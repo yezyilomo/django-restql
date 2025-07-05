@@ -3,8 +3,8 @@ site_name: Django RESTQL
 theme:
   name: "material"
   language: en
-  feature:
-    tabs: false
+  features:
+    - content.code.copy
   palette:
     primary: teal
     accent: teal
@@ -19,11 +19,17 @@ repo_url: https://github.com/yezyilomo/django-restql/
 
 # Extensions
 markdown_extensions:
+  - pymdownx.highlight:
+      anchor_linenums: true
+      line_spans: __span
+      pygments_lang_class: true
+  - pymdownx.inlinehilite
+  - pymdownx.snippets
+  - pymdownx.superfences
   - admonition
-  - codehilite:
-      guess_lang: false
   - toc:
       permalink: true
+
 
 nav:
   - Intro: index.md
