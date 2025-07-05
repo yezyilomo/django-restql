@@ -806,9 +806,13 @@ class NestedUpdateMixin(BaseNestedMixin):
                 context={**self.context, "parent_operation": UPDATE},
             )
             serializer.is_valid(raise_exception=True)
+
+            delete_previous_nested_obj = False
             if values is None:
                 setattr(instance, field, None)
                 needs_save = True
+                if nested_field_serializer.should_delete_on_null and nested_obj is not None:
+                    delete_previous_nested_obj = True
             else:
                 obj = serializer.save()
                 if nested_obj is None:
@@ -817,6 +821,12 @@ class NestedUpdateMixin(BaseNestedMixin):
                     needs_save = True
         if needs_save:
             instance.save()
+
+            # We delete the previous nested obj AFTER we are done saving
+            # the instance to avoid accidental deletion of the instance
+            # itself if on_delete=models.CASCADE is used
+            if delete_previous_nested_obj:
+                nested_obj.delete()
 
     def bulk_create_many_to_many_related(self, field, nested_obj, data):
         # Get nested field serializer

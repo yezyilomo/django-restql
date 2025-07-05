@@ -179,7 +179,10 @@ class ReplaceableStudentWithAliasSerializer(DynamicFieldsMixin, NestedModelSeria
 
 
 class WritableStudentSerializer(DynamicFieldsMixin, NestedModelSerializer):
-    course = NestedField(WritableCourseSerializer, allow_null=True, required=False)
+    course = NestedField(
+        WritableCourseSerializer,
+        allow_null=True, required=False, delete_on_null=True
+    )
     phone_numbers = NestedField(
         PhoneSerializer, many=True, required=False, allow_remove_all=True
     )
