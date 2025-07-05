@@ -473,58 +473,55 @@
 <h1 id="settings">Settings<a class="headerlink" href="#settings" title="Permanent link">&para;</a></h1>
 <p>Configuration for <strong>Django RESTQL</strong> is all namespaced inside a single Django setting named <code>RESTQL</code>, below is a list of what you can configure under <code>RESTQL</code> setting.</p>
 <h2 id="query_param_name">QUERY_PARAM_NAME<a class="headerlink" href="#query_param_name" title="Permanent link">&para;</a></h2>
-<p>The default value for this is <code>query</code>. If you don't want to use the name <code>query</code> as your parameter, you can change it with<code>QUERY_PARAM_NAME</code> on settings file e.g</p>
-<div class="codehilite"><pre><span></span><code><span class="c1"># settings.py file</span>
-<span class="n">RESTQL</span> <span class="o">=</span> <span class="p">{</span>
-    <span class="s1">&#39;QUERY_PARAM_NAME&#39;</span><span class="p">:</span> <span class="s1">&#39;your_favourite_name&#39;</span>
-<span class="p">}</span>
-</code></pre></div>
-
-<p>Now you can use the name <code>your_favourite_name</code> as your query parameter. E.g</p>
+<p>The default value for this is <code>query</code>. If you don't want to use the name <code>query</code> as your parameter, you can change it with<code>QUERY_PARAM_NAME</code> on settings file e.g
+<div class="language-py highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="c1"># settings.py file</span>
+</span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="n">RESTQL</span> <span class="o">=</span> <span class="p">{</span>
+</span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>    <span class="s1">&#39;QUERY_PARAM_NAME&#39;</span><span class="p">:</span> <span class="s1">&#39;your_favourite_name&#39;</span>
+</span><span id="__span-0-4"><a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a><span class="p">}</span>
+</span></code></pre></div>
+Now you can use the name <code>your_favourite_name</code> as your query parameter. E.g</p>
 <p><code>GET /users/?your_favourite_name={id, username}</code></p>
 <h2 id="max_alias_len">MAX_ALIAS_LEN<a class="headerlink" href="#max_alias_len" title="Permanent link">&para;</a></h2>
 <p>The default value for this is 50. When creating aliases this setting limit the number of characters allowed in aliases. This setting prevents DoS like attacks to API which might be caused by clients specifying a really really long alias which might increase network usage. If you want to change the default value, do as follows</p>
-<div class="codehilite"><pre><span></span><code><span class="c1"># settings.py file</span>
-<span class="n">RESTQL</span> <span class="o">=</span> <span class="p">{</span>
-    <span class="s1">&#39;MAX_ALIAS_LEN&#39;</span><span class="p">:</span> <span class="mi">100</span>  <span class="c1"># Put the value that you want here</span>
-<span class="p">}</span>
-</code></pre></div>
-
+<div class="language-py highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="c1"># settings.py file</span>
+</span><span id="__span-1-2"><a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="n">RESTQL</span> <span class="o">=</span> <span class="p">{</span>
+</span><span id="__span-1-3"><a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>    <span class="s1">&#39;MAX_ALIAS_LEN&#39;</span><span class="p">:</span> <span class="mi">100</span>  <span class="c1"># Put the value that you want here</span>
+</span><span id="__span-1-4"><a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a><span class="p">}</span>
+</span></code></pre></div>
 <h2 id="auto_apply_eager_loading">AUTO_APPLY_EAGER_LOADING<a class="headerlink" href="#auto_apply_eager_loading" title="Permanent link">&para;</a></h2>
-<p>The default value for this is <code>True</code>. When using the <code>EagerLoadingMixin</code>, this setting controls if the mappings for <code>select_related</code> and <code>prefetch_related</code> are applied automatically when calling <code>get_queryset</code>. To turn it off, set the <code>AUTO_APPLY_EAGER_LOADING</code> setting or <code>auto_apply_eager_loading</code> attribute on the view to <code>False</code>.</p>
-<div class="codehilite"><pre><span></span><code><span class="c1"># settings.py file</span>
-<span class="c1"># This will turn off auto apply eager loading globally</span>
-<span class="n">RESTQL</span> <span class="o">=</span> <span class="p">{</span>
-    <span class="s1">&#39;AUTO_APPLY_EAGER_LOADING&#39;</span><span class="p">:</span> <span class="kc">False</span>
-<span class="p">}</span>
-</code></pre></div>
-
-<p>If auto apply eager loading is turned off, the method <code>apply_eager_loading</code> can still be used on your queryset if you wish to select or prefetch related fields according to your conditions, For example you can check if there was a query parameter passed in by using <code>has_restql_query_param</code>, if true then apply eager loading otherwise return a normal queryset.</p>
-<div class="codehilite"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">rest_framework</span><span class="w"> </span><span class="kn">import</span> <span class="n">viewsets</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">django_restql.mixins</span><span class="w"> </span><span class="kn">import</span> <span class="n">EagerLoadingMixin</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">myapp.serializers</span><span class="w"> </span><span class="kn">import</span> <span class="n">StudentSerializer</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">myapp.models</span><span class="w"> </span><span class="kn">import</span> <span class="n">Student</span>
-
-<span class="k">class</span><span class="w"> </span><span class="nc">StudentViewSet</span><span class="p">(</span><span class="n">EagerLoadingMixin</span><span class="p">,</span> <span class="n">viewsets</span><span class="o">.</span><span class="n">ModelViewSet</span><span class="p">):</span>
-    <span class="n">serializer_class</span> <span class="o">=</span> <span class="n">StudentSerializer</span>
-    <span class="n">queryset</span> <span class="o">=</span> <span class="n">Student</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">all</span><span class="p">()</span>
-
-    <span class="c1"># Turn off auto apply eager loading per view</span>
-    <span class="c1"># This overrides the `AUTO_APPLY_EAGER_LOADING` setting on this view</span>
-    <span class="n">auto_apply_eager_loading</span> <span class="o">=</span> <span class="kc">False</span>
-    <span class="n">select_related</span> <span class="o">=</span> <span class="p">{</span>
-        <span class="s2">&quot;program&quot;</span><span class="p">:</span> <span class="s2">&quot;course&quot;</span>
-    <span class="p">}</span>
-    <span class="n">prefetch_related</span> <span class="o">=</span> <span class="p">{</span>
-        <span class="s2">&quot;program.books&quot;</span><span class="p">:</span> <span class="s2">&quot;course__books&quot;</span>
-    <span class="p">}</span>
-
-    <span class="k">def</span><span class="w"> </span><span class="nf">get_queryset</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="n">queryset</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">get_queryset</span><span class="p">()</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">has_restql_query_param</span><span class="p">:</span>
-            <span class="n">queryset</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">apply_eager_loading</span><span class="p">(</span><span class="n">queryset</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">queryset</span>
-</code></pre></div>
+<p>The default value for this is <code>True</code>. When using the <code>EagerLoadingMixin</code>, this setting controls if the mappings for <code>select_related</code> and <code>prefetch_related</code> are applied automatically when calling <code>get_queryset</code>. To turn it off, set the <code>AUTO_APPLY_EAGER_LOADING</code> setting or <code>auto_apply_eager_loading</code> attribute on the view to <code>False</code>.
+<div class="language-py highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="c1"># settings.py file</span>
+</span><span id="__span-2-2"><a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="c1"># This will turn off auto apply eager loading globally</span>
+</span><span id="__span-2-3"><a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a><span class="n">RESTQL</span> <span class="o">=</span> <span class="p">{</span>
+</span><span id="__span-2-4"><a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a>    <span class="s1">&#39;AUTO_APPLY_EAGER_LOADING&#39;</span><span class="p">:</span> <span class="kc">False</span>
+</span><span id="__span-2-5"><a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a><span class="p">}</span>
+</span></code></pre></div></p>
+<p>If auto apply eager loading is turned off, the method <code>apply_eager_loading</code> can still be used on your queryset if you wish to select or prefetch related fields according to your conditions, For example you can check if there was a query parameter passed in by using <code>has_restql_query_param</code>, if true then apply eager loading otherwise return a normal queryset.
+<div class="language-py highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">rest_framework</span><span class="w"> </span><span class="kn">import</span> <span class="n">viewsets</span>
+</span><span id="__span-3-2"><a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a><span class="kn">from</span><span class="w"> </span><span class="nn">django_restql.mixins</span><span class="w"> </span><span class="kn">import</span> <span class="n">EagerLoadingMixin</span>
+</span><span id="__span-3-3"><a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a><span class="kn">from</span><span class="w"> </span><span class="nn">myapp.serializers</span><span class="w"> </span><span class="kn">import</span> <span class="n">StudentSerializer</span>
+</span><span id="__span-3-4"><a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a><span class="kn">from</span><span class="w"> </span><span class="nn">myapp.models</span><span class="w"> </span><span class="kn">import</span> <span class="n">Student</span>
+</span><span id="__span-3-5"><a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a>
+</span><span id="__span-3-6"><a id="__codelineno-3-6" name="__codelineno-3-6" href="#__codelineno-3-6"></a><span class="k">class</span><span class="w"> </span><span class="nc">StudentViewSet</span><span class="p">(</span><span class="n">EagerLoadingMixin</span><span class="p">,</span> <span class="n">viewsets</span><span class="o">.</span><span class="n">ModelViewSet</span><span class="p">):</span>
+</span><span id="__span-3-7"><a id="__codelineno-3-7" name="__codelineno-3-7" href="#__codelineno-3-7"></a>    <span class="n">serializer_class</span> <span class="o">=</span> <span class="n">StudentSerializer</span>
+</span><span id="__span-3-8"><a id="__codelineno-3-8" name="__codelineno-3-8" href="#__codelineno-3-8"></a>    <span class="n">queryset</span> <span class="o">=</span> <span class="n">Student</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">all</span><span class="p">()</span>
+</span><span id="__span-3-9"><a id="__codelineno-3-9" name="__codelineno-3-9" href="#__codelineno-3-9"></a>
+</span><span id="__span-3-10"><a id="__codelineno-3-10" name="__codelineno-3-10" href="#__codelineno-3-10"></a>    <span class="c1"># Turn off auto apply eager loading per view</span>
+</span><span id="__span-3-11"><a id="__codelineno-3-11" name="__codelineno-3-11" href="#__codelineno-3-11"></a>    <span class="c1"># This overrides the `AUTO_APPLY_EAGER_LOADING` setting on this view</span>
+</span><span id="__span-3-12"><a id="__codelineno-3-12" name="__codelineno-3-12" href="#__codelineno-3-12"></a>    <span class="n">auto_apply_eager_loading</span> <span class="o">=</span> <span class="kc">False</span>
+</span><span id="__span-3-13"><a id="__codelineno-3-13" name="__codelineno-3-13" href="#__codelineno-3-13"></a>    <span class="n">select_related</span> <span class="o">=</span> <span class="p">{</span>
+</span><span id="__span-3-14"><a id="__codelineno-3-14" name="__codelineno-3-14" href="#__codelineno-3-14"></a>        <span class="s2">&quot;program&quot;</span><span class="p">:</span> <span class="s2">&quot;course&quot;</span>
+</span><span id="__span-3-15"><a id="__codelineno-3-15" name="__codelineno-3-15" href="#__codelineno-3-15"></a>    <span class="p">}</span>
+</span><span id="__span-3-16"><a id="__codelineno-3-16" name="__codelineno-3-16" href="#__codelineno-3-16"></a>    <span class="n">prefetch_related</span> <span class="o">=</span> <span class="p">{</span>
+</span><span id="__span-3-17"><a id="__codelineno-3-17" name="__codelineno-3-17" href="#__codelineno-3-17"></a>        <span class="s2">&quot;program.books&quot;</span><span class="p">:</span> <span class="s2">&quot;course__books&quot;</span>
+</span><span id="__span-3-18"><a id="__codelineno-3-18" name="__codelineno-3-18" href="#__codelineno-3-18"></a>    <span class="p">}</span>
+</span><span id="__span-3-19"><a id="__codelineno-3-19" name="__codelineno-3-19" href="#__codelineno-3-19"></a>
+</span><span id="__span-3-20"><a id="__codelineno-3-20" name="__codelineno-3-20" href="#__codelineno-3-20"></a>    <span class="k">def</span><span class="w"> </span><span class="nf">get_queryset</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+</span><span id="__span-3-21"><a id="__codelineno-3-21" name="__codelineno-3-21" href="#__codelineno-3-21"></a>        <span class="n">queryset</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">get_queryset</span><span class="p">()</span>
+</span><span id="__span-3-22"><a id="__codelineno-3-22" name="__codelineno-3-22" href="#__codelineno-3-22"></a>        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">has_restql_query_param</span><span class="p">:</span>
+</span><span id="__span-3-23"><a id="__codelineno-3-23" name="__codelineno-3-23" href="#__codelineno-3-23"></a>            <span class="n">queryset</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">apply_eager_loading</span><span class="p">(</span><span class="n">queryset</span><span class="p">)</span>
+</span><span id="__span-3-24"><a id="__codelineno-3-24" name="__codelineno-3-24" href="#__codelineno-3-24"></a>        <span class="k">return</span> <span class="n">queryset</span>
+</span></code></pre></div></p>
 
 
 
@@ -573,7 +570,7 @@
     
     
       
-      <script id="__config" type="application/json">{"base": "..", "features": [], "search": "../assets/javascripts/workers/search.d50fe291.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+      <script id="__config" type="application/json">{"base": "..", "features": ["content.code.copy"], "search": "../assets/javascripts/workers/search.d50fe291.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
     
     
       <script src="../assets/javascripts/bundle.56ea9cef.min.js"></script>

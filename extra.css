@@ -1,19 +1,28 @@
-.md-header{
+.md-header {
     height: 53px;
     padding-top: 2px;
 }
 
-.md-search__form input{
-    border-radius: 3px;
+.md-search__form,
+.md-search__output {
+    border-radius: 8px !important;
 }
 
-.md-source__icon svg{
+.md-search__output {
+    margin-top: 3px !important;
+}
+
+.md-source__icon svg {
     display: none;
 }
 
-.md-source__icon{
+.md-source__icon {
     background-image: url("img/github.svg");
     background-repeat: no-repeat;
     background-position: 50% center;
     background-size: 22px;
+}
+
+.md-code__content, .note{
+    border-radius: 10px !important;
 }
