@@ -1,13 +1,13 @@
 import re
 from collections import namedtuple
 
-from pypeg2 import List, contiguous, csl, name, optional, parse
+from pypeg2 import List, csl, name, parse, optional, contiguous
 
 from .exceptions import QueryFormatError
 
 
 class Alias(List):
-    grammar = name(), ':'
+    grammar = name(), ":"
 
 
 class IncludedField(List):
@@ -21,15 +21,15 @@ class IncludedField(List):
 
 
 class ExcludedField(List):
-    grammar = contiguous('-', name())
+    grammar = contiguous("-", name())
 
 
 class AllFields(str):
-    grammar = '*'
+    grammar = "*"
 
 
 class ArgumentWithoutQuotes(List):
-    grammar = name(), ':', re.compile(r'true|false|null|[-+]?[0-9]*\.?[0-9]+')
+    grammar = name(), ":", re.compile(r'true|false|null|[-+]?[0-9]*\.?[0-9]+')
 
     def number(self, val):
         try:
@@ -41,9 +41,9 @@ class ArgumentWithoutQuotes(List):
     def value(self):
         raw_val = self[0]
         FIXED_DATA_TYPES = {
-            'true': True,
-            'false': False,
-            'null': None
+            "true": True,
+            "false": False,
+            "null": None
         }
         if raw_val in FIXED_DATA_TYPES:
             return FIXED_DATA_TYPES[raw_val]
@@ -51,7 +51,7 @@ class ArgumentWithoutQuotes(List):
 
 
 class ArgumentWithQuotes(List):
-    grammar = name(), ':', re.compile(r'"([^"\\]|\\.|\\\n)*"|\'([^\'\\]|\\.|\\\n)*\'')
+    grammar = name(), ":", re.compile(r'"([^"\\]|\\.|\\\n)*"|\'([^\'\\]|\\.|\\\n)*\'')
 
     @property
     def value(self):
@@ -66,12 +66,12 @@ class Arguments(List):
             ArgumentWithoutQuotes,
             ArgumentWithQuotes,
         ],
-        separator=[',', '']
+        separator=[",", ""]
     ))
 
 
 class ArgumentsBlock(List):
-    grammar = optional('(', Arguments, optional(','), ')')
+    grammar = optional("(", Arguments, optional(","), ")")
 
     @property
     def arguments(self):
@@ -102,12 +102,12 @@ class ParentField(List):
 class BlockBody(List):
     grammar = optional(csl(
         [ParentField, IncludedField, ExcludedField, AllFields],
-        separator=[',', '']
+        separator=[",", ""]
     ))
 
 
 class Block(List):
-    grammar = ArgumentsBlock, '{', BlockBody, optional(','), '}'
+    grammar = ArgumentsBlock, "{", BlockBody, optional(","), "}"
 
     @property
     def arguments(self):

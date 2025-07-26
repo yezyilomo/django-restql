@@ -56,7 +56,7 @@ from django_restql.mixins import DynamicFieldsMixin
 class UserSerializer(DynamicFieldsMixin, serializer.ModelSerializer):
     class Meta:
         model = User
-        fields = ['id', 'username', 'email']
+        fields = ["id", "username", "email"]
 ```
 
 **Django RESTQL** handle all requests with a `query` parameter, this parameter is the one used to pass all fields to be included/excluded in a response. For example to select `id` and `username` fields from User model, send a request with a ` query` parameter as shown below.
@@ -85,14 +85,14 @@ from app.models import GroupSerializer, LocationSerializer
 class LocationSerializer(DynamicFieldsMixin, serializer.ModelSerializer):
     class Meta:
         model = Location
-        fields = ['id', 'country',  'city', 'street']
+        fields = ["id", "country",  "city", "street"]
 
 
 class UserSerializer(DynamicFieldsMixin, serializer.ModelSerializer):
     location = LocationSerializer(many=False, read_only=True) 
     class Meta:
         model = User
-        fields = ['id', 'username', 'email', 'location']
+        fields = ["id", "username", "email", "location"]
 ```
 
 If you want only `country` and `city` fields on a `location` field when retrieving users here is how you can do it

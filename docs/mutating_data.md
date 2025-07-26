@@ -35,7 +35,7 @@ class PropertySerializer(NestedModelSerializer):
     class Meta:
         model = Property
         fields = [
-            'id', 'price', 'location', 'amenities'
+            "id", "price", "location", "amenities"
         ]
 ```
 
@@ -154,7 +154,7 @@ Let's assume we have a student model as shows below
 class Student(models.Model):
     name = models.CharField(max_length=50)
     age = models.IntegerField()
-    study_partners = models.ManyToManyField('self', related_name='study_partners')
+    study_partners = models.ManyToManyField("self", related_name="study_partners")
 ```
 
 As you can see from the model above `study_partners` is a self referencing field. Below is the corresponding serializer for our model
@@ -165,20 +165,20 @@ As you can see from the model above `study_partners` is a self referencing field
 class StudentSerializer(NestedModelSerializer):
     # Define study_partners as self referencing nested field
     study_partners = NestedField(
-        'self',
+        "self",
         many=True,
         required=False,
-        exclude=['study_partners']
+        exclude=["study_partners"]
     )
 
     class Meta:
         model = Student
-        fields = ['id', 'name', 'age', 'study_partners']
+        fields = ["id", "name", "age", "study_partners"]
 ```
 
 You can see that we have passed `self` to `NestedField` just like in `Student` model, this means that `study_partners` field is a self referencing field.
 
-The other important thing here is `exclude=['study_partners']`, this excludes the field `study_partners` on a nested field to avoid recursion error if the self reference is cyclic.
+The other important thing here is `exclude=["study_partners"]`, this excludes the field `study_partners` on a nested field to avoid recursion error if the self reference is cyclic.
 
 
 ## NestedField kwargs
@@ -210,7 +210,7 @@ class PropertySerializer(NestedModelSerializer):
     class Meta:
         model = Property
         fields = [
-            'id', 'price', 'location'
+            "id", "price", "location"
         ]
 ```
 
@@ -295,7 +295,7 @@ class PropertySerializer(NestedModelSerializer):
     class Meta:
         model = Property
         fields = [
-            'id', 'price', 'location'
+            "id", "price", "location"
         ]
 ```
 
@@ -355,7 +355,7 @@ class PropertySerializer(NestedModelSerializer):
     class Meta:
         model = Property
         fields = [
-            'id', 'price', 'amenities'
+            "id", "price", "amenities"
         ]
 ```
 
@@ -471,7 +471,7 @@ class PropertySerializer(NestedModelSerializer):
     class Meta:
         model = Property
         fields = [
-            'id', 'price', 'location'
+            "id", "price", "location"
         ]
 ```
 
@@ -537,7 +537,7 @@ class PropertySerializer(DynamicFieldsMixin, NestedModelSerializer):
     class Meta:
         model = Property
         fields = [
-            'id', 'price', 'location'
+            "id", "price", "location"
         ]
 ```
 
@@ -581,7 +581,7 @@ class PropertySerializer(NestedModelSerializer):
     class Meta:
         model = Property
         fields = [
-            'id', 'price', 'location'
+            "id", "price", "location"
         ]
 ```
 
@@ -626,14 +626,14 @@ from app.models import Book, Course
 class BookSerializer(DynamicFieldsMixin, NestedModelSerializer):
     class Meta:
         model = Book
-        fields = ['id', 'title', 'author']
+        fields = ["id", "title", "author"]
 
 
 class CourseSerializer(DynamicFieldsMixin, NestedModelSerializer):
     books = NestedField(BookSerializer, many=True, required=False)
     class Meta:
         model = Course
-        fields = ['id', 'name', 'code', 'books']
+        fields = ["id", "name", "code", "books"]
 ```
 
 From serializers above you can create a course like
@@ -645,8 +645,8 @@ data = {
     "books": {
         "add": [1, 2],
         "create": [
-            {'title': 'Basic Data Structures', 'author': 'J. Davis'},
-            {'title': 'Advanced Data Structures', 'author': 'S. Mobit'}
+            {"title": "Basic Data Structures", "author": "J. Davis"},
+            {"title": "Advanced Data Structures", "author": "S. Mobit"}
         ]
     }
 }
@@ -663,10 +663,10 @@ print(serializer.data)
     "name": "Computer Programming",
     "code": "CS50",
     "books": [
-        {'id': 1, 'title': 'Programming Intro', 'author': 'K. Moses'},
-        {'id': 2, 'title': 'Understanding Computers', 'author': 'B. Gibson'},
-        {'id': 3, 'title': 'Basic Data Structures', 'author': 'J. Davis'},
-        {'id': 4, 'title': 'Advanced Data Structures', 'author': 'S. Mobit'}
+        {"id": 1, "title": "Programming Intro", "author": "K. Moses"},
+        {"id": 2, "title": "Understanding Computers", "author": "B. Gibson"},
+        {"id": 3, "title": "Basic Data Structures", "author": "J. Davis"},
+        {"id": 4, "title": "Advanced Data Structures", "author": "S. Mobit"}
     ]
 }
 ```
@@ -695,8 +695,8 @@ print(serializer.data)
     "name": "Computer Programming",
     "code": "CS100",
     "books": [
-        {'id': 1, 'title': 'Programming Intro', 'author': 'K. Moses'},
-        {'id': 2, 'title': 'Understanding Computers', 'author': 'B. Gibson'}
+        {"id": 1, "title": "Programming Intro", "author": "K. Moses"},
+        {"id": 2, "title": "Understanding Computers", "author": "B. Gibson"}
     ]
 }
 ```

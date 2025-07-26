@@ -2,24 +2,22 @@ try:
     from django.utils.decorators import classproperty
 except ImportError:
     from django.utils.functional import classproperty
-from django.db.models.fields.related import ManyToOneRel
 
-from rest_framework.fields import (
-    DictField, ListField, SkipField, Field, empty
-)
+from django.db.models.fields.related import ManyToOneRel
+from rest_framework.fields import Field, DictField, ListField, SkipField, empty
 from rest_framework.serializers import (
-    ListSerializer, PrimaryKeyRelatedField,
-    SerializerMethodField, ValidationError
+    ListSerializer, ValidationError, SerializerMethodField, PrimaryKeyRelatedField
 )
 
 from .parser import Query
 from .exceptions import InvalidOperation
 from .operations import ADD, CREATE, REMOVE, UPDATE
 
+
 CREATE_OPERATIONS = (ADD, CREATE)
 UPDATE_OPERATIONS = (ADD, CREATE, REMOVE, UPDATE)
 
-ALL_RELATED_OBJS = '__all__'
+ALL_RELATED_OBJS = "__all__"
 
 
 class DynamicSerializerMethodField(SerializerMethodField):
@@ -46,7 +44,7 @@ class DynamicSerializerMethodField(SerializerMethodField):
 
 class BaseRESTQLNestedField(object):
     def to_internal_value(self, data):
-        raise NotImplementedError('`to_internal_value()` must be implemented.')
+        raise NotImplementedError("`to_internal_value()` must be implemented.")
 
 
 def BaseNestedFieldSerializerFactory(
@@ -89,7 +87,7 @@ def BaseNestedFieldSerializerFactory(
         delete_on_null and accept_pk_only
     ), "`delete_on_null=True` can not be used if  `accept_pk_only=True`."
 
-    def join_words(words, many='are', single='is'):
+    def join_words(words, many="are", single="is"):
         word_list = ["`" + word + "`" for word in words]
 
         if len(words) > 1:
@@ -233,7 +231,7 @@ def BaseNestedFieldSerializerFactory(
                         "for this request %s"
                         % (operation, join_words(allowed_ops))
                     )
-                    code = 'invalid_operation'
+                    code = "invalid_operation"
                     raise ValidationError(msg, code=code) from None
 
         def to_internal_value(self, data):
@@ -310,8 +308,8 @@ def BaseNestedFieldSerializerFactory(
             return data
 
         def to_internal_value(self, data):
-            required = kwargs.get('required', True)
-            default = kwargs.get('default', empty)
+            required = kwargs.get("required", True)
+            default = kwargs.get("default", empty)
 
             if data == empty:
                 # Implementation under this block is made
@@ -328,7 +326,7 @@ def BaseNestedFieldSerializerFactory(
                     if default == empty:
                         raise ValidationError(
                             "This field is required.",
-                            code='required'
+                            code="required"
                         )
                     else:
                         # Use the default value
@@ -360,7 +358,7 @@ def BaseNestedFieldSerializerFactory(
 
 class TemporaryNestedField(Field, BaseRESTQLNestedField):
     """
-    This is meant to be used temporarily when 'self' is
+    This is meant to be used temporarily when "self" is
     passed as the first arg to `NestedField`
     """
 
@@ -400,14 +398,14 @@ def NestedFieldWraper(*args, **kwargs):
             field_kwargs=kwargs
         )
 
-    serializer_validation_kwargs = {**factory['kwargs']}
+    serializer_validation_kwargs = {**factory["kwargs"]}
 
     # Remove all non validation related kwargs and
     # DynamicFieldsMixin kwargs from `valdation_kwargs`
     non_validation_related_kwargs = [
-        'many', 'data', 'instance', 'context', 'fields',
-        'exclude', 'return_pk', 'disable_dynamic_fields',
-        'query', 'parsed_query', 'partial'
+        "many", "data", "instance", "context", "fields",
+        "exclude", "return_pk", "disable_dynamic_fields",
+        "query", "parsed_query", "partial"
     ]
 
     for kwarg in non_validation_related_kwargs:
