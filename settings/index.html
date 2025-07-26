@@ -476,7 +476,7 @@
 <p>The default value for this is <code>query</code>. If you don't want to use the name <code>query</code> as your parameter, you can change it with<code>QUERY_PARAM_NAME</code> on settings file e.g
 <div class="language-py highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="c1"># settings.py file</span>
 </span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="n">RESTQL</span> <span class="o">=</span> <span class="p">{</span>
-</span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>    <span class="s1">&#39;QUERY_PARAM_NAME&#39;</span><span class="p">:</span> <span class="s1">&#39;your_favourite_name&#39;</span>
+</span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>    <span class="s2">&quot;QUERY_PARAM_NAME&quot;</span><span class="p">:</span> <span class="s2">&quot;your_favourite_name&quot;</span>
 </span><span id="__span-0-4"><a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a><span class="p">}</span>
 </span></code></pre></div>
 Now you can use the name <code>your_favourite_name</code> as your query parameter. E.g</p>
@@ -485,7 +485,7 @@ Now you can use the name <code>your_favourite_name</code> as your query paramete
 <p>The default value for this is 50. When creating aliases this setting limit the number of characters allowed in aliases. This setting prevents DoS like attacks to API which might be caused by clients specifying a really really long alias which might increase network usage. If you want to change the default value, do as follows</p>
 <div class="language-py highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="c1"># settings.py file</span>
 </span><span id="__span-1-2"><a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="n">RESTQL</span> <span class="o">=</span> <span class="p">{</span>
-</span><span id="__span-1-3"><a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>    <span class="s1">&#39;MAX_ALIAS_LEN&#39;</span><span class="p">:</span> <span class="mi">100</span>  <span class="c1"># Put the value that you want here</span>
+</span><span id="__span-1-3"><a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>    <span class="s2">&quot;MAX_ALIAS_LEN&quot;</span><span class="p">:</span> <span class="mi">100</span>  <span class="c1"># Put the value that you want here</span>
 </span><span id="__span-1-4"><a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a><span class="p">}</span>
 </span></code></pre></div>
 <h2 id="auto_apply_eager_loading">AUTO_APPLY_EAGER_LOADING<a class="headerlink" href="#auto_apply_eager_loading" title="Permanent link">&para;</a></h2>
@@ -493,7 +493,7 @@ Now you can use the name <code>your_favourite_name</code> as your query paramete
 <div class="language-py highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="c1"># settings.py file</span>
 </span><span id="__span-2-2"><a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="c1"># This will turn off auto apply eager loading globally</span>
 </span><span id="__span-2-3"><a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a><span class="n">RESTQL</span> <span class="o">=</span> <span class="p">{</span>
-</span><span id="__span-2-4"><a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a>    <span class="s1">&#39;AUTO_APPLY_EAGER_LOADING&#39;</span><span class="p">:</span> <span class="kc">False</span>
+</span><span id="__span-2-4"><a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a>    <span class="s2">&quot;AUTO_APPLY_EAGER_LOADING&quot;</span><span class="p">:</span> <span class="kc">False</span>
 </span><span id="__span-2-5"><a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a><span class="p">}</span>
 </span></code></pre></div></p>
 <p>If auto apply eager loading is turned off, the method <code>apply_eager_loading</code> can still be used on your queryset if you wish to select or prefetch related fields according to your conditions, For example you can check if there was a query parameter passed in by using <code>has_restql_query_param</code>, if true then apply eager loading otherwise return a normal queryset.
