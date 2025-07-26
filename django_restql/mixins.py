@@ -2,7 +2,18 @@ from django.http import QueryDict
 from django.db.models import Prefetch
 from django.utils.functional import cached_property
 from django.core.exceptions import ObjectDoesNotExist
-from django.db.models.fields.related import ManyToManyRel, ManyToOneRel
+from django.db.models.fields.related import ManyToOneRel, ManyToManyRel
+from rest_framework.serializers import Serializer, ListSerializer, ValidationError
+
+from .settings import restql_settings
+from .parser import Query, QueryParser
+from .operations import ADD, CREATE, REMOVE, UPDATE
+from .exceptions import FieldNotFound, QueryFormatError
+from .fields import (
+    ALL_RELATED_OBJS, TemporaryNestedField, BaseRESTQLNestedField,
+    DynamicSerializerMethodField
+)
+
 
 try:
     from django.contrib.contenttypes.fields import GenericRel
@@ -10,19 +21,6 @@ try:
 except (RuntimeError, ImportError):
     GenericRel = None
     ContentType = None
-
-from rest_framework.serializers import ListSerializer, Serializer, ValidationError
-
-from .exceptions import FieldNotFound, QueryFormatError
-from .fields import (
-    ALL_RELATED_OBJS,
-    BaseRESTQLNestedField,
-    DynamicSerializerMethodField,
-    TemporaryNestedField,
-)
-from .operations import ADD, CREATE, REMOVE, UPDATE
-from .parser import Query, QueryParser
-from .settings import restql_settings
 
 
 class RequestQueryParserMixin(object):

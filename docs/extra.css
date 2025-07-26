@@ -23,6 +23,7 @@
     background-size: 22px;
 }
 
-.md-code__content, .note{
+.md-code__content,
+.note {
     border-radius: 10px !important;
 }

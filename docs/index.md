@@ -40,7 +40,7 @@ from django_restql.mixins import DynamicFieldsMixin
 class UserSerializer(DynamicFieldsMixin, serializer.ModelSerializer):
     class Meta:
         model = User
-        fields = ['id', 'username', 'email']
+        fields = ["id", "username", "email"]
 ```
 
 **Django RESTQL** handle all requests with a `query` parameter, this parameter is the one used to pass all fields to be included/excluded in a response. For example to select `id` and `username` fields from User model, send a request with a ` query` parameter as shown below.

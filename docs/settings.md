@@ -6,7 +6,7 @@ The default value for this is `query`. If you don't want to use the name `query`
 ```py
 # settings.py file
 RESTQL = {
-    'QUERY_PARAM_NAME': 'your_favourite_name'
+    "QUERY_PARAM_NAME": "your_favourite_name"
 }
 ```
 Now you can use the name `your_favourite_name` as your query parameter. E.g
@@ -19,7 +19,7 @@ The default value for this is 50. When creating aliases this setting limit the n
 ```py
 # settings.py file
 RESTQL = {
-    'MAX_ALIAS_LEN': 100  # Put the value that you want here
+    "MAX_ALIAS_LEN": 100  # Put the value that you want here
 }
 ```
 
@@ -29,7 +29,7 @@ The default value for this is `True`. When using the `EagerLoadingMixin`, this s
 # settings.py file
 # This will turn off auto apply eager loading globally
 RESTQL = {
-    'AUTO_APPLY_EAGER_LOADING': False
+    "AUTO_APPLY_EAGER_LOADING": False
 }
 ```
 

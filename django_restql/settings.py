@@ -2,7 +2,7 @@
 Settings for Django RESTQL are all namespaced in the RESTQL setting.
 For example your project's `settings.py` file might look like this:
 RESTQL = {
-    'QUERY_PARAM_NAME': 'query'
+    "QUERY_PARAM_NAME": "query"
 }
 This module provides the `restql_settings` object, that is used to access
 Django RESTQL settings, checking for user settings first, then falling
@@ -12,10 +12,11 @@ from django.conf import settings
 from django.test.signals import setting_changed
 from django.utils.module_loading import import_string
 
+
 DEFAULTS = {
-    'QUERY_PARAM_NAME': 'query',
-    'AUTO_APPLY_EAGER_LOADING': True,
-    'MAX_ALIAS_LEN': 50
+    "QUERY_PARAM_NAME": "query",
+    "AUTO_APPLY_EAGER_LOADING": True,
+    "MAX_ALIAS_LEN": 50
 }
 
 
@@ -47,7 +48,7 @@ def import_from_string(val, setting_name):
         return import_string(val)
     except ImportError as e:
         msg = (
-            "Could not import '%s' for RESTQL setting '%s'. %s: %s."
+            "Could not import `%s` for RESTQL setting `%s`. %s: %s."
         ) % (val, setting_name, e.__class__.__name__, e)
         raise ImportError(msg)
 
@@ -69,8 +70,8 @@ class RESTQLSettings:
 
     @property
     def user_settings(self):
-        if not hasattr(self, '_user_settings'):
-            self._user_settings = getattr(settings, 'RESTQL', {})
+        if not hasattr(self, "_user_settings"):
+            self._user_settings = getattr(settings, "RESTQL", {})
         return self._user_settings
 
     def __getattr__(self, attr):
@@ -97,16 +98,16 @@ class RESTQLSettings:
         for attr in self._cached_attrs:
             delattr(self, attr)
         self._cached_attrs.clear()
-        if hasattr(self, '_user_settings'):
-            delattr(self, '_user_settings')
+        if hasattr(self, "_user_settings"):
+            delattr(self, "_user_settings")
 
 
 restql_settings = RESTQLSettings(None, DEFAULTS, IMPORT_STRINGS)
 
 
 def reload_restql_settings(*args, **kwargs):
-    setting = kwargs['setting']
-    if setting == 'RESTQL':
+    setting = kwargs["setting"]
+    if setting == "RESTQL":
         restql_settings.reload()
 
 

@@ -1241,7 +1241,7 @@ class DataQueryingTests(APITestCase):
     def test_list_on_arguments_with_no_quoted_values(self):
         url = reverse_lazy("student-list")
         response = self.client.get(
-            url + '?query=(name: "Yezy", age: 20){name, age, course{name}}',
+            url + "?query=(name: 'Yezy', age: 20){name, age, course{name}}",
             format="json",
         )
 
@@ -1268,7 +1268,7 @@ class DataQueryingTests(APITestCase):
     def test_list_with_nested_arguments(self):
         url = reverse_lazy("student-list")
         response = self.client.get(
-            url + '?query={name, age, course(code: "CS50"){name}}', format="json"
+            url + "?query={name, age, course(code: 'CS50'){name}}", format="json"
         )
 
         self.assertEqual(response.data, [])
@@ -1276,7 +1276,7 @@ class DataQueryingTests(APITestCase):
     def test_list_with_applied_filter_on_nested_aliased_field(self):
         url = reverse_lazy("student-list")
         response = self.client.get(
-            url + '?query={name, age, programme: course(code: "CS015"){code}}',
+            url + "?query={name, age, programme: course(code: 'CS015'){code}}",
             format="json",
         )
 
@@ -1286,7 +1286,7 @@ class DataQueryingTests(APITestCase):
         url = reverse_lazy("student-list")
         response = self.client.get(
             url
-            + '?query={name, age, program: course{readings: books(author: "Y.Mobit"){author}}}',
+            + "?query={name, age, program: course{readings: books(author: 'Y.Mobit'){author}}}",
             format="json",
         )
 

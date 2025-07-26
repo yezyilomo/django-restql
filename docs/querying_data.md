@@ -9,7 +9,7 @@ from django_restql.mixins import DynamicFieldsMixin
 class UserSerializer(DynamicFieldsMixin, serializer.ModelSerializer):
     class Meta:
         model = User
-        fields = ['id', 'username', 'email']
+        fields = ["id", "username", "email"]
 ```
 
 Here a regular request returns all fields as specified on a DRF serializer, in fact **Django RESTQL** doesn't handle this(regular) request at all. Below is an example of a regular request and its response 
@@ -60,13 +60,13 @@ from app.models import GroupSerializer, LocationSerializer
 class GroupSerializer(DynamicFieldsMixin, serializer.ModelSerializer):
     class Meta:
         model = Group
-        fields = ['id', 'name']
+        fields = ["id", "name"]
 
 
 class LocationSerializer(DynamicFieldsMixin, serializer.ModelSerializer):
     class Meta:
         model = Location
-        fields = ['id', 'country',  'city', 'street']
+        fields = ["id", "country",  "city", "street"]
 
 
 class UserSerializer(DynamicFieldsMixin, serializer.ModelSerializer):
@@ -74,7 +74,7 @@ class UserSerializer(DynamicFieldsMixin, serializer.ModelSerializer):
     location = LocationSerializer(many=False, read_only=True) 
     class Meta:
         model = User
-        fields = ['id', 'username', 'email', 'location', 'groups']
+        fields = ["id", "username", "email", "location", "groups"]
 ```
 
 If you want to retrieve user's `id`, `username` and `location` fields but under `location` field you want to get only `country` and `city` fields here is how you can do it
@@ -158,7 +158,7 @@ class PropertySerializer(DynamicFieldsMixin, serializer.ModelSerializer):
     class Meta:
         model = Property
         fields = [
-            'id', 'price', 'location'
+            "id", "price", "location"
         ]
 ```
 
@@ -360,7 +360,7 @@ class CourseSerializer(DynamicFieldsMixin, serializers.ModelSerializer):
     related_books = DynamicSerializerMethodField()
     class Meta:
         model = Course
-        fields = ['name', 'code', 'related_books']
+        fields = ["name", "code", "related_books"]
 
     def get_related_books(self, obj, parsed_query):
         # With `DynamicSerializerMethodField` you get this extra
@@ -422,14 +422,14 @@ from app.models import Book, Course
 class BookSerializer(DynamicFieldsMixin, serializers.ModelSerializer):
     class Meta:
         model = Book
-        fields = ['id', 'title', 'author']
+        fields = ["id", "title", "author"]
 
 
 class CourseSerializer(DynamicFieldsMixin, serializers.ModelSerializer):
     books = BookSerializer(many=True, read_only=True, fields=["title"])
     class Meta:
         model = Course
-        fields = ['name', 'code', 'books']
+        fields = ["name", "code", "books"]
 ```
 
 `GET /courses/`
@@ -465,14 +465,14 @@ from app.models import Book, Course
 class BookSerializer(DynamicFieldsMixin, serializers.ModelSerializer):
     class Meta:
         model = Book
-        fields = ['id', 'title', 'author']
+        fields = ["id", "title", "author"]
 
 
 class CourseSerializer(DynamicFieldsMixin, serializers.ModelSerializer):
     books = BookSerializer(many=True, read_only=True, exclude=["author"])
     class Meta:
         model = Course
-        fields = ['name', 'code', 'books']
+        fields = ["name", "code", "books"]
 ```
 
 `GET /courses/`
@@ -505,7 +505,7 @@ From the response above you can see that `author` field has been excluded fom bo
         ...
     ]
     ```
-    Yo you can see that all fields have appeared as specified on `fields = ['id', 'title', 'author']` on BookSerializer class.
+    Yo you can see that all fields have appeared as specified on `fields = ["id", "title", "author"]` on BookSerializer class.
 
 
 ### query kwarg
@@ -521,14 +521,14 @@ from app.models import Book, Course
 class BookSerializer(DynamicFieldsMixin, serializers.ModelSerializer):
     class Meta:
         model = Book
-        fields = ['id', 'title', 'author']
+        fields = ["id", "title", "author"]
 
 
 class CourseSerializer(DynamicFieldsMixin, serializers.ModelSerializer):
     books = BookSerializer(many=True, read_only=True, exclude=["author"])
     class Meta:
         model = Course
-        fields = ['name', 'code', 'books']
+        fields = ["name", "code", "books"]
 ```
 
 You can query fields as  
@@ -568,14 +568,14 @@ from app.models import Book, Course
 class BookSerializer(DynamicFieldsMixin, serializers.ModelSerializer):
     class Meta:
         model = Book
-        fields = ['id', 'title', 'author']
+        fields = ["id", "title", "author"]
 
 
 class CourseSerializer(DynamicFieldsMixin, serializers.ModelSerializer):
     books = BookSerializer(many=True, read_only=True, exclude=["author"])
     class Meta:
         model = Course
-        fields = ['name', 'code', 'books']
+        fields = ["name", "code", "books"]
 ```
 
 You can query fields by using `parsed_query` kwarg as follows
@@ -622,14 +622,14 @@ from app.models import Book, Course
 class BookSerializer(DynamicFieldsMixin, serializers.ModelSerializer):
     class Meta:
         model = Book
-        fields = ['id', 'title', 'author']
+        fields = ["id", "title", "author"]
 
 
 class CourseSerializer(DynamicFieldsMixin, serializers.ModelSerializer):
     books = BookSerializer(many=True, read_only=True, return_pk=True)
     class Meta:
         model = Course
-        fields = ['name', 'code', 'books']
+        fields = ["name", "code", "books"]
 ```
 
 `GET /course/`
@@ -659,7 +659,7 @@ from app.models import Book, Course
 class BookSerializer(DynamicFieldsMixin, serializers.ModelSerializer):
     class Meta:
         model = Book
-        fields = ['id', 'title', 'author']
+        fields = ["id", "title", "author"]
 
 
 class CourseSerializer(DynamicFieldsMixin, serializers.ModelSerializer):
@@ -667,7 +667,7 @@ class CourseSerializer(DynamicFieldsMixin, serializers.ModelSerializer):
     books = BookSerializer(many=True, read_only=True, disable_dynamic_fields=True)
     class Meta:
         model = Course
-        fields = ['name', 'code', 'books']
+        fields = ["name", "code", "books"]
 ```
 
 `GET /course/?query={name, books{title}}`
@@ -704,10 +704,10 @@ Here we have three arguments, `age`, `country` and `city` and their correspondin
 To escape any special character in a string(including `, : " ' {} ()`) use backslash `\`, single quote `'` or double quote `"`, also if you want to escape double quote you can use single quote and vice versa. Escaping is very useful if you are dealing with data containing special characters e.g time, dates, lists, texts etc. Below is an example which contain an argument with a date type.
 
 ```
-query = (age: 18, join_date__lt: '2020-04-27T23:02:32Z'){
+query = (age: 18, join_date__lt: "2020-04-27T23:02:32Z"){
     name,
     age,
-    location(country: 'Canada', city: 'Toronto'){
+    location(country: "Canada", city: "Toronto"){
         country,
         city
     }
@@ -756,10 +756,10 @@ class StudentViewSet(QueryArgumentsMixin, viewsets.ModelViewSet):
 	serializer_class = StudentSerializer
 	queryset = Student.objects.all()
 	filter_fields = {
-		'name': ['exact'],
-		'age': ['exact'],
-		'location__country': ['exact'],
-        'location__city': ['exact'],
+		"name": ["exact"],
+		"age": ["exact"],
+		"location__country": ["exact"],
+        "location__city": ["exact"],
 	}
 ```
 
@@ -815,7 +815,7 @@ class CourseSerializer(DynamicFieldsMixin, serializers.ModelSerializer):
 
     class Meta:
         model = Course
-        fields = ['name', 'code', 'books']
+        fields = ["name", "code", "books"]
 
 class StudentSerializer(DynamicFieldsMixin, serializers.ModelSerializer):
     program = CourseSerializer(source="course", many=False, read_only=True)
@@ -823,7 +823,7 @@ class StudentSerializer(DynamicFieldsMixin, serializers.ModelSerializer):
 
     class Meta:
         model = Student
-        fields = ['name', 'age', 'program', 'phone_numbers']
+        fields = ["name", "age", "program", "phone_numbers"]
 ```
 
 In a view, these can be used as described earlier in this documentation. However, if prefetching of `books` always happened, but we did not ask for `{program}` or `program{books}`, then we did an additional query for nothing. Conversely, not prefetching can lead to even more queries being triggered. When leveraging the `EagerLoadingMixin` on a view, the specific fields that warrant a `select_related` or `prefetch_related` can be described.
