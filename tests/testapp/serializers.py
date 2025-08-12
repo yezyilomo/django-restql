@@ -1,18 +1,11 @@
 from rest_framework import serializers
-from tests.testapp.models import (
-    Genre,
-    Book,
-    Instructor,
-    Course,
-    Student,
-    Phone,
-    Attachment,
-    Post,
-)
 
-from django_restql.fields import NestedField, DynamicSerializerMethodField
 from django_restql.mixins import DynamicFieldsMixin
 from django_restql.serializers import NestedModelSerializer
+from django_restql.fields import NestedField, DynamicSerializerMethodField
+from tests.testapp.models import (
+    Book, Post, Genre, Phone, Course, Student, Attachment, Instructor
+)
 
 
 ######## Serializers for Data Querying And Mutations Testing ##########
@@ -140,7 +133,8 @@ class WritableBookSerializer(DynamicFieldsMixin, NestedModelSerializer):
 
 class WritableCourseSerializer(DynamicFieldsMixin, NestedModelSerializer):
     books = NestedField(
-        WritableBookSerializer, many=True, required=False, allow_remove_all=True
+        WritableBookSerializer, many=True, required=False,
+        allow_remove_all=True, allow_delete_all=True
     )
     instructor = NestedField(InstructorSerializer, accept_pk=True, required=False)
 
@@ -184,7 +178,8 @@ class WritableStudentSerializer(DynamicFieldsMixin, NestedModelSerializer):
         allow_null=True, required=False, delete_on_null=True
     )
     phone_numbers = NestedField(
-        PhoneSerializer, many=True, required=False, allow_remove_all=True
+        PhoneSerializer, many=True, required=False,
+        allow_remove_all=True, allow_delete_all=True
     )
 
     class Meta:

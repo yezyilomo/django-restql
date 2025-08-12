@@ -1,6 +1,6 @@
 from django.db import models
-from django.contrib.contenttypes.fields import GenericForeignKey, GenericRelation
 from django.contrib.contenttypes.models import ContentType
+from django.contrib.contenttypes.fields import GenericRelation, GenericForeignKey
 
 
 class Genre(models.Model):
@@ -47,14 +47,14 @@ class Phone(models.Model):
     number = models.CharField(max_length=15)
     type = models.CharField(max_length=50)
     student = models.ForeignKey(
-        Student, on_delete=models.CASCADE, related_name="phone_numbers"
+        Student, blank=True, null=True, on_delete=models.CASCADE, related_name="phone_numbers"
     )
 
 
 class Attachment(models.Model):
     content = models.TextField()
-    object_id = models.PositiveIntegerField()
-    content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE)
+    object_id = models.PositiveIntegerField(null=True)
+    content_type = models.ForeignKey(ContentType, null=True, on_delete=models.CASCADE)
     document = GenericForeignKey("content_type", "object_id")
 
 

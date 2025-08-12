@@ -2,9 +2,9 @@
 
 **Django RESTQL** is a python library which allows you to turn your API made with **Django REST Framework(DRF)** into a GraphQL like API. With **Django RESTQL**  you will be able to
 
-* Send a query to your API and get exactly what you need, nothing more and nothing less.
+* Send a query to your API and get exactly what you need
 
-* Control the data you get, not the server.
+* Control the data you get on client side.
 
 * Get predictable results, since you control what you get from the server.
 
@@ -30,7 +30,7 @@ pip install django-restql
 
 
 ## Getting Started
-Using **Django RESTQL** to query data is very simple, you just have to inherit the `DynamicFieldsMixin` class when defining a serializer that's all.
+Using **Django RESTQL** to query data is very simple, you just have to inherit the `DynamicFieldsMixin` class when defining a serializer, that's all.
 ```py
 from rest_framework import serializers
 from django.contrib.auth.models import User
