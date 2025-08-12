@@ -1,5 +1,10 @@
 # Querying Data
-**Django RESTQL** makes data querying(selecting fields to include in a response) way easier, if you want to use it to query data you just have to inherit the `DynamicFieldsMixin` class when defining your serializer, that's all. Below is an example showing how to use `DynamicFieldsMixin`.
+**Django RESTQL** simplifies querying data by allowing you to dynamically select fields to be included in a response.
+
+To enable this, simply inherit from the `DynamicFieldsMixin` class when defining your serializer, that's all.
+
+Below is an example showing how to use `DynamicFieldsMixin`.
+
 ```py
 from rest_framework import serializers
 from django.contrib.auth.models import User
@@ -12,7 +17,9 @@ class UserSerializer(DynamicFieldsMixin, serializer.ModelSerializer):
         fields = ["id", "username", "email"]
 ```
 
-Here a regular request returns all fields as specified on a DRF serializer, in fact **Django RESTQL** doesn't handle this(regular) request at all. Below is an example of a regular request and its response 
+Here a regular request returns all fields specified in the serializer, as **Django RESTQL** does not interfere with normal requests.
+
+Below is an example of a regular request and its response 
 
 `GET /users`
 
@@ -27,7 +34,7 @@ Here a regular request returns all fields as specified on a DRF serializer, in f
 ]
 ```
 
-As you can see all fields have been returned as specified on `UserSerializer`.
+As you can see all fields have been returned as specified on the `UserSerializer`.
 
 **Django RESTQL** handle all requests with a `query` parameter, this parameter is the one which is used to pass all fields to be included/excluded in a response.
 
@@ -43,11 +50,13 @@ For example to select `id` and `username` fields from User model, send a request
     ...
 ]
 ```
-You can see only `id` and `username` fields have been returned in a response as specified on a `query` parameter.
+With this only `id` and `username` fields get returned in a response as specified on a `query` parameter.
 
 
 ## Querying nested fields
-**Django RESTQL** support querying both flat and nested data, so you can expand or query nested fields at any level as defined on a serializer. In an example below we have `location` and `groups` as nested fields on User model.
+**Django RESTQL** support querying both flat and nested data, so you can expand or query nested fields at any level as defined on a serializer.
+
+In an example below we have `location` and `groups` as nested fields on User model.
 
 ```py
 from rest_framework import serializers
@@ -138,7 +147,9 @@ If you want to retrieve user's `id`, `username` and `location` fields but under 
 ## Exclude(-) operator
 Using **Django RESTQL** filtering as it is when there are no many fields on a serializer is great, but sometimes you might have a case where you would like everything except a handful of fields on a larger serializer. These fields might be nested and trying the whitelist approach might possibly be too long for the url. 
 
-**Django RESTQL** comes with the exclude(-) operator which can be used to exclude some fields in scenarios where you want to get all fields except few ones. Using exclude operator is very simple, you just need to prepend the exclude(-) operator to the field which you want to exclude when writing your query that's all. Take an example below
+**Django RESTQL** comes with the exclude(-) operator which can be used to exclude some fields in scenarios where you want to get all fields except few ones. Using exclude operator is very simple, you just need to prepend the exclude(-) operator to the field which you want to exclude when writing your query, that's all. 
+
+Take an example below
 
 ```py
 from rest_framework import serializers 
@@ -278,9 +289,9 @@ Below is a list of mistakes which leads to query syntax/format error, these mist
 
 
 ## Aliases
-When working with API, you may want to rename a field to something other than what the API has to offer. Aliases exist as part of this library to solve this exact problem.
+When working with an API, you may want to rename a field to something more suitable than what the API provides. Aliases let you do exactly that—without changing the backend.
 
-Aliases allow you to rename a single field to whatever you want it to be. They are defined at the client side, so you don’t need to update your API to use them.
+Aliases are defined on the client side, so you can freely rename fields in your query without touching the API code.
 
 Imagine requesting data using the following query from an API:
 
@@ -298,11 +309,11 @@ You will get the following JSON response:
 ]
 ```
 
-The id here is fine, but the `updated_at` doesn’t quite conform to the camel case convention in JavaScript(Which is where APIs are used mostly). Let’s change it by using an alias.
+Here the `updated_at` field works but it doesn’t quite conform to the camel case convention in JavaScript(Which is where APIs are used mostly). Let’s rename it with an alias.
 
 `GET /users/?query={id, updatedAt: updated_at}`
 
-Which yields the following:
+Response:
 
 ```js
 [
@@ -343,11 +354,16 @@ This yields
 ```
 
 !!! note
-    The default maximum length of alias is 50 characters, it's controlled by `MAX_ALIAS_LEN` setting. This is enforced to prevent DoS like attacks to API which might be caused by clients specifying a really really long alias which may increase network usage. For more information about `MAX_ALIAS_LEN` setting and how to change it go to [this section](/django-restql/settings/#max_alias_len).
+    The default maximum alias length is 50 characters, it's controlled by `MAX_ALIAS_LEN` setting. This is enforced to prevent DoS like attacks to API which might be caused by a client specifying a really long alias which may increase network usage. For more information about `MAX_ALIAS_LEN` setting and how to change it see [this section](/django-restql/settings/#max_alias_len).
 
 
 ## DynamicSerializerMethodField
-`DynamicSerializerMethodField` is a wraper of the `SerializerMethodField`, it adds a parsed query argument from a parent serializer to a method bound to a `SerializerMethodField`, this parsed query argument can be passed to a serializer used within a method to allow further querying. For example in the scenario below we are using `DynamicSerializerMethodField` because we want to be able to query `related_books` field.
+`DynamicSerializerMethodField` is a wrapper around DRF’s `SerializerMethodField`.
+Its main advantage is that it passes the parsed query from the parent serializer into the method, enabling you to apply further querying to nested serializers inside that method.
+
+This is especially useful when you want to make a field returned by `SerializerMethodField` queryable. 
+
+For example in the scenario below we are using `DynamicSerializerMethodField` because we want to be able to query `related_books` field.
 
 ```py
 from django_restql.mixins import DynamicFieldsMixin
@@ -404,6 +420,8 @@ class CourseSerializer(DynamicFieldsMixin, serializers.ModelSerializer):
 ]
 ```
 
+With `DynamicSerializerMethodField`, you can make even custom, computed fields queryable — giving your API consumers fine-grained control over the response.
+
 
 ## DynamicFieldsMixin kwargs
 `DynamicFieldsMixin` accepts extra kwargs in addition to those accepted by a serializer, these extra kwargs can be used to do more customizations on a serializer as explained below.
@@ -450,11 +468,12 @@ As you see from the response above, the nested resource(book) has only one field
 
 `GET /course?query={name, code, books{title, author}}` 
 
-you will get an error that `author` field is not found because it was not included here `fields=["title"]`.
+you will get an error that `author` field is not found because it was not included in `fields`.
 
 
 ### exclude kwarg
 You can also specify fields to be excluded when instantiating a serializer by using `exclude` kwarg, below is an example which shows how to use `exclude` kwarg.
+
 ```py
 from rest_framework import serializers
 from django_restql.mixins import DynamicFieldsMixin
@@ -505,7 +524,7 @@ From the response above you can see that `author` field has been excluded fom bo
         ...
     ]
     ```
-    Yo you can see that all fields have appeared as specified on `fields = ["id", "title", "author"]` on BookSerializer class.
+    You can see that all fields have appeared as specified on `fields = ["id", "title", "author"]` on BookSerializer class.
 
 
 ### query kwarg
@@ -552,7 +571,7 @@ print(serializer.data)
 ]
 ```
 
-As you see this doesn't need a request or view to work, you can use it anywhere as long as you pass your query string to a `query` kwarg.
+As you see this doesn't need a request or view to work, you can use it anywhere as long as you pass your query string as a `query` kwarg.
 
 
 ### parsed_query kwarg
@@ -606,11 +625,14 @@ print(serializer.data)
 ]
 ```
 
-`parsed_query` kwarg is often used with `DynamicMethodField` to pass part of parsed query to nested fields to allow further querying.
+`parsed_query` kwarg is often used with `DynamicMethodField` to pass part of the parsed query to nested fields to allow further querying.
 
 
 ### return_pk kwarg
-With **Django RESTQL** you can specify whether to return nested resource pk or data. Below is an example which shows how we can use `return_pk` kwarg.
+
+With **Django RESTQL**, you can control whether nested resources return their full data or just their primary keys (PKs) by using the `return_pk` keyword argument.
+
+Below is an example showing how to use `return_pk` kwarg:
 
 ```py
 from rest_framework import serializers
@@ -643,11 +665,11 @@ class CourseSerializer(DynamicFieldsMixin, serializers.ModelSerializer):
     ...
 ]
 ```
-So you can see that on a nested field `books` pks have been returned instead of books data as specified on `return_pk=True` kwarg on `BookSerializer`.
+So you can see that on the nested field `books` pks have been returned instead of the full book data because `return_pk=True` was set on the `BookSerializer` inside `CourseSerializer`.
 
 
 ### disable_dynamic_fields kwarg
-Sometimes there are cases where you want to disable fields filtering with on a specific nested field, **Django RESTQL** allows you to do so by using `disable_dynamic_fields` kwarg when instantiating a serializer. Below is an example which shows how to use `disable_dynamic_fields` kwarg.
+Sometimes there are cases where you want to disable fields filtering on a specific nested field, **Django RESTQL** allows you to do so by using `disable_dynamic_fields` kwarg when instantiating a serializer. Below is an example which shows how to use `disable_dynamic_fields` kwarg.
 
 ```py
 from rest_framework import serializers
@@ -683,7 +705,8 @@ class CourseSerializer(DynamicFieldsMixin, serializers.ModelSerializer):
     ...
 ]
 ```
-So you can see that even though the query asked for only `title` field under `books`, all fields have been returned, so this means fields filtering has applied on `CourseSerializer` but not on `BookSerializer` because we used `disable_dynamic_fields=True` on it.
+
+In this example, even though the query requested only the `title` field for `books`, all fields were returned. This is because `disable_dynamic_fields=True` was set on the `BookSerializer` within `CourseSerializer`. Field filtering still applied to `CourseSerializer`, but not to its nested `BookSerializer`.
 
 
 ## Query arguments
@@ -720,14 +743,14 @@ Django RESTQL supports five primitive data types for query arguments which are `
 
 The table below shows possible argument values and their corresponding python values
 
-| Argument Value | Python Value  |
-| -------------- | ------------- |
-| String(e.g "Hi!" or 'Hi!')     | Python String(e.g "Hi!" or 'Hi!') |
-| Int(e.g 25)    | Python Int(e.g 25) |
-| Float(e.g 25.34)               | Python Float(e.g 25.34)
-| true           | True          |
-| false          | False         |
-| null           | None          |
+| Argument Value                      | Python Value                      |
+|-------------------------------------|-----------------------------------|
+| String(e.g "Hi!" or 'Hi!')          | Python String(e.g "Hi!" or 'Hi!') |
+| Int(e.g 25)                         | Python Int(e.g 25)                |
+| Float(e.g 25.34)                    | Python Float(e.g 25.34)           |
+| true                                | True                              |
+| false                               | False                             |
+| null                                | None                              |
 
 Below is a query showing how these data types are used
 
@@ -881,7 +904,7 @@ class StudentViewSet(EagerLoadingMixin, viewsets.ModelViewSet):
 
 - `{name}`:  &nbsp;&nbsp; Neither `select_related` or `prefetch_related` will be run since neither field is present on the serializer for this query.
 
-- `{program}`: &nbsp;&nbsp; Both `select_related` and `prefetch_related` will be run, since `program` is present in it's entirety (including the `books` field).
+- `{program}`: &nbsp;&nbsp; Both `select_related` and `prefetch_related` will be run, since `program` is present in its entirety (including the `books` field).
 
 - `{program{name}}`: &nbsp;&nbsp; Only `select_related` will be run, since `books` are not present on the program fields.
 

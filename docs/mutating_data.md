@@ -1,9 +1,18 @@
 # Mutating Data
-**Django RESTQL** got your back on creating and updating nested data too, it has two components for mutating nested data, `NestedModelSerializer` and `NestedField`. A serializer `NestedModelSerializer` has `update` and `create` logics for nested fields on the other hand `NestedField` is used to validate data before calling `update` or `create` method.
+**Django RESTQL** got your back on creating and updating nested data too, it supports creating and updating nested data through two main components:
 
+- `NestedModelSerializer` – handles the `create` and `update` logic for nested fields.
+
+- `NestedField` – validates nested data before passing it to `create` or `update`.
 
 ## Using NestedField and NestedModelSerializer
-Just like in querying data, mutating nested data with **Django RESTQL** is very simple, you just have to inherit `NestedModelSerializer` on a serializer with nested fields and use `NestedField` to define those nested fields which you want to be able to mutate. Below is an example which shows how to use `NestedModelSerializer` and `NestedField`.
+Just like in querying data, mutating nested data with **Django RESTQL** is straightforward:
+
+1. Inherit `NestedModelSerializer` in a serializer with nested fields.
+2. Use `NestedField` to define any nested field you want to be able to mutate.
+
+Example:
+
 ```py
 from rest_framework import serializers
 from django_restql.serializers import NestedModelSerializer
@@ -39,11 +48,11 @@ class PropertySerializer(NestedModelSerializer):
         ]
 ```
 
-With serializers defined as shown above, you will be able to send data mutation request like
+Example – Creating Data
 
 ```POST /api/property/```
 
-With a request body like
+Request body
 ```js
 {
     "price": 60000,
@@ -61,7 +70,7 @@ With a request body like
 }
 ```
 
-And get a response as
+Response
 ```js
 {
     "id": 2,
@@ -81,12 +90,12 @@ And get a response as
 
 Just to clarify what happed here:
 
-- location has been created and associated with the property created
-- `create` operation has created amenities with values specified in a list and associate them with the property
-- `add` operation has added amenity with id=3 to a list of amenities of the property.
+- A new location was created and linked to the property.
+- `create` operation added new amenities and linked them to the property.
+- `add` operaton linked an existing amenity (id=3) to the property.
 
 !!! note
-    POST for many related fields supports two operations which are `create` and `add`.
+    For `POST` with many-related fields, only `create` and `add` operations are supported.
 
 Below we have an example where we are trying to update the property we have created in the previous example.
 
@@ -103,13 +112,14 @@ Request Body
     "amenities": {
         "add": [4],
         "create": [{"name": "Fance"}],
+        "update": {1: {"name": "Water"}},
         "remove": [3],
-        "update": {1: {"name": "Water"}}
+        "delete": [2]
     }
 }
 ```
 
-After sending the requst above we'll get a response which looks like
+Response
 
 ```js
 {
@@ -122,31 +132,45 @@ After sending the requst above we'll get a response which looks like
     },
     "amenities": [
         {"id": 1, "name": "Water"},
-        {"id": 2, "name": "Electricity"},
         {"id": 4, "name": "Bathtub"},
         {"id": 5, "name": "Fance"}
     ]
 }
 ```
 
-From the request body `add`, `create`, `remove` and `update` are operations
+Here is what really happened after sending the update request
 
-What you see in the response above are details of our property, what really happened after sending the update request is
+- `add` operation linked an existing amenity (id=4).
 
-- `add` operation added amenitiy with id=4 to a list of amenities of the property
-- `create` operation created amenities with values specified in a list
-- `remove` operation removed amenities with id=3 from a property
-- `update` operation updated amenity with id=1 according to values specified.
+- `create` operation added a new amenity.
 
+- `update` operation modified the amenity with id=1.
+
+- `remove` operation unlinked amenity with id=3.
+
+- `delete` operation unlinked amenity with id=2 and deleted it from the DB .
 
 !!! note
-    PUT/PATCH for many related fields supports four operations which are `create`, `add`, `remove` and `update`.
+    For PUT/PATCH with many-related fields, the supported operations are: `add`, `create`, `update`, `remove` and `delete`.
 
 
-## Self referencing nested field
-Currently DRF doesn't allow declaring self referencing nested fields but you might have a self referencing nested field in your project since Django allows creating them. Django RESTQL comes with a nice way to deal with this scenario.
+## Operations table for many-related fields
 
-Let's assume we have a student model as shows below
+Operation | Supported In   | Description                                  |
+----------|----------------|----------------------------------------------|
+add	      |POST, PUT/PATCH | Adds existing related items by ID            |
+create    |POST, PUT/PATCH | Creates new related items from provided data |
+update    |PUT/PATCH       | Updates existing related items by ID         |
+remove    |PUT/PATCH       | Removes related items (keeps them in DB)     |
+delete    |PUT/PATCH       | Deletes related items from the DB            |
+
+
+## Self-referencing nested fields
+By default, **Django REST Framework (DRF)** does not allow you to directly declare self-referencing nested fields in serializers. However, Django itself supports self-referential relationships, and your models may include them.
+
+**Django RESTQL** provides a clean way to handle this scenario without running into recursion issues.
+
+Example:
 
 ```py
 # models.py
@@ -157,18 +181,18 @@ class Student(models.Model):
     study_partners = models.ManyToManyField("self", related_name="study_partners")
 ```
 
-As you can see from the model above `study_partners` is a self referencing field. Below is the corresponding serializer for our model
+In this model, `study_partners` is a **self-referencing ManyToMany field** — it points to the same model(`Student`).
 
 ```py
 # serializers.py
 
 class StudentSerializer(NestedModelSerializer):
-    # Define study_partners as self referencing nested field
+    # Define study_partners as a self-referencing nested field
     study_partners = NestedField(
-        "self",
+        "self",  # References the same serializer
         many=True,
         required=False,
-        exclude=["study_partners"]
+        exclude=["study_partners"]  # Prevent infinite recursion
     )
 
     class Meta:
@@ -176,17 +200,25 @@ class StudentSerializer(NestedModelSerializer):
         fields = ["id", "name", "age", "study_partners"]
 ```
 
-You can see that we have passed `self` to `NestedField` just like in `Student` model, this means that `study_partners` field is a self referencing field.
+Key Points:
 
-The other important thing here is `exclude=["study_partners"]`, this excludes the field `study_partners` on a nested field to avoid recursion error if the self reference is cyclic.
+- Passing `"self"` to `NestedField` tells **Django RESTQL** that this nested field should use the same serializer it’s declared in.
+
+- Self-referencing relationships can be cyclic, leading to infinite nesting.
+    Using `exclude=["study_partners"]` prevents the nested serializer from including `study_partners` again inside itself.
 
 
 ## NestedField kwargs
-`NestedField` accepts extra kwargs in addition to those accepted by a serializer, these extra kwargs can be used to do more customizations on a nested field as explained below.
 
+`NestedField` supports additional keyword arguments (kwargs) beyond those accepted by a serializer. These kwargs allows extra customizations when working with nested fields.
 
 ### accept_pk kwarg
-`accept_pk=True` is used if you want to be able to update nested field by using pk/id of existing data(basically associate existing nested resource with the parent resource). This applies to foreign key relations only. The default value for `accept_pk` is `False`.
+**Default:** `False`
+
+**Applies to:** ForeignKey relations only
+
+When set to `True`, `accept_pk` lets you update a nested field using the **primary key (pk/id)** of an existing resource instead of sending the full nested object.
+This is useful when you want to associate an existing resource with the parent resource without re-sending all its data.
 
 Below is an example showing how to use `accept_pk` kwarg.
 
@@ -214,7 +246,7 @@ class PropertySerializer(NestedModelSerializer):
         ]
 ```
 
-Now sending mutation request as
+Now sending create request as
 
 
 ```POST /api/property/```
@@ -242,7 +274,7 @@ Response
 }
 ```
 
-Using `accept_pk` doesn't limit you from sending data(instead of pk to nested resource), setting `accept_pk=True` means you can send both data and pks. For instance from the above example you could still do 
+Using `accept_pk=True` doesn't limit you from sending full data to nested field, setting `accept_pk=True` means you can send both full data and pks. For instance from the above example you could still do 
 
 ```POST /api/property/```
 
@@ -272,7 +304,11 @@ Response
 
 
 ### accept_pk_only kwarg
-`accept_pk_only=True` is used if you want to be able to update nested field by using pk/id only. This applies to foreign key relations only as well. The default value for `accept_pk_only` kwarg is `False`, if `accept_pk_only=True` is set you won't be able to send data to create a nested resource.
+**Default:** `False`
+
+**Applies to:** ForeignKey relations only
+
+`accept_pk_only=True` is used if you want to be able to update nested field by using pk/id only. If `accept_pk_only=True` is set you won't be able to send data to create a nested resource.
 
 Below is an example showing how to use `accept_pk_only` kwarg.
 ```py
@@ -325,11 +361,12 @@ Response
 ```
 
 !!! note
-    By default `accept_pk=False` and `accept_pk_only=False`, so nested field(foreign key related) accepts data only by default, if `accept_pk=True` is set, it accepts data and pk/id, and if `accept_pk_only=True` is set it accepts pk/id only. You can't set both `accept_pk=True` and `accept_pk_only=True`.
+    By default `accept_pk=False` and `accept_pk_only=False`, so all nested fields(foreign key related) accepts data only by default, if `accept_pk=True` is set, it accepts data and pk/id, and if `accept_pk_only=True` is set it accepts pk/id only. You can't set both `accept_pk=True` and `accept_pk_only=True`.
 
 
 ### create_ops and update_ops kwargs.
-These two kwargs are used to restrict some operations when creating or updating nested data. Below is an example showing how to restrict some operations by using these two kwargs.
+The `create_ops` and `update_ops` keyword arguments allow you to restrict certain operations when creating or updating nested data.
+This helps to enforce rules on what clients are allowed to do during mutations.
 
 ```py
 from rest_framework import serializers 
@@ -343,14 +380,14 @@ class AmenitySerializer(serializers.ModelSerializer):
     class Meta:
         model = Amenity
         fields = ["id", "name"]
-        
+
 
 class PropertySerializer(NestedModelSerializer):
     amenities = NestedField(
         AmenitySerializer, 
         many=True,
-        create_ops=["add"],  # Allow only add operation
-        update_ops=["add", "remove"]  # Allow only add and remove operations
+        create_ops=["add"],   # Allow only "add" operation when creating
+        update_ops=["add", "remove"]  # Allow only "add" and "remove" operations when updating
     )
     class Meta:
         model = Property
@@ -373,7 +410,7 @@ Request Body
 }
 ```
 !!! note
-    Since `create_ops=["add"]`, you can't use `create` operation in here!.
+    Since `create_ops=["add"]`, you can not use `create` operation in here!.
 
 Response
 ```js
@@ -402,7 +439,7 @@ Request Body
 }
 ```
 !!! note
-    Since `update_ops=["add", "remove"]`, you can't use `create` or `update` operation in here!.
+    Since `update_ops=["add", "remove"]`, you can not use `create`, `update` or `delete` operation in here!.
 
 Response
 ```js
@@ -443,6 +480,34 @@ Request Body
 ```
 
 This will remove all books associated with a course being updated.
+
+
+### allow_delete_all kwarg
+This kwarg is used to enable and disable deleting all related objects on many related nested field at once by using `__all__` directive. The default value of `allow_delete_all` is `False`, which means deleting all related objects on many related nested fields is disabled by default so if you want to enable it you must set its value to `True`. For example 
+
+```py
+class CourseSerializer(NestedModelSerializer):
+    books = NestedField(BookSerializer, many=True, allow_delete_all=True)
+
+    class Meta:
+        model = Course
+        fields = ["name", "code", "books"]
+```
+
+With `allow_delete_all=True` as set above you will be able to send a request like
+
+```PUT/PATCH /courses/3/```
+
+Request Body
+```js
+{
+    "books": {
+        "delete":  "__all__"
+    }
+}
+```
+
+This will delete all books associated with a course being updated.
 
 
 ### delete_on_null kwarg
@@ -508,14 +573,15 @@ Response
 }
 ```
 
-In this case, the property’s location is updated to null, and the previously assigned Location instance (with id: 5) is deleted from the database.
+In this case, the property’s location is updated to `null`, and the previously assigned Location instance (with id: 5) is deleted from the database.
 
 !!! note
     `delete_on_null=True` can only be used when both `accept_pk=False` and `accept_pk_only=False`. This is because `accept_pk=True` or `accept_pk_only=True` typically implies that the nested object is not tightly coupled to the parent and may be referenced elsewhere. Automatically deleting it in such cases could lead to unintended side effects or broken references.
 
 
 ## Using DynamicFieldsMixin and NestedField together
-You can use `DynamicFieldsMixin` and `NestedModelSerializer` together if you want your serializer to be writable(on nested fields) and support querying data, this is very common. Below is an example which shows how you can use `DynamicFieldsMixin` and `NestedField` together.
+You can combine `DynamicFieldsMixin` with `NestedModelSerializer` to create serializers that are both writable on nested fields and support dynamic field querying, this is a very common pattern.
+Below is an example which shows how you can use `DynamicFieldsMixin` and `NestedField` together.
 
 ```py
 from rest_framework import serializers 
@@ -541,7 +607,9 @@ class PropertySerializer(DynamicFieldsMixin, NestedModelSerializer):
         ]
 ```
 
-`NestedField` is nothing but a serializer wrapper, it returns an instance of a modified version of a serializer passed, so you can pass all the args and kwargs accepted by a serializer on it, it will simply pass them along to a serializer passed when instantiating an instance. So you can pass anything accepted by a serializer to a `NestedField` wrapper, and if a serializer passed inherits `DynamicFieldsMixin` just like `LocationSerializer` on the example above then you can pass any arg or kwarg accepted by `DynamicFieldsMixin` when defining location as a nested field, i.e
+`NestedField` acts as a wrapper around a serializer. It instantiates a modified version of the passed serializer class, forwarding all arguments(args) and keyword arguments(kwargs) to it.
+
+Because of this, you can pass any argument accepted by the serializer to `NestedField`. For example, if the nested serializer inherits from `DynamicFieldsMixin` (like `LocationSerializer` above), you can use any of its supported kwargs such as:
 
 ```py
 location = NestedField(LocationSerializer, fields=[...])
@@ -559,60 +627,63 @@ location = NestedField(LocationSerializer, return_pk=True)
 !!! note
     If you want to use `required=False` kwarg on `NestedField` you might want to include `allow_null=True` too if you want your nested field to be set to `null` if you haven't supplied it. For example 
 
+    ```py
+    from rest_framework import serializers 
+    from django_restql.fields import NestedField
+    from django_restql.mixins import DynamicFieldsMixin
+    from django_restql.serializers import NestedModelSerializer 
+    
+    from app.models import Location, Property
+    
+    
+    class LocationSerializer(serializers.ModelSerializer):
+        class Meta:
+            model = Location
+            fields = ["id", "city", "country"]
+    
+    
+    class PropertySerializer(NestedModelSerializer):
+        # Passing both `required=False` and `allow_null=True`
+        location = NestedField(LocationSerializer, required=False, allow_null=True)
+        class Meta:
+            model = Property
+            fields = [
+                "id", "price", "location"
+            ]
+    ```
+    
+    The `required=False` kwarg allows you to create a property without including `location` field and the `allow_null=True` kwarg allows `location` field to be set to `null` if you haven't supplied it. For example
 
-```py
-from rest_framework import serializers 
-from django_restql.fields import NestedField
-from django_restql.mixins import DynamicFieldsMixin
-from django_restql.serializers import NestedModelSerializer 
+    Sending mutation request
 
-from app.models import Location, Property
+    ```POST /api/property/```
 
+    Request Body
+    ```js
+    {
+        "price": 40000
+        // You can see that the location is not included here
+    }
+    ```
+    
+    Response
+    ```js
+    {
+        "id": 2,
+        "price": 50000,
+        "location": null  // This is the result of not including location
+    }
+    ```
 
-class LocationSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Location
-        fields = ["id", "city", "country"]
-
-
-class PropertySerializer(NestedModelSerializer):
-    # Passing both `required=False` and `allow_null=True`
-    location = NestedField(LocationSerializer, required=False, allow_null=True)
-    class Meta:
-        model = Property
-        fields = [
-            "id", "price", "location"
-        ]
-```
-
-The `required=False` kwarg allows you to create Property without including `location` field and the `allow_null=True` kwarg allows `location` field to be set to null if you haven't supplied it. For example
-
-Sending mutation request
-
-```POST /api/property/```
-
-Request Body
-```js
-{
-    "price": 40000
-    // You can see that the location is not included here
-}
-```
-
-Response
-```js
-{
-    "id": 2,
-    "price": 50000,
-    "location": null  // This is the result of not including location
-}
-```
-
-If you use `required=False` only without `allow_null=True`, The serializer will allow you to create Property without including `location` field but it will throw error because by default `allow_null=False` which means `null`/`None`(which is what's passed when you don't supply `location` value) is not considered a valid value.
+    If you use `required=False` only without `allow_null=True`, The serializer will allow you to create Property without including `location` field but it will throw error because by default `allow_null=False` which means `null`/`None`(which is what's passed when you don't supply `location` value) is not considered a valid value.
 
 
 ## Working with data mutation without request
-**Django RESTQL** allows you to do data mutation without having request object, this is used if you don't want to get your mutation data input(serializer data) from a request, in fact `NestedModelSerializer` and `NestedFied` can work independently without using request. Below is an example showing how you can work with data mutation without request object.
+**Django RESTQL** supports data mutation independently of the HTTP request object. This is useful when you want to work with serializer data directly, without receiving it from an API request.
+
+Both `NestedModelSerializer` and `NestedField` can function standalone without relying on a request.
+
+Below is an example showing how you can work with data mutation without a request object.
 
 ```py
 from rest_framework import serializers
