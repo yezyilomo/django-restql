@@ -1,27 +1,17 @@
-from django.db.models import Prefetch
 from rest_framework import viewsets
+from django.db.models import Prefetch
 
-from tests.testapp.models import Book, Course, Student, Phone, Post
-from tests.testapp.serializers import (
-    BookSerializer,
-    CourseSerializer,
-    StudentSerializer,
-    CourseWithFieldsKwargSerializer,
-    CourseWithExcludeKwargSerializer,
-    CourseWithReturnPkkwargSerializer,
-    ReplaceableStudentSerializer,
-    WritableStudentSerializer,
-    WritableCourseSerializer,
-    CourseWithAliasedBooksSerializer,
-    CourseWithDynamicSerializerMethodField,
-    StudentWithAliasSerializer,
-    WritableStudentWithAliasSerializer,
-    ReplaceableStudentWithAliasSerializer,
-    CourseWithDisableDynamicFieldsKwargSerializer,
-    PostSerializer,
-)
-
+from tests.testapp.models import Book, Post, Phone, Course, Student
 from django_restql.mixins import EagerLoadingMixin, QueryArgumentsMixin
+from tests.testapp.serializers import (
+    BookSerializer, PostSerializer, CourseSerializer, StudentSerializer,
+    WritableCourseSerializer, WritableStudentSerializer, StudentWithAliasSerializer,
+    ReplaceableStudentSerializer, CourseWithFieldsKwargSerializer,
+    CourseWithAliasedBooksSerializer, CourseWithExcludeKwargSerializer,
+    CourseWithReturnPkkwargSerializer, WritableStudentWithAliasSerializer,
+    ReplaceableStudentWithAliasSerializer, CourseWithDynamicSerializerMethodField,
+    CourseWithDisableDynamicFieldsKwargSerializer
+)
 
 
 #### ViewSets for Data Querying And Mutations Testing ####
