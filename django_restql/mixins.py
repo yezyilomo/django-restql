@@ -7,8 +7,8 @@ from rest_framework.serializers import Serializer, ListSerializer, ValidationErr
 
 from .settings import restql_settings
 from .parser import Query, QueryParser
-from .operations import ADD, CREATE, REMOVE, UPDATE
 from .exceptions import FieldNotFound, QueryFormatError
+from .operations import ADD, CREATE, DELETE, REMOVE, UPDATE
 from .fields import (
     ALL_RELATED_OBJS, TemporaryNestedField, BaseRESTQLNestedField,
     DynamicSerializerMethodField
@@ -539,6 +539,17 @@ class EagerLoadingMixin(RequestQueryParserMixin):
 
 
 class BaseNestedMixin(object):
+    @staticmethod
+    def constrain_error_prefix(field):
+        return "Error on `%s` field: " % (field,)
+
+    def raise_constrain_error(self, error, field=None):
+        msg = (
+            self.constrain_error_prefix(field) if field else ""
+        ) + str(error)
+        code = "constrain_error"
+        raise ValidationError(msg, code=code) from None
+
     def get_fields(self):
         # Replace all temporary fields with the actual fields
         fields = super().get_fields()
@@ -617,27 +628,33 @@ class NestedCreateMixin(BaseNestedMixin):
         # ADD: [pks],
         # CREATE: [{sub_field: value}]
         # }...}
-        field_pks = {}
         for field, values in data.items():
             model = self.Meta.model
             foreignkey = getattr(model, field).field.name
             nested_fields = self.restql_writable_nested_fields
-            for operation in values:
-                if operation == ADD:
-                    pks = values[operation]
-                    model = nested_fields[field].child.Meta.model
-                    qs = model.objects.filter(pk__in=pks)
-                    qs.update(**{foreignkey: instance.pk})
-                    field_pks.update({field: pks})
-                elif operation == CREATE:
-                    for v in values[operation]:
-                        v.update({foreignkey: instance.pk})
-                    pks = self.bulk_create_objs(field, values[operation])
-                    field_pks.update({field: pks})
-        return field_pks
+            try:
+                for operation in values:
+                    if operation == ADD:
+                        pks = values[operation]
+                        model = nested_fields[field].child.Meta.model
+                        qs = model.objects.filter(pk__in=pks)
+                        qs.update(**{foreignkey: instance.pk})
+                    elif operation == CREATE:
+                        for v in values[operation]:
+                            v.update({foreignkey: instance.pk})
+                        self.bulk_create_objs(field, values[operation])
+            except Exception as e:
+                self.raise_constrain_error(e, field=field)
 
     def create_many_to_one_generic_related(self, instance, data):
-        field_pks = {}
+        # data format
+        # {field: {
+        # ADD: [pks],
+        # CREATE: [{sub_field: value}]
+        # }...}
+        if not data:
+            return
+
         nested_fields = self.restql_writable_nested_fields
 
         content_type = (
@@ -645,43 +662,45 @@ class NestedCreateMixin(BaseNestedMixin):
         )
         for field, values in data.items():
             relation = getattr(self.Meta.model, field).field
-
             nested_field_serializer = nested_fields[field].child
             serializer_class = nested_field_serializer.serializer_class
             kwargs = nested_field_serializer.validation_kwargs
             model = nested_field_serializer.Meta.model
-
-            for operation in values:
-                if operation == ADD:
-                    pks = values[operation]
-                    qs = model.objects.filter(pk__in=pks)
-                    qs.update(
-                        **{
-                            relation.object_id_field_name: instance.pk,
-                            relation.content_type_field_name: content_type,
-                        }
-                    )
-                elif operation == CREATE:
-                    serializer = serializer_class(
-                        data=values[operation], **kwargs, many=True
-                    )
-                    serializer.is_valid(raise_exception=True)
-                    items = serializer.validated_data
-
-                    objs = [
-                        model(
-                            **item,
+            try:
+                for operation in values:
+                    if operation == ADD:
+                        pks = values[operation]
+                        qs = model.objects.filter(pk__in=pks)
+                        qs.update(
                             **{
-                                relation.content_type_field_name: content_type,
                                 relation.object_id_field_name: instance.pk,
-                            },
+                                relation.content_type_field_name: content_type,
+                            }
                         )
-                        for item in items
-                    ]
-                    objs = model.objects.bulk_create(objs)
-                    field_pks[field] = [obj.pk for obj in objs]
+                    elif operation == CREATE:
+                        serializer = serializer_class(
+                            data=values[operation], **kwargs, many=True,
+                            # Reject partial update by default(if partial kwarg is not passed)
+                            # since we need all required fields when creating object
+                            partial=nested_field_serializer.is_partial(False),
+                            context={**self.context, "parent_operation": CREATE},
+                        )
+                        serializer.is_valid(raise_exception=True)
+                        items = serializer.validated_data
 
-        return field_pks
+                        objs = [
+                            model(
+                                **item,
+                                **{
+                                    relation.content_type_field_name: content_type,
+                                    relation.object_id_field_name: instance.pk,
+                                },
+                            )
+                            for item in items
+                        ]
+                        model.objects.bulk_create(objs)
+            except Exception as e:
+                self.raise_constrain_error(e, field=field)
 
     def create_many_to_many_related(self, instance, data):
         # data format
@@ -689,19 +708,18 @@ class NestedCreateMixin(BaseNestedMixin):
         # ADD: [pks],
         # CREATE: [{sub_field: value}]
         # }...}
-        field_pks = {}
         for field, values in data.items():
             obj = getattr(instance, field)
-            for operation in values:
-                if operation == ADD:
-                    pks = values[operation]
-                    obj.add(*pks)
-                    field_pks.update({field: pks})
-                elif operation == CREATE:
-                    pks = self.bulk_create_objs(field, values[operation])
-                    obj.add(*pks)
-                    field_pks.update({field: pks})
-        return field_pks
+            try:
+                for operation in values:
+                    if operation == ADD:
+                        pks = values[operation]
+                        obj.add(*pks)
+                    elif operation == CREATE:
+                        pks = self.bulk_create_objs(field, values[operation])
+                        obj.add(*pks)
+            except Exception as e:
+                self.raise_constrain_error(e, field=field)
 
     def create(self, validated_data):
         # Make a copy of validated_data so that we don't
@@ -709,12 +727,15 @@ class NestedCreateMixin(BaseNestedMixin):
         validated_data_copy = {**validated_data}
 
         fields = {
-            "foreignkey_related": {"replaceable": {}, "writable": {}},
-            "many_to": {
-                "many_related": {},
-                "one_related": {},
-                "one_generic_related": {},
+            "foreignkey_related": {
+                "writable": {},
+                "replaceable": {}
             },
+            "many_to": {
+                "one_related": {},
+                "many_related": {},
+                "one_generic_related": {}
+            }
         }
 
         restql_nested_fields = self.restql_writable_nested_fields
@@ -755,15 +776,15 @@ class NestedCreateMixin(BaseNestedMixin):
 
         instance = super().create({**validated_data_copy, **foreignkey_related})
 
-        self.create_many_to_many_related(instance, fields["many_to"]["many_related"])
-
-        self.create_many_to_one_related(instance, fields["many_to"]["one_related"])
-
-        if fields["many_to"]["one_generic_related"]:
-            # Call create_many_to_one_generic_related only if we have generic relationship
-            self.create_many_to_one_generic_related(
-                instance, fields["many_to"]["one_generic_related"]
-            )
+        self.create_many_to_one_related(
+            instance, fields["many_to"]["one_related"]
+        )
+        self.create_many_to_many_related(
+            instance, fields["many_to"]["many_related"]
+        )
+        self.create_many_to_one_generic_related(
+            instance, fields["many_to"]["one_generic_related"]
+        )
 
         return instance
 
@@ -771,17 +792,15 @@ class NestedCreateMixin(BaseNestedMixin):
 class NestedUpdateMixin(BaseNestedMixin):
     """Update Mixin"""
 
-    @staticmethod
-    def constrain_error_prefix(field):
-        return "Error on `%s` field: " % (field,)
-
-    @staticmethod
-    def update_replaceable_foreignkey_related(instance, data):
+    def update_replaceable_foreignkey_related(self, instance, data):
         # data format {field: obj}
         for field, nested_obj in data.items():
             setattr(instance, field, nested_obj)
         if data:
-            instance.save()
+            try:
+                instance.save()
+            except Exception as e:
+                self.raise_constrain_error(e)
 
     def update_writable_foreignkey_related(self, instance, data):
         # data format {field: {sub_field: value}}
@@ -818,15 +837,20 @@ class NestedUpdateMixin(BaseNestedMixin):
                     setattr(instance, field, obj)
                     needs_save = True
         if needs_save:
-            instance.save()
+            try:
+                instance.save()
 
-            # We delete the previous nested obj AFTER we are done saving
-            # the instance to avoid accidental deletion of the instance
-            # itself if on_delete=models.CASCADE is used
-            if delete_previous_nested_obj:
-                nested_obj.delete()
+                # We delete the previous nested obj AFTER we are done saving
+                # the instance to avoid accidental deletion of the instance
+                # itself if on_delete=models.CASCADE is used
+                if delete_previous_nested_obj:
+                    nested_obj.delete()
+            except Exception as e:
+                self.raise_constrain_error(e)
 
     def bulk_create_many_to_many_related(self, field, nested_obj, data):
+        # data format [{field1: value1....}, ...]
+
         # Get nested field serializer
         nested_field_serializer = self.restql_writable_nested_fields[field].child
         serializer_class = nested_field_serializer.serializer_class
@@ -845,14 +869,15 @@ class NestedUpdateMixin(BaseNestedMixin):
             obj = serializer.save()
             pks.append(obj.pk)
         nested_obj.add(*pks)
-        return pks
 
-    def bulk_create_many_to_one_related(self, field, nested_obj, data):
+    def bulk_create_many_to_one_related(self, field, data):
+        # data format [{field1: value1....}, ...]
+
         # Get nested field serializer
         nested_field_serializer = self.restql_writable_nested_fields[field].child
         serializer_class = nested_field_serializer.serializer_class
         kwargs = nested_field_serializer.validation_kwargs
-        pks = []
+
         for values in data:
             serializer = serializer_class(
                 **kwargs,
@@ -863,9 +888,7 @@ class NestedUpdateMixin(BaseNestedMixin):
                 context={**self.context, "parent_operation": CREATE},
             )
             serializer.is_valid(raise_exception=True)
-            obj = serializer.save()
-            pks.append(obj.pk)
-        return pks
+            serializer.save()
 
     def bulk_update_many_to_many_related(self, field, nested_obj, data):
         # {pk: {sub_field: values}}
@@ -890,7 +913,7 @@ class NestedUpdateMixin(BaseNestedMixin):
                 context={**self.context, "parent_operation": UPDATE},
             )
             serializer.is_valid(raise_exception=True)
-            obj = serializer.save()
+            serializer.save()
 
     def bulk_update_many_to_one_related(
         self, field, instance, data, update_foreign_key=True
@@ -922,7 +945,7 @@ class NestedUpdateMixin(BaseNestedMixin):
                 context={**self.context, "parent_operation": UPDATE},
             )
             serializer.is_valid(raise_exception=True)
-            obj = serializer.save()
+            serializer.save()
 
     def update_many_to_one_related(self, instance, data):
         # data format
@@ -930,6 +953,7 @@ class NestedUpdateMixin(BaseNestedMixin):
         # ADD: [{sub_field: value}],
         # CREATE: [{sub_field: value}],
         # REMOVE: [pk],
+        # DELETE: [pk],
         # UPDATE: {pk: {sub_field: value}}
         # }...}
         for field, values in data.items():
@@ -937,56 +961,121 @@ class NestedUpdateMixin(BaseNestedMixin):
             model = self.Meta.model
             foreignkey = getattr(model, field).field.name
             nested_fields = self.restql_writable_nested_fields
-            for operation in values:
-                if operation == ADD:
-                    pks = values[operation]
-                    model = nested_fields[field].child.Meta.model
-                    qs = model.objects.filter(pk__in=pks)
-                    qs.update(**{foreignkey: instance.pk})
-                elif operation == CREATE:
-                    for v in values[operation]:
-                        v.update({foreignkey: instance.pk})
-                    self.bulk_create_many_to_one_related(
-                        field, nested_obj, values[operation]
-                    )
-                elif operation == REMOVE:
-                    qs = nested_obj.all()
-                    if values[operation] == ALL_RELATED_OBJS:
-                        qs.delete()
-                    else:
-                        qs.filter(pk__in=values[operation]).delete()
-                elif operation == UPDATE:
-                    self.bulk_update_many_to_one_related(
-                        field, instance, values[operation]
-                    )
-                else:
-                    message = "`%s` is an invalid operation" % (operation,)
-                    raise ValidationError(message, code="invalid_operation")
-        return instance
+            try:
+                for operation in values:
+                    if operation == ADD:
+                        pks = values[operation]
+                        model = nested_fields[field].child.Meta.model
+                        qs = model.objects.filter(pk__in=pks)
+                        qs.update(**{foreignkey: instance.pk})
+                    elif operation == CREATE:
+                        for v in values[operation]:
+                            v.update({foreignkey: instance.pk})
+                        self.bulk_create_many_to_one_related(
+                            field, values[operation]
+                        )
+                    elif operation == REMOVE:
+                        reverse_name = nested_obj.field.name
+                        qs = nested_obj.all()
+
+                        if values[operation] == ALL_RELATED_OBJS:
+                            qs.update(**{reverse_name: None})
+                        else:
+                            qs.filter(pk__in=values[operation]).update(**{reverse_name: None})
+                    elif operation == DELETE:
+                        qs = nested_obj.all()
+                        if values[operation] == ALL_RELATED_OBJS:
+                            qs.delete()
+                        else:
+                            qs.filter(pk__in=values[operation]).delete()
+                    elif operation == UPDATE:
+                        self.bulk_update_many_to_one_related(
+                            field, instance, values[operation]
+                        )
+            except Exception as e:
+                self.raise_constrain_error(e, field=field)
 
     def update_many_to_one_generic_related(self, instance, data):
-        # it's same logic for add & create operations
-        # which are already handled by NestedCreateMixin
-        NestedCreateMixin.create_many_to_one_generic_related(self, instance, data)
+        # data format
+        # {field: {
+        # ADD: [{sub_field: value}],
+        # CREATE: [{sub_field: value}],
+        # REMOVE: [pk],
+        # DELETE: [pk],
+        # UPDATE: {pk: {sub_field: value}}
+        # }...}
+        if not data:
+            return
+
+        content_type = (
+            ContentType.objects.get_for_model(instance) if ContentType else None
+        )
 
         for field, values in data.items():
-            nested_qs = getattr(instance, field)
-            for operation in values:
-                if operation not in [ADD, CREATE, UPDATE, REMOVE]:
-                    message = f"`{operation}` is an invalid operation"
-                    raise ValidationError(message, code="invalid_operation")
+            nested_obj = getattr(instance, field)
+            relation = getattr(self.Meta.model, field).field
+            nested_fields = self.restql_writable_nested_fields
+            nested_field_serializer = nested_fields[field].child
+            serializer_class = nested_field_serializer.serializer_class
+            kwargs = nested_field_serializer.validation_kwargs
+            model = nested_field_serializer.Meta.model
+            try:
+                for operation in values:
+                    if operation == ADD:
+                        pks = values[operation]
+                        qs = model.objects.filter(pk__in=pks)
+                        qs.update(
+                            **{
+                                relation.object_id_field_name: instance.pk,
+                                relation.content_type_field_name: content_type,
+                            }
+                        )
+                    elif operation == CREATE:
+                        serializer = serializer_class(
+                            data=values[operation], **kwargs, many=True,
+                            # Reject partial update by default(if partial kwarg is not passed)
+                            # since we need all required fields when creating object
+                            partial=nested_field_serializer.is_partial(False),
+                            context={**self.context, "parent_operation": CREATE},
+                        )
+                        serializer.is_valid(raise_exception=True)
+                        items = serializer.validated_data
 
-                if operation == REMOVE:
-                    qs = nested_qs.all()
-                    if values[operation] == ALL_RELATED_OBJS:
-                        qs.delete()
-                    else:
-                        qs.filter(pk__in=values[operation]).delete()
-                elif operation == UPDATE:
-                    self.bulk_update_many_to_one_related(
-                        field, instance, values[operation], update_foreign_key=False
-                    )
-        return instance
+                        objs = [
+                            model(
+                                **item,
+                                **{
+                                    relation.content_type_field_name: content_type,
+                                    relation.object_id_field_name: instance.pk,
+                                },
+                            )
+                            for item in items
+                        ]
+                        model.objects.bulk_create(objs)
+                    elif operation == REMOVE:
+                        qs = nested_obj.all()
+                        if values[operation] == ALL_RELATED_OBJS:
+                            qs.update(**{
+                                nested_obj.object_id_field_name: None,
+                                nested_obj.content_type_field_name: None
+                            })
+                        else:
+                            qs.filter(pk__in=values[operation]).update(**{
+                                nested_obj.object_id_field_name: None,
+                                nested_obj.content_type_field_name: None
+                            })
+                    elif operation == DELETE:
+                        qs = nested_obj.all()
+                        if values[operation] == ALL_RELATED_OBJS:
+                            qs.delete()
+                        else:
+                            qs.filter(pk__in=values[operation]).delete()
+                    elif operation == UPDATE:
+                        self.bulk_update_many_to_one_related(
+                            field, instance, values[operation], update_foreign_key=False
+                        )
+            except Exception as e:
+                self.raise_constrain_error(e, field=field)
 
     def update_many_to_many_related(self, instance, data):
         # data format
@@ -994,54 +1083,53 @@ class NestedUpdateMixin(BaseNestedMixin):
         # ADD: [{sub_field: value}],
         # CREATE: [{sub_field: value}],
         # REMOVE: [pk],
+        # DELETE: [pk],
         # UPDATE: {pk: {sub_field: value}}
         # }...}
         for field, values in data.items():
             nested_obj = getattr(instance, field)
-            for operation in values:
-                if operation == ADD:
-                    pks = values[operation]
-                    try:
+            try:
+                for operation in values:
+                    if operation == ADD:
+                        pks = values[operation]
                         nested_obj.add(*pks)
-                    except Exception as e:
-                        msg = self.constrain_error_prefix(field) + str(e)
-                        code = "constrain_error"
-                        raise ValidationError(msg, code=code) from None
-                elif operation == CREATE:
-                    self.bulk_create_many_to_many_related(
-                        field, nested_obj, values[operation]
-                    )
-                elif operation == REMOVE:
-                    pks = values[operation]
-                    if pks == ALL_RELATED_OBJS:
-                        pks = nested_obj.all()
-                    try:
+                    elif operation == CREATE:
+                        self.bulk_create_many_to_many_related(
+                            field, nested_obj, values[operation]
+                        )
+                    elif operation == REMOVE:
+                        pks = values[operation]
+                        if pks == ALL_RELATED_OBJS:
+                            pks = nested_obj.all()
                         nested_obj.remove(*pks)
-                    except Exception as e:
-                        msg = self.constrain_error_prefix(field) + str(e)
-                        code = "constrain_error"
-                        raise ValidationError(msg, code=code) from None
-                elif operation == UPDATE:
-                    self.bulk_update_many_to_many_related(
-                        field, nested_obj, values[operation]
-                    )
-                else:
-                    message = "`%s` is an invalid operation" % (operation,)
-                    raise ValidationError(message, code="invalid_operation")
-        return instance
+                    elif operation == DELETE:
+                        qs = nested_obj.all()
+                        if values[operation] == ALL_RELATED_OBJS:
+                            qs.delete()
+                        else:
+                            qs.filter(pk__in=values[operation]).delete()
+                    elif operation == UPDATE:
+                        self.bulk_update_many_to_many_related(
+                            field, nested_obj, values[operation]
+                        )
+            except Exception as e:
+                self.raise_constrain_error(e, field=field)
 
     def update(self, instance, validated_data):
-        # Make a copty of validated_data so that we don't
+        # Make a copy of validated_data so that we don't
         # alter it in case user need to access it later
         validated_data_copy = {**validated_data}
 
         fields = {
-            "foreignkey_related": {"replaceable": {}, "writable": {}},
-            "many_to": {
-                "many_related": {},
-                "one_related": {},
-                "one_generic_related": {},
+            "foreignkey_related": {
+                "writable": {},
+                "replaceable": {}
             },
+            "many_to": {
+                "one_related": {},
+                "many_related": {},
+                "one_generic_related": {}
+            }
         }
 
         restql_nested_fields = self.restql_writable_nested_fields
@@ -1078,18 +1166,17 @@ class NestedUpdateMixin(BaseNestedMixin):
         self.update_replaceable_foreignkey_related(
             instance, fields["foreignkey_related"]["replaceable"]
         )
-
         self.update_writable_foreignkey_related(
             instance, fields["foreignkey_related"]["writable"]
         )
+        self.update_many_to_one_related(
+            instance, fields["many_to"]["one_related"]
+        )
+        self.update_many_to_many_related(
+            instance, fields["many_to"]["many_related"]
+        )
+        self.update_many_to_one_generic_related(
+            instance, fields["many_to"]["one_generic_related"]
+        )
 
-        self.update_many_to_many_related(instance, fields["many_to"]["many_related"])
-
-        self.update_many_to_one_related(instance, fields["many_to"]["one_related"])
-
-        if fields["many_to"]["one_generic_related"]:
-            # Call update_many_to_one_generic_related only if we have generic relationship
-            self.update_many_to_one_generic_related(
-                instance, fields["many_to"]["one_generic_related"]
-            )
         return instance

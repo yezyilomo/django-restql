@@ -11,11 +11,11 @@ from rest_framework.serializers import (
 
 from .parser import Query
 from .exceptions import InvalidOperation
-from .operations import ADD, CREATE, REMOVE, UPDATE
+from .operations import ADD, CREATE, DELETE, REMOVE, UPDATE
 
 
 CREATE_OPERATIONS = (ADD, CREATE)
-UPDATE_OPERATIONS = (ADD, CREATE, REMOVE, UPDATE)
+UPDATE_OPERATIONS = (ADD, CREATE, UPDATE, REMOVE, DELETE)
 
 ALL_RELATED_OBJS = "__all__"
 
@@ -52,10 +52,11 @@ def BaseNestedFieldSerializerFactory(
         accept_pk=False,
         accept_pk_only=False,
         delete_on_null=False,
+        serializer_class=None,
         allow_remove_all=False,
+        allow_delete_all=False,
         create_ops=CREATE_OPERATIONS,
         update_ops=UPDATE_OPERATIONS,
-        serializer_class=None,
         **kwargs):
     many = kwargs.get("many", False)
     partial = kwargs.get("partial", None)
@@ -76,6 +77,13 @@ def BaseNestedFieldSerializerFactory(
         allow_remove_all and not many
     ), (
         "`allow_remove_all=True` can only be applied to many related "
+        "nested fields, ensure the kwarg `many=True` is set."
+    )
+
+    assert not (
+        allow_delete_all and not many
+    ), (
+        "`allow_delete_all=True` can only be applied to many related "
         "nested fields, ensure the kwarg `many=True` is set."
     )
 
@@ -192,6 +200,17 @@ def BaseNestedFieldSerializerFactory(
             else:
                 self.run_pk_list_validation(data)
 
+        def run_delete_list_validation(self, data):
+            if data == ALL_RELATED_OBJS:
+                if not allow_delete_all:
+                    msg = (
+                        "Using `%s` value on `%s` operation is disabled"
+                        % (ALL_RELATED_OBJS, DELETE)
+                    )
+                    raise ValidationError(msg, code="not_allowed")
+            else:
+                self.run_pk_list_validation(data)
+
         def run_update_list_validation(self, data):
             DictField().run_validation(data)
             pks = list(data.keys())
@@ -209,8 +228,9 @@ def BaseNestedFieldSerializerFactory(
             operation_2_validation_method = {
                 ADD: self.run_add_list_validation,
                 CREATE: self.run_create_list_validation,
-                REMOVE: self.run_remove_list_validation,
                 UPDATE: self.run_update_list_validation,
+                REMOVE: self.run_remove_list_validation,
+                DELETE: self.run_delete_list_validation,
             }
 
             allowed_operation_2_validation_method = {
@@ -237,7 +257,7 @@ def BaseNestedFieldSerializerFactory(
         def to_internal_value(self, data):
             if self.child.root.instance is None:
                 parent_operation = self.context.get("parent_operation")
-                if parent_operation == "update":
+                if parent_operation == UPDATE:
                     # Definitely an update
                     self.run_data_validation(data, update_ops)
                 else:
