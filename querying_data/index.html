@@ -795,7 +795,9 @@
 
 
 <h1 id="querying-data">Querying Data<a class="headerlink" href="#querying-data" title="Permanent link">&para;</a></h1>
-<p><strong>Django RESTQL</strong> makes data querying(selecting fields to include in a response) way easier, if you want to use it to query data you just have to inherit the <code>DynamicFieldsMixin</code> class when defining your serializer, that's all. Below is an example showing how to use <code>DynamicFieldsMixin</code>.
+<p><strong>Django RESTQL</strong> simplifies querying data by allowing you to dynamically select fields to be included in a response.</p>
+<p>To enable this, simply inherit from the <code>DynamicFieldsMixin</code> class when defining your serializer, that's all.</p>
+<p>Below is an example showing how to use <code>DynamicFieldsMixin</code>.</p>
 <div class="language-py highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">rest_framework</span><span class="w"> </span><span class="kn">import</span> <span class="n">serializers</span>
 </span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="kn">from</span><span class="w"> </span><span class="nn">django.contrib.auth.models</span><span class="w"> </span><span class="kn">import</span> <span class="n">User</span>
 </span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="kn">from</span><span class="w"> </span><span class="nn">django_restql.mixins</span><span class="w"> </span><span class="kn">import</span> <span class="n">DynamicFieldsMixin</span>
@@ -805,8 +807,9 @@
 </span><span id="__span-0-7"><a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a>    <span class="k">class</span><span class="w"> </span><span class="nc">Meta</span><span class="p">:</span>
 </span><span id="__span-0-8"><a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a>        <span class="n">model</span> <span class="o">=</span> <span class="n">User</span>
 </span><span id="__span-0-9"><a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a>        <span class="n">fields</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;id&quot;</span><span class="p">,</span> <span class="s2">&quot;username&quot;</span><span class="p">,</span> <span class="s2">&quot;email&quot;</span><span class="p">]</span>
-</span></code></pre></div></p>
-<p>Here a regular request returns all fields as specified on a DRF serializer, in fact <strong>Django RESTQL</strong> doesn't handle this(regular) request at all. Below is an example of a regular request and its response </p>
+</span></code></pre></div>
+<p>Here a regular request returns all fields specified in the serializer, as <strong>Django RESTQL</strong> does not interfere with normal requests.</p>
+<p>Below is an example of a regular request and its response </p>
 <p><code>GET /users</code></p>
 <div class="language-js highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="p">[</span>
 </span><span id="__span-1-2"><a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="w">    </span><span class="p">{</span>
@@ -817,7 +820,7 @@
 </span><span id="__span-1-7"><a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a><span class="w">    </span><span class="p">...</span>
 </span><span id="__span-1-8"><a id="__codelineno-1-8" name="__codelineno-1-8" href="#__codelineno-1-8"></a><span class="p">]</span>
 </span></code></pre></div>
-<p>As you can see all fields have been returned as specified on <code>UserSerializer</code>.</p>
+<p>As you can see all fields have been returned as specified on the <code>UserSerializer</code>.</p>
 <p><strong>Django RESTQL</strong> handle all requests with a <code>query</code> parameter, this parameter is the one which is used to pass all fields to be included/excluded in a response.</p>
 <p>For example to select <code>id</code> and <code>username</code> fields from User model, send a request with a <code>query</code> parameter as shown below.</p>
 <p><code>GET /users/?query={id, username}</code>
@@ -829,9 +832,10 @@
 </span><span id="__span-2-6"><a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a><span class="w">    </span><span class="p">...</span>
 </span><span id="__span-2-7"><a id="__codelineno-2-7" name="__codelineno-2-7" href="#__codelineno-2-7"></a><span class="p">]</span>
 </span></code></pre></div>
-You can see only <code>id</code> and <code>username</code> fields have been returned in a response as specified on a <code>query</code> parameter.</p>
+With this only <code>id</code> and <code>username</code> fields get returned in a response as specified on a <code>query</code> parameter.</p>
 <h2 id="querying-nested-fields">Querying nested fields<a class="headerlink" href="#querying-nested-fields" title="Permanent link">&para;</a></h2>
-<p><strong>Django RESTQL</strong> support querying both flat and nested data, so you can expand or query nested fields at any level as defined on a serializer. In an example below we have <code>location</code> and <code>groups</code> as nested fields on User model.</p>
+<p><strong>Django RESTQL</strong> support querying both flat and nested data, so you can expand or query nested fields at any level as defined on a serializer.</p>
+<p>In an example below we have <code>location</code> and <code>groups</code> as nested fields on User model.</p>
 <div class="language-py highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">rest_framework</span><span class="w"> </span><span class="kn">import</span> <span class="n">serializers</span>
 </span><span id="__span-3-2"><a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a><span class="kn">from</span><span class="w"> </span><span class="nn">django.contrib.auth.models</span><span class="w"> </span><span class="kn">import</span> <span class="n">User</span>
 </span><span id="__span-3-3"><a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a><span class="kn">from</span><span class="w"> </span><span class="nn">django_restql.mixins</span><span class="w"> </span><span class="kn">import</span> <span class="n">DynamicFieldsMixin</span>
@@ -910,7 +914,8 @@ For example you could write your query as <code>query={id  username  location{co
 </div>
 <h2 id="exclude-operator">Exclude(-) operator<a class="headerlink" href="#exclude-operator" title="Permanent link">&para;</a></h2>
 <p>Using <strong>Django RESTQL</strong> filtering as it is when there are no many fields on a serializer is great, but sometimes you might have a case where you would like everything except a handful of fields on a larger serializer. These fields might be nested and trying the whitelist approach might possibly be too long for the url. </p>
-<p><strong>Django RESTQL</strong> comes with the exclude(-) operator which can be used to exclude some fields in scenarios where you want to get all fields except few ones. Using exclude operator is very simple, you just need to prepend the exclude(-) operator to the field which you want to exclude when writing your query that's all. Take an example below</p>
+<p><strong>Django RESTQL</strong> comes with the exclude(-) operator which can be used to exclude some fields in scenarios where you want to get all fields except few ones. Using exclude operator is very simple, you just need to prepend the exclude(-) operator to the field which you want to exclude when writing your query, that's all. </p>
+<p>Take an example below</p>
 <div class="language-py highlight"><pre><span></span><code><span id="__span-7-1"><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">rest_framework</span><span class="w"> </span><span class="kn">import</span> <span class="n">serializers</span> 
 </span><span id="__span-7-2"><a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a><span class="kn">from</span><span class="w"> </span><span class="nn">django_restql.mixins</span><span class="w"> </span><span class="kn">import</span> <span class="n">DynamicFieldsMixin</span>
 </span><span id="__span-7-3"><a id="__codelineno-7-3" name="__codelineno-7-3" href="#__codelineno-7-3"></a>
@@ -1022,8 +1027,8 @@ Let's say you want to get all user fields but under <code>contact</code> field y
 </span><span id="__span-14-3"><a id="__codelineno-14-3" name="__codelineno-14-3" href="#__codelineno-14-3"></a><span class="p">{</span><span class="o">*</span><span class="n">location</span><span class="p">{</span><span class="n">country</span><span class="p">}}</span>  <span class="c1"># This is definitely wrong</span>
 </span></code></pre></div></p>
 <h2 id="aliases">Aliases<a class="headerlink" href="#aliases" title="Permanent link">&para;</a></h2>
-<p>When working with API, you may want to rename a field to something other than what the API has to offer. Aliases exist as part of this library to solve this exact problem.</p>
-<p>Aliases allow you to rename a single field to whatever you want it to be. They are defined at the client side, so you don’t need to update your API to use them.</p>
+<p>When working with an API, you may want to rename a field to something more suitable than what the API provides. Aliases let you do exactly that—without changing the backend.</p>
+<p>Aliases are defined on the client side, so you can freely rename fields in your query without touching the API code.</p>
 <p>Imagine requesting data using the following query from an API:</p>
 <p><code>GET /users/?query={id, updated_at}</code></p>
 <p>You will get the following JSON response:</p>
@@ -1035,9 +1040,9 @@ Let's say you want to get all user fields but under <code>contact</code> field y
 </span><span id="__span-15-6"><a id="__codelineno-15-6" name="__codelineno-15-6" href="#__codelineno-15-6"></a><span class="w">    </span><span class="p">...</span>
 </span><span id="__span-15-7"><a id="__codelineno-15-7" name="__codelineno-15-7" href="#__codelineno-15-7"></a><span class="p">]</span>
 </span></code></pre></div>
-<p>The id here is fine, but the <code>updated_at</code> doesn’t quite conform to the camel case convention in JavaScript(Which is where APIs are used mostly). Let’s change it by using an alias.</p>
+<p>Here the <code>updated_at</code> field works but it doesn’t quite conform to the camel case convention in JavaScript(Which is where APIs are used mostly). Let’s rename it with an alias.</p>
 <p><code>GET /users/?query={id, updatedAt: updated_at}</code></p>
-<p>Which yields the following:</p>
+<p>Response:</p>
 <div class="language-js highlight"><pre><span></span><code><span id="__span-16-1"><a id="__codelineno-16-1" name="__codelineno-16-1" href="#__codelineno-16-1"></a><span class="p">[</span>
 </span><span id="__span-16-2"><a id="__codelineno-16-2" name="__codelineno-16-2" href="#__codelineno-16-2"></a><span class="w">    </span><span class="p">{</span>
 </span><span id="__span-16-3"><a id="__codelineno-16-3" name="__codelineno-16-3" href="#__codelineno-16-3"></a><span class="w">        </span><span class="s2">&quot;id&quot;</span><span class="o">:</span><span class="w"> </span><span class="mf">1</span><span class="p">,</span>
@@ -1070,10 +1075,13 @@ Let's say you want to get all user fields but under <code>contact</code> field y
 </span></code></pre></div>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
-<p>The default maximum length of alias is 50 characters, it's controlled by <code>MAX_ALIAS_LEN</code> setting. This is enforced to prevent DoS like attacks to API which might be caused by clients specifying a really really long alias which may increase network usage. For more information about <code>MAX_ALIAS_LEN</code> setting and how to change it go to <a href="/django-restql/settings/#max_alias_len">this section</a>.</p>
+<p>The default maximum alias length is 50 characters, it's controlled by <code>MAX_ALIAS_LEN</code> setting. This is enforced to prevent DoS like attacks to API which might be caused by a client specifying a really long alias which may increase network usage. For more information about <code>MAX_ALIAS_LEN</code> setting and how to change it see <a href="/django-restql/settings/#max_alias_len">this section</a>.</p>
 </div>
 <h2 id="dynamicserializermethodfield">DynamicSerializerMethodField<a class="headerlink" href="#dynamicserializermethodfield" title="Permanent link">&para;</a></h2>
-<p><code>DynamicSerializerMethodField</code> is a wraper of the <code>SerializerMethodField</code>, it adds a parsed query argument from a parent serializer to a method bound to a <code>SerializerMethodField</code>, this parsed query argument can be passed to a serializer used within a method to allow further querying. For example in the scenario below we are using <code>DynamicSerializerMethodField</code> because we want to be able to query <code>related_books</code> field.</p>
+<p><code>DynamicSerializerMethodField</code> is a wrapper around DRF’s <code>SerializerMethodField</code>.
+Its main advantage is that it passes the parsed query from the parent serializer into the method, enabling you to apply further querying to nested serializers inside that method.</p>
+<p>This is especially useful when you want to make a field returned by <code>SerializerMethodField</code> queryable. </p>
+<p>For example in the scenario below we are using <code>DynamicSerializerMethodField</code> because we want to be able to query <code>related_books</code> field.</p>
 <div class="language-py highlight"><pre><span></span><code><span id="__span-18-1"><a id="__codelineno-18-1" name="__codelineno-18-1" href="#__codelineno-18-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">django_restql.mixins</span><span class="w"> </span><span class="kn">import</span> <span class="n">DynamicFieldsMixin</span>
 </span><span id="__span-18-2"><a id="__codelineno-18-2" name="__codelineno-18-2" href="#__codelineno-18-2"></a><span class="kn">from</span><span class="w"> </span><span class="nn">django_restql.fields</span><span class="w"> </span><span class="kn">import</span> <span class="n">DynamicSerializerMethodField</span>
 </span><span id="__span-18-3"><a id="__codelineno-18-3" name="__codelineno-18-3" href="#__codelineno-18-3"></a>
@@ -1123,6 +1131,7 @@ Let's say you want to get all user fields but under <code>contact</code> field y
 </span><span id="__span-20-8"><a id="__codelineno-20-8" name="__codelineno-20-8" href="#__codelineno-20-8"></a><span class="w">    </span><span class="p">}</span>
 </span><span id="__span-20-9"><a id="__codelineno-20-9" name="__codelineno-20-9" href="#__codelineno-20-9"></a><span class="p">]</span>
 </span></code></pre></div></p>
+<p>With <code>DynamicSerializerMethodField</code>, you can make even custom, computed fields queryable — giving your API consumers fine-grained control over the response.</p>
 <h2 id="dynamicfieldsmixin-kwargs">DynamicFieldsMixin kwargs<a class="headerlink" href="#dynamicfieldsmixin-kwargs" title="Permanent link">&para;</a></h2>
 <p><code>DynamicFieldsMixin</code> accepts extra kwargs in addition to those accepted by a serializer, these extra kwargs can be used to do more customizations on a serializer as explained below.</p>
 <h3 id="fields-kwarg">fields kwarg<a class="headerlink" href="#fields-kwarg" title="Permanent link">&para;</a></h3>
@@ -1161,9 +1170,9 @@ Let's say you want to get all user fields but under <code>contact</code> field y
 </span></code></pre></div>
 As you see from the response above, the nested resource(book) has only one field(title) as specified on  <code>fields=["title"]</code> kwarg during instantiating BookSerializer, so if you send a request like </p>
 <p><code>GET /course?query={name, code, books{title, author}}</code> </p>
-<p>you will get an error that <code>author</code> field is not found because it was not included here <code>fields=["title"]</code>.</p>
+<p>you will get an error that <code>author</code> field is not found because it was not included in <code>fields</code>.</p>
 <h3 id="exclude-kwarg">exclude kwarg<a class="headerlink" href="#exclude-kwarg" title="Permanent link">&para;</a></h3>
-<p>You can also specify fields to be excluded when instantiating a serializer by using <code>exclude</code> kwarg, below is an example which shows how to use <code>exclude</code> kwarg.
+<p>You can also specify fields to be excluded when instantiating a serializer by using <code>exclude</code> kwarg, below is an example which shows how to use <code>exclude</code> kwarg.</p>
 <div class="language-py highlight"><pre><span></span><code><span id="__span-23-1"><a id="__codelineno-23-1" name="__codelineno-23-1" href="#__codelineno-23-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">rest_framework</span><span class="w"> </span><span class="kn">import</span> <span class="n">serializers</span>
 </span><span id="__span-23-2"><a id="__codelineno-23-2" name="__codelineno-23-2" href="#__codelineno-23-2"></a><span class="kn">from</span><span class="w"> </span><span class="nn">django_restql.mixins</span><span class="w"> </span><span class="kn">import</span> <span class="n">DynamicFieldsMixin</span>
 </span><span id="__span-23-3"><a id="__codelineno-23-3" name="__codelineno-23-3" href="#__codelineno-23-3"></a>
@@ -1181,7 +1190,7 @@ As you see from the response above, the nested resource(book) has only one field
 </span><span id="__span-23-15"><a id="__codelineno-23-15" name="__codelineno-23-15" href="#__codelineno-23-15"></a>    <span class="k">class</span><span class="w"> </span><span class="nc">Meta</span><span class="p">:</span>
 </span><span id="__span-23-16"><a id="__codelineno-23-16" name="__codelineno-23-16" href="#__codelineno-23-16"></a>        <span class="n">model</span> <span class="o">=</span> <span class="n">Course</span>
 </span><span id="__span-23-17"><a id="__codelineno-23-17" name="__codelineno-23-17" href="#__codelineno-23-17"></a>        <span class="n">fields</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;name&quot;</span><span class="p">,</span> <span class="s2">&quot;code&quot;</span><span class="p">,</span> <span class="s2">&quot;books&quot;</span><span class="p">]</span>
-</span></code></pre></div></p>
+</span></code></pre></div>
 <p><code>GET /courses/</code>
 <div class="language-js highlight"><pre><span></span><code><span id="__span-24-1"><a id="__codelineno-24-1" name="__codelineno-24-1" href="#__codelineno-24-1"></a><span class="p">[</span>
 </span><span id="__span-24-2"><a id="__codelineno-24-2" name="__codelineno-24-2" href="#__codelineno-24-2"></a><span class="w">    </span><span class="p">{</span>
@@ -1209,7 +1218,7 @@ From the response above you can see that <code>author</code> field has been excl
 </span><span id="__span-25-7"><a id="__codelineno-25-7" name="__codelineno-25-7" href="#__codelineno-25-7"></a><span class="w">    </span><span class="p">...</span>
 </span><span id="__span-25-8"><a id="__codelineno-25-8" name="__codelineno-25-8" href="#__codelineno-25-8"></a><span class="p">]</span>
 </span></code></pre></div>
-Yo you can see that all fields have appeared as specified on <code>fields = ["id", "title", "author"]</code> on BookSerializer class.</p>
+You can see that all fields have appeared as specified on <code>fields = ["id", "title", "author"]</code> on BookSerializer class.</p>
 </div>
 <h3 id="query-kwarg">query kwarg<a class="headerlink" href="#query-kwarg" title="Permanent link">&para;</a></h3>
 <p><strong>Django RESTQL</strong> allows you to query fields by using <code>query</code> kwarg too, this is used if you don't want to get your query string from a request parameter, in fact <code>DynamicFieldsMixin</code> can work independently without using request. So by using <code>query</code> kwarg if you have serializers like </p>
@@ -1249,7 +1258,7 @@ Yo you can see that all fields have appeared as specified on <code>fields = ["id
 </span><span id="__span-27-15"><a id="__codelineno-27-15" name="__codelineno-27-15" href="#__codelineno-27-15"></a>    <span class="o">...</span>
 </span><span id="__span-27-16"><a id="__codelineno-27-16" name="__codelineno-27-16" href="#__codelineno-27-16"></a><span class="p">]</span>
 </span></code></pre></div>
-<p>As you see this doesn't need a request or view to work, you can use it anywhere as long as you pass your query string to a <code>query</code> kwarg.</p>
+<p>As you see this doesn't need a request or view to work, you can use it anywhere as long as you pass your query string as a <code>query</code> kwarg.</p>
 <h3 id="parsed_query-kwarg">parsed_query kwarg<a class="headerlink" href="#parsed_query-kwarg" title="Permanent link">&para;</a></h3>
 <p>In addition to <code>query</code> kwarg, <strong>Django RESTQL</strong> allows you to query fields by using <code>parsed_query</code> kwarg. Here <code>parsed_query</code> is a query which has been parsed by a <code>QueryParser</code>. You probably won't need to use this directly as you are not adviced to write parsed query yourself, so the value of <code>parsed_query</code> kwarg should be something coming from <code>QueryParser</code>. If you have serializers like </p>
 <div class="language-py highlight"><pre><span></span><code><span id="__span-28-1"><a id="__codelineno-28-1" name="__codelineno-28-1" href="#__codelineno-28-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">rest_framework</span><span class="w"> </span><span class="kn">import</span> <span class="n">serializers</span>
@@ -1295,9 +1304,10 @@ Yo you can see that all fields have appeared as specified on <code>fields = ["id
 </span><span id="__span-29-22"><a id="__codelineno-29-22" name="__codelineno-29-22" href="#__codelineno-29-22"></a>    <span class="o">...</span>
 </span><span id="__span-29-23"><a id="__codelineno-29-23" name="__codelineno-29-23" href="#__codelineno-29-23"></a><span class="p">]</span>
 </span></code></pre></div>
-<p><code>parsed_query</code> kwarg is often used with <code>DynamicMethodField</code> to pass part of parsed query to nested fields to allow further querying.</p>
+<p><code>parsed_query</code> kwarg is often used with <code>DynamicMethodField</code> to pass part of the parsed query to nested fields to allow further querying.</p>
 <h3 id="return_pk-kwarg">return_pk kwarg<a class="headerlink" href="#return_pk-kwarg" title="Permanent link">&para;</a></h3>
-<p>With <strong>Django RESTQL</strong> you can specify whether to return nested resource pk or data. Below is an example which shows how we can use <code>return_pk</code> kwarg.</p>
+<p>With <strong>Django RESTQL</strong>, you can control whether nested resources return their full data or just their primary keys (PKs) by using the <code>return_pk</code> keyword argument.</p>
+<p>Below is an example showing how to use <code>return_pk</code> kwarg:</p>
 <div class="language-py highlight"><pre><span></span><code><span id="__span-30-1"><a id="__codelineno-30-1" name="__codelineno-30-1" href="#__codelineno-30-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">rest_framework</span><span class="w"> </span><span class="kn">import</span> <span class="n">serializers</span>
 </span><span id="__span-30-2"><a id="__codelineno-30-2" name="__codelineno-30-2" href="#__codelineno-30-2"></a><span class="kn">from</span><span class="w"> </span><span class="nn">django_restql.mixins</span><span class="w"> </span><span class="kn">import</span> <span class="n">DynamicFieldsMixin</span>
 </span><span id="__span-30-3"><a id="__codelineno-30-3" name="__codelineno-30-3" href="#__codelineno-30-3"></a>
@@ -1326,9 +1336,9 @@ Yo you can see that all fields have appeared as specified on <code>fields = ["id
 </span><span id="__span-31-7"><a id="__codelineno-31-7" name="__codelineno-31-7" href="#__codelineno-31-7"></a><span class="w">    </span><span class="p">...</span>
 </span><span id="__span-31-8"><a id="__codelineno-31-8" name="__codelineno-31-8" href="#__codelineno-31-8"></a><span class="p">]</span>
 </span></code></pre></div>
-So you can see that on a nested field <code>books</code> pks have been returned instead of books data as specified on <code>return_pk=True</code> kwarg on <code>BookSerializer</code>.</p>
+So you can see that on the nested field <code>books</code> pks have been returned instead of the full book data because <code>return_pk=True</code> was set on the <code>BookSerializer</code> inside <code>CourseSerializer</code>.</p>
 <h3 id="disable_dynamic_fields-kwarg">disable_dynamic_fields kwarg<a class="headerlink" href="#disable_dynamic_fields-kwarg" title="Permanent link">&para;</a></h3>
-<p>Sometimes there are cases where you want to disable fields filtering with on a specific nested field, <strong>Django RESTQL</strong> allows you to do so by using <code>disable_dynamic_fields</code> kwarg when instantiating a serializer. Below is an example which shows how to use <code>disable_dynamic_fields</code> kwarg.</p>
+<p>Sometimes there are cases where you want to disable fields filtering on a specific nested field, <strong>Django RESTQL</strong> allows you to do so by using <code>disable_dynamic_fields</code> kwarg when instantiating a serializer. Below is an example which shows how to use <code>disable_dynamic_fields</code> kwarg.</p>
 <div class="language-py highlight"><pre><span></span><code><span id="__span-32-1"><a id="__codelineno-32-1" name="__codelineno-32-1" href="#__codelineno-32-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">rest_framework</span><span class="w"> </span><span class="kn">import</span> <span class="n">serializers</span>
 </span><span id="__span-32-2"><a id="__codelineno-32-2" name="__codelineno-32-2" href="#__codelineno-32-2"></a><span class="kn">from</span><span class="w"> </span><span class="nn">django_restql.mixins</span><span class="w"> </span><span class="kn">import</span> <span class="n">DynamicFieldsMixin</span>
 </span><span id="__span-32-3"><a id="__codelineno-32-3" name="__codelineno-32-3" href="#__codelineno-32-3"></a>
@@ -1359,8 +1369,8 @@ So you can see that on a nested field <code>books</code> pks have been returned 
 </span><span id="__span-33-8"><a id="__codelineno-33-8" name="__codelineno-33-8" href="#__codelineno-33-8"></a><span class="w">    </span><span class="p">},</span>
 </span><span id="__span-33-9"><a id="__codelineno-33-9" name="__codelineno-33-9" href="#__codelineno-33-9"></a><span class="w">    </span><span class="p">...</span>
 </span><span id="__span-33-10"><a id="__codelineno-33-10" name="__codelineno-33-10" href="#__codelineno-33-10"></a><span class="p">]</span>
-</span></code></pre></div>
-So you can see that even though the query asked for only <code>title</code> field under <code>books</code>, all fields have been returned, so this means fields filtering has applied on <code>CourseSerializer</code> but not on <code>BookSerializer</code> because we used <code>disable_dynamic_fields=True</code> on it.</p>
+</span></code></pre></div></p>
+<p>In this example, even though the query requested only the <code>title</code> field for <code>books</code>, all fields were returned. This is because <code>disable_dynamic_fields=True</code> was set on the <code>BookSerializer</code> within <code>CourseSerializer</code>. Field filtering still applied to <code>CourseSerializer</code>, but not to its nested <code>BookSerializer</code>.</p>
 <h2 id="query-arguments">Query arguments<a class="headerlink" href="#query-arguments" title="Permanent link">&para;</a></h2>
 <p>Just like GraphQL, Django RESTQL allows you to pass arguments. These arguments can be used to do filtering, pagination, sorting and other stuffs that you would like them to do. Below is a syntax for passing arguments</p>
 <p><div class="language-text highlight"><pre><span></span><code><span id="__span-34-1"><a id="__codelineno-34-1" name="__codelineno-34-1" href="#__codelineno-34-1"></a>query = (age: 18){
@@ -1541,7 +1551,7 @@ These will be used by pagination class you have set to do the actual pagination.
 <p><code>{name}</code>:  &nbsp;&nbsp; Neither <code>select_related</code> or <code>prefetch_related</code> will be run since neither field is present on the serializer for this query.</p>
 </li>
 <li>
-<p><code>{program}</code>: &nbsp;&nbsp; Both <code>select_related</code> and <code>prefetch_related</code> will be run, since <code>program</code> is present in it's entirety (including the <code>books</code> field).</p>
+<p><code>{program}</code>: &nbsp;&nbsp; Both <code>select_related</code> and <code>prefetch_related</code> will be run, since <code>program</code> is present in its entirety (including the <code>books</code> field).</p>
 </li>
 <li>
 <p><code>{program{name}}</code>: &nbsp;&nbsp; Only <code>select_related</code> will be run, since <code>books</code> are not present on the program fields.</p>
