@@ -40,7 +40,11 @@ class PropertySerializer(NestedModelSerializer):
     location = NestedField(LocationSerializer)
 
     # Define amenities as nested field
-    amenities = NestedField(AmenitySerializer, many=True)
+    amenities = NestedField(
+        AmenitySerializer, many=True
+        create_ops=["add", "create"],  # Allow only "add" and "create" operations
+        update_ops=["add", "create", "update", "remove", "delete"]  # Allow all operations
+    )
     class Meta:
         model = Property
         fields = [
@@ -365,8 +369,18 @@ Response
 
 
 ### create_ops and update_ops kwargs.
-The `create_ops` and `update_ops` keyword arguments allow you to restrict certain operations when creating or updating nested data.
+The `create_ops` and `update_ops` keyword arguments allow you to restrict certain operations when creating or updating nested data on a many-related field.
 This helps to enforce rules on what clients are allowed to do during mutations.
+
+Default Value:
+
+- `create_ops=["add", "create"]`
+- `update_ops=["add", "create", "update", "remove", "delete"]`
+
+!!! note 
+    It's important to explicitly specify the operations that you want your many-related nested field to support, if you don't, default values will be used.
+
+Example:
 
 ```py
 from rest_framework import serializers 
